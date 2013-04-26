@@ -50,6 +50,12 @@ public class PlaceGraphView implements PlaceGraphAbst {
 	public boolean isEmpty() {
 		return graph.isEmpty();
 	}
+	
+
+	@Override
+	public boolean isAgent(){
+		return graph.isAgent();
+	}
 
 	@Override
 	public Signature<PlaceGraphControl> getSignature() {

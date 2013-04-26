@@ -15,6 +15,7 @@ public interface PlaceGraphAbst {
 	public abstract Parent getParentOf(Child c);
 	public abstract Set<Child> getChildrenOf(Parent p);
 	public abstract boolean isEmpty();
+	public abstract boolean isAgent();
 
 	public static interface Parent{}	
 	public static interface Child{}
