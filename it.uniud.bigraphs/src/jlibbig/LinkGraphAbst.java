@@ -15,6 +15,7 @@ public interface LinkGraphAbst {
 	public abstract Set<Linked> getLinked(Linker l);
 	
 	public abstract boolean isEmpty();
+	public abstract boolean isAgent();
 	
 	
 	public interface Linked{}

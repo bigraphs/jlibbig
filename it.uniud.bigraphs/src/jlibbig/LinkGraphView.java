@@ -57,4 +57,9 @@ public class LinkGraphView implements LinkGraphAbst {
 		return graph.isEmpty();
 	}
 
+	@Override
+	public boolean isAgent(){
+		return graph.isAgent();
+	}
+	
 }

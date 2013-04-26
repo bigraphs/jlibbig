@@ -1,7 +1,6 @@
 package tests;
 
 import java.util.*;
-
 import jlibbig.*;
 
 @SuppressWarnings("unused")

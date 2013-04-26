@@ -220,6 +220,11 @@ public class PlaceGraph implements PlaceGraphAbst {
 		return _nodes.isEmpty() && _roots.isEmpty() && _sites.isEmpty();
 	}
 	
+	@Override
+	public boolean isAgent(){
+		return _inner.isEmpty();
+	}
+	
 	
 	public PlaceGraph juxtapose(PlaceGraph g){
 		// does not perform a deep copy of plc
@@ -416,6 +421,11 @@ public class PlaceGraph implements PlaceGraphAbst {
 		@Override
 		public int getWidth() {
 			return _facets.size();
+		}
+		
+		@Override
+		public boolean isEmpty(){
+			return _facets.isEmpty();
 		}
 		
 		@Override

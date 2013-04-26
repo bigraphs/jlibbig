@@ -48,6 +48,14 @@ public class Bigraph {
 		linking = new LinkGraphView(_lg);
 	}
 	
+	public boolean isEmpty(){
+		return _pg.isEmpty() && _lg.isEmpty();
+	}
+	
+	public boolean isAgent(){
+		return _inner.isEmpty();
+	}
+	
 	public PlaceGraph getPlaceGraph(){
 		try {
 			return (PlaceGraph)_pg.clone();
@@ -126,13 +134,7 @@ public class Bigraph {
 
 	public static Bigraph makeIon(Signature<BigraphControl> s,BigraphNode n, String... names){
 		PlaceGraph pg = PlaceGraph.makeIon(asPlaceSignature(s), n);
-		LinkGraph lg = LinkGraph.makeIon(asLinkSignature(s), n, Arrays.asList(names));
-		return new Bigraph(s,pg,lg);
-	}
-	
-	public static Bigraph makeIon(Signature<BigraphControl> s,BigraphNode n, List<String> names){
-		PlaceGraph pg = PlaceGraph.makeIon(asPlaceSignature(s), n);
-		LinkGraph lg = LinkGraph.makeIon(asLinkSignature(s), n,names);
+		LinkGraph lg = LinkGraph.makeIon(asLinkSignature(s), n, names);
 		return new Bigraph(s,pg,lg);
 	}
 	
@@ -284,7 +286,11 @@ public class Bigraph {
 		public Set<LinkGraphFacet> getNames() {
 			return l.getNames();
 		}
-		
+
+		@Override
+		public boolean isEmpty(){
+			return p.isEmpty() && l.isEmpty();
+		}
 	}
 
 }
