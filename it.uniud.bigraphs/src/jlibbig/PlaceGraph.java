@@ -367,6 +367,10 @@ public class PlaceGraph implements PlaceGraphAbst {
 		return new PlaceGraph(s);
 	}
 	
+	public static PlaceGraph makeMerge(Signature<PlaceGraphControl> sig, PlaceGraphFace inner){
+		return makeMerge(sig,inner.getWidth());
+	}
+	
 	public static PlaceGraph makeMerge(Signature<PlaceGraphControl> sig, int inner){
 		PlaceGraph p = new PlaceGraph(sig);
 		Root r = new Root();

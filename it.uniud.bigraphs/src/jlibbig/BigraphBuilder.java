@@ -23,6 +23,28 @@ public class BigraphBuilder {
 	
 	private static class BGControl extends Named implements BigraphControl{
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + arity;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!super.equals(obj))
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			BGControl other = (BGControl) obj;
+			if (arity != other.arity || super.getName() != other.getName())
+				return false;
+			return true;
+		}
+
 		private final int arity;
 		
 		@Override
