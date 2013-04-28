@@ -20,6 +20,9 @@ public class LinkGraph implements LinkGraphAbst {
 		this._sig = s;
 	}
 
+	/**
+	 * 
+	 */
 	private void removeIdleEdges() {
 		Collection<Edge> r = new LinkedList<>();
 		for (Edge e : _edges) {
@@ -39,15 +42,24 @@ public class LinkGraph implements LinkGraphAbst {
 	 * indeed safer but also less concise (temporary edges are generated and a
 	 * lot of extra lookup in _lnk are required).
 	 */
+
+	/**
+	 * Adds a new edge.
+	 * 
+	 * @return the edge just added
+	 */
 	private Edge addEdge() {
 		return addEdge(new Edge());
 	}
 
-	@SuppressWarnings("unused")
-	private Edge addEdge(String n) {
-		return addEdge(new Edge(n));
-	}
-
+	/**
+	 * Adds the edge provided.
+	 * 
+	 * @throws IllegalArgumentException
+	 * @param the
+	 *            edge to be added
+	 * @return the edge just added
+	 */
 	private Edge addEdge(Edge e) {
 		if (_edges.contains(e))
 			throw new IllegalArgumentException("Edge already present");
@@ -56,11 +68,20 @@ public class LinkGraph implements LinkGraphAbst {
 		return e;
 	}
 
+	/**
+	 * @param c
+	 * @param n
+	 * @return
+	 */
 	@SuppressWarnings("unused")
 	private LinkGraphNode addNode(LinkGraphControl c, String n) {
 		return addNode(new LGNode(c, n));
 	}
 
+	/**
+	 * @param n
+	 * @return
+	 */
 	private LinkGraphNode addNode(LinkGraphNode n) {
 		if (!this._sig.contains(n.getControl())) {
 			throw new IllegalArgumentException(
@@ -77,15 +98,26 @@ public class LinkGraph implements LinkGraphAbst {
 		return n;
 	}
 
+	/**
+	 * @param n
+	 * @return
+	 */
 	private InnerName addInnerName(String n) {
 		return addInnerName(new InnerName(n));
 	}
 
+	/**
+	 * @return
+	 */
 	@SuppressWarnings("unused")
 	private InnerName addInnerName() {
 		return addInnerName(new InnerName());
 	}
 
+	/**
+	 * @param n
+	 * @return
+	 */
 	private InnerName addInnerName(InnerName n) {
 		if (_innerNames.contains(n))
 			throw new IllegalArgumentException("Name already present");
@@ -94,14 +126,25 @@ public class LinkGraph implements LinkGraphAbst {
 		return n;
 	}
 
+	/**
+	 * @param n
+	 * @return
+	 */
 	private OuterName addOuterName(String n) {
 		return addOuterName(new OuterName(n));
 	}
 
+	/**
+	 * @return
+	 */
 	private OuterName addOuterName() {
 		return addOuterName(new OuterName());
 	}
 
+	/**
+	 * @param n
+	 * @return
+	 */
 	private OuterName addOuterName(OuterName n) {
 		if (_outerNames.contains(n))
 			throw new IllegalArgumentException("Name already present");
@@ -110,6 +153,10 @@ public class LinkGraph implements LinkGraphAbst {
 		return n;
 	}
 
+	/**
+	 * @param d
+	 * @param r
+	 */
 	private void addLink(Linked d, Linker r) {
 		if (!_lnk.containsKey(d) || !_rev.containsKey(r))
 			throw new IllegalArgumentException(
@@ -121,6 +168,11 @@ public class LinkGraph implements LinkGraphAbst {
 		_rev.get(r).add(d);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		LinkGraph g = new LinkGraph(_sig);
@@ -136,57 +188,111 @@ public class LinkGraph implements LinkGraphAbst {
 		return g;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getSignature()
+	 */
 	@Override
 	public Signature<LinkGraphControl> getSignature() {
 		return this._sig;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getNodes()
+	 */
 	@Override
 	public Set<LinkGraphNode> getNodes() {
 		return Collections.unmodifiableSet(this._nodes);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getPorts()
+	 */
 	@Override
 	public Set<Port> getPorts() {
 		return Collections.unmodifiableSet(this._ports);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getEdges()
+	 */
 	@Override
 	public Set<Edge> getEdges() {
 		return Collections.unmodifiableSet(this._edges);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getInnerFace()
+	 */
 	@Override
 	public LinkGraphFace getInnerFace() {
 		return this._inner;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getOuterFace()
+	 */
 	@Override
 	public LinkGraphFace getOuterFace() {
 		return this._outer;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getLink(jlibbig.LinkGraphAbst.Linked)
+	 */
 	@Override
 	public Linker getLink(Linked l) {
 		return _lnk.get(l);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#getLinked(jlibbig.LinkGraphAbst.Linker)
+	 */
 	@Override
 	public Set<Linked> getLinked(Linker l) {
 		return Collections.unmodifiableSet(_rev.get(l));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#isEmpty()
+	 */
 	@Override
 	public boolean isEmpty() {
 		return _nodes.isEmpty() && _outerNames.isEmpty()
 				&& _innerNames.isEmpty();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see jlibbig.LinkGraphAbst#isAgent()
+	 */
 	@Override
 	public boolean isAgent() {
 		return _inner.isEmpty();
 	}
 
+	/**
+	 * @param g
+	 * @return
+	 */
 	public LinkGraph juxtapose(LinkGraph g) {
 		if (!Collections.disjoint(this._innerNames, g._innerNames)
 				|| !Collections.disjoint(this._outerNames, g._outerNames)) {
@@ -208,6 +314,10 @@ public class LinkGraph implements LinkGraphAbst {
 		return this;
 	}
 
+	/**
+	 * @param g
+	 * @return
+	 */
 	public LinkGraph compose(LinkGraph g) {
 		if (!this.getInnerFace().equals(g.getOuterFace())) {
 			throw new IllegalArgumentException("Mismatching interfaces "
@@ -256,82 +366,131 @@ public class LinkGraph implements LinkGraphAbst {
 		return this;
 	}
 
-	public static LinkGraph makeIon(Signature<LinkGraphControl> s,
-			LinkGraphNode n) {
-		if (!s.contains(n.getControl()))
+	/**
+	 * @param sig The signature to be used The signature to be used
+	 * @param node
+	 * @return
+	 */
+	public static LinkGraph makeIon(Signature<LinkGraphControl> sig,
+			LinkGraphNode node) {
+		if (!sig.contains(node.getControl()))
 			throw new IllegalArgumentException(
 					"Control must be an element of the givent signature");
-		LinkGraph g = new LinkGraph(s);
-		g.addNode(n);
-		for (Port p : n.getPorts()) {
+		LinkGraph g = new LinkGraph(sig);
+		g.addNode(node);
+		for (Port p : node.getPorts()) {
 			g.addLink(p, g.addOuterName());
 		}
 		return g;
 	}
 
-	public static LinkGraph makeIon(Signature<LinkGraphControl> s,
-			LinkGraphNode n, String... names) {
-		if (!s.contains(n.getControl()))
+	/**
+	 * @param sig The signature to be used
+	 * @param node
+	 * @param names
+	 * @return
+	 */
+	public static LinkGraph makeIon(Signature<LinkGraphControl> sig,
+			LinkGraphNode node, String... names) {
+		if (!sig.contains(node.getControl()))
 			throw new IllegalArgumentException(
 					"Control must be an element of the givent signature");
-		List<Port> ps = n.getPorts();
+		List<Port> ps = node.getPorts();
 		if (names.length < ps.size())
 			throw new IllegalArgumentException("Not enough names");
-		LinkGraph g = new LinkGraph(s);
-		g.addNode(n);
+		LinkGraph g = new LinkGraph(sig);
+		g.addNode(node);
 		for (int i = 0; i < ps.size(); i++) {
 			g.addLink(ps.get(i), g.addOuterName(names[i]));
 		}
 		return g;
 	}
 
-	public static LinkGraph makeIon(Signature<LinkGraphControl> s,
-			LinkGraphControl control) {
-		return makeIon(s, new LGNode(control));
+	/**
+	 * @param sig The signature to be used
+	 * @param ctrl
+	 * @return
+	 */
+	public static LinkGraph makeIon(Signature<LinkGraphControl> sig,
+			LinkGraphControl ctrl) {
+		return makeIon(sig, new LGNode(ctrl));
 	}
 
-	public static LinkGraph makeIon(Signature<LinkGraphControl> s,
-			LinkGraphControl control, String name, String... names) {
-		return makeIon(s, new LGNode(control, name), names);
+	/**
+	 * @param sig The signature to be used
+	 * @param ctrl
+	 * @param name
+	 * @param names
+	 * @return
+	 */
+	public static LinkGraph makeIon(Signature<LinkGraphControl> sig,
+			LinkGraphControl ctrl, String name, String... names) {
+		return makeIon(sig, new LGNode(ctrl, name), names);
 	}
 
-	public static LinkGraph makeId(Signature<LinkGraphControl> s,
+	/**
+	 * @param sig The signature to be used
+	 * @param names
+	 * @return
+	 */
+	public static LinkGraph makeId(Signature<LinkGraphControl> sig,
 			Set<String> names) {
-		LinkGraph g = new LinkGraph(s);
+		LinkGraph g = new LinkGraph(sig);
 		for (String n : names) {
 			g.addLink(g.addInnerName(n), g.addOuterName(n));
 		}
 		return g;
 	}
 
-	public static LinkGraph makeId(Signature<LinkGraphControl> s,
-			LinkGraphFace f) {
-		LinkGraph g = new LinkGraph(s);
-		for (LinkGraphFacet t : f.getNames()) {
+	/**
+	 * @param sig The signature to be used
+	 * @param face
+	 * @return
+	 */
+	public static LinkGraph makeId(Signature<LinkGraphControl> sig,
+			LinkGraphFace face) {
+		LinkGraph g = new LinkGraph(sig);
+		for (LinkGraphFacet t : face.getNames()) {
 			String n = t.getName();
 			g.addLink(g.addInnerName(n), g.addOuterName(n));
 		}
 		return g;
 	}
 
-	public static LinkGraph makeEmpty(Signature<LinkGraphControl> s) {
-		return new LinkGraph(s);
+	/**
+	 * @param sig The signature to be used
+	 * @return
+	 */
+	public static LinkGraph makeEmpty(Signature<LinkGraphControl> sig) {
+		return new LinkGraph(sig);
 	}
 
-	public static LinkGraph makeSubstitution(Signature<LinkGraphControl> s,
-			Map<InnerName, OuterName> map) {
-		LinkGraph g = new LinkGraph(s);
-		for (InnerName i : map.keySet()) {
-			g.addLink(g.addInnerName(i), g.addOuterName(map.get(i)));
+	/**
+	 * @param sig The signature to be used
+	 * @param subst
+	 * @return
+	 */
+	public static LinkGraph makeSubstitution(Signature<LinkGraphControl> sig,
+			Map<InnerName, OuterName> subst) {
+		LinkGraph g = new LinkGraph(sig);
+		for (InnerName i : subst.keySet()) {
+			g.addLink(g.addInnerName(i), g.addOuterName(subst.get(i)));
 		}
 		return g;
 	}
-
-	// a linkgraph with no actual link (every inner name is connected to its own
-	// edge and nothing is linked to any outer name)
-	public static LinkGraph makeTaps(Signature<LinkGraphControl> s,
+	
+	/**
+	 * Return a linkgraph with no actual link (every inner name is connected to
+	 * its own edge and nothing is linked to any outer name)
+	 * 
+	 * @param sig The signature to be used
+	 * @param inners
+	 * @param outers
+	 * @return
+	 */
+	public static LinkGraph makeTaps(Signature<LinkGraphControl> sig,
 			Set<String> inners, Set<String> outers) {
-		LinkGraph g = new LinkGraph(s);
+		LinkGraph g = new LinkGraph(sig);
 		for (String n : inners) {
 			g.addInnerName(n);
 		}
@@ -341,9 +500,15 @@ public class LinkGraph implements LinkGraphAbst {
 		return g;
 	}
 
-	public static LinkGraph makeTaps(Signature<LinkGraphControl> s,
+	/**
+	 * @param sig The signature to be used
+	 * @param inner
+	 * @param outer
+	 * @return
+	 */
+	public static LinkGraph makeTaps(Signature<LinkGraphControl> sig,
 			LinkGraphFace inner, LinkGraphFace outer) {
-		LinkGraph g = new LinkGraph(s);
+		LinkGraph g = new LinkGraph(sig);
 		for (LinkGraphFacet t : inner.getNames()) {
 			String n = t.getName();
 			g.addInnerName(n);
@@ -355,6 +520,10 @@ public class LinkGraph implements LinkGraphAbst {
 		return g;
 	}
 
+	/**
+	 * package-private implementation of LinkGraphNode
+	 * @see jlibbig.LinkGraphNode
+	 */
 	protected static class LGNode extends Named implements LinkGraphNode {
 		private final GraphControl ctrl;
 		private final int ar;
@@ -378,16 +547,25 @@ public class LinkGraph implements LinkGraphAbst {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see jlibbig.GraphNode#getControl()
+		 */
 		@Override
 		public GraphControl getControl() {
 			return this.ctrl;
 		}
 
+		/* (non-Javadoc)
+		 * @see jlibbig.LinkGraphNode#getPorts()
+		 */
 		@Override
 		public List<Port> getPorts() {
 			return Collections.unmodifiableList(ports);
 		}
 
+		/* (non-Javadoc)
+		 * @see jlibbig.LinkGraphNode#getPort(int)
+		 */
 		@Override
 		public Port getPort(int index) {
 			return ports.get(index);
@@ -402,11 +580,17 @@ public class LinkGraph implements LinkGraphAbst {
 				this.index = index;
 			}
 
+			/* (non-Javadoc)
+			 * @see jlibbig.Port#getNode()
+			 */
 			@Override
 			public LinkGraphNode getNode() {
 				return node;
 			}
 
+			/* (non-Javadoc)
+			 * @see jlibbig.Port#getNumber()
+			 */
 			@Override
 			public int getNumber() {
 				return index;
@@ -414,7 +598,11 @@ public class LinkGraph implements LinkGraphAbst {
 
 		}
 	}
-
+	
+	/**
+	 * package-private implementation of LinkGraphFace
+	 * @see jlibbig.LinkGraphFace
+	 */
 	private static class LGFace implements LinkGraphFace {
 
 		private final Set<LinkGraphFacet> _facets;
@@ -425,11 +613,17 @@ public class LinkGraph implements LinkGraphAbst {
 			this._facets = facets;
 		}
 
+		/* (non-Javadoc)
+		 * @see jlibbig.LinkGraphFace#getNames()
+		 */
 		@Override
 		public Set<LinkGraphFacet> getNames() {
 			return Collections.unmodifiableSet(this._facets);
 		}
 
+		/* (non-Javadoc)
+		 * @see jlibbig.GraphFace#isEmpty()
+		 */
 		@Override
 		public boolean isEmpty() {
 			return _facets.isEmpty();
