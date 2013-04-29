@@ -3,6 +3,9 @@ package jlibbig;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 
+ */
 public class PlaceGraphView implements PlaceGraphAbst {
 
 	final private PlaceGraphAbst graph;

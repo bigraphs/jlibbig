@@ -4,12 +4,12 @@ public class BigraphBuilder {
 	//TODO everything!
 	
 	
-	public static Bigraph fromString(){
+	public static BigraphAbst fromString(){
 		//TODO parse BigMC language
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
-	public static Bigraph fromString(Signature<BigraphControl> s){
+	public static BigraphAbst fromString(Signature<BigraphControl> s){
 		//TODO parse BigMC language
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
@@ -22,6 +22,16 @@ public class BigraphBuilder {
 	}
 	
 	private static class BGControl extends Named implements BigraphControl{
+		
+		protected BGControl(int arity){
+			super("C_" + generateName());
+			this.arity = arity;
+		}
+		
+		protected BGControl(String name, int arity){
+			super(name);
+			this.arity = arity;
+		}
 
 		@Override
 		public int hashCode() {
@@ -50,16 +60,6 @@ public class BigraphBuilder {
 		@Override
 		public String toString() {
 			return getName() + ":" + arity;
-		}
-
-		protected BGControl(int arity){
-			super();
-			this.arity = arity;
-		}
-		
-		protected BGControl(String name, int arity){
-			super(name);
-			this.arity = arity;
 		}
 
 		@Override
