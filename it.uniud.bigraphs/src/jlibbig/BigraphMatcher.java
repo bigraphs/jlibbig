@@ -11,7 +11,7 @@ import choco.kernel.model.variables.integer.IntegerVariable;
 @SuppressWarnings("unused")
 public class BigraphMatcher {
 
-	public static Set<BigraphMatch> getMatches(Bigraph agent, Bigraph redex){
+	public static Set<BigraphMatch> getMatches(BigraphAbst agent, BigraphAbst redex){
 		
 		
 		

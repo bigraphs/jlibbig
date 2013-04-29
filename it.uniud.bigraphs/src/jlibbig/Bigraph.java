@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * Represents a bigraph over a fixed signature
  */
-public class Bigraph {
+public class Bigraph implements BigraphAbst {
 
 	private final Signature<BigraphControl> _sig;
 
@@ -20,159 +20,216 @@ public class Bigraph {
 	/**
 	 * read only access to place and link graph composing the bigraph
 	 */
-	public final PlaceGraphView placing;
-	public final LinkGraphView linking;
+	private final PlaceGraphView _placing;
+	private final LinkGraphView _linking;
 
-	/** Place graph and link graph must share nodes and signatures.
-	 * @param sig the signature
-	 * @param pg the place graph
-	 * @param lg the link graph
+	/**
+	 * Place graph and link graph must share nodes and signatures.
+	 * 
+	 * @param sig
+	 *            the signature
+	 * @param pg
+	 *            the place graph
+	 * @param lg
+	 *            the link graph
 	 */
 	private Bigraph(Signature<BigraphControl> sig, PlaceGraph pg, LinkGraph lg) {
-		_sig = sig;
-		_pg = pg;
-		_lg = lg;
-
-		/* TODO simpler bigraph constructor
-		 * Signature and nodes checks can be skipped in production (since the
-		 * constructor is meant to be internal).
+		/*
+		 * TODO simpler bigraph constructor Signature and nodes checks can be
+		 * skipped in production (since the constructor is meant to be
+		 * internal).
+		 * 
 		 * @param sig can be inferred as the meet of the signatures of pg and lg
 		 * if these shares the nodes.
 		 */
-		// signature must share controls
-		try{
-			// actually both are made of BGControls
-			Signature<PlaceGraphControl> pgs = _pg.getSignature();
-			Signature<LinkGraphControl> lgs = _lg.getSignature();
-			// however, check if every control in sig has a counterpart in pgs and lgs
-			for(BigraphControl bc : _sig){
-				BigraphControl pc = (BigraphControl) pgs.getByName(bc.getName());
-				BigraphControl lc = (BigraphControl) lgs.getByName(bc.getName()); 
-				if(pc == null || lc == null || bc.getArity() != lc.getArity()){
-					throw new IllegalArgumentException("Incompatible signatures");
+		this(sig, pg, lg, false);
+	}
+
+	private Bigraph(Signature<BigraphControl> sig, PlaceGraph pg, LinkGraph lg,
+			boolean skipChecks) {
+		_sig = sig;
+		_pg = pg;
+		_lg = lg;
+		if (skipChecks) {
+			try {
+				// actually both are made of BGControls
+				Signature<PlaceGraphControl> pgs = _pg.getSignature();
+				Signature<LinkGraphControl> lgs = _lg.getSignature();
+				// however, check if every control in sig has a counterpart in
+				// pgs
+				// and lgs
+				for (BigraphControl bc : _sig) {
+					BigraphControl pc = (BigraphControl) pgs.getByName(bc
+							.getName());
+					BigraphControl lc = (BigraphControl) lgs.getByName(bc
+							.getName());
+					if (pc == null || lc == null
+							|| bc.getArity() != lc.getArity()) {
+						throw new IllegalArgumentException(
+								"Incompatible signatures");
+					}
 				}
+				// check if there are controls other than those in sig
+				for (GraphControl c : pgs) {
+					if (_sig.getByName(c.getName()) == null)
+						throw new IllegalArgumentException(
+								"Incompatible signatures");
+				}
+				for (GraphControl c : lgs) {
+					if (_sig.getByName(c.getName()) == null)
+						throw new IllegalArgumentException(
+								"Incompatible signatures");
+				}
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException("Incompatible signatures");
 			}
-			// check if there are controls other than those in sig
-			for(GraphControl c : pgs){
-				if(_sig.getByName(c.getName()) == null)
-					throw new IllegalArgumentException("Incompatible signatures");
-			}
-			for(GraphControl c : lgs){
-				if(_sig.getByName(c.getName()) == null)
-					throw new IllegalArgumentException("Incompatible signatures");
-			}
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException("Incompatible signatures");
-		}
-		// place and link must share their nodes
-		try {
-			// all nodes found (these go into _nodes)
-			Set<BigraphNode> ns1 = new HashSet<>();
-			// initially is a replica of n2, but then every node found in _lg
-			// will be removed.
-			// _pg and _lg are compatible iff ns2 is empty.
-			Set<BigraphNode> ns2 = new HashSet<>();
-			for (PlaceGraphNode pn : _pg.getNodes()) {
-				BigraphNode bn = (BigraphNode) pn;
-				ns1.add(bn);
-				ns2.add(bn);
-			}
-			for (LinkGraphNode ln : _lg.getNodes()) {
-				BigraphNode bn = (BigraphNode) ln;
-				if (!ns2.remove(bn)) {
+			// place and link must share their nodes
+			try {
+				// all nodes found (these go into _nodes)
+				Set<BigraphNode> ns1 = new HashSet<>();
+				// initially is a replica of n2, but then every node found in
+				// _lg
+				// will be removed.
+				// _pg and _lg are compatible iff ns2 is empty.
+				Set<BigraphNode> ns2 = new HashSet<>();
+				for (PlaceGraphNode pn : _pg.getNodes()) {
+					BigraphNode bn = (BigraphNode) pn;
+					ns1.add(bn);
+					ns2.add(bn);
+				}
+				for (LinkGraphNode ln : _lg.getNodes()) {
+					BigraphNode bn = (BigraphNode) ln;
+					if (!ns2.remove(bn)) {
+						throw new IllegalArgumentException(
+								"Incompatible place and link graph");
+					}
+				}
+				if (ns2.size() > 0) {
 					throw new IllegalArgumentException(
 							"Incompatible place and link graph");
 				}
-			}
-			if (ns2.size() > 0) {
+				_nodes.addAll(ns1);
+			} catch (ClassCastException e) {
 				throw new IllegalArgumentException(
 						"Incompatible place and link graph");
 			}
-			_nodes.addAll(ns1);
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException(
-					"Incompatible place and link graph");
+		} else {
+			for (PlaceGraphNode pn : _pg.getNodes()) {
+				_nodes.add((BigraphNode) pn);
+			}
 		}
+
 		// interfaces
 		_inner = new BGFace(_pg.getInnerFace(), _lg.getInnerFace());
 		_outer = new BGFace(_pg.getOuterFace(), _lg.getOuterFace());
 		// read-only views
-		placing = new PlaceGraphView(_pg);
-		linking = new LinkGraphView(_lg);
+		_placing = new PlaceGraphView(_pg);
+		_linking = new LinkGraphView(_lg);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	protected Bigraph clone() {
+		return new Bigraph(_sig, _pg.clone(), _lg.clone(), true);
 	}
 
 	/**
-	 * @return {@value true} if the bigraph has empty interfaces and support.
+	 * @see jlibbig.BigraphAbst#isEmpty()
 	 */
+	@Override
 	public boolean isEmpty() {
 		return _pg.isEmpty() && _lg.isEmpty();
 	}
 
 	/**
-	 * @return {@value true} if the bigraph has empty inner interface
+	 * @see jlibbig.BigraphAbst#isAgent()
 	 */
+	@Override
 	public boolean isAgent() {
 		return _inner.isEmpty();
 	}
-	
-	/** Returns a copy of the place graph composing the bigraph.
-	 * For read-only access use @see jlibbig.Bigraph#placing.
-	 * @return a copy of the place graph composing the bigraph
+
+	/**
+	 * @see jlibbig.BigraphAbst#getPlaceGraphView()
 	 */
+	@Override
+	public PlaceGraphView getPlaceGraphView() {
+		return _placing;
+	}
+
+	/**
+	 * @see jlibbig.BigraphAbst#getPlaceGraph()
+	 */
+	@Override
 	public PlaceGraph getPlaceGraph() {
-		try {
-			return (PlaceGraph) _pg.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return (PlaceGraph) _pg.clone();
 	}
 
-	/** Returns a copy of the link graph composing the bigraph.
-	 * For read-only access use @see jlibbig.Bigraph#linking.
-	 * @return a copy of the link graph composing the bigraph
+	/**
+	 * @see jlibbig.BigraphAbst#getLinkGraphView()
 	 */
+	@Override
+	public LinkGraphView getLinkGraphView() {
+		return _linking;
+	}
+
+	/**
+	 * @see jlibbig.BigraphAbst#getLinkGraph()
+	 */
+	@Override
 	public LinkGraph getLinkGraph() {
-		try {
-			return (LinkGraph) _lg.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return (LinkGraph) _lg.clone();
 	}
 
-	/** Returns the signature on which the bigraph is defined.
-	 * @return the signature
+	/**
+	 * @see jlibbig.BigraphAbst#getSignature()
 	 */
+	@Override
 	public Signature<BigraphControl> getSignature() {
 		return _sig;
 	}
 
-	/** Returns the inner interface of the bigraph
-	 * @return the inner interface
+	/**
+	 * @see jlibbig.BigraphAbst#getInnerFace()
 	 */
+	@Override
 	public BigraphFace getInnerFace() {
 		return _inner;
 	}
 
-
-	/** Returns the outer interface of the bigraph
-	 * @return the outer interface
+	/**
+	 * @see jlibbig.BigraphAbst#getOuterFace()
 	 */
+	@Override
 	public BigraphFace getOuterFace() {
 		return _outer;
 	}
 
-	
-	/** Return the set of nodes composing the bigraph.
-	 * @return the set of nodes
+	/**
+	 * @see jlibbig.BigraphAbst#getNodes()
 	 */
+	@Override
 	public Set<BigraphNode> getNodes() {
 		return Collections.unmodifiableSet(this._nodes);
 	}
 
-	/** Cast a bigraphical signature to a signature of place graph controls
-	 * @param sig a bigraphical signature
+	/**
+	 * @see jlibbig.BigraphAbst#getEdges()
+	 */
+	@Override
+	public Set<Edge> getEdges() {
+		return this._lg.getEdges();
+	}
+
+	/**
+	 * Cast a bigraphical signature to a signature of place graph controls
+	 * 
+	 * @param sig
+	 *            a bigraphical signature
 	 * @return the same signature
 	 */
 	@SuppressWarnings("unchecked")
@@ -181,8 +238,11 @@ public class Bigraph {
 		return (Signature<PlaceGraphControl>) (Signature<?>) sig;
 	}
 
-	/** Cast a bigraphical signature to a signature of link graph controls
-	 * @param sig a bigraphical signature
+	/**
+	 * Cast a bigraphical signature to a signature of link graph controls
+	 * 
+	 * @param sig
+	 *            a bigraphical signature
 	 * @return the same signature
 	 */
 	@SuppressWarnings("unchecked")
@@ -191,42 +251,90 @@ public class Bigraph {
 		return (Signature<LinkGraphControl>) (Signature<?>) sig;
 	}
 
-	
-	/** Juxtapose (on the right) the argument to the current bigraph (which is modified accordingly).
+	/**
+	 * Juxtapose (on the right) the argument to the current bigraph (which is
+	 * modified accordingly).
+	 * 
 	 * @param graph
 	 * @return this bigraph
 	 */
-	public Bigraph juxtapose(Bigraph graph) {
+	public synchronized Bigraph juxtapose(Bigraph graph) {
 		this._pg.juxtapose(graph._pg);
 		this._lg.juxtapose(graph._lg);
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
-	
-	/** Compose the argument to this bigraph.
+
+	/**
+	 * Compose the argument to this bigraph.
+	 * 
 	 * @param graph
 	 * @return this bigraph
 	 */
-	public Bigraph compose(Bigraph graph) {
+	public synchronized Bigraph compose(Bigraph graph) {
 		this._pg.compose(graph._pg);
 		this._lg.compose(graph._lg);
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
 
-	/** Creates a ion as for the given control; names are automatically generated.
-	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode, String...)
+	public boolean isJuxtaposable(Bigraph g2) {
+		return areJuxtaposable(this, g2);
+	}
+
+	public boolean isComposable(Bigraph g2) {
+		return areComposable(this, g2);
+	}
+
+	public static boolean areJuxtaposable(Bigraph g1, Bigraph g2) {
+		if(!g1._sig.equals(g2._sig))
+			return false;
+		if (!Collections.disjoint(g1._inner.getNames(), g2
+				._inner.getNames()))
+			return false;
+		if (!Collections.disjoint(g1._outer.getNames(), g2
+				._outer.getNames()))
+			return false;
+		if (!Collections.disjoint(g1._nodes, g2._nodes))
+			return false;
+		if (!Collections.disjoint(g1.getEdges(), g2.getEdges()))
+			return false;
+		return true;
+	}
+	
+	public static boolean areComposable(Bigraph g1, Bigraph g2) {
+		if(!g1._sig.equals(g2._sig))
+			return false;
+		if (!g1._inner.equals(g2._outer))
+			return false;
+		if (!Collections.disjoint(g1._nodes, g2._nodes))
+			return false;
+		if (!Collections.disjoint(g1.getEdges(), g2.getEdges()))
+			return false;
+		return true;
+	}
+
+	/**
+	 * Creates a ion as for the given control; names are automatically
+	 * generated.
+	 * 
+	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode,
+	 *      String...)
 	 * @param sig
 	 * @param ctrl
 	 * @return
 	 */
-	public static Bigraph makeIon(Signature<BigraphControl> sig, BigraphControl ctrl) {
+	public static Bigraph makeIon(Signature<BigraphControl> sig,
+			BigraphControl ctrl) {
 		return makeIon(sig, new BGNode(ctrl));
 	}
 
-
-	/** Creates a ion as for the given control and node name; outer names are automatically generated.
-	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode, String...)
+	/**
+	 * Creates a ion as for the given control and node name; outer names are
+	 * automatically generated.
+	 * 
+	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode,
+	 *      String...)
 	 * @param sig
 	 * @param ctrl
 	 * @param name
@@ -237,8 +345,12 @@ public class Bigraph {
 		return makeIon(sig, new BGNode(ctrl, name));
 	}
 
-	/** Creates a ion as for the given control, node name and list of outer names.
-	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode, String...)
+	/**
+	 * Creates a ion as for the given control, node name and list of outer
+	 * names.
+	 * 
+	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode,
+	 *      String...)
 	 * @param sig
 	 * @param ctrl
 	 * @param name
@@ -250,49 +362,60 @@ public class Bigraph {
 		return makeIon(sig, new BGNode(ctrl, name), names);
 	}
 
-	/** Creates a ion as {@link jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode, String...)}
-	 * except that names are automatically generated.
-	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode, String...)
+	/**
+	 * Creates a ion as {@link
+	 * jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode,
+	 * String...)} except that names are automatically generated.
+	 * 
+	 * @see jlibbig.Bigraph#makeIon(Signature<PlaceGraphControl>, BigraphNode,
+	 *      String...)
 	 * @param sig
 	 * @param node
 	 * @return
 	 */
-	public static Bigraph makeIon(Signature<BigraphControl> sig, BigraphNode node) {
+	public static Bigraph makeIon(Signature<BigraphControl> sig,
+			BigraphNode node) {
 		PlaceGraph pg = PlaceGraph.makeIon(asPlaceSignature(sig), node);
 		LinkGraph lg = LinkGraph.makeIon(asLinkSignature(sig), node);
 		return new Bigraph(sig, pg, lg);
 	}
 
-	/** Creates the ion composed by the given node. Ports are linked to the outer names following the order in which they are provided.
-	 * @see jlibbig.PlaceGraph#makeIon(Signature<PlaceGraphControl>, PlaceGraphNode)
-	 * @see jlibbig.LinkGraph#makeIon(Signature<LinkGraphControl>, LinkGraphNode, String...)
+	/**
+	 * Creates the ion composed by the given node. Ports are linked to the outer
+	 * names following the order in which they are provided.
+	 * 
+	 * @see jlibbig.PlaceGraph#makeIon(Signature<PlaceGraphControl>,
+	 *      PlaceGraphNode)
+	 * @see jlibbig.LinkGraph#makeIon(Signature<LinkGraphControl>,
+	 *      LinkGraphNode, String...)
 	 * @param sig
 	 * @param node
-	 * @param names 
+	 * @param names
 	 * @return
 	 */
-	public static Bigraph makeIon(Signature<BigraphControl> sig, BigraphNode node,
-			String... names) {
+	public static Bigraph makeIon(Signature<BigraphControl> sig,
+			BigraphNode node, String... names) {
 		PlaceGraph pg = PlaceGraph.makeIon(asPlaceSignature(sig), node);
 		LinkGraph lg = LinkGraph.makeIon(asLinkSignature(sig), node, names);
 		return new Bigraph(sig, pg, lg);
 	}
 
 	/*
-	public static Bigraph makeId(Signature<BigraphControl> sig, int width) {
-		return makeId(sig, width, new HashSet<String>());
-	}
-	
-	public static Bigraph makeId(Signature<BigraphControl> sig, Set<String> names) {
-		return makeId(sig, 0, names);
-	}
-	*/
+	 * public static Bigraph makeId(Signature<BigraphControl> sig, int width) {
+	 * return makeId(sig, width, new HashSet<String>()); }
+	 * 
+	 * public static Bigraph makeId(Signature<BigraphControl> sig, Set<String>
+	 * names) { return makeId(sig, 0, names); }
+	 */
 
-	/** Creates an identity bigraph for the given signature, width and set of names 
+	/**
+	 * Creates an identity bigraph for the given signature, width and set of
+	 * names
+	 * 
 	 * @see jlibbig.PlaceGraph#makeId(Signature<PlaceGraphControl>, int)
 	 * @see jlibbig.LinkGraph#makeId(Signature<LinkGraphControl>, Set<String>)
 	 * @param sig
-	 * @param width 
+	 * @param width
 	 * @param names
 	 * @return an identity bigraph
 	 */
@@ -303,8 +426,11 @@ public class Bigraph {
 		return new Bigraph(sig, pg, lg);
 	}
 
-	/** Creates an identity bigraph for the given signature and interface 
-	 * @see jlibbig.PlaceGraph#makeId(Signature<PlaceGraphControl>, PlaceGraphFace)
+	/**
+	 * Creates an identity bigraph for the given signature and interface
+	 * 
+	 * @see jlibbig.PlaceGraph#makeId(Signature<PlaceGraphControl>,
+	 *      PlaceGraphFace)
 	 * @see jlibbig.LinkGraph#makeId(Signature<LinkGraphControl>, LinkGraphFace)
 	 * @param sig
 	 * @param face
@@ -316,7 +442,9 @@ public class Bigraph {
 		return new Bigraph(sig, pg, lg);
 	}
 
-	/** Creates a empty bigraph over the given signature
+	/**
+	 * Creates a empty bigraph over the given signature
+	 * 
 	 * @see jlibbig.PlaceGraph#makeEmpty(Signature<PlaceGraphControl>)
 	 * @see jlibbig.LinkGraph#makeEmpty(Signature<LinkGraphControl>)
 	 * @param sig
@@ -328,20 +456,28 @@ public class Bigraph {
 		return new Bigraph(sig, pg, lg);
 	}
 
-	/** Created a bigraph composed by a merge place graph and an identity link graph with the given interface.
+	/**
+	 * Created a bigraph composed by a merge place graph and an identity link
+	 * graph with the given interface.
+	 * 
 	 * @see jlibbig.PlaceGraph#makeMerge
 	 * @param sig
-	 * @param face the inner interface
+	 * @param face
+	 *            the inner interface
 	 * @return
 	 */
-	public static Bigraph makeMerge(Signature<BigraphControl> sig, BigraphFace face) {
-		return makeMerge(sig, face.getWidth()).juxtapose(makeId(sig,face)) ;
+	public static Bigraph makeMerge(Signature<BigraphControl> sig,
+			BigraphFace face) {
+		return makeMerge(sig, face.getWidth()).juxtapose(makeId(sig, face));
 	}
 
-	/** Creates a merge bigraph with inner face of the width specified.
+	/**
+	 * Creates a merge bigraph with inner face of the width specified.
+	 * 
 	 * @see jlibbig.PlaceGraph#makeMerge
 	 * @param sig
-	 * @param width the width of the inner face
+	 * @param width
+	 *            the width of the inner face
 	 * @return
 	 */
 	public static Bigraph makeMerge(Signature<BigraphControl> sig, int width) {
@@ -350,7 +486,9 @@ public class Bigraph {
 		return new Bigraph(sig, pg, lg);
 	}
 
-	/** Creates a bigraph composed by a swap place graph and an empty link graph.
+	/**
+	 * Creates a bigraph composed by a swap place graph and an empty link graph.
+	 * 
 	 * @see jlibbig.PlaceGraph#makeSwap
 	 * @param sig
 	 * @return
@@ -360,33 +498,47 @@ public class Bigraph {
 		LinkGraph lg = LinkGraph.makeEmpty(asLinkSignature(sig));
 		return new Bigraph(sig, pg, lg);
 	}
-	
-	/** Creates a bigraph whose link graph is a substitution from the inner names to the outer ones. 
+
+	/**
+	 * Creates a bigraph whose link graph is a substitution from the inner names
+	 * to the outer ones.
+	 * 
 	 * @see jlibbig.LinkGraph#makeSubstitution
 	 * @param sig
-	 * @param subst the map describing the substitution
+	 * @param subst
+	 *            the map describing the substitution
 	 * @return
 	 */
-	public static Bigraph makeSubstitution(Signature<BigraphControl> sig, Map<InnerName, OuterName> subst) {
+	public static Bigraph makeSubstitution(Signature<BigraphControl> sig,
+			Map<InnerName, OuterName> subst) {
 		PlaceGraph pg = PlaceGraph.makeEmpty(asPlaceSignature(sig));
 		LinkGraph lg = LinkGraph.makeSubstitution(asLinkSignature(sig), subst);
 		return new Bigraph(sig, pg, lg);
 	}
 
-	/** Creates a bigraph whose link graph has no nodes and no link (every name is dangling)
+	/**
+	 * Creates a bigraph whose link graph has no nodes and no link (every name
+	 * is dangling)
+	 * 
 	 * @see jlibbig.LinkGraph#makeTaps
 	 * @param sig
-	 * @param inner the inner interface of the link graph
-	 * @param outer the puter interface of the link graph
+	 * @param inner
+	 *            the inner interface of the link graph
+	 * @param outer
+	 *            the puter interface of the link graph
 	 * @return
 	 */
-	public static Bigraph makeTaps(Signature<BigraphControl> sig, LinkGraphFace inner, LinkGraphFace outer) {
+	public static Bigraph makeTaps(Signature<BigraphControl> sig,
+			LinkGraphFace inner, LinkGraphFace outer) {
 		PlaceGraph pg = PlaceGraph.makeEmpty(asPlaceSignature(sig));
 		LinkGraph lg = LinkGraph.makeTaps(asLinkSignature(sig), inner, outer);
 		return new Bigraph(sig, pg, lg);
 	}
 
-	/** Creates a bigraph whose link graph has no nodes and no link (every name is dangling)
+	/**
+	 * Creates a bigraph whose link graph has no nodes and no link (every name
+	 * is dangling)
+	 * 
 	 * @see jlibbig.LinkGraph#makeTaps
 	 * @param sig
 	 * @param innerNames
@@ -401,36 +553,77 @@ public class Bigraph {
 		return new Bigraph(sig, pg, lg);
 	}
 
+	/**
+	 * Internal implementation of {@link BigraphNode}
+	 */
 	protected static class BGNode extends Named implements BigraphNode {
-		private final LinkGraph.LGNode lgn;
+		// more or less a bigraphical node is very likelly a link graph node
+		private final LinkGraph.LGNode _lgn;
+		private final BigraphControl _ctrl;
 
+		/**
+		 * Creates a node with a generated name. The name is in the reserved
+		 * form <code>"N_%d"</code> ({@link Named#generateName()}).
+		 * 
+		 * @param ctrl
+		 *            the control to be used
+		 */
 		protected BGNode(BigraphControl ctrl) {
-			super();
-			lgn = new LinkGraph.LGNode(ctrl);
+			super("N_" + generateName());
+			_ctrl = ctrl;
+			_lgn = new LinkGraph.LGNode(ctrl);
 		}
 
+		/**
+		 * Creates a node with name and control specified. The name pattern
+		 * <code>"N_%d"</code> is reserved ({@link Named#generateName()}).
+		 * 
+		 * @param ctrl
+		 *            the control to be used
+		 * @param name
+		 *            the name to be used
+		 */
 		protected BGNode(BigraphControl ctrl, String name) {
 			super(name);
-			lgn = new LinkGraph.LGNode(ctrl, name);
+			_ctrl = ctrl;
+			_lgn = new LinkGraph.LGNode(ctrl, name);
 		}
 
+		/**
+		 * A bigraphical node is decorated with an immutable control
+		 * 
+		 * @see jlibbig.BigraphNode#getControl()
+		 */
 		@Override
-		public GraphControl getControl() {
-			return lgn.getControl();
+		public BigraphControl getControl() {
+			return this._ctrl;
 		}
 
+		/**
+		 * A bigraphical node presents an immutable list of ports consistently
+		 * with the arity specified by its control
+		 * 
+		 * @see jlibbig.LinkGraphNode#getPorts()
+		 */
 		@Override
 		public List<Port> getPorts() {
-			return lgn.getPorts();
+			return _lgn.getPorts();
 		}
 
+		/**
+		 * @see jlibbig.LinkGraphNode#getPort(int)
+		 */
 		@Override
 		public Port getPort(int index) {
-			return lgn.getPort(index);
+			return _lgn.getPort(index);
 		}
 
 	}
 
+	/**
+	 * Internal implementation of {@link BigraphFace}. Wraps a
+	 * {@link PlaceGraphFace} and a {@link LinkGraphFace}.
+	 */
 	protected static class BGFace implements BigraphFace {
 
 		private PlaceGraphFace p;
@@ -481,16 +674,25 @@ public class Bigraph {
 					+ "}>";
 		}
 
+		/**
+		 * @see jlibbig.PlaceGraphFace#getWidth()
+		 */
 		@Override
 		public int getWidth() {
 			return p.getWidth();
 		}
 
+		/**
+		 * @see jlibbig.LinkGraphFace#getNames()
+		 */
 		@Override
 		public Set<LinkGraphFacet> getNames() {
 			return l.getNames();
 		}
 
+		/**
+		 * @see jlibbig.GraphFace#isEmpty()
+		 */
 		@Override
 		public boolean isEmpty() {
 			return p.isEmpty() && l.isEmpty();

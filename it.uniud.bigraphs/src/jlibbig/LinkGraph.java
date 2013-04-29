@@ -56,8 +56,8 @@ public class LinkGraph implements LinkGraphAbst {
 	 * Adds the edge provided.
 	 * 
 	 * @throws IllegalArgumentException
-	 * @param the
-	 *            edge to be added
+	 * @param e
+	 *            the edge to be added
 	 * @return the edge just added
 	 */
 	private Edge addEdge(Edge e) {
@@ -174,7 +174,7 @@ public class LinkGraph implements LinkGraphAbst {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	protected LinkGraph clone(){
 		LinkGraph g = new LinkGraph(_sig);
 		g._nodes.addAll(this._nodes);
 		g._ports.addAll(this._ports);
@@ -293,7 +293,7 @@ public class LinkGraph implements LinkGraphAbst {
 	 * @param g
 	 * @return
 	 */
-	public LinkGraph juxtapose(LinkGraph g) {
+	public synchronized LinkGraph juxtapose(LinkGraph g) {
 		if (!Collections.disjoint(this._innerNames, g._innerNames)
 				|| !Collections.disjoint(this._outerNames, g._outerNames)) {
 			throw new IllegalArgumentException("Overlapping interfaces");
@@ -318,7 +318,7 @@ public class LinkGraph implements LinkGraphAbst {
 	 * @param g
 	 * @return
 	 */
-	public LinkGraph compose(LinkGraph g) {
+	public synchronized LinkGraph compose(LinkGraph g) {
 		if (!this.getInnerFace().equals(g.getOuterFace())) {
 			throw new IllegalArgumentException("Mismatching interfaces "
 					+ this.getInnerFace() + " " + g.getOuterFace());
@@ -367,7 +367,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used The signature to be used
+	 * @param sig
+	 *            The signature to be used The signature to be used
 	 * @param node
 	 * @return
 	 */
@@ -385,7 +386,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param node
 	 * @param names
 	 * @return
@@ -407,7 +409,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param ctrl
 	 * @return
 	 */
@@ -417,7 +420,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param ctrl
 	 * @param name
 	 * @param names
@@ -429,7 +433,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param names
 	 * @return
 	 */
@@ -443,7 +448,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param face
 	 * @return
 	 */
@@ -458,7 +464,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @return
 	 */
 	public static LinkGraph makeEmpty(Signature<LinkGraphControl> sig) {
@@ -466,7 +473,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param subst
 	 * @return
 	 */
@@ -478,12 +486,13 @@ public class LinkGraph implements LinkGraphAbst {
 		}
 		return g;
 	}
-	
+
 	/**
 	 * Return a linkgraph with no actual link (every inner name is connected to
 	 * its own edge and nothing is linked to any outer name)
 	 * 
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param inners
 	 * @param outers
 	 * @return
@@ -501,7 +510,8 @@ public class LinkGraph implements LinkGraphAbst {
 	}
 
 	/**
-	 * @param sig The signature to be used
+	 * @param sig
+	 *            The signature to be used
 	 * @param inner
 	 * @param outer
 	 * @return
@@ -522,15 +532,16 @@ public class LinkGraph implements LinkGraphAbst {
 
 	/**
 	 * package-private implementation of LinkGraphNode
+	 * 
 	 * @see jlibbig.LinkGraphNode
 	 */
 	protected static class LGNode extends Named implements LinkGraphNode {
-		private final GraphControl ctrl;
+		private final LinkGraphControl ctrl;
 		private final int ar;
 		private final List<Port> ports = new ArrayList<>();
 
 		protected LGNode(LinkGraphControl ctrl) {
-			super();
+			super("N_" + generateName());
 			this.ctrl = ctrl;
 			this.ar = ctrl.getArity();
 			for (int i = 0; i < ar; i++) {
@@ -547,15 +558,19 @@ public class LinkGraph implements LinkGraphAbst {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see jlibbig.GraphNode#getControl()
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see jlibbig.LinkGraphNode#getControl()
 		 */
 		@Override
-		public GraphControl getControl() {
+		public LinkGraphControl getControl() {
 			return this.ctrl;
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see jlibbig.LinkGraphNode#getPorts()
 		 */
 		@Override
@@ -563,7 +578,9 @@ public class LinkGraph implements LinkGraphAbst {
 			return Collections.unmodifiableList(ports);
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see jlibbig.LinkGraphNode#getPort(int)
 		 */
 		@Override
@@ -580,7 +597,9 @@ public class LinkGraph implements LinkGraphAbst {
 				this.index = index;
 			}
 
-			/* (non-Javadoc)
+			/*
+			 * (non-Javadoc)
+			 * 
 			 * @see jlibbig.Port#getNode()
 			 */
 			@Override
@@ -588,7 +607,9 @@ public class LinkGraph implements LinkGraphAbst {
 				return node;
 			}
 
-			/* (non-Javadoc)
+			/*
+			 * (non-Javadoc)
+			 * 
 			 * @see jlibbig.Port#getNumber()
 			 */
 			@Override
@@ -598,9 +619,10 @@ public class LinkGraph implements LinkGraphAbst {
 
 		}
 	}
-	
+
 	/**
 	 * package-private implementation of LinkGraphFace
+	 * 
 	 * @see jlibbig.LinkGraphFace
 	 */
 	private static class LGFace implements LinkGraphFace {
@@ -613,7 +635,9 @@ public class LinkGraph implements LinkGraphAbst {
 			this._facets = facets;
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see jlibbig.LinkGraphFace#getNames()
 		 */
 		@Override
@@ -621,7 +645,9 @@ public class LinkGraph implements LinkGraphAbst {
 			return Collections.unmodifiableSet(this._facets);
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see jlibbig.GraphFace#isEmpty()
 		 */
 		@Override
@@ -651,16 +677,6 @@ public class LinkGraph implements LinkGraphAbst {
 				return false;
 			}
 			return this.getNames().equals(other.getNames());
-			// Set<LinkGraphFacet> fs = other.getNames();
-			// for(LinkGraphFacet f1 : _facets) {
-			// boolean t = false;
-			// for(LinkGraphFacet f2 : fs) {
-			// t |= f1.getName().equals(f2.getName());
-			// }
-			// if(!t)
-			// return false;
-			// }
-			// return true;
 		}
 
 		@Override
