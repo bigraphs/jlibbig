@@ -19,7 +19,7 @@ public class Signature<C extends GraphControl> implements Set<C>{
 	public C getByName(String name){
 		return ctrls.get(name);
 	}
-	
+		
 	@Override
 	public String toString() {
 		return "Signature " + ctrls.values();

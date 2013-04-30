@@ -100,9 +100,9 @@ public class BigraphRewritingRule {
 		Bigraph args = Bigraph.makeEmpty(_rhs.getSignature());
 		int w = _rhs.getInnerFace().getWidth();
 		for (int i = 0; i < w; i--) {
-			args.juxtapose(to.getArg(i));
+			args.juxtaposeTo(to.getArg(i));
 		}
-		return to.getContext().compose(_lhs).compose(args);
+		return to.getContext().composeTo(_lhs).composeTo(args);
 	}
 
 	public Set<Bigraph> apply(Bigraph to) throws IllegalArgumentException,

@@ -133,7 +133,7 @@ public class Bigraph implements BigraphAbst {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	protected Bigraph clone() {
+	protected synchronized Bigraph clone() {
 		return new Bigraph(_sig, _pg.clone(), _lg.clone(), true);
 	}
 
@@ -255,12 +255,15 @@ public class Bigraph implements BigraphAbst {
 
 	/**
 	 * Juxtapose (on the right) the argument to this bigraph (which is modified
-	 * accordingly while the argument is left untouched).
+	 * accordingly while the argument is left untouched). For non desctructive
+	 * juxtaposition use {@link Bigraph#juxtapose(Bigraph, Bigraph)}.
+	 * Destructive operations are exposed by {@link BigraphBuilder}.
 	 * 
 	 * @param graph
 	 * @return this bigraph
+	 * @deprecated
 	 */
-	public synchronized Bigraph juxtapose(Bigraph graph) {
+	public synchronized Bigraph juxtaposeTo(Bigraph graph) {
 		this._pg.juxtapose(graph._pg);
 		this._lg.juxtapose(graph._lg);
 		this._nodes.addAll(graph._nodes);
@@ -269,12 +272,15 @@ public class Bigraph implements BigraphAbst {
 
 	/**
 	 * Compose the argument to this bigraph (which is modified accordingly while
-	 * the argument is left untouched).
+	 * the argument is left untouched). For non desctructive composition use
+	 * {@link Bigraph#compose(Bigraph, Bigraph)}. Destructive operations are
+	 * exposed by {@link BigraphBuilder}.
 	 * 
 	 * @param graph
 	 * @return this bigraph
+	 * @deprecated
 	 */
-	public synchronized Bigraph compose(Bigraph graph) {
+	public synchronized Bigraph composeTo(Bigraph graph) {
 		this._pg.compose(graph._pg);
 		this._lg.compose(graph._lg);
 		this._nodes.addAll(graph._nodes);
@@ -338,6 +344,34 @@ public class Bigraph implements BigraphAbst {
 		if (!Collections.disjoint(g1.getEdges(), g2.getEdges()))
 			return false;
 		return true;
+	}
+
+	/**
+	 * Juxtapose thwo bigraphs into a new one. For repeated operations use
+	 * {@link BigraphBuilder}.
+	 * 
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return g1 juxtaposed to g2
+	 */
+	public static Bigraph juxtapose(Bigraph g1, Bigraph g2) {
+		return g1.clone().juxtaposeTo(g2);
+	}
+
+	/**
+	 * Compose two bigraphs into a new one. For repeated operations use
+	 * {@link BigraphBuilder}.
+	 * 
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return g1 composed to g2
+	 */
+	public static Bigraph compose(Bigraph g1, Bigraph g2) {
+		return g1.clone().composeTo(g2);
 	}
 
 	/**
@@ -494,7 +528,7 @@ public class Bigraph implements BigraphAbst {
 	 */
 	public static Bigraph makeMerge(Signature<BigraphControl> sig,
 			BigraphFace face) {
-		return makeMerge(sig, face.getWidth()).juxtapose(makeId(sig, face));
+		return makeMerge(sig, face.getWidth()).juxtaposeTo(makeId(sig, face));
 	}
 
 	/**
