@@ -10,9 +10,9 @@ public class foo {
 	 */
 	public static void main(String[] args) {
 		SignatureBuilder<BigraphControl> sb = new SignatureBuilder<>();
-		sb.put(BigraphBuilder.makeControl("a",0));
-		sb.put(BigraphBuilder.makeControl("b",1));
-		sb.put(BigraphBuilder.makeControl("c",2));
+		sb.put(BigraphBuilder.makeControl("a",true,0));
+		sb.put(BigraphBuilder.makeControl("b",true,1));
+		sb.put(BigraphBuilder.makeControl("c",false,2));
 		Signature<BigraphControl> s = sb.makeSignature();
 		
 		System.out.println("Signature: " + s);
@@ -24,13 +24,13 @@ public class foo {
 		
 		//System.out.println("Bigraph: " + b0.getNodes()+ " " + b0.getInnerFace() + " -> " + b0.getOuterFace());
 		
-		b3.compose(Bigraph.makeMerge(s, 0));
+		b3.composeTo(Bigraph.makeMerge(s, 0));
 		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " +b3.getInnerFace() + " -> " + b3.getOuterFace());
-		b3.juxtapose(Bigraph.makeId(s, b2.getOuterFace()));
+		b3.juxtaposeTo(Bigraph.makeId(s, b2.getOuterFace()));
 		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " + b3.getInnerFace() + " -> " + b3.getOuterFace());
-		b3.compose(b2);
+		b3.composeTo(b2);
 		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " + b3.getInnerFace() + " -> " + b3.getOuterFace());
-		b3.compose(b1);
+		b3.composeTo(b1);
 		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " + b3.getInnerFace() + " -> " + b3.getOuterFace());
 	}
 
