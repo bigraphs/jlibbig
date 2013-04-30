@@ -8,12 +8,29 @@ import java.util.Set;
 public class BigraphView implements BigraphAbst {
 
 	private final Bigraph graph;
-	
-	public BigraphView(Bigraph graph) {
-		this.graph = graph;
-	}
-	
+
 	/**
+	 * Wraps a bigraph to expose its information only for reads. The given
+	 * bigraph is wrapped but not cloned.
+	 * 
+	 * @param graph
+	 */
+	public BigraphView(Bigraph graph) {
+		this(graph, false);
+	}
+
+	/**
+	 * Wraps a bigraph to expose its information only for reads. The bigraph is
+	 * optionally cloned to create a private (and therefore immutable) copy.
+	 * 
+	 * @param graph
+	 * @param clone
+	 */
+	public BigraphView(Bigraph graph, boolean clone) {
+		this.graph = (clone) ? graph.clone() : graph;
+	}
+
+	/*
 	 * @see jlibbig.BigraphAbst#isEmpty()
 	 */
 	@Override
@@ -21,7 +38,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.isEmpty();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#isAgent()
 	 */
 	@Override
@@ -30,6 +47,14 @@ public class BigraphView implements BigraphAbst {
 	}
 
 	/**
+	 * Returns a writable copy of this bigraph.
+	 * Operations on it will not propagate to this bigraph.
+	 */
+	public Bigraph getBigraph() {
+		return graph.clone();
+	}
+
+	/*
 	 * @see jlibbig.BigraphAbst#getPlaceGraphView()
 	 */
 	@Override
@@ -37,7 +62,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getPlaceGraphView();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getPlaceGraph()
 	 */
 	@Override
@@ -45,7 +70,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getPlaceGraph();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getLinkGraphView()
 	 */
 	@Override
@@ -53,7 +78,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getLinkGraphView();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getLinkGraph()
 	 */
 	@Override
@@ -61,7 +86,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getLinkGraph();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getSignature()
 	 */
 	@Override
@@ -69,7 +94,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getSignature();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getInnerFace()
 	 */
 	@Override
@@ -77,7 +102,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getInnerFace();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getOuterFace()
 	 */
 	@Override
@@ -85,7 +110,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getOuterFace();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getNodes()
 	 */
 	@Override
@@ -93,7 +118,7 @@ public class BigraphView implements BigraphAbst {
 		return graph.getNodes();
 	}
 
-	/**
+	/*
 	 * @see jlibbig.BigraphAbst#getEdges()
 	 */
 	@Override
