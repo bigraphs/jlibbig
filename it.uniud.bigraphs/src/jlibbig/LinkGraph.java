@@ -5,10 +5,10 @@ import java.util.*;
 public class LinkGraph implements LinkGraphAbst {
 
 	private final Signature<LinkGraphControl> _sig;
-	private final Set<LinkGraphFacet> _outerNames = new HashSet<>();
-	private final Set<LinkGraphFacet> _innerNames = new HashSet<>();
-	private final LinkGraphFace _outer = new LGFace(_outerNames);
-	private final LinkGraphFace _inner = new LGFace(_innerNames);
+	private final Set<OuterName> _outerNames = new HashSet<>();
+	private final Set<InnerName> _innerNames = new HashSet<>();
+	private final LinkGraphFace _outer = new LGFace((Set<LinkGraphFacet>) (Set<?>)_outerNames);
+	private final LinkGraphFace _inner = new LGFace((Set<LinkGraphFacet>) (Set<?>)_innerNames);
 	private final Set<LinkGraphNode> _nodes = new HashSet<>();
 	private final Set<Port> _ports = new HashSet<>();
 	private final Set<Edge> _edges = new HashSet<>();
@@ -237,6 +237,14 @@ public class LinkGraph implements LinkGraphAbst {
 	public LinkGraphFace getInnerFace() {
 		return this._inner;
 	}
+	
+	/* (non-Javadoc)
+	 * @see jlibbig.LinkGraphAbst#getInnerNames()
+	 */
+	@Override
+	public Set<InnerName> getInnerNames() {
+		return Collections.unmodifiableSet(this._innerNames);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -246,6 +254,15 @@ public class LinkGraph implements LinkGraphAbst {
 	@Override
 	public LinkGraphFace getOuterFace() {
 		return this._outer;
+	}
+	
+
+	/* (non-Javadoc)
+	 * @see jlibbig.LinkGraphAbst#getOuterNames()
+	 */
+	@Override
+	public Set<OuterName> getOuterNames() {
+		return Collections.unmodifiableSet(this._outerNames);
 	}
 
 	/*
@@ -628,7 +645,7 @@ public class LinkGraph implements LinkGraphAbst {
 	private static class LGFace implements LinkGraphFace {
 
 		private final Set<LinkGraphFacet> _facets;
-
+		
 		private LGFace(Set<LinkGraphFacet> facets) {
 			if (facets == null)
 				throw new IllegalArgumentException("Argument can not be null");

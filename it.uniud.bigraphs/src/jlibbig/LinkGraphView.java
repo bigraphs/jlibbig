@@ -36,10 +36,20 @@ public class LinkGraphView implements LinkGraphAbst {
 	public LinkGraphFace getInnerFace() {
 		return graph.getInnerFace();
 	}
+	
+	@Override
+	public Set<InnerName> getInnerNames() {
+		return graph.getInnerNames();
+	}
 
 	@Override
 	public LinkGraphFace getOuterFace() {
 		return graph.getOuterFace();
+	}
+	
+	@Override
+	public Set<OuterName> getOuterNames() {
+		return graph.getOuterNames();
 	}
 
 	@Override

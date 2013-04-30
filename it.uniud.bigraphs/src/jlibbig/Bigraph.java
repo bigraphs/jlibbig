@@ -3,7 +3,8 @@ package jlibbig;
 import java.util.*;
 
 /**
- * Represents a bigraph over a fixed signature
+ * Represents a bigraph over a fixed signature together with basic operations
+ * from bigraph creation and manipulation (see Milner's algebra for bigraphs).
  */
 public class Bigraph implements BigraphAbst {
 
@@ -35,9 +36,8 @@ public class Bigraph implements BigraphAbst {
 	 */
 	private Bigraph(Signature<BigraphControl> sig, PlaceGraph pg, LinkGraph lg) {
 		/*
-		 * TODO simpler bigraph constructor Signature and nodes checks can be
-		 * skipped in production (since the constructor is meant to be
-		 * internal).
+		 * Signature and nodes checks can be skipped in production (since the
+		 * constructor is meant to be internal).
 		 * 
 		 * @param sig can be inferred as the meet of the signatures of pg and lg
 		 * if these shares the nodes.
@@ -136,6 +136,8 @@ public class Bigraph implements BigraphAbst {
 	protected Bigraph clone() {
 		return new Bigraph(_sig, _pg.clone(), _lg.clone(), true);
 	}
+
+	// TODO equals and hashCode
 
 	/**
 	 * @see jlibbig.BigraphAbst#isEmpty()
@@ -252,8 +254,8 @@ public class Bigraph implements BigraphAbst {
 	}
 
 	/**
-	 * Juxtapose (on the right) the argument to the current bigraph (which is
-	 * modified accordingly).
+	 * Juxtapose (on the right) the argument to this bigraph (which is modified
+	 * accordingly while the argument is left untouched).
 	 * 
 	 * @param graph
 	 * @return this bigraph
@@ -266,7 +268,8 @@ public class Bigraph implements BigraphAbst {
 	}
 
 	/**
-	 * Compose the argument to this bigraph.
+	 * Compose the argument to this bigraph (which is modified accordingly while
+	 * the argument is left untouched).
 	 * 
 	 * @param graph
 	 * @return this bigraph
@@ -278,22 +281,38 @@ public class Bigraph implements BigraphAbst {
 		return this;
 	}
 
+	/**
+	 * @param g2
+	 *            right operand
+	 * @return {@literal true} if this bigraph and the argument can be
+	 *         juxtaposed
+	 */
 	public boolean isJuxtaposable(Bigraph g2) {
 		return areJuxtaposable(this, g2);
 	}
 
+	/**
+	 * @param g2
+	 *            right operand
+	 * @return {@literal true} if this bigraph can be composed to the argument
+	 */
 	public boolean isComposable(Bigraph g2) {
 		return areComposable(this, g2);
 	}
 
+	/**
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return {@literal true} if the bigraphs can be juxtaposed
+	 */
 	public static boolean areJuxtaposable(Bigraph g1, Bigraph g2) {
-		if(!g1._sig.equals(g2._sig))
+		if (!g1._sig.equals(g2._sig))
 			return false;
-		if (!Collections.disjoint(g1._inner.getNames(), g2
-				._inner.getNames()))
+		if (!Collections.disjoint(g1._inner.getNames(), g2._inner.getNames()))
 			return false;
-		if (!Collections.disjoint(g1._outer.getNames(), g2
-				._outer.getNames()))
+		if (!Collections.disjoint(g1._outer.getNames(), g2._outer.getNames()))
 			return false;
 		if (!Collections.disjoint(g1._nodes, g2._nodes))
 			return false;
@@ -301,9 +320,16 @@ public class Bigraph implements BigraphAbst {
 			return false;
 		return true;
 	}
-	
+
+	/**
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return {@literal true} if the the first can be composed after the latter
+	 */
 	public static boolean areComposable(Bigraph g1, Bigraph g2) {
-		if(!g1._sig.equals(g2._sig))
+		if (!g1._sig.equals(g2._sig))
 			return false;
 		if (!g1._inner.equals(g2._outer))
 			return false;

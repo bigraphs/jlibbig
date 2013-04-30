@@ -9,7 +9,26 @@ public class BigraphRewritingRule {
 	private final Map<Integer, Integer> _map = new HashMap<>();
 
 	private final boolean _dup;
-	
+
+	/** Create a rewriting rule between bigraphs over the same signature.
+	 * Redex and reactum must have the same outer interface
+	 * an inter names. 
+	 * @param redex
+	 * @param reactum
+	 * @param map a map from reactum sites to redex ones
+	 */
+	public BigraphRewritingRule(Bigraph redex, Bigraph reactum,
+			Map<Integer, Integer> map) {
+		this(redex, reactum, map, false);
+	}
+
+	/** Same as {@link BigraphRewritingRule#BigraphRewritingRule(Bigraph, Bigraph, Map)}
+	 *  except that sanity checks on inputs can be skipped.
+	 * @param redex
+	 * @param reactum
+	 * @param map
+	 * @param skipCheck
+	 */
 	protected BigraphRewritingRule(Bigraph redex, Bigraph reactum,
 			Map<Integer, Integer> map, boolean skipCheck) {
 		boolean inj = true;
@@ -23,7 +42,7 @@ public class BigraphRewritingRule {
 			}
 		} else {
 			boolean ok = true;
-			//check signatures
+			// check signatures
 			ok &= redex.getSignature().equals(reactum.getSignature());
 			// check interfaces
 			ok &= redex.getOuterFace().equals(reactum.getOuterFace());
@@ -59,41 +78,46 @@ public class BigraphRewritingRule {
 	public boolean isDuplicating() {
 		return _dup;
 	}
-	
-	public Integer map(int site){
+
+	public Integer map(int site) {
 		return _map.get(site);
 	}
-	
-	public Map<Integer,Integer> getInstantiationMap(){
+
+	public Map<Integer, Integer> getInstantiationMap() {
 		return Collections.unmodifiableMap(_map);
 	}
 
-	public BigraphView getRactumView() {
+	public BigraphView getRactum() {
 		return new BigraphView(_rhs);
 	}
 
-	public BigraphView getRedexView() {
+	public BigraphView getRedex() {
 		return new BigraphView(_lhs);
 	}
 
-	public Bigraph getRactum() {
-		return _rhs.clone();
-	}
-
-	public Bigraph getRedex() {
-		return _lhs.clone();
-	}
-
 	public Bigraph apply(BigraphMatch to) {
-		Bigraph args = Bigraph.makeEmpty(_lhs.getSignature());
+		// TODO check if to is a match for this rule!
+		Bigraph args = Bigraph.makeEmpty(_rhs.getSignature());
 		int w = _rhs.getInnerFace().getWidth();
-		for(int i = 0; i < w; i--){
+		for (int i = 0; i < w; i--) {
 			args.juxtapose(to.getArg(i));
 		}
-		return to.getContext().compose(to.getRedex()).compose(args);
+		return to.getContext().compose(_lhs).compose(args);
 	}
 
-	public List<Bigraph> apply(Bigraph to) {
-		throw new UnsupportedOperationException("Not implemented yet");
+	public Set<Bigraph> apply(Bigraph to) throws IllegalArgumentException,
+			IncompatibleSignatureException {
+		/*
+		 * Done by the matcher
+		 * if(!to.getSignature().equals(_lhs.getSignature())) throw new
+		 * IncompatibleSignatureException(); if(!to.isAgent()) throw new
+		 * IllegalArgumentException
+		 * ("Rewriting rules can be applied only to agents.");
+		 */
+		Set<Bigraph> rs = new HashSet<>();
+		for (BigraphMatch match : BigraphMatcher.getAllMatches(to, _lhs)) {
+			rs.add(this.apply(match));
+		}
+		return rs;
 	}
 }

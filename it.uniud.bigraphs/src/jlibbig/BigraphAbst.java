@@ -2,6 +2,9 @@ package jlibbig;
 
 import java.util.Set;
 
+/**
+ * Represents a bigraph over a fixed signature
+ */
 public interface BigraphAbst {
 
 	/**

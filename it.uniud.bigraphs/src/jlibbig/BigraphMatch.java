@@ -18,7 +18,8 @@ public class BigraphMatch {
 	/**
 	 * Construct a match for the given context, redex and arguments. These must
 	 * be composable into a single bigraph otherwise an exception is thrown.
-	 * 
+	 * Arguments are not cloned for efficiency (operations on them made somewere
+	 * else can introduce inconsistencies).
 	 * @throws IllegalArgumentException
 	 *             if arguments are null or not composable.
 	 * @param ctx
@@ -144,21 +145,19 @@ public class BigraphMatch {
 	}
 	*/
 
-	public Bigraph getArg(int index) {
+	protected Bigraph getArg(int index) {
 		//copyOnWrite();
-		return _args.get(index).clone();
+		return _args.get(index);
 	}
 	
-	public Bigraph getContext() {
+	protected Bigraph getContext() {
 		//copyOnWrite();
-		//return _ctx;
-		return _ctx.clone();
+		return _ctx;
 	}
 
-	public Bigraph getRedex() {
+	protected Bigraph getRedex() {
 		//copyOnWrite();
-		//return _rdx;
-		return _ctx.clone();
+		return _rdx;
 	}
 
 	public BigraphView getContextView() {
