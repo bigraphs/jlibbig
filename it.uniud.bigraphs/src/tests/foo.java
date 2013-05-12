@@ -16,22 +16,29 @@ public class foo {
 		Signature<BigraphControl> s = sb.makeSignature();
 		
 		System.out.println("Signature: " + s);
-		
-		BigraphAbst b0 = Bigraph.makeMerge(s,0);
-		Bigraph b1 = Bigraph.makeIon(s, s.getByName("a"),"s");
-		Bigraph b2 = Bigraph.makeIon(s, s.getByName("b"),"u","z");
-		Bigraph b3 = Bigraph.makeIon(s, s.getByName("c"),"v","x","y");
+				
+		Bigraph b0 = printBig(Bigraph.makeMerge(s,0)); // 0->1
+		Bigraph b1 = printBig(Bigraph.makeIon(s, s.getByName("a"),"s"));
+		Bigraph b2 = printBig(Bigraph.makeIon(s, s.getByName("b"),"u","z"));
+		Bigraph b3 = printBig(Bigraph.makeIon(s, s.getByName("c"),"v","x","y")); // 1->1
 		
 		//System.out.println("Bigraph: " + b0.getNodes()+ " " + b0.getInnerFace() + " -> " + b0.getOuterFace());
+						
+		BigraphBuilder bb = new BigraphBuilder(b3);
 		
-		b3.composeTo(Bigraph.makeMerge(s, 0));
-		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " +b3.getInnerFace() + " -> " + b3.getOuterFace());
-		b3.juxtaposeTo(Bigraph.makeId(s, b2.getOuterFace()));
-		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " + b3.getInnerFace() + " -> " + b3.getOuterFace());
-		b3.composeTo(b2);
-		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " + b3.getInnerFace() + " -> " + b3.getOuterFace());
-		b3.composeTo(b1);
-		System.out.println("Bigraph: " + b3.getNodes() + " " + b3.getEdges() + " " + b3.getInnerFace() + " -> " + b3.getOuterFace());
+		bb.leftJuxtapose(Bigraph.makeId(s, b2.getOuterFace()));
+		bb.innerCompose(b2);
+		bb.innerCompose(b1);
+		bb.innerCompose(b0);
+		
+		Bigraph b = bb.makeBigraph();
+		
+		System.out.println("Bigraph: " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
+	}
+	
+	private static Bigraph printBig(Bigraph b){
+		System.out.println("Bigraph: " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
+		return b;
 	}
 
 }

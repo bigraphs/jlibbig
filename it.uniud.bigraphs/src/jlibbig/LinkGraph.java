@@ -2,7 +2,7 @@ package jlibbig;
 
 import java.util.*;
 
-public class LinkGraph implements LinkGraphAbst {
+public class LinkGraph{
 
 	private final Signature<LinkGraphControl> _sig;
 	private final Set<OuterName> _outerNames = new HashSet<>();
@@ -188,129 +188,62 @@ public class LinkGraph implements LinkGraphAbst {
 		return g;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getSignature()
-	 */
-	@Override
 	public Signature<LinkGraphControl> getSignature() {
 		return this._sig;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getNodes()
-	 */
-	@Override
+
 	public Set<LinkGraphNode> getNodes() {
 		return Collections.unmodifiableSet(this._nodes);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getPorts()
-	 */
-	@Override
 	public Set<Port> getPorts() {
 		return Collections.unmodifiableSet(this._ports);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getEdges()
-	 */
-	@Override
 	public Set<Edge> getEdges() {
 		return Collections.unmodifiableSet(this._edges);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getInnerFace()
-	 */
-	@Override
 	public LinkGraphFace getInnerFace() {
 		return this._inner;
 	}
 	
-	/* (non-Javadoc)
-	 * @see jlibbig.LinkGraphAbst#getInnerNames()
-	 */
-	@Override
 	public Set<InnerName> getInnerNames() {
 		return Collections.unmodifiableSet(this._innerNames);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getOuterFace()
-	 */
-	@Override
 	public LinkGraphFace getOuterFace() {
 		return this._outer;
 	}
 	
-
-	/* (non-Javadoc)
-	 * @see jlibbig.LinkGraphAbst#getOuterNames()
-	 */
-	@Override
 	public Set<OuterName> getOuterNames() {
 		return Collections.unmodifiableSet(this._outerNames);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getLink(jlibbig.LinkGraphAbst.Linked)
-	 */
-	@Override
 	public Linker getLink(Linked l) {
 		return _lnk.get(l);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#getLinked(jlibbig.LinkGraphAbst.Linker)
-	 */
-	@Override
 	public Set<Linked> getLinked(Linker l) {
 		return Collections.unmodifiableSet(_rev.get(l));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#isEmpty()
-	 */
-	@Override
 	public boolean isEmpty() {
 		return _nodes.isEmpty() && _outerNames.isEmpty()
 				&& _innerNames.isEmpty();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibbig.LinkGraphAbst#isAgent()
-	 */
-	@Override
+	
 	public boolean isAgent() {
 		return _inner.isEmpty();
 	}
-
-	/**
-	 * @param g
-	 * @return
-	 */
-	public synchronized LinkGraph juxtapose(LinkGraph g) {
+		
+	synchronized LinkGraph leftJuxtapose(LinkGraph g) {
+		// juxtapose is commutative on link graphs
+		return rightJuxtapose(g);
+	}
+	
+	synchronized LinkGraph rightJuxtapose(LinkGraph g) {
 		if (!Collections.disjoint(this._innerNames, g._innerNames)
 				|| !Collections.disjoint(this._outerNames, g._outerNames)) {
 			throw new IllegalArgumentException("Overlapping interfaces");
@@ -331,11 +264,53 @@ public class LinkGraph implements LinkGraphAbst {
 		return this;
 	}
 
+	synchronized LinkGraph outerCompose(LinkGraph g) {
+		if (!this.getOuterFace().equals(g.getInnerFace())) {
+			throw new IllegalArgumentException("Mismatching interfaces "
+					+ this.getOuterFace() + " " + g.getInnerFace());
+		}
+		if (!Collections.disjoint(this._nodes, g._nodes)
+				|| !Collections.disjoint(this._edges, g._edges)) {
+			throw new IllegalArgumentException("Overlapping supports");
+		}
+		this._nodes.addAll(g._nodes);
+		this._edges.addAll(g._edges);
+		// bulk copy the link map (inconsistencies will be addressed below)
+		this._lnk.putAll(g._lnk);
+		// copy the reverse map
+		for (Linker r : _rev.keySet()) {
+			this._rev.put(r, new HashSet<>(g._rev.get(r)));
+		}
+		// iterate over names to be composed and glue link maps accordingly
+		for (LinkGraphFacet on : this._outerNames) {
+			for (LinkGraphFacet in : g._innerNames) {
+				if (in.equals(on)) {
+					Linker r1 = this._lnk.get(in); // follow links from inner names 	
+					Set<Linked> l1 = this._rev.get(r1); // whatever is attached
+														// to e1 in g
+					Set<Linked> l2 = g._rev.get(on); // whatever is attached to
+													 // on in this graph
+					// attach items of l2 to e1
+					l1.addAll(l2);
+					// points in l2 have to be linked to e1
+					for (Linked l : l2) {
+						this._lnk.put(l, r1);
+					}
+					break;
+				}
+			}
+		}
+		this._outerNames.clear();
+		this._outerNames.addAll(g._outerNames);
+		removeIdleEdges();
+		return this;
+	}
+	
 	/**
 	 * @param g
 	 * @return
 	 */
-	public synchronized LinkGraph compose(LinkGraph g) {
+	synchronized LinkGraph innerCompose(LinkGraph g) {
 		if (!this.getInnerFace().equals(g.getOuterFace())) {
 			throw new IllegalArgumentException("Mismatching interfaces "
 					+ this.getInnerFace() + " " + g.getOuterFace());
@@ -382,6 +357,74 @@ public class LinkGraph implements LinkGraphAbst {
 		removeIdleEdges();
 		return this;
 	}
+	
+	/**
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return {@literal true} if the bigraphs can be juxtaposed
+	 */
+	public static boolean areJuxtaposable(LinkGraph g1, LinkGraph g2) {
+		if (!g1._sig.equals(g2._sig))
+			return false;
+		if (!Collections.disjoint(g1._inner.getNames(), g2._inner.getNames()))
+			return false;
+		if (!Collections.disjoint(g1._outer.getNames(), g2._outer.getNames()))
+			return false;
+		if (!Collections.disjoint(g1._nodes, g2._nodes))
+			return false;
+		if (!Collections.disjoint(g1.getEdges(), g2.getEdges()))
+			return false;
+		return true;
+	}
+
+	/**
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return {@literal true} if the the first can be composed after the latter
+	 */
+	public static boolean areComposable(LinkGraph g1, LinkGraph g2) {
+		if (!g1._sig.equals(g2._sig))
+			return false;
+		if (!g1._inner.equals(g2._outer))
+			return false;
+		if (!Collections.disjoint(g1._nodes, g2._nodes))
+			return false;
+		if (!Collections.disjoint(g1.getEdges(), g2.getEdges()))
+			return false;
+		return true;
+	}
+
+	/**
+	 * Juxtapose two link graphs into a new one.
+	 * 
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return g1 juxtaposed to g2
+	 */
+	public static LinkGraph juxtapose(LinkGraph g1, LinkGraph g2) {
+		return g1.clone().rightJuxtapose(g2);
+	}
+
+	/**
+	 * Compose two bigraphs into a new one. For repeated operations use
+	 * {@link BigraphBuilder}.
+	 * 
+	 * @param g1
+	 *            left operand
+	 * @param g2
+	 *            right operand
+	 * @return g1 composed to g2
+	 */
+	public static LinkGraph compose(LinkGraph g1, LinkGraph g2) {
+		return g1.clone().outerCompose(g2);
+	}
+	
 
 	/**
 	 * @param sig
@@ -546,6 +589,10 @@ public class LinkGraph implements LinkGraphAbst {
 		}
 		return g;
 	}
+	
+
+	public interface Linked{}
+	public interface Linker{}
 
 	/**
 	 * package-private implementation of LinkGraphNode

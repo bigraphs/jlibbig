@@ -3,109 +3,60 @@ package jlibbig;
 import java.util.Set;
 
 /**
- * A mutable bigraph. The class is meant as a helper for bigraph construction
+ * The class is meant as a helper for bigraph construction
  * and manipulation in presence of series of operations since {#link Bigraph} 
  * is immutable: e.g. {@link Bigraph#compose(Bigraph, Bigraph)} or 
  * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object. 
  */
-public class BigraphBuilder implements BigraphAbst {
+public class BigraphBuilder{
 	private final Bigraph _big;
-		
+	private final Signature<BigraphControl> _sig;
+	
+	/*
+	public BigraphBuilder(){
+		_sig = new Signature<>();
+		_big = Bigraph.makeEmpty(_sig);
+	}
+	*/
+	
 	public BigraphBuilder(Signature<BigraphControl> sig){
-		_big = Bigraph.makeEmpty(sig);
+		_sig = sig.clone();
+		_big = Bigraph.makeEmpty(_sig);
 	}
 	
 	public BigraphBuilder(Bigraph big){
-		_big = big;
+		_big = big.clone();
+		_sig = _big.getSignature(); 
 	}
 	
-	/*
-	 * @see jlibbig.BigraphAbst#isEmpty()
-	 */
-	@Override
-	public boolean isEmpty() {
-		return _big.isEmpty();
-	}
-
-	/*
-	 * @see jlibbig.BigraphAbst#isAgent()
-	 */
-	@Override
+	
 	public boolean isAgent() {
 		return _big.isAgent();
 	}
 
-	/*
-	 * @see jlibbig.BigraphAbst#getPlaceGraphView()
-	 */
-	@Override
-	public PlaceGraphView getPlaceGraphView() {
-		return _big.getPlaceGraphView();
+	public boolean isEmpty() {
+		return _big.isEmpty();
 	}
-
-	/*
-	 * @see jlibbig.BigraphAbst#getPlaceGraph()
-	 */
-	@Override
-	public PlaceGraph getPlaceGraph() {
-		return _big.getPlaceGraph();
-	}
-
-	/*
-	 * @see jlibbig.BigraphAbst#getLinkGraphView()
-	 */
-	@Override
-	public LinkGraphView getLinkGraphView() {
-		return _big.getLinkGraphView();
-	}
-
-	/*
-	 * @see jlibbig.BigraphAbst#getLinkGraph()
-	 */
-	@Override
-	public LinkGraph getLinkGraph() {
-		return _big.getLinkGraph();
-	}
-
-	/*
-	 * @see jlibbig.BigraphAbst#getSignature()
-	 */
-	@Override
 	public Signature<BigraphControl> getSignature() {
 		return _big.getSignature();
 	}
 
-	/*
-	 * @see jlibbig.BigraphAbst#getInnerFace()
-	 */
-	@Override
 	public BigraphFace getInnerFace() {
 		return _big.getInnerFace();
 	}
 
-	/*
-	 * @see jlibbig.BigraphAbst#getOuterFace()
-	 */
-	@Override
 	public BigraphFace getOuterFace() {
 		return _big.getOuterFace();
 	}
 
-	/*
-	 * @see jlibbig.BigraphAbst#getNodes()
-	 */
-	@Override
 	public Set<BigraphNode> getNodes() {
 		return _big.getNodes();
 	}
 
-	/*
-	 * @see jlibbig.BigraphAbst#getEdges()
-	 */
-	@Override
 	public Set<Edge> getEdges() {
 		return _big.getEdges();
 	}
+	
 	
 	/** Creates a new bigraph from its inner one.
 	 * @return a bigraph.
@@ -116,26 +67,63 @@ public class BigraphBuilder implements BigraphAbst {
 		}
 	} 
 	
-	public void juxtaposeTo(Bigraph graph) {
-		_big.juxtaposeTo(graph);
+	/*
+	public void addControl(BigraphControl control){
+		_sig.extendWith(control);
 	}
 	
-	public void composeTo(Bigraph graph) {
-		_big.composeTo(graph);
+	public void addControl(String name, boolean active,int arity){
+		addControl(new BGControl(name,active,arity));
+	}*/
+	
+	public void merge() {
+		_big.outerCompose(Bigraph.makeMerge(_sig, _big.getOuterFace()));
+	}
+	
+	public void leftJuxtapose(Bigraph graph) {
+		_big.leftJuxtapose(graph);
+	}
+	
+	public void rightJuxtapose(Bigraph graph) {
+		_big.rightJuxtapose(graph);
+	}
+	
+	public void innerCompose(Bigraph graph) {
+		_big.innerCompose(graph);
+	}
+	
+	public void outerCompose(Bigraph graph) {
+		_big.outerCompose(graph);
 	}
 	
 	// Derived operations
-	public void nest(Bigraph graph){
+	public void nestBefore(Bigraph graph){
 		// TODO implement
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
-	public void parallelProductWith(Bigraph graph){
+	public void nestAfter(Bigraph graph){
 		// TODO implement
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
-	public void mergeProductWith(Bigraph graph){
+	public void parallelProductRight(Bigraph graph){
+		// TODO implement
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+	
+	public void parallelProductLeft(Bigraph graph){
+		// TODO implement
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+	
+	public void mergeProductRight(Bigraph graph){
+		// TODO implement
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+	
+
+	public void mergeProductBefore(Bigraph graph){
 		// TODO implement
 		throw new UnsupportedOperationException("Not implemented yet");
 	}

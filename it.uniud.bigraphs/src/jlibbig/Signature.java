@@ -6,6 +6,8 @@ public class Signature<C extends GraphControl> implements Set<C>{
 
 	final private Map<String,C> ctrls = new HashMap<>();
 
+	protected Signature() {}
+	
 	public Signature(Collection<C> controls) {
 		for(C c : controls){
 			if(ctrls.containsKey(c.getName())){
@@ -20,6 +22,11 @@ public class Signature<C extends GraphControl> implements Set<C>{
 		return ctrls.get(name);
 	}
 		
+	@Override
+	protected synchronized Signature<C> clone() {
+		return new Signature<>(this.ctrls.values());
+	}
+	
 	@Override
 	public String toString() {
 		return "Signature " + ctrls.values();
@@ -50,6 +57,18 @@ public class Signature<C extends GraphControl> implements Set<C>{
 		return true;
 	}
 
+	void extendWith(C control) {
+		if(this.ctrls.containsKey(control.getName()))
+			throw new IllegalArgumentException("Duplicated control");
+		this.ctrls.put(control.getName(), control);
+	}
+
+	void extendWith(Collection<? extends C> controls) {
+		for(C ctrl : controls)
+			extendWith(ctrl);
+	}
+
+	
 	@Override
 	public boolean add(C arg0) {
 		throw new UnsupportedOperationException("Signatures are read-only sets");

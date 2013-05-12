@@ -87,12 +87,12 @@ public class BigraphRewritingRule {
 		return Collections.unmodifiableMap(_map);
 	}
 
-	public BigraphView getRactum() {
-		return new BigraphView(_rhs);
+	public Bigraph getRactum() {
+		return _rhs;
 	}
 
-	public BigraphView getRedex() {
-		return new BigraphView(_lhs);
+	public Bigraph getRedex() {
+		return _lhs;
 	}
 
 	public Bigraph apply(BigraphMatch to) {
@@ -100,9 +100,9 @@ public class BigraphRewritingRule {
 		Bigraph args = Bigraph.makeEmpty(_rhs.getSignature());
 		int w = _rhs.getInnerFace().getWidth();
 		for (int i = 0; i < w; i--) {
-			args.juxtaposeTo(to.getArg(i));
+			args.rightJuxtapose(to.getArg(i));
 		}
-		return to.getContext().composeTo(_lhs).composeTo(args);
+		return to.getContext().outerCompose(_lhs).outerCompose(args);
 	}
 
 	public Set<Bigraph> apply(Bigraph to) throws IllegalArgumentException,

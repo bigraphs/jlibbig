@@ -5,7 +5,7 @@ package jlibbig;
  * Differently from inner names, outer ones can link but not be linked (i.e. they
  * appear in the codomain of a link map nut not in its domain).
  */
-public final class OuterName extends LinkGraphFacet implements LinkGraphAbst.Linker {
+public final class OuterName extends LinkGraphFacet implements LinkGraph.Linker {
 
 	/** Creates an outer name with a generated name.
 	 * The name is in the reserved form <code>"F_%d"</code>.

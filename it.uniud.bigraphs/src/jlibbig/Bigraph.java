@@ -6,7 +6,7 @@ import java.util.*;
  * Represents a bigraph over a fixed signature together with basic operations
  * from bigraph creation and manipulation (see Milner's algebra for bigraphs).
  */
-public class Bigraph implements BigraphAbst {
+public class Bigraph {
 
 	private final Signature<BigraphControl> _sig;
 
@@ -17,12 +17,6 @@ public class Bigraph implements BigraphAbst {
 	private final BigraphFace _outer;
 
 	private final Set<BigraphNode> _nodes = new HashSet<>();
-
-	/**
-	 * read only access to place and link graph composing the bigraph
-	 */
-	private final PlaceGraphView _placing;
-	private final LinkGraphView _linking;
 
 	/**
 	 * Place graph and link graph must share nodes and signatures.
@@ -122,9 +116,6 @@ public class Bigraph implements BigraphAbst {
 		// interfaces
 		_inner = new BGFace(_pg.getInnerFace(), _lg.getInnerFace());
 		_outer = new BGFace(_pg.getOuterFace(), _lg.getOuterFace());
-		// read-only views
-		_placing = new PlaceGraphView(_pg);
-		_linking = new LinkGraphView(_lg);
 	}
 
 	/*
@@ -134,95 +125,51 @@ public class Bigraph implements BigraphAbst {
 	 */
 	@Override
 	protected synchronized Bigraph clone() {
-		return new Bigraph(_sig, _pg.clone(), _lg.clone(), true);
+		return new Bigraph(_sig.clone(), _pg.clone(), _lg.clone(), true);
 	}
-
+	
 	// TODO equals and hashCode
 
-	/**
-	 * @see jlibbig.BigraphAbst#isEmpty()
-	 */
-	@Override
+	
 	public boolean isEmpty() {
 		return _pg.isEmpty() && _lg.isEmpty();
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#isAgent()
-	 */
-	@Override
+	
 	public boolean isAgent() {
 		return _inner.isEmpty();
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#getPlaceGraphView()
-	 */
-	@Override
-	public PlaceGraphView getPlaceGraphView() {
-		return _placing;
-	}
-
-	/**
-	 * @see jlibbig.BigraphAbst#getPlaceGraph()
-	 */
-	@Override
 	public PlaceGraph getPlaceGraph() {
-		return (PlaceGraph) _pg.clone();
+		return _pg;
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#getLinkGraphView()
-	 */
-	@Override
-	public LinkGraphView getLinkGraphView() {
-		return _linking;
-	}
-
-	/**
-	 * @see jlibbig.BigraphAbst#getLinkGraph()
-	 */
-	@Override
+	
 	public LinkGraph getLinkGraph() {
-		return (LinkGraph) _lg.clone();
+		return  _lg;
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#getSignature()
-	 */
-	@Override
+	
 	public Signature<BigraphControl> getSignature() {
 		return _sig;
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#getInnerFace()
-	 */
-	@Override
+	
 	public BigraphFace getInnerFace() {
 		return _inner;
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#getOuterFace()
-	 */
-	@Override
+	
 	public BigraphFace getOuterFace() {
 		return _outer;
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#getNodes()
-	 */
-	@Override
+	
 	public Set<BigraphNode> getNodes() {
 		return Collections.unmodifiableSet(this._nodes);
 	}
 
-	/**
-	 * @see jlibbig.BigraphAbst#getEdges()
-	 */
-	@Override
+	
 	public Set<Edge> getEdges() {
 		return this._lg.getEdges();
 	}
@@ -254,58 +201,73 @@ public class Bigraph implements BigraphAbst {
 	}
 
 	/**
-	 * Juxtapose (on the right) the argument to this bigraph (which is modified
+	 * Juxtapose the argument on the right of this bigraph (which is modified
 	 * accordingly while the argument is left untouched). For non desctructive
 	 * juxtaposition use {@link Bigraph#juxtapose(Bigraph, Bigraph)}.
 	 * Destructive operations are exposed by {@link BigraphBuilder}.
 	 * 
 	 * @param graph
 	 * @return this bigraph
-	 * @deprecated
 	 */
-	public synchronized Bigraph juxtaposeTo(Bigraph graph) {
-		this._pg.juxtapose(graph._pg);
-		this._lg.juxtapose(graph._lg);
+	synchronized Bigraph rightJuxtapose(Bigraph graph) {
+		this._pg.rightJuxtapose(graph._pg);
+		this._lg.rightJuxtapose(graph._lg);
+		this._nodes.addAll(graph._nodes);
+		return this;
+	}
+	
+	/**
+	 * Juxtapose the argument on the left of this bigraph (which is modified
+	 * accordingly while the argument is left untouched). For non desctructive
+	 * juxtaposition use {@link Bigraph#juxtapose(Bigraph, Bigraph)}.
+	 * Destructive operations are exposed by {@link BigraphBuilder}.
+	 * 
+	 * @param graph
+	 * @return this bigraph
+	 */
+	synchronized Bigraph leftJuxtapose(Bigraph graph) {
+		this._pg.leftJuxtapose(graph._pg);
+		this._lg.leftJuxtapose(graph._lg);
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
 
+
 	/**
-	 * Compose the argument to this bigraph (which is modified accordingly while
+	 * "this before that".
+	 * Compose the argument to the inner face of this bigraph (which is modified accordingly while
 	 * the argument is left untouched). For non desctructive composition use
 	 * {@link Bigraph#compose(Bigraph, Bigraph)}. Destructive operations are
 	 * exposed by {@link BigraphBuilder}.
 	 * 
 	 * @param graph
 	 * @return this bigraph
-	 * @deprecated
 	 */
-	public synchronized Bigraph composeTo(Bigraph graph) {
-		this._pg.compose(graph._pg);
-		this._lg.compose(graph._lg);
+	synchronized Bigraph innerCompose(Bigraph graph) {
+		this._pg.innerCompose(graph._pg);
+		this._lg.innerCompose(graph._lg);
+		this._nodes.addAll(graph._nodes);
+		return this;
+	}
+	
+	/**
+	 * "this after that".
+	 * Compose the argument to the inner face of  this bigraph (which is modified accordingly while
+	 * the argument is left untouched). For non desctructive composition use
+	 * {@link Bigraph#compose(Bigraph, Bigraph)}. Destructive operations are
+	 * exposed by {@link BigraphBuilder}.
+	 * 
+	 * @param graph
+	 * @return this bigraph
+	 */
+	synchronized Bigraph outerCompose(Bigraph graph) {
+		this._pg.outerCompose(graph._pg);
+		this._lg.outerCompose(graph._lg);
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
 
-	/**
-	 * @param g2
-	 *            right operand
-	 * @return {@literal true} if this bigraph and the argument can be
-	 *         juxtaposed
-	 */
-	public boolean isJuxtaposable(Bigraph g2) {
-		return areJuxtaposable(this, g2);
-	}
-
-	/**
-	 * @param g2
-	 *            right operand
-	 * @return {@literal true} if this bigraph can be composed to the argument
-	 */
-	public boolean isComposable(Bigraph g2) {
-		return areComposable(this, g2);
-	}
-
+	
 	/**
 	 * @param g1
 	 *            left operand
@@ -357,7 +319,7 @@ public class Bigraph implements BigraphAbst {
 	 * @return g1 juxtaposed to g2
 	 */
 	public static Bigraph juxtapose(Bigraph g1, Bigraph g2) {
-		return g1.clone().juxtaposeTo(g2);
+		return g1.clone().rightJuxtapose(g2);
 	}
 
 	/**
@@ -368,10 +330,10 @@ public class Bigraph implements BigraphAbst {
 	 *            left operand
 	 * @param g2
 	 *            right operand
-	 * @return g1 composed to g2
+	 * @return g1 after g2
 	 */
 	public static Bigraph compose(Bigraph g1, Bigraph g2) {
-		return g1.clone().composeTo(g2);
+		return g1.clone().innerCompose(g2);
 	}
 
 	/**
@@ -503,7 +465,7 @@ public class Bigraph implements BigraphAbst {
 	}
 
 	/**
-	 * Creates a empty bigraph over the given signature
+	 * Creates an empty bigraph over the given signature
 	 * 
 	 * @see jlibbig.PlaceGraph#makeEmpty(Signature<PlaceGraphControl>)
 	 * @see jlibbig.LinkGraph#makeEmpty(Signature<LinkGraphControl>)
@@ -515,7 +477,7 @@ public class Bigraph implements BigraphAbst {
 		LinkGraph lg = LinkGraph.makeEmpty(asLinkSignature(sig));
 		return new Bigraph(sig, pg, lg);
 	}
-
+	
 	/**
 	 * Created a bigraph composed by a merge place graph and an identity link
 	 * graph with the given interface.
@@ -528,7 +490,8 @@ public class Bigraph implements BigraphAbst {
 	 */
 	public static Bigraph makeMerge(Signature<BigraphControl> sig,
 			BigraphFace face) {
-		return makeMerge(sig, face.getWidth()).juxtaposeTo(makeId(sig, face));
+		return new Bigraph(sig, PlaceGraph.makeMerge(asPlaceSignature(sig), face.getWidth()),
+				LinkGraph.makeId(asLinkSignature(sig), (LinkGraphFace) face));
 	}
 
 	/**
