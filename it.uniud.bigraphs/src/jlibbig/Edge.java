@@ -1,6 +1,6 @@
 package jlibbig;
 
-public class Edge extends Named implements LinkGraphAbst.Linker {
+public class Edge extends Named implements LinkGraph.Linker {
 
 	/** Creates an edge with a generated name.
 	 * The name is in the reserved form <code>"E_%d"</code> ({@link Named#generateName()}).

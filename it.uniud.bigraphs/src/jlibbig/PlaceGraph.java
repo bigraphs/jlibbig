@@ -2,7 +2,7 @@ package jlibbig;
 
 import java.util.*;
 
-public class PlaceGraph implements PlaceGraphAbst {
+public class PlaceGraph{
 
 	private final Signature<PlaceGraphControl> _sig;
 
@@ -147,82 +147,42 @@ public class PlaceGraph implements PlaceGraphAbst {
 		return pg;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getSignature()
-	 */
-	@Override
+	
 	public Signature<PlaceGraphControl> getSignature() {
 		return _sig;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getOuterFace()
-	 */
-	@Override
+	
 	public PlaceGraphFace getOuterFace() {
 		return _outer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getInnerFace()
-	 */
-	@Override
+	
 	public PlaceGraphFace getInnerFace() {
 		return _inner;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getNodes()
-	 */
-	@Override
+	
 	public Set<PlaceGraphNode> getNodes() {
 		return Collections.unmodifiableSet(this._nodes);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getRoots()
-	 */
-	@Override
+	
 	public List<Root> getRoots() {
 		return Collections.unmodifiableList(this._roots);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getSites()
-	 */
-	@Override
+	
 	public List<Site> getSites() {
 		return Collections.unmodifiableList(this._sites);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getParentOf(jlibig.PlaceGraph.Child)
-	 */
-	@Override
+	
 	public Parent getParentOf(Child c) {
 		return this._prnt.get(c);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#getChildrenOf(jlibig.PlaceGraph.Parent)
-	 */
-	@Override
+	
 	public Set<Child> getChildrenOf(Parent p) {
 		return this._chld.get(p);
 	}
@@ -239,22 +199,16 @@ public class PlaceGraph implements PlaceGraphAbst {
 		return Collections.unmodifiableSet(this._dscn.get(p));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jlibig.PlaceGraphAbst#isEmpty()
-	 */
-	@Override
+	
 	public boolean isEmpty() {
 		return _nodes.isEmpty() && _roots.isEmpty() && _sites.isEmpty();
 	}
-
-	@Override
+	
 	public boolean isAgent() {
 		return _inner.isEmpty();
 	}
 
-	public synchronized PlaceGraph juxtapose(PlaceGraph g) {
+	private synchronized void juxtaposeEx(PlaceGraph g,boolean onleft) {
 		// does not perform a deep copy of plc
 		if (this._sig != g._sig) {
 			throw new IllegalArgumentException("Incompatible signatures");
@@ -263,9 +217,20 @@ public class PlaceGraph implements PlaceGraphAbst {
 			throw new IllegalArgumentException("Overlapping supports");
 		}
 		// add plc to this place graph
-		this._roots.addAll(g._roots);
+		if(onleft){
+			//perform juxtaposition on the left of this
+			this._roots.addAll(0,g._roots);
+		}else{
+			//perform juxtaposition on the right of this
+			this._roots.addAll(g._roots);
+		}
 		// this._ncst_filter.addAll(pg._roots);
-		this._sites.addAll(g._sites);
+		if(onleft){
+			//perform juxtaposition on the left of this
+			this._sites.addAll(0,g._sites);
+		}else{
+			this._sites.addAll(g._sites);
+		}
 		// this._dscn_filter.addAll(pg._sites);
 		this._nodes.addAll(g._nodes);
 		// this._dscn_filter.addAll(pg._nodes);
@@ -295,15 +260,89 @@ public class PlaceGraph implements PlaceGraphAbst {
 				this._ncst.put(c, new HashSet<>(g._ncst.get(c)));
 			}
 		}
+	}
+	
+	synchronized PlaceGraph rightJuxtapose(PlaceGraph g) {
+		juxtaposeEx(g,false);
 		return this;
 	}
-
-	public synchronized PlaceGraph compose(PlaceGraph g) {
+	
+	synchronized PlaceGraph leftJuxtapose(PlaceGraph g) {
+		juxtaposeEx(g,true);
+		return this;
+	}
+	
+	synchronized PlaceGraph outerCompose(PlaceGraph g) {
 		// does not perform a deep copy of plc
 		if (this._sig != g._sig) {
 			throw new IllegalArgumentException("Incompatible signatures");
 		}
-		if (!this.getInnerFace().equals(g.getOuterFace())) {
+		if (!this.getOuterFace().equals(g.getInnerFace())){
+			// interfaces does not match
+			// TODO make an exception
+			throw new IllegalArgumentException("Mismatching interfaces "
+					+ this.getOuterFace() + " " + g.getInnerFace());
+		}
+		if (!Collections.disjoint(this._nodes, g._nodes)) {
+			// overlapping supports
+			// TODO make an exception
+			throw new IllegalArgumentException("Overlapping supports");
+		}
+		
+		// descendants and ancestors are lazy but viral, update these structures
+		// before making any change to this graph
+		/*
+		 * if(this._dscn != null && pg._dscn == null){ pg.buildPrntClosure();
+		 * }else if(pg._dscn != null && this._dscn == null){
+		 * this.buildPrntClosure(); }
+		 */
+		// However lazily rebuild them from scratch is much simpler
+		this._dscn = null;
+		this._ncst = null;
+
+		// add plc's nodes
+		this._nodes.addAll(g._nodes);
+		// bulk copy the parent of pg, this introduces some inconsistencies, but
+		// these will be addressed below
+		this._prnt.putAll(g._prnt);
+		for (Parent p : g._chld.keySet()) {
+			this._chld.put(p, new HashSet<Child>(g._chld.get(p)));
+		}
+		// iterate over roots and sites to be composed and glue parent maps
+		// accordingly
+		Iterator<Root> ir = this._roots.iterator();
+		Iterator<Site> is = g._sites.iterator();
+		while (ir.hasNext()) { // |ir| == |is|
+			Root r = ir.next();
+			Site s = is.next();
+			Parent ps = this._prnt.get(s); // parent of s			
+			Set<Child> cps = this._chld.get(ps); // siblings of s
+			Set<Child> cr = this._chld.get(r); // children of r
+			// discard s
+			cps.remove(s);
+			this._prnt.remove(s);
+			//discard r
+			this._chld.remove(r);
+			// put the subtree rooted in r under the parent of s
+			cps.addAll(cr); // update the children of the parent of s
+			for (Child c : cr) {
+				this._prnt.put(c, ps); // point each child of r to ps
+			}
+		}
+		// update interfaces
+		// maintain current inner face
+		// use plc's outer interface
+		this._roots.clear();
+		this._roots.addAll(g._roots);
+		return this;
+	}
+
+	synchronized PlaceGraph innerCompose(PlaceGraph g) {
+		// does not perform a deep copy of plc
+		if (this._sig != g._sig) {
+			throw new IllegalArgumentException("Incompatible signatures");
+		}
+		if (!this.getInnerFace().equals(g.getOuterFace())){
 			// interfaces does not match
 			// TODO make an exception
 			throw new IllegalArgumentException("Mismatching interfaces "
@@ -314,7 +353,7 @@ public class PlaceGraph implements PlaceGraphAbst {
 			// TODO make an exception
 			throw new IllegalArgumentException("Overlapping supports");
 		}
-
+		
 		// descendants and ancestors are lazy but viral, update these structures
 		// before making any change to this graph
 		/*
@@ -430,6 +469,10 @@ public class PlaceGraph implements PlaceGraphAbst {
 		p.addSite(new Site(), 1, r1);
 		return p;
 	}
+	
+
+	public static interface Parent{}	
+	public static interface Child{}
 
 	protected static class PGNode extends Named implements PlaceGraphNode {
 		private final PlaceGraphControl _ctrl;

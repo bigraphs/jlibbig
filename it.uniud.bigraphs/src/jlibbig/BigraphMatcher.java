@@ -2,8 +2,6 @@ package jlibbig;
 
 import java.util.*;
 
-import jlibbig.PlaceGraphAbst.Child;
-
 import choco.Choco;
 import choco.cp.model.CPModel;
 import choco.cp.solver.CPSolver;
@@ -44,10 +42,10 @@ public class BigraphMatcher {
 		Set<BigraphMatch> matches = new HashSet<>();
 
 		// some alias
-		LinkGraphView rlg = redex.getLinkGraphView();
-		PlaceGraphView rpg = redex.getPlaceGraphView();
-		LinkGraphView alg = agent.getLinkGraphView();
-		PlaceGraphView apg = agent.getPlaceGraphView();
+		LinkGraph rlg = redex.getLinkGraph();
+		PlaceGraph rpg = redex.getPlaceGraph();
+		LinkGraph alg = agent.getLinkGraph();
+		PlaceGraph apg = agent.getPlaceGraph();
 
 		/*
 		 * // study redex graph combinatorics for parameter instantiation //
