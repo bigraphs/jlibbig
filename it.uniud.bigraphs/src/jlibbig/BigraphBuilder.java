@@ -80,11 +80,11 @@ public class BigraphBuilder{
 		_big.outerCompose(Bigraph.makeMerge(_sig, _big.getOuterFace()));
 	}
 	
-	public void leftJuxtapose(Bigraph graph) {
+	public void leftJuxtapose(Bigraph graph) throws IncompatibleSignatureException, NameClashException {
 		_big.leftJuxtapose(graph);
 	}
 	
-	public void rightJuxtapose(Bigraph graph) {
+	public void rightJuxtapose(Bigraph graph) throws IncompatibleSignatureException, NameClashException {
 		_big.rightJuxtapose(graph);
 	}
 	

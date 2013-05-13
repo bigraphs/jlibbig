@@ -208,85 +208,110 @@ public class PlaceGraph{
 		return _inner.isEmpty();
 	}
 
-	private synchronized void juxtaposeEx(PlaceGraph g,boolean onleft) {
+	private synchronized void juxtaposeEx(PlaceGraph g,boolean onleft) throws IncompatibleSignatureException, NameClashException {
 		// does not perform a deep copy of plc
 		if (this._sig != g._sig) {
-			throw new IllegalArgumentException("Incompatible signatures");
+			throw new IncompatibleSignatureException();
 		}
 		if (!Collections.disjoint(this._nodes, g._nodes)) {
-			throw new IllegalArgumentException("Overlapping supports");
+			throw new NameClashException("Overlapping supports");
 		}
-		// add plc to this place graph
-		if(onleft){
-			//perform juxtaposition on the left of this
-			this._roots.addAll(0,g._roots);
-		}else{
-			//perform juxtaposition on the right of this
-			this._roots.addAll(g._roots);
-		}
-		// this._ncst_filter.addAll(pg._roots);
-		if(onleft){
-			//perform juxtaposition on the left of this
-			this._sites.addAll(0,g._sites);
-		}else{
-			this._sites.addAll(g._sites);
-		}
-		// this._dscn_filter.addAll(pg._sites);
-		this._nodes.addAll(g._nodes);
-		// this._dscn_filter.addAll(pg._nodes);
-		// this._ncst_filter.addAll(pg._nodes);
-
-		this._prnt.putAll(g._prnt);
-		for (Parent p : g._chld.keySet()) {
-			this._chld.put(p, new HashSet<>(g._chld.get(p)));
-		}
+	
 		// descendants and ancestors are lazy but viral
-		if (this._dscn != null) {
-			if (g._dscn == null) {
+		// these are present in one of the two graphs the other ones are 
+		// computed before any other operations 
+		if (this._dscn != null){
+			if (g._dscn == null)
 				g.buildPrntClosure();
-			}
-			for (Parent p : g._dscn.keySet()) {
-				this._dscn.put(p, new HashSet<>(g._dscn.get(p)));
-			}
-			for (Child c : g._ncst.keySet()) {
-				this._ncst.put(c, new HashSet<>(g._ncst.get(c)));
-			}
-		} else if (g._dscn != null) {
+		}else if (g._dscn != null) {
 			this.buildPrntClosure();
+		}
+		
+		// some instances of roots and sites may be shared and may introduce aliasing
+		// these have to be substituted on the fly
+		Map<Parent,Parent> sub_prnts = new HashMap<>();
+		Map<Child,Child> sub_chds = new HashMap<>();
+		// nodes are safe, but putting them in subs simplify the code below
+		for(PlaceGraphNode n : g._nodes){
+			sub_prnts.put(n,n);
+			sub_chds.put(n,n);
+		}
+		this._nodes.addAll(g._nodes);
+		for(Root r : g._roots){
+			Root a = (this._roots.contains(r)) ? new Root() : r;
+			sub_prnts.put(r, a);
+			if(onleft){
+				//perform juxtaposition on the left of this
+				this._roots.add(0,a);
+			}else{
+				//perform juxtaposition on the right of this
+				this._roots.add(a);
+			}
+		}
+		for(Site s : g._sites){
+			Site a = (this._sites.contains(s)) ? new Site() : s;
+			sub_chds.put(s, a);
+			if(onleft){
+				//perform juxtaposition on the left of this
+				this._sites.add(0,a);
+			}else{
+				//perform juxtaposition on the right of this
+				this._sites.add(a);
+			}
+		}
+		// merge parent maps
+		for(Child c : g._prnt.keySet()){
+			this._prnt.put(sub_chds.get(c),sub_prnts.get(g._prnt.get(c)));	
+		}
+		for (Parent p : g._chld.keySet()) {
+			Set<Child> cs = new HashSet<>(); 
+			for(Child c : g._chld.get(p)){
+				cs.add(sub_chds.get(c));
+			}
+			this._chld.put(sub_prnts.get(p), cs);
+		}		
+		// descendants and ancestors are lazy
+		if (this._dscn != null) {
+			// both are not null now
+			// copy g information applying substitutions of roots and sites
 			for (Parent p : g._dscn.keySet()) {
-				this._dscn.put(p, new HashSet<>(g._dscn.get(p)));
+				Set<Child> cs = new HashSet<>(); 
+				for(Child c : g._dscn.get(p)){
+					cs.add(sub_chds.get(c));
+				}
+				this._dscn.put(sub_prnts.get(p), cs);
 			}
 			for (Child c : g._ncst.keySet()) {
-				this._ncst.put(c, new HashSet<>(g._ncst.get(c)));
+				Set<Parent> ps = new HashSet<>(); 
+				for(Parent p : g._ncst.get(c)){
+					ps.add(sub_prnts.get(p));
+				}
+				this._ncst.put(sub_chds.get(c), ps);
 			}
 		}
 	}
 	
-	synchronized PlaceGraph rightJuxtapose(PlaceGraph g) {
+	synchronized PlaceGraph rightJuxtapose(PlaceGraph g) throws IncompatibleSignatureException, NameClashException {
 		juxtaposeEx(g,false);
 		return this;
 	}
 	
-	synchronized PlaceGraph leftJuxtapose(PlaceGraph g) {
+	synchronized PlaceGraph leftJuxtapose(PlaceGraph g) throws IncompatibleSignatureException, NameClashException {
 		juxtaposeEx(g,true);
 		return this;
 	}
 	
-	synchronized PlaceGraph outerCompose(PlaceGraph g) {
+	synchronized PlaceGraph outerCompose(PlaceGraph g) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
 		// does not perform a deep copy of plc
 		if (this._sig != g._sig) {
-			throw new IllegalArgumentException("Incompatible signatures");
+			throw new IncompatibleSignatureException();
 		}
 		if (!this.getOuterFace().equals(g.getInnerFace())){
 			// interfaces does not match
-			// TODO make an exception
-			throw new IllegalArgumentException("Mismatching interfaces "
-					+ this.getOuterFace() + " " + g.getInnerFace());
+			throw new IncompatibleInterfaces(this.getOuterFace(),g.getInnerFace());
 		}
 		if (!Collections.disjoint(this._nodes, g._nodes)) {
-			// overlapping supports
-			// TODO make an exception
-			throw new IllegalArgumentException("Overlapping supports");
+			throw new NameClashException("Overlapping supports");
 		}
 		
 		// descendants and ancestors are lazy but viral, update these structures
@@ -337,21 +362,17 @@ public class PlaceGraph{
 		return this;
 	}
 
-	synchronized PlaceGraph innerCompose(PlaceGraph g) {
+	synchronized PlaceGraph innerCompose(PlaceGraph g) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
 		// does not perform a deep copy of plc
 		if (this._sig != g._sig) {
-			throw new IllegalArgumentException("Incompatible signatures");
+			throw new IncompatibleSignatureException();
 		}
 		if (!this.getInnerFace().equals(g.getOuterFace())){
 			// interfaces does not match
-			// TODO make an exception
-			throw new IllegalArgumentException("Mismatching interfaces "
-					+ this.getInnerFace() + " " + g.getOuterFace());
+			throw new IncompatibleInterfaces(this.getInnerFace(),g.getOuterFace());
 		}
 		if (!Collections.disjoint(this._nodes, g._nodes)) {
-			// overlapping supports
-			// TODO make an exception
-			throw new IllegalArgumentException("Overlapping supports");
+			throw new NameClashException("Overlapping supports");
 		}
 		
 		// descendants and ancestors are lazy but viral, update these structures
