@@ -238,19 +238,24 @@ public class LinkGraph{
 		return _inner.isEmpty();
 	}
 		
-	synchronized LinkGraph leftJuxtapose(LinkGraph g) {
+	synchronized LinkGraph leftJuxtapose(LinkGraph g) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
 		// juxtapose is commutative on link graphs
 		return rightJuxtapose(g);
 	}
 	
-	synchronized LinkGraph rightJuxtapose(LinkGraph g) {
-		if (!Collections.disjoint(this._innerNames, g._innerNames)
-				|| !Collections.disjoint(this._outerNames, g._outerNames)) {
-			throw new IllegalArgumentException("Overlapping interfaces");
+	synchronized LinkGraph rightJuxtapose(LinkGraph g) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
+		if (this._sig != g._sig) {
+			throw new IncompatibleSignatureException();
+		}
+		if (!Collections.disjoint(this._innerNames, g._innerNames)){
+			throw new IncompatibleInterfaces(this.getInnerFace(), g.getInnerFace());
+		}
+		if (!Collections.disjoint(this._outerNames, g._outerNames)) {
+			throw new IncompatibleInterfaces(this.getOuterFace(), g.getOuterFace());
 		}
 		if (!Collections.disjoint(this._nodes, g._nodes)
 				|| !Collections.disjoint(this._edges, g._edges)) {
-			throw new IllegalArgumentException("Overlapping supports");
+			throw new NameClashException("Overlapping supports");
 		}
 		this._nodes.addAll(g._nodes);
 		this._ports.addAll(g._ports);
@@ -264,14 +269,16 @@ public class LinkGraph{
 		return this;
 	}
 
-	synchronized LinkGraph outerCompose(LinkGraph g) {
-		if (!this.getOuterFace().equals(g.getInnerFace())) {
-			throw new IllegalArgumentException("Mismatching interfaces "
-					+ this.getOuterFace() + " " + g.getInnerFace());
+	synchronized LinkGraph outerCompose(LinkGraph g) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
+		if (this._sig != g._sig) {
+			throw new IncompatibleSignatureException();
+		}
+		if (!this.getOuterFace().equals(g.getInnerFace())){
+			throw new IncompatibleInterfaces(this.getOuterFace(), g.getInnerFace());
 		}
 		if (!Collections.disjoint(this._nodes, g._nodes)
 				|| !Collections.disjoint(this._edges, g._edges)) {
-			throw new IllegalArgumentException("Overlapping supports");
+			throw new NameClashException("Overlapping supports");
 		}
 		this._nodes.addAll(g._nodes);
 		this._edges.addAll(g._edges);
@@ -310,14 +317,16 @@ public class LinkGraph{
 	 * @param g
 	 * @return
 	 */
-	synchronized LinkGraph innerCompose(LinkGraph g) {
+	synchronized LinkGraph innerCompose(LinkGraph g) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
+		if (this._sig != g._sig) {
+			throw new IncompatibleSignatureException();
+		}
 		if (!this.getInnerFace().equals(g.getOuterFace())) {
-			throw new IllegalArgumentException("Mismatching interfaces "
-					+ this.getInnerFace() + " " + g.getOuterFace());
+				throw new IncompatibleInterfaces(this.getInnerFace(),g.getOuterFace());
 		}
 		if (!Collections.disjoint(this._nodes, g._nodes)
 				|| !Collections.disjoint(this._edges, g._edges)) {
-			throw new IllegalArgumentException("Overlapping supports");
+			throw new NameClashException("Overlapping supports");
 		}
 		this._nodes.addAll(g._nodes);
 		this._edges.addAll(g._edges);
@@ -407,7 +416,7 @@ public class LinkGraph{
 	 *            right operand
 	 * @return g1 juxtaposed to g2
 	 */
-	public static LinkGraph juxtapose(LinkGraph g1, LinkGraph g2) {
+	public static LinkGraph juxtapose(LinkGraph g1, LinkGraph g2)  throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces{
 		return g1.clone().rightJuxtapose(g2);
 	}
 
@@ -421,7 +430,7 @@ public class LinkGraph{
 	 *            right operand
 	 * @return g1 composed to g2
 	 */
-	public static LinkGraph compose(LinkGraph g1, LinkGraph g2) {
+	public static LinkGraph compose(LinkGraph g1, LinkGraph g2)  throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces{
 		return g1.clone().outerCompose(g2);
 	}
 	

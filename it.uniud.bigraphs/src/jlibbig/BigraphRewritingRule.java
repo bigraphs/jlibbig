@@ -94,18 +94,15 @@ public class BigraphRewritingRule {
 	public Bigraph getRedex() {
 		return _lhs;
 	}
-
-	public Bigraph apply(BigraphMatch to) {
-		// TODO check if to is a match for this rule!
-		Bigraph args = Bigraph.makeEmpty(_rhs.getSignature());
-		int w = _rhs.getInnerFace().getWidth();
-		for (int i = 0; i < w; i--) {
-			args.rightJuxtapose(to.getArg(i));
-		}
-		return to.getContext().outerCompose(_lhs).outerCompose(args);
+	
+	public enum NameClashPolicy{
+		RaiseException,
+		//Fresh,
+		//AppendFresh,
+		Discard,
 	}
 
-	public Set<Bigraph> apply(Bigraph to) throws IllegalArgumentException,
+	public Set<Bigraph> apply(Bigraph to, NameClashPolicy onClash) throws IllegalArgumentException,
 			IncompatibleSignatureException {
 		/*
 		 * Done by the matcher
@@ -116,7 +113,21 @@ public class BigraphRewritingRule {
 		 */
 		Set<Bigraph> rs = new HashSet<>();
 		for (BigraphMatch match : BigraphMatcher.getAllMatches(to, _lhs)) {
-			rs.add(this.apply(match));
+			Bigraph reactum = _rhs;
+			//TODO ensure name freshness
+			Bigraph bg = Bigraph.makeEmpty(_rhs.getSignature());
+			int w = _rhs.getInnerFace().getWidth();
+			for (int i = 0; i < w; i--) {
+				bg.rightJuxtapose(match.getArg(i));
+			}
+			try{
+				bg.outerCompose(reactum).outerCompose(match.getContext());
+				rs.add(bg);
+			}catch(NameClashException ex){
+				if(!onClash.equals(NameClashPolicy.Discard)){
+					throw ex;
+				}
+			}
 		}
 		return rs;
 	}

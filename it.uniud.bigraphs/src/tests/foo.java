@@ -7,8 +7,10 @@ import jlibbig.*;
 public class foo {
 	/**
 	 * @param args
+	 * @throws NameClashException 
+	 * @throws IncompatibleSignatureException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IncompatibleSignatureException, NameClashException {
 		SignatureBuilder<BigraphControl> sb = new SignatureBuilder<>();
 		sb.put(BigraphBuilder.makeControl("a",true,0));
 		sb.put(BigraphBuilder.makeControl("b",true,1));

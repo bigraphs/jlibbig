@@ -208,10 +208,16 @@ public class Bigraph {
 	 * 
 	 * @param graph
 	 * @return this bigraph
+	 * @throws NameClashException 
+	 * @throws IncompatibleSignatureException 
 	 */
-	synchronized Bigraph rightJuxtapose(Bigraph graph) {
-		this._pg.rightJuxtapose(graph._pg);
-		this._lg.rightJuxtapose(graph._lg);
+	synchronized Bigraph rightJuxtapose(Bigraph graph) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
+		//try{
+			this._pg.rightJuxtapose(graph._pg);
+			this._lg.rightJuxtapose(graph._lg);
+		//}catch(IncompatibleInterfaces ex){
+		// TODO as IncompatibleBigraphFaces	
+		//}
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
@@ -224,8 +230,10 @@ public class Bigraph {
 	 * 
 	 * @param graph
 	 * @return this bigraph
+	 * @throws NameClashException 
+	 * @throws IncompatibleSignatureException 
 	 */
-	synchronized Bigraph leftJuxtapose(Bigraph graph) {
+	synchronized Bigraph leftJuxtapose(Bigraph graph) throws IncompatibleSignatureException, NameClashException {
 		this._pg.leftJuxtapose(graph._pg);
 		this._lg.leftJuxtapose(graph._lg);
 		this._nodes.addAll(graph._nodes);
@@ -317,8 +325,10 @@ public class Bigraph {
 	 * @param g2
 	 *            right operand
 	 * @return g1 juxtaposed to g2
+	 * @throws NameClashException 
+	 * @throws IncompatibleSignatureException 
 	 */
-	public static Bigraph juxtapose(Bigraph g1, Bigraph g2) {
+	public static Bigraph juxtapose(Bigraph g1, Bigraph g2) throws IncompatibleSignatureException, NameClashException {
 		return g1.clone().rightJuxtapose(g2);
 	}
 
