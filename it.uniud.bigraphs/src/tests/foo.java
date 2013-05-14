@@ -26,21 +26,35 @@ public class foo {
 		
 		//System.out.println("Bigraph: " + b0.getNodes()+ " " + b0.getInnerFace() + " -> " + b0.getOuterFace());
 						
-		BigraphBuilder bb = new BigraphBuilder(b3);
-		
-		bb.leftJuxtapose(Bigraph.makeId(s, b2.getOuterFace()));
+		BigraphBuilder bb = new BigraphBuilder(b1);
+		printBB(bb);
+		bb.outerCompose(b3);
+		printBB(bb);
+		bb.leftJuxtapose(Bigraph.makeId(s,0,b2.getOuterFace().getNames()));
+		printBB(bb);
 		bb.innerCompose(b2);
-		bb.innerCompose(b1);
+		printBB(bb);
 		bb.innerCompose(b0);
+		printBB(bb);
 		
-		Bigraph b = bb.makeBigraph();
+		printBig(bb.makeBigraph());
 		
-		System.out.println("Bigraph: " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
+	}
+	private static BigraphBuilder printBB(BigraphBuilder b){
+		return printBB("Builder",b);
+	}
+	private static BigraphBuilder printBB(String prefix, BigraphBuilder b){
+		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
+		return b;
 	}
 	
 	private static Bigraph printBig(Bigraph b){
-		System.out.println("Bigraph: " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
-		return b;
+		return printBig("Bigraph", b);
 	}
 
+	private static Bigraph printBig(String prefix, Bigraph b){
+		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
+		return b;
+	}
+	
 }

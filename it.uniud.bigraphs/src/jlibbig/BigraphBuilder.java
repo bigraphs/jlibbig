@@ -24,9 +24,9 @@ public class BigraphBuilder{
 		_big = Bigraph.makeEmpty(_sig);
 	}
 	
-	public BigraphBuilder(Bigraph big){
-		_big = big.clone();
-		_sig = _big.getSignature(); 
+	public BigraphBuilder(Bigraph big){ 
+		_big = big.clone(); 
+		_sig = _big.getSignature();
 	}
 	
 	

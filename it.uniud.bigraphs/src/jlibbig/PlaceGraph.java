@@ -130,8 +130,9 @@ public class PlaceGraph{
 	@Override
 	protected PlaceGraph clone(){
 		PlaceGraph pg = new PlaceGraph(_sig);
+		pg._roots.addAll(this._roots);
+		pg._sites.addAll(this._sites);
 		pg._nodes.addAll(this._nodes);
-		// pg._ctrl.putAll(this._ctrl);
 		pg._prnt.putAll(this._prnt);
 		for (Parent p : this._chld.keySet()) {
 			pg._chld.put(p, new HashSet<>(this._chld.get(p)));
