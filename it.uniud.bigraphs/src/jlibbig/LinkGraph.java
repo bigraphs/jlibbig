@@ -285,7 +285,7 @@ public class LinkGraph{
 		// bulk copy the link map (inconsistencies will be addressed below)
 		this._lnk.putAll(g._lnk);
 		// copy the reverse map
-		for (Linker r : _rev.keySet()) {
+		for (Linker r : g._rev.keySet()) {
 			this._rev.put(r, new HashSet<>(g._rev.get(r)));
 		}
 		// iterate over names to be composed and glue link maps accordingly
@@ -508,9 +508,25 @@ public class LinkGraph{
 	 * @return
 	 */
 	public static LinkGraph makeId(Signature<LinkGraphControl> sig,
-			Set<String> names) {
+			String... names) {
 		LinkGraph g = new LinkGraph(sig);
 		for (String n : names) {
+			g.addLink(g.addInnerName(n), g.addOuterName(n));
+		}
+		return g;
+	}
+	
+	/**
+	 * @param sig
+	 *            The signature to be used
+	 * @param names
+	 * @return
+	 */
+	public static LinkGraph makeId(Signature<LinkGraphControl> sig,
+			Set<LinkGraphFacet> names) {
+		LinkGraph g = new LinkGraph(sig);
+		for (LinkGraphFacet t : names) {
+			String n = t.getName();
 			g.addLink(g.addInnerName(n), g.addOuterName(n));
 		}
 		return g;
@@ -524,12 +540,7 @@ public class LinkGraph{
 	 */
 	public static LinkGraph makeId(Signature<LinkGraphControl> sig,
 			LinkGraphFace face) {
-		LinkGraph g = new LinkGraph(sig);
-		for (LinkGraphFacet t : face.getNames()) {
-			String n = t.getName();
-			g.addLink(g.addInnerName(n), g.addOuterName(n));
-		}
-		return g;
+		return makeId(sig,face.getNames());
 	}
 
 	/**

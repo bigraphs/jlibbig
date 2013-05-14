@@ -6,5 +6,6 @@ package jlibbig;
  * @see LinkGraphFace
  */
 public interface BigraphFace extends PlaceGraphFace, LinkGraphFace {
-	
+	LinkGraphFace getLinkGraphFace();
+	PlaceGraphFace getPlaceGraphFace();
 }

@@ -127,15 +127,13 @@ public class Bigraph {
 	protected synchronized Bigraph clone() {
 		return new Bigraph(_sig.clone(), _pg.clone(), _lg.clone(), true);
 	}
-	
+
 	// TODO equals and hashCode
 
-	
 	public boolean isEmpty() {
 		return _pg.isEmpty() && _lg.isEmpty();
 	}
 
-	
 	public boolean isAgent() {
 		return _inner.isEmpty();
 	}
@@ -144,32 +142,26 @@ public class Bigraph {
 		return _pg;
 	}
 
-	
 	public LinkGraph getLinkGraph() {
-		return  _lg;
+		return _lg;
 	}
 
-	
 	public Signature<BigraphControl> getSignature() {
 		return _sig;
 	}
 
-	
 	public BigraphFace getInnerFace() {
 		return _inner;
 	}
 
-	
 	public BigraphFace getOuterFace() {
 		return _outer;
 	}
 
-	
 	public Set<BigraphNode> getNodes() {
 		return Collections.unmodifiableSet(this._nodes);
 	}
 
-	
 	public Set<Edge> getEdges() {
 		return this._lg.getEdges();
 	}
@@ -208,20 +200,31 @@ public class Bigraph {
 	 * 
 	 * @param graph
 	 * @return this bigraph
-	 * @throws NameClashException 
-	 * @throws IncompatibleSignatureException 
+	 * @throws NameClashException
+	 * @throws IncompatibleSignatureException
 	 */
-	synchronized Bigraph rightJuxtapose(Bigraph graph) throws IncompatibleSignatureException, NameClashException, IncompatibleInterfaces {
-		//try{
+	synchronized Bigraph rightJuxtapose(Bigraph graph)
+			throws IncompatibleSignatureException, NameClashException,
+			IncompatibleInterfaces {
+		try {
 			this._pg.rightJuxtapose(graph._pg);
 			this._lg.rightJuxtapose(graph._lg);
-		//}catch(IncompatibleInterfaces ex){
-		// TODO as IncompatibleBigraphFaces	
-		//}
+		} catch (IncompatibleInterfaces ex) {
+			if (!Collections.disjoint(_lg.getInnerNames(),
+					graph._lg.getInnerNames())) {
+				throw new IncompatibleBigraphFaces(this.getInnerFace(),
+						graph.getInnerFace());
+			}
+			if (!Collections.disjoint(_lg.getOuterNames(),
+					graph._lg.getOuterNames())) {
+				throw new IncompatibleBigraphFaces(this.getOuterFace(),
+						graph.getOuterFace());
+			}
+		}
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
-	
+
 	/**
 	 * Juxtapose the argument on the left of this bigraph (which is modified
 	 * accordingly while the argument is left untouched). For non desctructive
@@ -230,21 +233,34 @@ public class Bigraph {
 	 * 
 	 * @param graph
 	 * @return this bigraph
-	 * @throws NameClashException 
-	 * @throws IncompatibleSignatureException 
+	 * @throws NameClashException
+	 * @throws IncompatibleSignatureException
 	 */
-	synchronized Bigraph leftJuxtapose(Bigraph graph) throws IncompatibleSignatureException, NameClashException {
-		this._pg.leftJuxtapose(graph._pg);
-		this._lg.leftJuxtapose(graph._lg);
+	synchronized Bigraph leftJuxtapose(Bigraph graph)
+			throws IncompatibleSignatureException, NameClashException {
+		try {
+			this._pg.leftJuxtapose(graph._pg);
+			this._lg.leftJuxtapose(graph._lg);
+		} catch (IncompatibleInterfaces ex) {
+			if (!Collections.disjoint(_lg.getInnerNames(),
+					graph._lg.getInnerNames())) {
+				throw new IncompatibleBigraphFaces(this.getInnerFace(),
+						graph.getInnerFace());
+			}
+			if (!Collections.disjoint(_lg.getOuterNames(),
+					graph._lg.getOuterNames())) {
+				throw new IncompatibleBigraphFaces(this.getOuterFace(),
+						graph.getOuterFace());
+			}
+		}
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
 
-
 	/**
-	 * "this before that".
-	 * Compose the argument to the inner face of this bigraph (which is modified accordingly while
-	 * the argument is left untouched). For non desctructive composition use
+	 * "this before that". Compose the argument to the inner face of this
+	 * bigraph (which is modified accordingly while the argument is left
+	 * untouched). For non desctructive composition use
 	 * {@link Bigraph#compose(Bigraph, Bigraph)}. Destructive operations are
 	 * exposed by {@link BigraphBuilder}.
 	 * 
@@ -252,16 +268,20 @@ public class Bigraph {
 	 * @return this bigraph
 	 */
 	synchronized Bigraph innerCompose(Bigraph graph) {
-		this._pg.innerCompose(graph._pg);
-		this._lg.innerCompose(graph._lg);
+		try{
+			this._pg.innerCompose(graph._pg);
+			this._lg.innerCompose(graph._lg);
+		}catch(IncompatibleInterfaces ex){
+			throw new IncompatibleBigraphFaces(this.getInnerFace(), graph.getOuterFace());
+		}
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
-	
+
 	/**
-	 * "this after that".
-	 * Compose the argument to the inner face of  this bigraph (which is modified accordingly while
-	 * the argument is left untouched). For non desctructive composition use
+	 * "this after that". Compose the argument to the inner face of this bigraph
+	 * (which is modified accordingly while the argument is left untouched). For
+	 * non desctructive composition use
 	 * {@link Bigraph#compose(Bigraph, Bigraph)}. Destructive operations are
 	 * exposed by {@link BigraphBuilder}.
 	 * 
@@ -269,13 +289,16 @@ public class Bigraph {
 	 * @return this bigraph
 	 */
 	synchronized Bigraph outerCompose(Bigraph graph) {
-		this._pg.outerCompose(graph._pg);
-		this._lg.outerCompose(graph._lg);
+		try{
+			this._pg.outerCompose(graph._pg);
+			this._lg.outerCompose(graph._lg);
+		}catch(IncompatibleInterfaces ex){
+			throw new IncompatibleBigraphFaces(this.getOuterFace(), graph.getInnerFace());
+		}
 		this._nodes.addAll(graph._nodes);
 		return this;
 	}
 
-	
 	/**
 	 * @param g1
 	 *            left operand
@@ -325,10 +348,11 @@ public class Bigraph {
 	 * @param g2
 	 *            right operand
 	 * @return g1 juxtaposed to g2
-	 * @throws NameClashException 
-	 * @throws IncompatibleSignatureException 
+	 * @throws NameClashException
+	 * @throws IncompatibleSignatureException
 	 */
-	public static Bigraph juxtapose(Bigraph g1, Bigraph g2) throws IncompatibleSignatureException, NameClashException {
+	public static Bigraph juxtapose(Bigraph g1, Bigraph g2)
+			throws IncompatibleSignatureException, NameClashException {
 		return g1.clone().rightJuxtapose(g2);
 	}
 
@@ -452,7 +476,25 @@ public class Bigraph {
 	 * @return an identity bigraph
 	 */
 	public static Bigraph makeId(Signature<BigraphControl> sig, int width,
-			Set<String> names) {
+			String... names) {
+		PlaceGraph pg = PlaceGraph.makeId(asPlaceSignature(sig), width);
+		LinkGraph lg = LinkGraph.makeId(asLinkSignature(sig), names);
+		return new Bigraph(sig, pg, lg);
+	}
+
+	/**
+	 * Creates an identity bigraph for the given signature, width and set of
+	 * names
+	 * 
+	 * @see jlibbig.PlaceGraph#makeId(Signature<PlaceGraphControl>, int)
+	 * @see jlibbig.LinkGraph#makeId(Signature<LinkGraphControl>, Set<String>)
+	 * @param sig
+	 * @param width
+	 * @param names
+	 * @return an identity bigraph
+	 */
+	public static Bigraph makeId(Signature<BigraphControl> sig, int width,
+			Set<LinkGraphFacet> names) {
 		PlaceGraph pg = PlaceGraph.makeId(asPlaceSignature(sig), width);
 		LinkGraph lg = LinkGraph.makeId(asLinkSignature(sig), names);
 		return new Bigraph(sig, pg, lg);
@@ -487,7 +529,7 @@ public class Bigraph {
 		LinkGraph lg = LinkGraph.makeEmpty(asLinkSignature(sig));
 		return new Bigraph(sig, pg, lg);
 	}
-	
+
 	/**
 	 * Created a bigraph composed by a merge place graph and an identity link
 	 * graph with the given interface.
@@ -500,8 +542,9 @@ public class Bigraph {
 	 */
 	public static Bigraph makeMerge(Signature<BigraphControl> sig,
 			BigraphFace face) {
-		return new Bigraph(sig, PlaceGraph.makeMerge(asPlaceSignature(sig), face.getWidth()),
-				LinkGraph.makeId(asLinkSignature(sig), (LinkGraphFace) face));
+		return new Bigraph(sig, PlaceGraph.makeMerge(asPlaceSignature(sig),
+				face.getWidth()), LinkGraph.makeId(asLinkSignature(sig),
+				(LinkGraphFace) face));
 	}
 
 	/**
@@ -729,6 +772,16 @@ public class Bigraph {
 		@Override
 		public boolean isEmpty() {
 			return p.isEmpty() && l.isEmpty();
+		}
+
+		@Override
+		public LinkGraphFace getLinkGraphFace() {
+			return l;
+		}
+
+		@Override
+		public PlaceGraphFace getPlaceGraphFace() {
+			return p;
 		}
 	}
 
