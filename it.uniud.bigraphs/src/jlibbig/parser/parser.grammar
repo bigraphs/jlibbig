@@ -1,0 +1,139 @@
+%package "jlibbig";
+
+%import "java.util.*";
+%import "java.io.*";
+
+%class "BigraphParser";
+
+%embed	{:		
+		private Signature<BigraphControl> _sig;
+		private Set<String> _outerNames;	//insieme %outer
+		private Set<String> _innerNames;	//insieme %inner
+		
+		public void parse( String str ) throws IOException, Parser.Exception{
+			_sig = new Signature<>();
+			_outerNames = new HashSet<>();
+			_innerNames = new HashSet<>();			
+			
+			BigraphLexer input = new BigraphLexer( new StringReader( str ) );
+			parse(input);
+
+			//return value deve essere un BRS + set bigrafi
+		}
+
+		public class Name<K,V>{
+				private K name;
+				private V type;
+
+				public Name( K name , V type ){
+					this.name = name;
+					this.type = type;
+				}
+				public K getName(){ return name; }
+				public V getType(){ return type; }
+		}
+	
+	:};
+
+%init	{: 	
+		_sig = new Signature<>();
+		_outerNames = new HashSet<>();
+		_innerNames = new HashSet<>();
+	:};
+
+%terminals ACTIVE, PASSIVE, OUTERNAME, INNERNAME, SEMICOLON, COLON, NIL, NUM, VARID, POINT, PIPE, DPIPE, UNLINKED, COMMA, SQOPEN, SQCLOSE, PAROPEN, PARCLOSE, INNERPLACE, REACT, INNER, OUTER, EDGE, LINKED;
+
+%typeof VARID  = "String";
+%typeof NUM = "Integer";
+
+%typeof definitions = "SignatureBuilder<BigraphControl>";
+%typeof definition = "BigraphControl";
+
+%typeof nms , nameli = "LinkedList<Name<String , Character>>";
+%typeof name = "Name<String , Character>";
+
+
+%left POINT;
+%left PIPE;
+%left DPIPE;
+
+%goal start;
+
+start	= definitionlist names	
+	| names			
+	;
+
+names	= namedef names		
+	| reactions		
+	;
+
+reactions = reaction reactions		//inserisce reazioni nelle strutture del parser
+	| models		
+	;
+
+models	= 				//converte in bigrafi, inserisce bigrafi nelle strutture del parser , return new Symbol( null );
+	| model SEMICOLON models		
+	;
+
+definitionlist = definition.c definitions.sb {: sb.put( c ); _sig = sb.makeSignature(); return new Symbol( null ); :}
+	;
+
+definitions = {: SignatureBuilder<BigraphControl> sigBuild = new SignatureBuilder<>(); return new Symbol( sigBuild ); :}
+	| definition.c definitions.sb {: sb.put( c ); return new Symbol( sb ); :}
+	;
+
+definition = ACTIVE VARID.v COLON NUM.n SEMICOLON	{: return new Symbol( BigraphBuilder.makeControl( v , true , n ) ); :}
+	| PASSIVE VARID.v COLON NUM.n SEMICOLON		{: return new Symbol( BigraphBuilder.makeControl( v , false , n ) ); :}
+	;
+
+namedef	= OUTERNAME VARID.v SEMICOLON {: _outerNames.add( v ); return new Symbol( null ); :}
+	| INNERNAME VARID.v SEMICOLON {: _innerNames.add( v ); return new Symbol( null ); :}
+	;
+
+reaction = model REACT model SEMICOLON				//converte in bigrafi , torna coppia redex reactum
+	;
+
+model	= t.b							//deve tornare un bigraphBuilder
+	| links.l
+	| links.l DPIPE model.b
+	;
+
+links 	= LINKED nms.l		//{: addLinks( null , l ); :}	//deve tornare un bigraphBuilder
+	| name.n LINKED nms.l	//{: addLinks( n , l ); :}	//l puo' essere anche NULL
+	;
+
+t	= k.b1 POINT t.b2		//controllo no inner names e inner places con nome uguale
+	| t.b1 PIPE t.b2		//si merge roots
+	| t.b1 DPIPE t.b2		//no merge roots
+	| INNERPLACE NUM.n
+	| k.b
+	| NIL
+	| PAROPEN t.b PARCLOSE
+	;
+
+k	= node SQOPEN nms.l SQCLOSE	//l.size() porte , controllo no inner names con nome uguale
+	| node				//tutte le porte vuote
+	;
+
+node	= VARID.v			// v appartiene a _sig
+	| VARID.v1 COLON VARID.v2	// v1 nome per nodo di tipo v2 ( v2 appartiene a _sig )
+	;
+
+
+nms	= 			{: return new Symbol( null ); :}
+	| nameli.l		{: return new Symbol( l ); :}
+	;
+
+nameli	= name.s		{: List<Name<String , Character>> list = new LinkedList<>(); list.add( s ); return new Symbol( list ); :}
+	| name.s COMMA nameli.l	{: l.addFirst( s ); return new Symbol( l ); :}
+	;
+
+name	= VARID.v INNER {: return new Symbol( new Name<String , Character>( v , 'i' ) ); :}
+	| VARID.v OUTER	{: return new Symbol( new Name<String , Character>( v , 'o' ) ); :}
+	| VARID.v EDGE	{: return new Symbol( new Name<String , Character>( v , 'e' ) ); :}
+	| VARID.v	{: return new Symbol( new Name<String , Character>( v , _outerNames.contains( v ) ? 'o' : 
+										_innerNames.contains( v ) ? 'i' : 'e' ) ); 
+			:}
+	| UNLINKED	{: return new Symbol( null ); :}
+	;
+
