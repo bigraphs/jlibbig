@@ -1,6 +1,7 @@
 package tests;
 
 import java.util.*;
+
 import jlibbig.*;
 
 @SuppressWarnings("unused")
@@ -11,14 +12,15 @@ public class foo {
 	 * @throws IncompatibleSignatureException 
 	 */
 	public static void main(String[] args) throws IncompatibleSignatureException, NameClashException {
-		SignatureBuilder<BigraphControl> sb = new SignatureBuilder<>();
-		sb.put(BigraphBuilder.makeControl("a",true,0));
-		sb.put(BigraphBuilder.makeControl("b",true,1));
-		sb.put(BigraphBuilder.makeControl("c",false,2));
-		Signature<BigraphControl> s = sb.makeSignature();
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put("a",true,0);
+		sb.put("b",true,1);
+		sb.put("c",false,2);
+		Signature s = sb.makeSignature();
 		
 		System.out.println("Signature: " + s);
-				
+		
+		/*
 		Bigraph b0 = printBig(Bigraph.makeMerge(s,0)); // 0->1
 		Bigraph b1 = printBig(Bigraph.makeIon(s, s.getByName("a"),"s"));
 		Bigraph b2 = printBig(Bigraph.makeIon(s, s.getByName("b"),"u","z"));
@@ -38,8 +40,10 @@ public class foo {
 		printBB(bb);
 		
 		printBig(bb.makeBigraph());
+		*/
 		
 	}
+	/*
 	private static BigraphBuilder printBB(BigraphBuilder b){
 		return printBB("Builder",b);
 	}
@@ -56,5 +60,6 @@ public class foo {
 		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
 		return b;
 	}
+	*/
 	
 }

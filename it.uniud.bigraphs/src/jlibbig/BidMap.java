@@ -2,18 +2,14 @@ package jlibbig;
 
 import java.util.*;
 
-
-/**
- * @deprecated
- */
-class BiMap<A,B> implements Map<A,B>{
+class BidMap<A,B> implements Map<A,B>{
 
 	private Map<A,B> _mapA = new HashMap<>();
 	private Map<B,A> _mapB = new HashMap<>();
 	
-	protected BiMap(){}
+	protected BidMap(){}
 	
-	protected BiMap(Map<? extends A,? extends B> map){
+	protected BidMap(Map<? extends A,? extends B> map){
 		_mapA.putAll(map);
 		for(A a : map.keySet()){
 			B b = map.get(a);
@@ -23,13 +19,13 @@ class BiMap<A,B> implements Map<A,B>{
 		}
 	}
 	
-	private BiMap(Map<A,B> mapA, Map<B,A> mapB){
+	private BidMap(Map<A,B> mapA, Map<B,A> mapB){
 		_mapA = mapA;
 		_mapB = mapB;
 	}
 	
-	public BiMap<B,A> getInverse(){
-		return new BiMap<B,A>(_mapB,_mapA);
+	public BidMap<B,A> getInverse(){
+		return new BidMap<B,A>(_mapB,_mapA);
 	}
 	
 	@Override

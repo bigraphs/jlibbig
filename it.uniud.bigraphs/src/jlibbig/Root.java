@@ -1,5 +1,5 @@
 package jlibbig;
 
-public class Root implements PlaceGraphFacet, PlaceGraph.Parent{
+public interface Root extends Parent {
 	
 }
