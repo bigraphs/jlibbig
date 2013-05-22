@@ -2,14 +2,12 @@ package jlibbig;
 
 import java.util.*;
 
-public class Signature<C extends GraphControl> implements Set<C>{
+public class Signature implements Set<BigraphControl>{
 
-	final private Map<String,C> ctrls = new HashMap<>();
+	final private Map<String,BigraphControl> ctrls = new HashMap<>();
 
-	protected Signature() {}
-	
-	public Signature(Collection<C> controls) {
-		for(C c : controls){
+	Signature(Collection<BigraphControl > controls) {
+		for(BigraphControl  c : controls){
 			if(ctrls.containsKey(c.getName())){
 				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
 			}else{
@@ -18,64 +16,23 @@ public class Signature<C extends GraphControl> implements Set<C>{
 		}
 	}
 		
-	public C getByName(String name){
+	public BigraphControl getByName(String name){
 		return ctrls.get(name);
 	}
 		
-	@Override
-	protected synchronized Signature<C> clone() {
-		return new Signature<>(this.ctrls.values());
-	}
-	
 	@Override
 	public String toString() {
 		return "Signature " + ctrls.values();
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((ctrls == null) ? 0 : ctrls.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Signature<?> other = (Signature<?>) obj;
-		if (ctrls == null) {
-			if (other.ctrls != null)
-				return false;
-		} else if (!ctrls.equals(other.ctrls))
-			return false;
-		return true;
-	}
-
-	void extendWith(C control) {
-		if(this.ctrls.containsKey(control.getName()))
-			throw new IllegalArgumentException("Duplicated control");
-		this.ctrls.put(control.getName(), control);
-	}
-
-	void extendWith(Collection<? extends C> controls) {
-		for(C ctrl : controls)
-			extendWith(ctrl);
-	}
-
 	
 	@Override
-	public boolean add(C arg0) {
+	public boolean add(BigraphControl  arg0) {
 		throw new UnsupportedOperationException("Signatures are read-only sets");
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends C> arg0) {
+	public boolean addAll(Collection<? extends BigraphControl > arg0) {
 		throw new UnsupportedOperationException("Signatures are read-only sets");
 	}
 
@@ -102,7 +59,7 @@ public class Signature<C extends GraphControl> implements Set<C>{
 	}
 
 	@Override
-	public Iterator<C> iterator() {
+	public Iterator<BigraphControl> iterator() {
 		return this.ctrls.values().iterator();
 	}
 
