@@ -37,8 +37,8 @@ Digit = [0-9]
 %%
 
 <YYINITIAL> {
-	"%active"		{ return newToken(Terminals.ACTIVE); }
-	"%passive"		{ return newToken(Terminals.PASSIVE); }
+	"%active"		{ return newToken(Terminals.CTRL , new Boolean(true) ); }
+	"%passive"		{ return newToken(Terminals.CTRL , new Boolean(false) ); }
 	"%name"|"%outer"	{ return newToken(Terminals.OUTERNAME); }
 	"%inner"		{ return newToken(Terminals.INNERNAME); }
 	

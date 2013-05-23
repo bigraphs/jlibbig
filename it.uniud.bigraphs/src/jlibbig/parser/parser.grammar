@@ -6,12 +6,11 @@
 %class "BigraphParser";
 
 %embed	{:		
-		private Signature<BigraphControl> _sig;
+		private Signature _sig;
 		private Set<String> _outerNames;	//insieme %outer
 		private Set<String> _innerNames;	//insieme %inner
 		
 		public void parse( String str ) throws IOException, Parser.Exception{
-			_sig = new Signature<>();
 			_outerNames = new HashSet<>();
 			_innerNames = new HashSet<>();			
 			
@@ -22,8 +21,8 @@
 		}
 
 		public class Name<K,V>{
-				private K name;
-				private V type;
+				private final K name;
+				private final V type;
 
 				public Name( K name , V type ){
 					this.name = name;
@@ -36,18 +35,17 @@
 	:};
 
 %init	{: 	
-		_sig = new Signature<>();
 		_outerNames = new HashSet<>();
 		_innerNames = new HashSet<>();
 	:};
 
-%terminals ACTIVE, PASSIVE, OUTERNAME, INNERNAME, SEMICOLON, COLON, NIL, NUM, VARID, POINT, PIPE, DPIPE, UNLINKED, COMMA, SQOPEN, SQCLOSE, PAROPEN, PARCLOSE, INNERPLACE, REACT, INNER, OUTER, EDGE, LINKED;
+%terminals CTRL, OUTERNAME, INNERNAME, SEMICOLON, COLON, NIL, NUM, VARID, POINT, PIPE, DPIPE, UNLINKED, COMMA, SQOPEN, SQCLOSE, PAROPEN, PARCLOSE, INNERPLACE, REACT, INNER, OUTER, EDGE, LINKED;
 
 %typeof VARID  = "String";
 %typeof NUM = "Integer";
+%typeof CTRL = "Boolean";
 
-%typeof definitions = "SignatureBuilder<BigraphControl>";
-%typeof definition = "BigraphControl";
+%typeof definitions = "SignatureBuilder";
 
 %typeof nms , nameli = "LinkedList<Name<String , Character>>";
 %typeof name = "Name<String , Character>";
@@ -75,15 +73,16 @@ models	= 				//converte in bigrafi, inserisce bigrafi nelle strutture del parser
 	| model SEMICOLON models		
 	;
 
-definitionlist = definition.c definitions.sb {: sb.put( c ); _sig = sb.makeSignature(); return new Symbol( null ); :}
+definitionlist = CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb 
+			{:
+				sb.put( v , b , n ); _sig = sb.makeSignature();
+				System.out.println( _sig.toString() );
+				return new Symbol( null ); 
+			:}
 	;
 
-definitions = {: SignatureBuilder<BigraphControl> sigBuild = new SignatureBuilder<>(); return new Symbol( sigBuild ); :}
-	| definition.c definitions.sb {: sb.put( c ); return new Symbol( sb ); :}
-	;
-
-definition = ACTIVE VARID.v COLON NUM.n SEMICOLON	{: return new Symbol( BigraphBuilder.makeControl( v , true , n ) ); :}
-	| PASSIVE VARID.v COLON NUM.n SEMICOLON		{: return new Symbol( BigraphBuilder.makeControl( v , false , n ) ); :}
+definitions = {: return new Symbol( new SignatureBuilder() ); :}
+	| CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb	{: sb.put( v , b , n ); return new Symbol( sb ); :}
 	;
 
 namedef	= OUTERNAME VARID.v SEMICOLON {: _outerNames.add( v ); return new Symbol( null ); :}
