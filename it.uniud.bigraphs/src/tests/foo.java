@@ -2,7 +2,7 @@ package tests;
 
 import java.util.*;
 
-import jlibbig.*;
+import jlibbig.core.*;
 
 @SuppressWarnings("unused")
 public class foo {
@@ -12,6 +12,7 @@ public class foo {
 	 * @throws IncompatibleSignatureException 
 	 */
 	public static void main(String[] args) throws IncompatibleSignatureException, NameClashException {
+				
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("a",true,0);
 		sb.put("b",true,1);
