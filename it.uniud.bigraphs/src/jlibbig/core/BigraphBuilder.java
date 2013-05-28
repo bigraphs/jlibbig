@@ -12,12 +12,6 @@ public class BigraphBuilder implements AbstBigraph{
 	private final Bigraph big;
 	private final Signature sig;
 	
-	//final Set<EditableNode> nodes = new HashSet<>();
-	//final Set<EditableEdge> edges = new HashSet<>();
-	
-	//private final Set<? extends Node> ro_nodes = Collections.unmodifiableSet(this.nodes);
-	//private final Set<? extends Edge> ro_edges = Collections.unmodifiableSet(this.edges);
-	
 	public BigraphBuilder(Signature sig){
 		this.sig = sig;
 		this.big = Bigraph.makeEmpty(this.sig);
@@ -28,6 +22,8 @@ public class BigraphBuilder implements AbstBigraph{
 	}
 	
 	BigraphBuilder(Bigraph big, boolean clone){
+		if(!big.isConsistent())
+			throw new IllegalArgumentException("Inconsistent bigraph.");
 		this.big = (clone) ? big.clone() : big; 
 		this.sig = big.getSignature();
 		
@@ -37,9 +33,10 @@ public class BigraphBuilder implements AbstBigraph{
 	 * @return a bigraph.
 	 */
 	public Bigraph makeBigraph(){
-		synchronized(big){
-			return big.clone();
-		}
+		Bigraph b = big.clone();
+		if(!b.isConsistent())
+			throw new RuntimeException("Inconsistent bigraph.");
+		return b;
 	} 
 
 	//TODO common read-only interface with bigraph

@@ -10,9 +10,9 @@ abstract class AbstNamed implements Named {
 	private final String name;
 	
 	// internal state for name generation
-	private static long _quick_counter = 0; // used to reduce the number of operations on _counter
+	//private static long _quick_counter = 0; // used to reduce the number of operations on _counter
 	private static BigInteger _counter = BigInteger.ZERO; // arbitrary dimension integer counter
-	private static String _quick_prefix = _counter.toString(16); // used to avoid frequent string conversion of _counter
+	//private static String _quick_prefix = _counter.toString(16); // used to avoid frequent string conversion of _counter
 	
 	/**
 	 * Use an automatically generated name.
