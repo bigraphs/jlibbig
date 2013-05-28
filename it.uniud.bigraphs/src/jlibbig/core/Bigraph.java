@@ -4,7 +4,7 @@ import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
 
-public class Bigraph {
+public class Bigraph implements AbstBigraph {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
@@ -44,6 +44,7 @@ public class Bigraph {
 		for(EditableOuterName o : this.outers){
 			EditableOuterName p = o.replicate();
 			big.outers.add(p);
+			p.setOwner(big);
 			trs.put(o, p);
 		}
 		// replicate inner names
@@ -71,6 +72,7 @@ public class Bigraph {
 		for(EditableRoot r : this.roots){
 			EditableRoot s = r.replicate();
 			big.roots.add(s);
+			s.setOwner(big);
 			for(EditableChild c : r.getEditableChildren()){
 				q.add(new Pair(s,c));
 			}
@@ -91,6 +93,7 @@ public class Bigraph {
 					if(h == null){
 						// the bigraph is inconsistent if g is null
 						h = g.replicate();
+						h.setOwner(big);
 						trs.put(g, h);
 					}
 					m.getPort(i).setHandle(h);
@@ -114,27 +117,102 @@ public class Bigraph {
 		return big;
 	}
 	
+	/* (non-Javadoc)
+	 * @see jlibbig.core.AbstBigraph#getSignature()
+	 */
+	@Override
 	public Signature getSignature(){
 		return this.signature;
 	}
 	
+	/* (non-Javadoc)
+	 * @see jlibbig.core.AbstBigraph#getRoots()
+	 */
+	@Override
 	public List<? extends Root> getRoots(){
 		return this.ro_roots;
 	}
 	
+	/* (non-Javadoc)
+	 * @see jlibbig.core.AbstBigraph#getSites()
+	 */
+	@Override
 	public List<? extends Site> getSites(){
 		return this.ro_sites;
 	}
 	
+	/* (non-Javadoc)
+	 * @see jlibbig.core.AbstBigraph#getOuterNames()
+	 */
+	@Override
 	public Set<? extends OuterName> getOuterNames(){
 		return this.ro_outers;
 	}
 	
+	/* (non-Javadoc)
+	 * @see jlibbig.core.AbstBigraph#getInnerNames()
+	 */
+	@Override
 	public Set<? extends InnerName> getInnerNames(){
 		return this.ro_inners;
 	}
 	
+	/* (non-Javadoc)
+	 * @see jlibbig.core.AbstBigraph#getNodes()
+	 */
+	@Override
+	public Set<? extends Node> getNodes(){
+		Set<EditableNode> s = new HashSet<>();
+		Queue<EditableNode> q = new LinkedList<>();
+		for(Root r : this.roots){
+			for(Child c : r.getChildren()){
+				if(c instanceof EditableNode){
+					EditableNode n = (EditableNode) c;
+					q.add(n);
+				}
+			}
+		}
+		while(!q.isEmpty()){
+			EditableNode p = q.poll();
+			s.add(p);
+			for(Child c : p.getChildren()){
+				if(c instanceof EditableNode){
+					EditableNode n = (EditableNode) c;
+					q.add(n);
+				}
+			}
+		}
+		return s;
+	}
+	
+	/* (non-Javadoc)
+	 * @see jlibbig.core.AbstBigraph#getEdges()
+	 */
+	@Override
+	public Set<? extends Edge> getEdges(){
+		Set<Edge> s = new HashSet<>();
+		for(Node n : this.getNodes()){
+			for(Port p : n.getPorts()){
+				Handle h = p.getHandle();
+				if(h instanceof Edge){
+					s.add((Edge) h);
+				}
+			}
+		}
+		for(InnerName n : this.inners){
+			Handle h = n.getHandle();
+			if(h instanceof Edge){
+				s.add((Edge) h);
+			}
+		}
+		return s;
+	}
+	
 	public static Bigraph juxtapose(Bigraph left, Bigraph right){
+		return juxtapose(left,right,false);
+	}
+	
+	static Bigraph juxtapose(Bigraph left, Bigraph right,boolean reuse){
 		// Arguments are assumed to be consistent (e.g. parent and links are well defined)
 		if(left.signature != right.signature){
 			throw new IncompatibleSignatureException(left.signature,right.signature);
@@ -144,8 +222,8 @@ public class Bigraph {
 			//TODO exceptions
 			throw new IllegalArgumentException("Incompatible interfaces");
 		}
-		Bigraph l = left.clone();
-		Bigraph r = right.clone();
+		Bigraph l = (reuse) ? left : left.clone();
+		Bigraph r = (reuse) ? right : right.clone();
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
 		l.outers.addAll(r.outers);
@@ -153,8 +231,12 @@ public class Bigraph {
 		return l;
 	}
 	
-
 	public static Bigraph compose(Bigraph out, Bigraph in){
+		return compose(out,in,false);
+	}
+	
+
+	public static Bigraph compose(Bigraph out, Bigraph in, boolean reuse){
 		// Arguments are assumed to be consistent (e.g. parent and links are well defined)
 		if(out.signature != in.signature){
 			throw new IncompatibleSignatureException(out.signature,in.signature);
@@ -163,8 +245,8 @@ public class Bigraph {
 			//TODO exceptions
 			throw new IllegalArgumentException("Incompatible interfaces");
 		}
-		Bigraph a = out.clone();
-		Bigraph b = in.clone();
+		Bigraph a = (reuse) ? out : out.clone();
+		Bigraph b = (reuse) ? in : in.clone();
 		// iterate over sites and roots of a and b respectively and glue them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();

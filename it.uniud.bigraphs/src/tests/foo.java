@@ -21,6 +21,22 @@ public class foo {
 		
 		System.out.println("Signature: " + s);
 		
+		BigraphBuilder bb = new BigraphBuilder(s);
+		bb.addSite(bb.addNode("b", bb.addRoot()));
+		Bigraph b = bb.makeBigraph();
+		Handle h = bb.addOuterName("y");
+		Point p = bb.addInnerName("x", h);
+		printBB(bb);
+		Node n = bb.addNode("b",bb.getRoots().get(0), h);
+		bb.relink(n.getPort(0), p);
+		printBB(bb);
+		bb.relink(n.getPort(0), h);
+		bb.relink(p, h);
+		printBB(bb);
+		bb.leftJuxtapose(b);
+		bb.rightMergeProduct(b);
+		printBB(bb);
+		
 		/*
 		Bigraph b0 = printBig(Bigraph.makeMerge(s,0)); // 0->1
 		Bigraph b1 = printBig(Bigraph.makeIon(s, s.getByName("a"),"s"));
@@ -44,12 +60,12 @@ public class foo {
 		*/
 		
 	}
-	/*
+	
 	private static BigraphBuilder printBB(BigraphBuilder b){
 		return printBB("Builder",b);
 	}
 	private static BigraphBuilder printBB(String prefix, BigraphBuilder b){
-		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
+		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " <" + b.getSites().size() + "," + b.getInnerNames() + "> -> <" +b.getRoots().size() + "," + b.getOuterNames() + ">");
 		return b;
 	}
 	
@@ -58,9 +74,9 @@ public class foo {
 	}
 
 	private static Bigraph printBig(String prefix, Bigraph b){
-		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " " + b.getInnerFace() + " -> " + b.getOuterFace());
+		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " <" + b.getSites().size() + "," + b.getInnerNames() + "> -> <" +b.getRoots().size() + "," + b.getOuterNames() + ">");
 		return b;
 	}
-	*/
+	
 	
 }

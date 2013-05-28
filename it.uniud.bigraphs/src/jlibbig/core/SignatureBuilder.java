@@ -50,7 +50,7 @@ public class SignatureBuilder {
 		ctrls.clear();
 	}
 	
-	private static class BGControl extends AbstractNamed implements Control{
+	private static class BGControl extends AbstNamed implements Control{
 		private final boolean active;
 		private final int arity;
 				

@@ -14,12 +14,19 @@ class EditableSite implements EditableChild, Site{
 	public EditableParent getParent() {
 		return parent;
 	}
+	
+	@Override
+	public Owner getOwner() {
+		return parent.getOwner();
+	}
 
 	@Override
 	public void setParent(EditableParent parent){
 		if(this.parent != null){
 			if(!this.parent.equals(parent)){
-				this.parent.removeChild(this);
+				EditableParent p = this.parent;
+				this.parent = parent;
+				p.removeChild(this);
 			}
 		}
 		this.parent = parent;

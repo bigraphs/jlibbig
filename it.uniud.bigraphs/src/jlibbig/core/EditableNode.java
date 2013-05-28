@@ -9,8 +9,10 @@ class EditableNode implements Node, EditableParent, EditableChild {
 		private Set<EditableChild> children;
 		private final List<? extends Port> ro_ports;
 		private final Set<? extends Child> ro_chd;
+		private String name;
 
 		EditableNode(Control control){
+			this.name = "N_" + AbstNamed.generateName();
 			this.control = control;
 			List<EditablePort> ports = new ArrayList<>();
 			for(int i = 0;i<control.getArity();i++){
@@ -27,6 +29,19 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			setParent(parent);
 		}
 		
+		EditableNode(Control control,EditableParent parent, List<? extends Handle> handles){
+			this(control);
+			setParent(parent);
+			for(int i = 0;i< Math.min(handles.size(),control.getArity());i++){
+				this.ports.get(i).setHandle((EditableHandle) handles.get(i));
+			}
+		}
+		
+		@Override
+		public String toString() {
+			return this.name + ":" + this.control.getName();
+		}
+
 		@Override
 		public EditableParent getParent() {
 			return this.parent;
@@ -66,7 +81,9 @@ class EditableNode implements Node, EditableParent, EditableChild {
 		public void setParent(EditableParent parent){
 			if(this.parent != null){
 				if(!this.parent.equals(parent)){
-					this.parent.removeChild(this);
+					EditableParent p = this.parent;
+					this.parent = parent;
+					p.removeChild(this);
 				}
 			}
 			this.parent = parent;
@@ -103,6 +120,12 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			return new EditableNode(this.control);
 		}
 		
+
+		@Override
+		public Owner getOwner() {
+			return parent.getOwner();
+		}
+		
 		public class EditablePort implements Port, EditablePoint{
 			private final int number;
 			private EditableHandle handle;
@@ -125,8 +148,23 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			}
 			
 			@Override
-			public void setHandle(EditableHandle value){
-				this.handle = value;
+			public void setHandle(EditableHandle handle){
+				if(this.handle != null){
+					if(!this.handle.equals(handle)){
+						EditableHandle h = this.handle;
+						this.handle = handle;
+						h.unlinkPoint(this);
+					}
+				}
+				this.handle = handle;
+				if(handle != null){
+					handle.linkPoint(this);
+				}
+			}
+			
+			@Override
+			public Owner getOwner() {
+				return EditableNode.this.getOwner();
 			}
 		}
 	}

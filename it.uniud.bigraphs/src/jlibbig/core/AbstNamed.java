@@ -6,23 +6,23 @@ import java.util.*;
 /**
  * Describes a name identified entity (e.g. edges, nodes, controls).
  */
-abstract class AbstractNamed implements Named {
+abstract class AbstNamed implements Named {
 	private final String name;
 	
 	// internal state for name generation
 	private static long _quick_counter = 0; // used to reduce the number of operations on _counter
 	private static BigInteger _counter = BigInteger.ZERO; // arbitrary dimension integer counter
-	private static String _quick_prefix = ""; // used to avoid frequent string conversion of _counter
+	private static String _quick_prefix = _counter.toString(16); // used to avoid frequent string conversion of _counter
 	
 	/**
 	 * Use an automatically generated name.
 	 * @see generateName
 	 */
-	protected AbstractNamed() {
+	protected AbstNamed() {
 		this(generateName());
 	}
 
-	protected AbstractNamed(String name) {
+	protected AbstNamed(String name) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name can not be empty.");
 		this.name = name;
@@ -55,9 +55,9 @@ abstract class AbstractNamed implements Named {
 			return true;
 		if (obj == null)
 			return false;
-		AbstractNamed other = null;
+		AbstNamed other = null;
 		try {
-			other = (AbstractNamed) obj;
+			other = (AbstNamed) obj;
 		} catch (ClassCastException e) {
 			return false;
 		}
@@ -122,12 +122,17 @@ abstract class AbstractNamed implements Named {
 	 * @deprecated
 	 */
 	private static String unsafeGenerateName(){
+		/*
 		if(_quick_counter == Long.MAX_VALUE){
-			_counter.add(BigInteger.ONE); //.valueOf(_quick_counter));
+			_counter = _counter.add(BigInteger.ONE); //.valueOf(_quick_counter));
 			_quick_prefix = _counter.toString(16);
 			_quick_counter = 0;
 		}
 		return _quick_prefix + "-" +  _quick_counter++;
+		*/
+		String r = _counter.toString(16); 
+		_counter = _counter.add(BigInteger.ONE);
+		return r;
 	}
 	
 }

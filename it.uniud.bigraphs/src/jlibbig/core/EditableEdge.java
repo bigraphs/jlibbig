@@ -3,11 +3,18 @@ package jlibbig.core;
 import java.util.*;
 
 class EditableEdge implements Edge, EditableHandle, Replicable{
-
+	private String name;
+	
 	private Set<EditablePoint> points = new HashSet<>();
 	private final Set<? extends Point> ro_points = Collections.unmodifiableSet(this.points);
+	private Owner owner;
 	
-	EditableEdge(){}
+	EditableEdge(){name = "E_" + AbstNamed.generateName();}
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
 	
 	@Override
 	public Set<? extends Point> getPoints() {
@@ -41,6 +48,16 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 	@Override
 	public EditableEdge replicate() {
 		return new EditableEdge();
+	}
+	
+	@Override
+	public Owner getOwner() {
+		return this.owner;
+	}
+
+	@Override
+	public void setOwner(Owner value){
+		this.owner = value;
 	}
 	
 }
