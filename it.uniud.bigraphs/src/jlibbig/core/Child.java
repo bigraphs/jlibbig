@@ -1,5 +1,5 @@
 package jlibbig.core;
 
-public interface Child {
+public interface Child{
 	Parent getParent();
 }

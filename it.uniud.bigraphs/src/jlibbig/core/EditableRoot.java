@@ -2,10 +2,11 @@ package jlibbig.core;
 
 import java.util.*;
 
-class EditableRoot implements EditableParent, Root{
+class EditableRoot implements EditableParent, Root, EditableOwned{
 	
 	private Set<EditableChild> children = new HashSet<>();
 	private final Set<Child> ro_chd;
+	private Owner owner;
 	
 	@SuppressWarnings("unchecked")
 	EditableRoot(){
@@ -43,5 +44,15 @@ class EditableRoot implements EditableParent, Root{
 	@Override
 	public EditableRoot replicate(){
 		return new EditableRoot();
+	}
+
+	@Override
+	public Owner getOwner() {
+		return this.owner;
+	}
+
+	@Override
+	public void setOwner(Owner value){
+		this.owner = value;
 	}
 }

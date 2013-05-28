@@ -1,5 +1,5 @@
 package jlibbig.core;
 
-public interface Point {
+public interface Point{
 	Handle getHandle();
 }

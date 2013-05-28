@@ -6,6 +6,7 @@ class EditableOuterName extends EditableLinkFacet implements OuterName, Editable
 
 	private Set<EditablePoint> points;
 	private final Set<Point> ro_points;
+	private Owner owner;
 	
 	@SuppressWarnings("unchecked")
 	EditableOuterName(String name){
@@ -53,5 +54,15 @@ class EditableOuterName extends EditableLinkFacet implements OuterName, Editable
 	@Override
 	public EditableOuterName replicate() {
 		return new EditableOuterName(this.getName());
+	}
+	
+	@Override
+	public Owner getOwner() {
+		return this.owner;
+	}
+
+	@Override
+	public void setOwner(Owner value){
+		this.owner = value;
 	}
 }

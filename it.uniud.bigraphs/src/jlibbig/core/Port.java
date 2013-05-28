@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-public interface Port extends Point {
+public interface Port extends Point{
 
 	public Node getNode();
 

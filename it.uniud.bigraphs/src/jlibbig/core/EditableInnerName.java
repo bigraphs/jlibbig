@@ -23,12 +23,19 @@ class EditableInnerName extends EditableLinkFacet implements InnerName, Editable
 	public EditableHandle getHandle() {
 		return this.handle;
 	}
+	
+	@Override
+	public Owner getOwner() {
+		return handle.getOwner();
+	}
 
 	@Override
 	public void setHandle(EditableHandle handle) {
 		if(this.handle != null){
 			if(!this.handle.equals(handle)){
-				this.handle.unlinkPoint(this);
+				EditableHandle h = this.handle;
+				this.handle = handle;
+				h.unlinkPoint(this);
 			}
 		}
 		this.handle = handle;
@@ -41,4 +48,6 @@ class EditableInnerName extends EditableLinkFacet implements InnerName, Editable
 	public EditableInnerName replicate() {
 		return new EditableInnerName(this.getName());
 	}
+	
+	
 }

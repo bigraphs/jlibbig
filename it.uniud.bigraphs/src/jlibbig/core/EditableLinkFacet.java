@@ -4,7 +4,7 @@ abstract class EditableLinkFacet implements EditableNamed, Replicable{
 	private String name;
 	
 	protected EditableLinkFacet() {
-		this("X_" + AbstractNamed.generateName());
+		this("X_" + AbstNamed.generateName());
 	}
 
 	protected EditableLinkFacet(String name) {
