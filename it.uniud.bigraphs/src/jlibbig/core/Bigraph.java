@@ -22,6 +22,10 @@ public class Bigraph implements AbstBigraph {
 	}
 	
 	boolean isConsistent(){
+		return this.isConsistent(this);
+	}
+	
+	boolean isConsistent(Owner owner){
 		Set<Point> ps = new HashSet<>();
 		Set<Handle> hs = new HashSet<>();
 		Set<Site> unseen_sites = new HashSet<>();
@@ -29,7 +33,7 @@ public class Bigraph implements AbstBigraph {
 		Set<Child> seen = new HashSet<>();
 		Queue<Parent> q = new LinkedList<>();
 		for(EditableRoot r : this.roots){
-			if(r.getOwner() != this)
+			if(r.getOwner() != owner)
 				return false;
 			q.add(r);
 		}
@@ -52,7 +56,7 @@ public class Bigraph implements AbstBigraph {
 					q.add(n);
 					for(Point t : n.getPorts()){
 						EditableHandle h = ((EditablePoint) t).getHandle();
-						if(h == null || h.getOwner() != this)
+						if(h == null || h.getOwner() != owner)
 							// foreign or broken handle
 							return false;
 						if(!h.getPoints().contains(t))
@@ -74,9 +78,15 @@ public class Bigraph implements AbstBigraph {
 				}
 			}
 		}
-		for(EditableInnerName n : this.inners){
-			if(n.getOwner() != this) // || n.getHandle() == null is implicit 
+		for(EditableOuterName h : this.outers){
+			if(h.getOwner() != owner)
 				return false;
+			hs.add(h);
+		}
+		for(EditableInnerName n : this.inners){
+			if(n.getOwner() != owner) // || n.getHandle() == null is implicit 
+				return false;
+			hs.add(n.getHandle());
 			ps.add(n);
 		}
 		for(Handle h : hs){
@@ -125,11 +135,15 @@ public class Bigraph implements AbstBigraph {
 			EditableInnerName j = i.replicate();
 			// set replicated handle for j
 			EditableHandle g = i.getHandle();
-			// the bigraph is inconsistent if g is null
-			EditableHandle h = g.replicate();
+			EditableHandle h = trs.get(g);
+			if(h == null){
+				// the bigraph is inconsistent if g is null
+				h = g.replicate();
+				h.setOwner(big);
+				trs.put(g, h);
+			}
 			j.setHandle(h);
 			big.inners.add(j);
-			trs.put(h, g);
 		}
 		// replicate place structure
 		// the queue is used for a breadth first visit
@@ -176,7 +190,7 @@ public class Bigraph implements AbstBigraph {
 					q.add(new Pair(m,c));
 				}
 			}else{
-				// c instanceof EditableSit
+				// c instanceof EditableSite
 				EditableSite s = (EditableSite) p.c;
 				EditableSite t = s.replicate();
 				t.setParent(p.p);
@@ -324,10 +338,12 @@ public class Bigraph implements AbstBigraph {
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
 		while (ir.hasNext()) { // |ir| == |is|
-			EditableParent p = is.next().getParent();
+			EditableSite s = is.next();
+			EditableParent p = s.getParent();
 			for(EditableChild c : ir.next().getEditableChildren()){
 				c.setParent(p);
 			}
+			p.removeChild(s);
 		}
 		// iterate over inner and outer names of a and b respectively and glue them
 		for(EditableOuterName o : b.outers){

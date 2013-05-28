@@ -80,7 +80,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 		@Override
 		public void setParent(EditableParent parent){
 			if(this.parent != null){
-				if(!this.parent.equals(parent)){
+				if(this.parent != parent){
 					EditableParent p = this.parent;
 					this.parent = parent;
 					p.removeChild(this);
@@ -97,7 +97,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			if(child == null)
 				return;
 			this.children.add(child);
-			if(!this.equals(child.getParent())){
+			if(this != child.getParent()){
 				child.setParent(this);
 			}
 		}
@@ -107,7 +107,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			if(child == null)
 				return;
 			this.children.remove(child);
-			if(this.equals(child.getParent()))
+			if(this == child.getParent())
 				child.setParent(null);
 		}
 		
@@ -150,7 +150,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			@Override
 			public void setHandle(EditableHandle handle){
 				if(this.handle != null){
-					if(!this.handle.equals(handle)){
+					if(this.handle != handle){
 						EditableHandle h = this.handle;
 						this.handle = handle;
 						h.unlinkPoint(this);

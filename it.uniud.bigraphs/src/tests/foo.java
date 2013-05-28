@@ -23,7 +23,12 @@ public class foo {
 		
 		BigraphBuilder bb = new BigraphBuilder(s);
 		bb.addSite(bb.addNode("b", bb.addRoot()));
+		
 		Bigraph b = bb.makeBigraph();
+		bb.innerCompose(b);
+		bb.outerCompose(b);
+		printBig(b);
+		
 		Handle h = bb.addOuterName("y");
 		Point p = bb.addInnerName("x", h);
 		printBB(bb);
@@ -36,6 +41,12 @@ public class foo {
 		bb.leftJuxtapose(b);
 		bb.rightMergeProduct(b);
 		printBB(bb);
+		printBig(bb.makeBigraph());
+		
+		bb = new BigraphBuilder(s);
+		bb.addSite(bb.addRoot());
+		bb.addInnerName("x", bb.addOuterName("x"));
+		printBig(bb.makeBigraph());
 		
 		/*
 		Bigraph b0 = printBig(Bigraph.makeMerge(s,0)); // 0->1

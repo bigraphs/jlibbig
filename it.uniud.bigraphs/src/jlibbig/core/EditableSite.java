@@ -23,7 +23,7 @@ class EditableSite implements EditableChild, Site{
 	@Override
 	public void setParent(EditableParent parent){
 		if(this.parent != null){
-			if(!this.parent.equals(parent)){
+			if(this.parent != parent){
 				EditableParent p = this.parent;
 				this.parent = parent;
 				p.removeChild(this);
