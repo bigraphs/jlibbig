@@ -31,7 +31,7 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 		if(point == null)
 			return;
 		this.points.add(point);
-		if(!this.equals(point.getHandle())){
+		if(this != point.getHandle()){
 			point.setHandle(this);
 		}
 	}
@@ -41,7 +41,7 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 		if(point == null)
 			return;
 		this.points.remove(point);
-		if(this.equals(point.getHandle()))
+		if(this == point.getHandle())
 			point.setHandle(null);
 	}
 

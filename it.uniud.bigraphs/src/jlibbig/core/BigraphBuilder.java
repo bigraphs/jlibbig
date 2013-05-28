@@ -9,6 +9,8 @@ import java.util.*;
  * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object. 
  */
 public class BigraphBuilder implements AbstBigraph{
+	final boolean CONTINUOUS_CHECK = true;
+	
 	private final Bigraph big;
 	private final Signature sig;
 	
@@ -33,14 +35,15 @@ public class BigraphBuilder implements AbstBigraph{
 	 * @return a bigraph.
 	 */
 	public Bigraph makeBigraph(){
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 		Bigraph b = big.clone();
 		if(!b.isConsistent())
 			throw new RuntimeException("Inconsistent bigraph.");
 		return b;
 	} 
-
-	//TODO common read-only interface with bigraph
-		
+	
 	public Signature getSignature(){
 		return this.sig;
 	}
@@ -75,12 +78,18 @@ public class BigraphBuilder implements AbstBigraph{
 		EditableRoot r = new EditableRoot();
 		r.setOwner(this);
 		this.big.roots.add(r);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 		return r;
 	}
 	
 	public EditableSite addSite(Parent parent){
 		EditableSite s = new EditableSite((EditableParent) parent);
 		this.big.sites.add(s);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 		return s;
 	}
 	
@@ -98,22 +107,30 @@ public class BigraphBuilder implements AbstBigraph{
 			throw new IllegalArgumentException("Control should be in the signature.");
 		if(!this.getRoots().contains(parent) && !this.getNodes().contains(parent))
 			throw new IllegalArgumentException("Parent sould be in the bigraph.");
-		Set<? extends Edge> es = this.getEdges();
-		for(Handle h : handles){
-			if(!this.getOuterNames().contains(h) && 
-				!(h instanceof Edge && (es.contains(h) || (h.getPoints().size() == 0))))
-				throw new IllegalArgumentException("Handles sould be in the bigraph or be idle edges.");
-		}
 		for(int i = handles.size(); i < c.getArity(); i++){
 			handles.add(new EditableEdge()); //add spare edges
 		}
-		return new EditableNode(c,(EditableParent) parent,handles);
+		for(Handle h : handles){
+			Owner o = ((EditableHandle) h).getOwner();
+			if(o == null)
+				((EditableHandle) h).setOwner(this);
+			else if(o != this)
+				throw new IllegalArgumentException("Handles sould be in the bigraph or be idle edges.");
+		}
+		EditableNode n = new EditableNode(c,(EditableParent) parent,handles);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
+		return n;
 	}
 	
 	public EditableOuterName addOuterName(String name){
 		EditableOuterName n = new EditableOuterName(name);
 		n.setOwner(this);
 		this.big.outers.add(n);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 		return n;
 	}
 	
@@ -132,6 +149,9 @@ public class BigraphBuilder implements AbstBigraph{
 		EditableInnerName n = new EditableInnerName(name);
 		n.setHandle(h);
 		this.big.inners.add(n);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 		return n;
 	}
 	
@@ -144,6 +164,9 @@ public class BigraphBuilder implements AbstBigraph{
 			throw new IllegalArgumentException("Point and handle sould be in the bigraph.");
 		}
 		p.setHandle(h);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 	}
 	
 	public EditableEdge relink(Point p1, Point p2){
@@ -158,6 +181,9 @@ public class BigraphBuilder implements AbstBigraph{
 		e.setOwner(this);
 		t1.setHandle(e);
 		t2.setHandle(e);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 		return e;
 	}
 	
@@ -174,9 +200,11 @@ public class BigraphBuilder implements AbstBigraph{
 		}
 		big.roots.clear();
 		big.roots.add(r);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 	}
-	
-	
+		
 	public void leftJuxtapose(Bigraph graph){
 		leftJuxtapose(graph,false);
 	}
@@ -208,6 +236,9 @@ public class BigraphBuilder implements AbstBigraph{
 		r.sites.addAll(l.sites);
 		r.outers.addAll(l.outers);
 		r.inners.addAll(l.inners);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 	}
 	
 	public void rightJuxtapose(Bigraph graph){
@@ -241,6 +272,9 @@ public class BigraphBuilder implements AbstBigraph{
 		l.sites.addAll(r.sites);
 		l.outers.addAll(r.outers);
 		l.inners.addAll(r.inners);
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 	}
 	
 	public void innerCompose(Bigraph graph){
@@ -260,15 +294,17 @@ public class BigraphBuilder implements AbstBigraph{
 		}
 		Bigraph a = out;
 		Bigraph b = (reuse) ? in : in.clone();
-		Set<? extends Edge> es = this.getEdges();
+		Set<? extends Edge> es = b.getEdges();
 		// iterate over sites and roots of a and b respectively and glue them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
 		while (ir.hasNext()) { // |ir| == |is|
-			EditableParent p = is.next().getParent();
+			EditableSite s = is.next();
+			EditableParent p = s.getParent();
 			for(EditableChild c : ir.next().getEditableChildren()){
 				c.setParent(p);
 			}
+			p.removeChild(s);
 		}
 		// iterate over inner and outer names of a and b respectively and glue them
 		for(EditableOuterName o : b.outers){
@@ -291,6 +327,9 @@ public class BigraphBuilder implements AbstBigraph{
 		for(Edge e : es){
 			((EditableEdge) e).setOwner(this);
 		}
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 	}
 	
 	public void outerCompose(Bigraph graph){
@@ -310,15 +349,17 @@ public class BigraphBuilder implements AbstBigraph{
 		}
 		Bigraph a = (reuse) ? out : out.clone();
 		Bigraph b = in;
-		Set<? extends Edge> es = this.getEdges();
+		Set<? extends Edge> es = a.getEdges();
 		// iterate over sites and roots of a and b respectively and glue them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
 		while (ir.hasNext()) { // |ir| == |is|
-			EditableParent p = is.next().getParent();
+			EditableSite s = is.next();
+			EditableParent p = s.getParent();
 			for(EditableChild c : ir.next().getEditableChildren()){
 				c.setParent(p);
 			}
+			p.removeChild(s);
 		}
 		// iterate over inner and outer names of a and b respectively and glue them
 		for(EditableOuterName o : b.outers){
@@ -347,6 +388,9 @@ public class BigraphBuilder implements AbstBigraph{
 		for(Edge e : es){
 			((EditableEdge) e).setOwner(this);
 		}
+		//TODO skip check on internal data
+		if(CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
 	}
 	
 	// Derived operations

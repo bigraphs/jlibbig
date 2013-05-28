@@ -23,7 +23,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned{
 		if(child == null)
 			return;
 		this.children.add(child);
-		if(!this.equals(child.getParent())){
+		if(this != child.getParent()){
 			child.setParent(this);
 		}
 	}
@@ -33,7 +33,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned{
 		if(child == null)
 			return;
 		this.children.remove(child);
-		if(this.equals(child.getParent()))
+		if(this == child.getParent())
 				child.setParent(null);
 	}
 	

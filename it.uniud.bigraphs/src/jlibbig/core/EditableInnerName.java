@@ -32,7 +32,7 @@ class EditableInnerName extends EditableLinkFacet implements InnerName, Editable
 	@Override
 	public void setHandle(EditableHandle handle) {
 		if(this.handle != null){
-			if(!this.handle.equals(handle)){
+			if(this.handle != handle){
 				EditableHandle h = this.handle;
 				this.handle = handle;
 				h.unlinkPoint(this);

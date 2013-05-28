@@ -36,7 +36,7 @@ class EditableOuterName extends EditableLinkFacet implements OuterName, Editable
 		if(point == null)
 			return;
 		this.points.add(point);
-		if(!this.equals(point.getHandle())){
+		if(this != point.getHandle()){
 			point.setHandle(this);
 		}
 	}
@@ -46,7 +46,7 @@ class EditableOuterName extends EditableLinkFacet implements OuterName, Editable
 		if(point == null)
 			return;
 		this.points.remove(point);
-		if(this.equals(point.getHandle()))
+		if(this == point.getHandle())
 			point.setHandle(null);
 	}
 	
