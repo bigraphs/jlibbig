@@ -26,7 +26,7 @@ class EditableInnerName extends EditableLinkFacet implements InnerName, Editable
 	
 	@Override
 	public Owner getOwner() {
-		return handle.getOwner();
+		return (handle == null) ? null : handle.getOwner();
 	}
 
 	@Override

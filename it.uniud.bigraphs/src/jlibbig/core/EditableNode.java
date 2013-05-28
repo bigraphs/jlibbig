@@ -123,7 +123,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
 		@Override
 		public Owner getOwner() {
-			return parent.getOwner();
+			return (parent == null) ? null : parent.getOwner();
 		}
 		
 		public class EditablePort implements Port, EditablePoint{
@@ -164,7 +164,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			
 			@Override
 			public Owner getOwner() {
-				return EditableNode.this.getOwner();
+				return (handle != null) ? handle.getOwner() : EditableNode.this.getOwner();
 			}
 		}
 	}

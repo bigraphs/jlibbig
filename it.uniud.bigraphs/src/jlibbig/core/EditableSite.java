@@ -17,7 +17,7 @@ class EditableSite implements EditableChild, Site{
 	
 	@Override
 	public Owner getOwner() {
-		return parent.getOwner();
+		return (parent == null) ? null : parent.getOwner();
 	}
 
 	@Override

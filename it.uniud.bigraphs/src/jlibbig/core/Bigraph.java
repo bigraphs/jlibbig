@@ -22,8 +22,81 @@ public class Bigraph implements AbstBigraph {
 	}
 	
 	boolean isConsistent(){
-		//TODO implement consistency check
-		throw new UnsupportedOperationException("Not implemented yet");
+		Set<Point> ps = new HashSet<>();
+		Set<Handle> hs = new HashSet<>();
+		Set<Site> unseen_sites = new HashSet<>();
+		unseen_sites.addAll(this.sites);
+		Set<Child> seen = new HashSet<>();
+		Queue<Parent> q = new LinkedList<>();
+		for(EditableRoot r : this.roots){
+			if(r.getOwner() != this)
+				return false;
+			q.add(r);
+		}
+		while(!q.isEmpty()){
+			Parent p = q.poll();
+			for(Child c : p.getChildren()){
+				if(!p.equals(c.getParent())){
+					// faux parent/child
+					return false;
+				}
+				if (!seen.add(c)){
+					// c was already visited
+					// we have found a cycle (or diamond) in the place structure
+					return false;
+				}else if(c instanceof EditableNode){
+					EditableNode n = (EditableNode) c;
+					if(n.getControl().getArity() != n.getPorts().size() || !signature.contains(n.getControl())){
+						return false;
+					}
+					q.add(n);
+					for(Point t : n.getPorts()){
+						EditableHandle h = ((EditablePoint) t).getHandle();
+						if(h == null || h.getOwner() != this)
+							// foreign or broken handle
+							return false;
+						if(!h.getPoints().contains(t))
+							// broken link chain
+							return false;
+						ps.add(t);
+						hs.add(h);
+					}
+				}else if(c instanceof EditableSite){
+					Site s = (Site) c;
+					unseen_sites.remove(s);
+					if(!this.sites.contains(s)){
+						//unknown site
+						return false;
+					}
+				}else{
+					// c is neither a site nor a node
+					return false;
+				}
+			}
+		}
+		for(EditableInnerName n : this.inners){
+			if(n.getOwner() != this) // || n.getHandle() == null is implicit 
+				return false;
+			ps.add(n);
+		}
+		for(Handle h : hs){
+			Set<? extends Point> ts = h.getPoints();
+			// ts must be contained in ps
+			for(Point t : ts){
+				if(!ps.remove(t))
+					// foreign point
+					return false;
+			}	
+		}
+		if(ps.size() > 0){
+			// broken handle chain
+			return false;
+		}
+		if(unseen_sites.size() > 0){
+			// these sites are unreachable from roots
+			return false;
+		}
+		return true;		
 	}
 	
 	@Override
