@@ -41,6 +41,7 @@ public class foo {
 		r = bb2.addRoot();
 		h = bb2.addOuterName("x");
 		n = bb2.addNode("b", r, h);
+		bb2.addOuterName("y");
 		bb2.addSite(n);
 		Bigraph b2 = bb2.makeBigraph();
 		

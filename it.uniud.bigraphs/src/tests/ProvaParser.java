@@ -1,6 +1,7 @@
-import java.util.Map;
-import jlibbig.udlang.BigraphParser;
+package tests;
+import java.util.*;
 import jlibbig.core.*;
+import jlibbig.udlang.*;
 
 public class ProvaParser{
 	public static void main(String[] args) throws Exception{
