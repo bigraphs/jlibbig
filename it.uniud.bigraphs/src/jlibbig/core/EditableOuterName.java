@@ -4,25 +4,18 @@ import java.util.*;
 
 class EditableOuterName extends EditableLinkFacet implements OuterName, EditableNamed, EditableHandle{
 
-	private Set<EditablePoint> points;
-	private final Set<Point> ro_points;
+	private Set<EditablePoint> points = new HashSet<>();
+	private final Set<? extends Point> ro_points = Collections.unmodifiableSet(this.points);
 	private Owner owner;
 	
-	@SuppressWarnings("unchecked")
 	EditableOuterName(String name){
 		super(name);
-		this.points = new HashSet<>();
-		this.ro_points = (Set<Point>) (Set<? extends Point>)  Collections.unmodifiableSet(this.points);
 	}
 	
-	@SuppressWarnings("unchecked")
-	EditableOuterName(){
-		this.points = new HashSet<>();
-		this.ro_points = (Set<Point>) (Set<? extends Point>)  Collections.unmodifiableSet(this.points);
-	}
+	EditableOuterName(){super();}
 	
 	@Override
-	public Set<Point> getPoints() {
+	public Set<? extends Point> getPoints() {
 		return this.ro_points;
 	}
 

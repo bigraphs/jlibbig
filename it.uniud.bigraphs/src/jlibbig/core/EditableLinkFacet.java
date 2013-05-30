@@ -1,7 +1,7 @@
 package jlibbig.core;
 
 abstract class EditableLinkFacet implements EditableNamed, Replicable{
-	private String name;
+	protected String name;
 	
 	protected EditableLinkFacet() {
 		this("X_" + AbstNamed.generateName());
@@ -42,14 +42,12 @@ abstract class EditableLinkFacet implements EditableNamed, Replicable{
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EditableLinkFacet other = (EditableLinkFacet) obj;
+		EditableLinkFacet other;
 		try {
 			other = (EditableLinkFacet) obj;
 		} catch (ClassCastException e) {
 			return false;
 		}
-		return !name.equals(other.name);
+		return name.equals(other.name);
 	}
 }

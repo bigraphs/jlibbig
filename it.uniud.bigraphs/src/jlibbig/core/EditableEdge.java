@@ -11,11 +11,16 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 	
 	EditableEdge(){name = "E_" + AbstNamed.generateName();}
 	
+	EditableEdge(Owner owner){
+		this();
+		this.setOwner(owner);
+	}
+	
 	@Override
 	public String toString() {
 		return this.name;
 	}
-	
+		
 	@Override
 	public Set<? extends Point> getPoints() {
 		return this.ro_points;

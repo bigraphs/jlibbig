@@ -27,10 +27,10 @@ public class Bigraph implements AbstBigraph {
 	
 	boolean isConsistent(Owner owner){
 		Set<Point> ps = new HashSet<>();
-		Set<Handle> hs = new HashSet<>();
+		Set<Handle> seen_handles = new HashSet<>();
 		Set<Site> unseen_sites = new HashSet<>();
 		unseen_sites.addAll(this.sites);
-		Set<Child> seen = new HashSet<>();
+		Set<Child> seen_children = new HashSet<>();
 		Queue<Parent> q = new LinkedList<>();
 		for(EditableRoot r : this.roots){
 			if(r.getOwner() != owner)
@@ -44,7 +44,7 @@ public class Bigraph implements AbstBigraph {
 					// faux parent/child
 					return false;
 				}
-				if (!seen.add(c)){
+				if (!seen_children.add(c)){
 					// c was already visited
 					// we have found a cycle (or diamond) in the place structure
 					return false;
@@ -63,7 +63,7 @@ public class Bigraph implements AbstBigraph {
 							// broken link chain
 							return false;
 						ps.add(t);
-						hs.add(h);
+						seen_handles.add(h);
 					}
 				}else if(c instanceof EditableSite){
 					Site s = (Site) c;
@@ -81,23 +81,26 @@ public class Bigraph implements AbstBigraph {
 		for(EditableOuterName h : this.outers){
 			if(h.getOwner() != owner)
 				return false;
-			hs.add(h);
+			seen_handles.add(h);
 		}
+		//System.out.println(ps);
 		for(EditableInnerName n : this.inners){
 			if(n.getOwner() != owner) // || n.getHandle() == null is implicit 
 				return false;
-			hs.add(n.getHandle());
+			seen_handles.add(n.getHandle());
 			ps.add(n);
 		}
-		for(Handle h : hs){
-			Set<? extends Point> ts = h.getPoints();
-			// ts must be contained in ps
-			for(Point t : ts){
-				if(!ps.remove(t))
+		//System.out.println(ps);
+		for(Handle h : seen_handles){
+			//System.out.println(h);
+			for(Point p : h.getPoints()){
+				//System.out.println(p + " " + p.getHandle() + " " + h);
+				if(!ps.remove(p))
 					// foreign point
 					return false;
 			}	
 		}
+		//System.out.println(ps);
 		if(ps.size() > 0){
 			// broken handle chain
 			return false;
@@ -111,6 +114,10 @@ public class Bigraph implements AbstBigraph {
 	
 	@Override
 	public Bigraph clone(){
+		return this.clone(null);
+	}
+	
+	Bigraph clone(Owner owner){
 		/* firstly clone inner and outer names and store handles into a 
 		 * translation map since ports are not yet cloned.
 		 * then clones the place graph structure following the parent map 
@@ -122,12 +129,15 @@ public class Bigraph implements AbstBigraph {
 		 * is inconsistent (e.g. loops into the parent map or foreign sites/names)
 		 */
 		Bigraph big = new Bigraph(this.signature);
+		// owner == null -> self
+		if(owner == null)
+			owner = big;
 		BidMap<Handle,EditableHandle> trs = new BidMap<>();
 		// replicate outer names
 		for(EditableOuterName o : this.outers){
 			EditableOuterName p = o.replicate();
 			big.outers.add(p);
-			p.setOwner(big);
+			p.setOwner(owner);
 			trs.put(o, p);
 		}
 		// replicate inner names
@@ -139,7 +149,7 @@ public class Bigraph implements AbstBigraph {
 			if(h == null){
 				// the bigraph is inconsistent if g is null
 				h = g.replicate();
-				h.setOwner(big);
+				h.setOwner(owner);
 				trs.put(g, h);
 			}
 			j.setHandle(h);
@@ -159,7 +169,7 @@ public class Bigraph implements AbstBigraph {
 		for(EditableRoot r : this.roots){
 			EditableRoot s = r.replicate();
 			big.roots.add(s);
-			s.setOwner(big);
+			s.setOwner(owner);
 			for(EditableChild c : r.getEditableChildren()){
 				q.add(new Pair(s,c));
 			}
@@ -180,7 +190,7 @@ public class Bigraph implements AbstBigraph {
 					if(h == null){
 						// the bigraph is inconsistent if g is null
 						h = g.replicate();
-						h.setOwner(big);
+						h.setOwner(owner);
 						trs.put(g, h);
 					}
 					m.getPort(i).setHandle(h);
@@ -194,7 +204,6 @@ public class Bigraph implements AbstBigraph {
 				EditableSite s = (EditableSite) p.c;
 				EditableSite t = s.replicate();
 				t.setParent(p.p);
-				// the order may be wrong
 				sites[this.sites.indexOf(s)] = t;
 			}
 		}
@@ -295,6 +304,81 @@ public class Bigraph implements AbstBigraph {
 		return s;
 	}
 	
+	@Override
+	public String toString() {
+		String nl = System.getProperty("line.separator");
+		StringBuilder b = new StringBuilder();
+		b.append('{');
+		Iterator<Control> is = this.signature.iterator();
+		while(is.hasNext()){
+			b.append(is.next().toString());
+			if(is.hasNext())
+				b.append(", ");
+		}
+		b.append("} :: <").append(this.sites.size()).append(",{");
+		for(EditableLinkFacet n : this.inners){
+			b.append(n.getName());
+		}
+		b.append("}> -> <").append(this.roots.size()).append(",{");
+		for(EditableLinkFacet n : this.outers){
+			b.append(n.getName());
+		}
+		b.append("}>");
+		for(Handle h : this.outers){
+			b.append(nl).append(h);
+			b.append(":o <- {");
+			Iterator<? extends Point> ip = h.getPoints().iterator();
+			while(ip.hasNext()){
+				Point p = ip.next();
+				b.append(p);
+				if(p instanceof InnerName){
+					b.append(":i");
+				}
+				if(ip.hasNext()) b.append(", ");
+			}
+			b.append('}');
+		}
+		for(Handle h : this.getEdges()){
+			b.append(nl).append(h);
+			b.append(":e <- {");
+			Iterator<? extends Point> ip = h.getPoints().iterator();
+			while(ip.hasNext()){
+				Point p = ip.next();
+				b.append(p);
+				if(p instanceof InnerName){
+					b.append(":i");
+				}
+				if(ip.hasNext()) b.append(", ");
+			}
+			b.append('}');
+		}
+		Queue<Parent> q = new LinkedList<>();
+		q.addAll(this.roots);
+		while(!q.isEmpty()){
+			Parent p = q.poll();
+			b.append(nl);
+			if(p instanceof Root){
+				b.append(this.roots.indexOf(p));
+			}else{
+				b.append(p);
+			}
+			b.append(" <- {");
+			Iterator<? extends Child> ic = p.getChildren().iterator();
+			while(ic.hasNext()){
+				Child c = ic.next();
+				if(c instanceof Site){
+					b.append(this.sites.indexOf(c));
+				}else{
+					b.append(c);
+					q.add((Parent) c);
+				}
+				if(ic.hasNext()) b.append(", ");
+			}
+			b.append('}');
+		}
+		return b.toString();
+	}
+
 	public static Bigraph juxtapose(Bigraph left, Bigraph right){
 		return juxtapose(left,right,false);
 	}
