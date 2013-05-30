@@ -130,7 +130,7 @@ abstract class AbstNamed implements Named {
 		}
 		return _quick_prefix + "-" +  _quick_counter++;
 		*/
-		String r = _counter.toString(16); 
+		String r = _counter.toString(16).toUpperCase(); 
 		_counter = _counter.add(BigInteger.ONE);
 		return r;
 	}

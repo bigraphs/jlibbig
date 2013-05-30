@@ -138,6 +138,11 @@ class EditableNode implements Node, EditableParent, EditableChild {
 				return EditableNode.this;
 			}
 			
+			@Override
+			public String toString() {
+				return number + "@" + EditableNode.this;
+			}
+
 			public int getNumber(){
 				return this.number;
 			}

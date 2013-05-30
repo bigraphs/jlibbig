@@ -48,6 +48,4 @@ class EditableInnerName extends EditableLinkFacet implements InnerName, Editable
 	public EditableInnerName replicate() {
 		return new EditableInnerName(this.getName());
 	}
-	
-	
 }

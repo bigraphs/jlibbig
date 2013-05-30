@@ -84,7 +84,7 @@ public class SignatureBuilder {
 	
 		@Override
 		public String toString() {
-			return getName() + ":" + arity;
+			return getName() + ":(" + arity + ((active) ? ",a)" : ",p)");
 		}
 
 		@Override

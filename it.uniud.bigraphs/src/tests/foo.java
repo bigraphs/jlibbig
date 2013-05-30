@@ -21,54 +21,35 @@ public class foo {
 		
 		System.out.println("Signature: " + s);
 		
-		BigraphBuilder bb = new BigraphBuilder(s);
-		bb.addSite(bb.addNode("b", bb.addRoot()));
+		BigraphBuilder bb1 = new BigraphBuilder(s);
+		Root r = bb1.addRoot();
+		Handle h = bb1.addOuterName("x");
+		bb1.addInnerName("x", h);
+		h = bb1.addInnerName("x",h).getHandle();
+		Node n = bb1.addNode("c", r, h);
+		bb1.addSite(r);
+		//System.out.println(bb + "\n");
+		Bigraph b1 = bb1.makeBigraph();
+		//System.out.println(b1+ "\n");
+		//printBig("B1",b1);
+		bb1.outerCompose(b1);
+		printBB("outerCompose",bb1);
+		bb1.innerCompose(b1);
+		printBB("innerCompose",bb1);
 		
-		Bigraph b = bb.makeBigraph();
-		bb.innerCompose(b);
-		bb.outerCompose(b);
-		printBig(b);
+		BigraphBuilder bb2 = new BigraphBuilder(s);
+		r = bb2.addRoot();
+		h = bb2.addOuterName("x");
+		n = bb2.addNode("b", r, h);
+		bb2.addSite(n);
+		Bigraph b2 = bb2.makeBigraph();
 		
-		Handle h = bb.addOuterName("y");
-		Point p = bb.addInnerName("x", h);
-		printBB(bb);
-		Node n = bb.addNode("b",bb.getRoots().get(0), h);
-		bb.relink(n.getPort(0), p);
-		printBB(bb);
-		bb.relink(n.getPort(0), h);
-		bb.relink(p, h);
-		printBB(bb);
-		bb.leftJuxtapose(b);
-		bb.rightMergeProduct(b);
-		printBB(bb);
-		printBig(bb.makeBigraph());
+		bb1.outerNest(b2);
+		printBB("outerNest",bb1);
 		
-		bb = new BigraphBuilder(s);
-		bb.addSite(bb.addRoot());
-		bb.addInnerName("x", bb.addOuterName("x"));
-		printBig(bb.makeBigraph());
-		
-		/*
-		Bigraph b0 = printBig(Bigraph.makeMerge(s,0)); // 0->1
-		Bigraph b1 = printBig(Bigraph.makeIon(s, s.getByName("a"),"s"));
-		Bigraph b2 = printBig(Bigraph.makeIon(s, s.getByName("b"),"u","z"));
-		Bigraph b3 = printBig(Bigraph.makeIon(s, s.getByName("c"),"v","x","y")); // 1->1
-		
-		//System.out.println("Bigraph: " + b0.getNodes()+ " " + b0.getInnerFace() + " -> " + b0.getOuterFace());
-						
-		BigraphBuilder bb = new BigraphBuilder(b1);
-		printBB(bb);
-		bb.outerCompose(b3);
-		printBB(bb);
-		bb.leftJuxtapose(Bigraph.makeId(s,0,b2.getOuterFace().getNames()));
-		printBB(bb);
-		bb.innerCompose(b2);
-		printBB(bb);
-		bb.innerCompose(b0);
-		printBB(bb);
-		
-		printBig(bb.makeBigraph());
-		*/
+		b1 = bb1.makeBigraph();
+		bb2.innerNest(b1);
+		printBB("innerNest",bb2);
 		
 	}
 	
