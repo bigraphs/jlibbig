@@ -3,8 +3,8 @@
 all: parser lexer
 
 parser:
-	java -jar ../libs/beaver-cc-0.9.11.jar jlibbig/parser/parser.grammar 
-	mv jlibbig/parser/BigraphParser.java jlibbig/BigraphParser.java
+	java -jar ../libs/beaver-cc-0.9.11.jar parser_src/parser.grammar 
+	mv parser_src/BigraphParser.java jlibbig/udlang/BigraphParser.java
 lexer:
-	jflex jlibbig/parser/lexer.l
-	mv jlibbig/parser/BigraphLexer.java jlibbig/BigraphLexer.java
+	jflex parser_src/lexer.l
+	mv parser_src/BigraphLexer.java jlibbig/udlang/BigraphLexer.java
