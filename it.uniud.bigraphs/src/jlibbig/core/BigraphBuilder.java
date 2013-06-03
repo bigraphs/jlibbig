@@ -24,7 +24,7 @@ public class BigraphBuilder implements AbstBigraph {
 	BigraphBuilder(Bigraph big, boolean clone) {
 		if (!big.isConsistent())
 			throw new IllegalArgumentException("Inconsistent bigraph.");
-		this.big = (clone) ? big.clone(this) : big;
+		this.big = (clone) ? big.clone(this) : big.setOwner(this);
 	}
 
 	@Override
@@ -57,6 +57,16 @@ public class BigraphBuilder implements AbstBigraph {
 	public Signature getSignature() {
 		return this.big.getSignature();
 	}
+	
+	@Override
+	public boolean isEmpty(){
+		return this.big.isEmpty();
+	}
+	
+	@Override
+	public boolean isAgent(){
+		return this.big.isAgent();
+	}
 
 	public List<? extends Root> getRoots() {
 		return this.big.getRoots();
@@ -82,7 +92,7 @@ public class BigraphBuilder implements AbstBigraph {
 		return this.big.getEdges();
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////
 
 	public Root addRoot() {
 		EditableRoot r = new EditableRoot();

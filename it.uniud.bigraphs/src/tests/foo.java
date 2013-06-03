@@ -1,17 +1,10 @@
 package tests;
 
-import java.util.*;
-
 import jlibbig.core.*;
 
 @SuppressWarnings("unused")
 public class foo {
-	/**
-	 * @param args
-	 * @throws NameClashException 
-	 * @throws IncompatibleSignatureException 
-	 */
-	public static void main(String[] args) throws IncompatibleSignatureException, NameClashException {
+	public static void main(String[] args){
 				
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("a",true,0);
