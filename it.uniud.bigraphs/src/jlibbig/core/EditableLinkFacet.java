@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-abstract class EditableLinkFacet implements EditableNamed, Replicable{
+abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable{
 	protected String name;
 	
 	protected EditableLinkFacet() {

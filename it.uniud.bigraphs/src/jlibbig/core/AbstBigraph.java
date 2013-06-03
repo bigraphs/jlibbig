@@ -6,6 +6,10 @@ import java.util.Set;
 public interface AbstBigraph extends Owner{
 
 	public abstract Signature getSignature();
+	
+	public abstract boolean isEmpty();
+	
+	public abstract boolean isAgent();
 
 	public abstract List<? extends Root> getRoots();
 
