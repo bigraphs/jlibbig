@@ -2,7 +2,7 @@ package jlibbig.core;
 
 import java.util.*;
 
-class EditableRoot implements EditableParent, Root, EditableOwned{
+class EditableRoot implements EditableParent, Root, PlaceEntity, EditableOwned{
 	
 	private Set<EditableChild> children = new HashSet<>();
 	private final Set<Child> ro_chd;
@@ -54,5 +54,30 @@ class EditableRoot implements EditableParent, Root, EditableOwned{
 	@Override
 	public void setOwner(Owner value){
 		this.owner = value;
+	}
+
+	@Override
+	public boolean isParent() {
+		return true;
+	}
+
+	@Override
+	public boolean isChild() {
+		return false;
+	}
+
+	@Override
+	public boolean isRoot() {
+		return true;
+	}
+
+	@Override
+	public boolean isSite() {
+		return false;
+	}
+
+	@Override
+	public boolean isNode() {
+		return false;
 	}
 }

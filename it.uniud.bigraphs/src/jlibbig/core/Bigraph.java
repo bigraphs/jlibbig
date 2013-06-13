@@ -20,11 +20,11 @@ final public class Bigraph implements AbstBigraph {
 			.unmodifiableSet(this.outers);
 	private final Set<? extends InnerName> ro_inners = Collections
 			.unmodifiableSet(this.inners);
-
+	
 	Bigraph(Signature sig) {
 		this.signature = sig;
 	}
-
+	
 	boolean isConsistent() {
 		return this.isConsistent(this);
 	}

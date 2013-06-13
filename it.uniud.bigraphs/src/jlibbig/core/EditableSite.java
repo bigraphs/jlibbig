@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-class EditableSite implements EditableChild, Site{
+class EditableSite implements EditableChild, Site, PlaceEntity{
 	
 	private EditableParent parent;
 	
@@ -38,6 +38,31 @@ class EditableSite implements EditableChild, Site{
 	@Override
 	public EditableSite replicate(){
 		return new EditableSite();
+	}
+	
+	@Override
+	public boolean isParent() {
+		return false;
+	}
+
+	@Override
+	public boolean isChild() {
+		return true;
+	}
+
+	@Override
+	public boolean isRoot() {
+		return false;
+	}
+
+	@Override
+	public boolean isSite() {
+		return true;
+	}
+
+	@Override
+	public boolean isNode() {
+		return false;
 	}
 	
 }

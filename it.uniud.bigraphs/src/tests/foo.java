@@ -44,6 +44,17 @@ public class foo {
 		b1 = bb1.makeBigraph();
 		bb2.innerNest(b1);
 		printBB("innerNest",bb2);
+
+		bb2.ground();
+		printBB("ground",bb2);
+		b2 = bb2.makeBigraph();
+
+
+		System.out.println("--");
+		for(Match<Bigraph> m : BigraphMatcher.DEFAULT.match(b2, b1)){
+			System.out.println("--");
+		}
+		
 		
 	}
 	
