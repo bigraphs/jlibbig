@@ -4,7 +4,7 @@ import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
 
-public class Bigraph implements AbstBigraph {
+final public class Bigraph implements AbstBigraph {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
@@ -268,7 +268,7 @@ public class Bigraph implements AbstBigraph {
 	}
 	
 	@Override
-	public boolean isAgent(){
+	public boolean isGround(){
 		return this.inners.isEmpty() && this.sites.isEmpty();
 	}
 	
@@ -445,7 +445,7 @@ public class Bigraph implements AbstBigraph {
 		}
 		return b.toString();
 	}
-
+	
 	public static Bigraph juxtapose(Bigraph left, Bigraph right) {
 		return juxtapose(left, right, false);
 	}
@@ -475,7 +475,7 @@ public class Bigraph implements AbstBigraph {
 		return compose(out, in, false);
 	}
 
-	public static Bigraph compose(Bigraph out, Bigraph in, boolean reuse) {
+	static Bigraph compose(Bigraph out, Bigraph in, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
 		if (out.signature != in.signature) {
@@ -550,7 +550,7 @@ public class Bigraph implements AbstBigraph {
 		}
 		return bb.makeBigraph();
 	}
-
+	
 	// TODO factory methods
 
 }

@@ -8,7 +8,7 @@ import java.util.*;
  * {@link Bigraph#compose(Bigraph, Bigraph)} or
  * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object.
  */
-public class BigraphBuilder implements AbstBigraph {
+final public class BigraphBuilder implements AbstBigraphBuilder {
 	final boolean CONTINUOUS_CHECK = true;
 
 	private Bigraph big;
@@ -64,8 +64,8 @@ public class BigraphBuilder implements AbstBigraph {
 	}
 	
 	@Override
-	public boolean isAgent(){
-		return this.big.isAgent();
+	public boolean isGround(){
+		return this.big.isGround();
 	}
 
 	public List<? extends Root> getRoots() {
