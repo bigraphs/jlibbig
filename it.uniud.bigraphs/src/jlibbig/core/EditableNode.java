@@ -2,7 +2,7 @@ package jlibbig.core;
 
 import java.util.*;
 
-class EditableNode implements Node, EditableParent, EditableChild {
+class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 		private Control control;
 		private final List<EditablePort> ports;
 		private EditableParent parent;
@@ -126,6 +126,39 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			return (parent == null) ? null : parent.getOwner();
 		}
 		
+		@Override
+		public boolean isParent() {
+			return true;
+		}
+
+		@Override
+		public boolean isChild() {
+			return true;
+		}
+
+		@Override
+		public boolean isRoot() {
+			return false;
+		}
+
+		@Override
+		public boolean isSite() {
+			return false;
+		}
+
+		@Override
+		public boolean isNode() {
+			return true;
+		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 41;
+			int result = 1;
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			return result;
+		}
+
 		public class EditablePort implements Port, EditablePoint{
 			private final int number;
 			private EditableHandle handle;

@@ -275,6 +275,18 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
+	public void ground(){
+		for(EditableChild s : big.sites)
+			s.setParent(null);
+		for(EditablePoint i : big.inners)
+			i.setHandle(null);
+		big.sites.clear();
+		big.inners.clear();
+		// TODO skip check on internal data
+		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
+	}
+	
 	public void leftJuxtapose(Bigraph graph) {
 		leftJuxtapose(graph, false);
 	}

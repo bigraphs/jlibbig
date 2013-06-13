@@ -1,5 +1,5 @@
 package jlibbig.core;
 
-public interface Site  extends Child {
+public interface Site  extends Child, PlaceEntity {
 
 }
