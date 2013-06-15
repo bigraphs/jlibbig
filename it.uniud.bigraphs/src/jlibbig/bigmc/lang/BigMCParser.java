@@ -12,7 +12,7 @@ import jlibbig.core.*;
  * <a href="http://beaver.sourceforge.net">Beaver</a> v0.9.6.1
  * from the grammar specification "parser.grammar".
  */
-public class BigMCParser extends Parser {
+class BigMCParser extends Parser {
 	static public class Terminals {
 		static public final short EOF = 0;
 		static public final short VARID = 1;
@@ -65,7 +65,7 @@ public class BigMCParser extends Parser {
 		 * @return BigraphParser.ExtendedBRS
 		 *		class that contains a signature, a set of bigraphs and a map containing all reaction rules.
 		 */
-		public BigraphSystem parse( String str ) throws IOException, Parser.Exception{
+		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
 			_outerNames = new HashSet<>();		
 			_brs = new BigraphSystem();
 
@@ -83,13 +83,13 @@ public class BigMCParser extends Parser {
 		private class ParsedBigraph{
 			
 			private BigraphBuilder bigraph;
-			private Map<String , OuterName> outersNames;
-			private List<Integer> sitesNames;
+			private Map<String , OuterName> outerNames;
+			private Map<Site , Integer> siteNames;
 
 			ParsedBigraph( Signature sig ){
 				bigraph = new BigraphBuilder( sig );
-				outersNames = new HashMap<>();
-				sitesNames = new ArrayList<>();
+				outerNames = new HashMap<>();
+				siteNames = new HashMap<>();
 			}
 			
 			//Note:	this method doesn't return a Milner's Ion (for bigraphs). It will add to the current bigraph one root with a node.
@@ -111,9 +111,9 @@ public class BigMCParser extends Parser {
 				Iterator<? extends Port> portIt = ports.iterator();
 				for( String name : list ){
 					if( name != null ){
-						OuterName outer = outersNames.get( name );
+						OuterName outer = outerNames.get( name );
 						if( outer == null )
-							outersNames.put( name , outer = bigraph.addOuterName() );
+							outerNames.put( name , outer = bigraph.addOuterName() );
 						bigraph.relink( (Point) portIt.next() , outer );
 					}else
 						portIt.next();
@@ -125,25 +125,25 @@ public class BigMCParser extends Parser {
 			 * 		ParsedBigraph to be innerComposed
 			 */
 			public void compose( ParsedBigraph pb ){
-				//preconditions: this.getRoots().size() == 1
+			
 				if( pb.bigraph.getRoots().size() != 1 )
 					throw new RuntimeException( "The juxtaposition (||) can only appear at the top level" );
 				
 				BigraphBuilder outer_juxt = new BigraphBuilder( bigraph.getSignature() );
 				BigraphBuilder outer_comp = new BigraphBuilder( bigraph.getSignature() );
 								
-				for( Map.Entry<String , OuterName> o : pb.outersNames.entrySet() ){
+				for( Map.Entry<String , OuterName> o : pb.outerNames.entrySet() ){
 					outer_juxt.addInnerName( o.getValue().getName() , outer_juxt.addOuterName( o.getValue().getName() ) );
-					if( this.outersNames.containsKey( o.getKey() ) ){
+					if( this.outerNames.containsKey( o.getKey() ) ){
 						OuterName outer = outer_comp.addOuterName();
 						outer_comp.addInnerName( o.getValue().getName() , outer );
-						outer_comp.addInnerName( this.outersNames.put( o.getKey() , outer ).getName() , outer );
+						outer_comp.addInnerName( this.outerNames.put( o.getKey() , outer ).getName() , outer );
 					}else
 						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
 				}
 
-				for( Map.Entry<String , OuterName> o : this.outersNames.entrySet() ){
-					if( !pb.outersNames.containsKey( o.getKey() ) )
+				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
+					if( !pb.outerNames.containsKey( o.getKey() ) )
 						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
 				}
 
@@ -153,44 +153,71 @@ public class BigMCParser extends Parser {
 				this.bigraph.innerCompose( pb.bigraph.makeBigraph() , true );
 				this.bigraph.outerCompose( outer_comp.makeBigraph() , true );
 
-				this.sitesNames.addAll( pb.sitesNames );
-
+				//recalculate siteNames map (makeBigraph make a copy of the bigraph, so pointer will change)
+				Site[] arr = new Site[ pb.bigraph.getSites().size() ];
+				
+				for( Site s : pb.bigraph.getSites() ){
+					arr[ pb.bigraph.getSites().indexOf( s ) ] = s;
+				}
+				
+				Map<Site , Integer> map = new HashMap<>();
+				
+				for( Site s : bigraph.getSites() )
+						map.put( s , pb.siteNames.get( arr[ bigraph.getSites().indexOf( s ) ] ) );
+				
+				this.siteNames.putAll( map );
+				
 			}
 
 			/* Juxtapose two ParsedBigraph. 
 			 * @param pb
 			 */
 			public void juxtapose( ParsedBigraph pb ){
-
-				if( !Collections.disjoint( this.sitesNames , pb.sitesNames ) )
-					throw new RuntimeException( "The same site ($num) can't appear multiple time in a single bigraph" );
 				
 				BigraphBuilder outer_comp = new BigraphBuilder( bigraph.getSignature() );
 				
-				for( Map.Entry<String , OuterName> o : pb.outersNames.entrySet() ){
-					if( this.outersNames.containsKey( o.getKey() ) ){
+				for( Map.Entry<String , OuterName> o : pb.outerNames.entrySet() ){
+					if( this.outerNames.containsKey( o.getKey() ) ){
 						OuterName outer = outer_comp.addOuterName();
 						outer_comp.addInnerName( o.getValue().getName() , outer );
-						outer_comp.addInnerName( this.outersNames.put( o.getKey() , outer).getName() , outer );
+						outer_comp.addInnerName( this.outerNames.put( o.getKey() , outer).getName() , outer );
 					}else{
 						OuterName out = outer_comp.addOuterName( o.getValue().getName() );
 						outer_comp.addInnerName( o.getValue().getName() , out );
-						this.outersNames.put( o.getKey() , out );
+						this.outerNames.put( o.getKey() , out );
 					}
 				}
 				
-				for( Map.Entry<String , OuterName> o : this.outersNames.entrySet() ){
-					if( !pb.outersNames.containsKey( o.getKey() ) )
+				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
+					if( !pb.outerNames.containsKey( o.getKey() ) )
 						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
 				}
-
+				
+				int siteSize = this.bigraph.getSites().size();
 				this.bigraph.leftJuxtapose( pb.bigraph.makeBigraph() );
-
+								
  				for( int i = 0 ; i < this.bigraph.getRoots().size() ; ++i )
 					outer_comp.addSite( outer_comp.addRoot() );
+ 				
 				this.bigraph.outerCompose( outer_comp.makeBigraph() );
 
-				this.sitesNames.addAll( pb.sitesNames );
+				//recalculate siteNames map (makeBigraph make a copy of the bigraph, so pointer will change)
+				Site[] arr = new Site[ pb.bigraph.getSites().size() ];
+				
+				for( Site s : pb.bigraph.getSites() ){
+					arr[ pb.bigraph.getSites().indexOf( s ) ] = s;
+				}
+				
+				Map<Site , Integer> map = new HashMap<>();
+				
+				for( Site s : bigraph.getSites() ){
+					int index = bigraph.getSites().indexOf( s );
+					if( index >= siteSize )
+						map.put( s , pb.siteNames.get( arr[ index - siteSize ] ) );
+				}
+				
+				this.siteNames.putAll( map );
+				
 			}
 
 			/* Make a Bigraph out of a ParsedBigraph. 
@@ -199,37 +226,33 @@ public class BigMCParser extends Parser {
 			 * @return Bigraph
 			 */
 			public Bigraph switchToBigraph(){
-				BigraphBuilder outer_comp = new BigraphBuilder( this.bigraph.getSignature() );
-				BigraphBuilder inner_comp = new BigraphBuilder( this.bigraph.getSignature() );
 				
-				int max = 0;
-				for( Integer i : sitesNames )
-					if( max  < i ) max = i;
-
-				Root[] arr = new Root[max+1];
-
-				for( int i = 0; i <= max ; ++i )
-					arr[i] = null;
-
-				for( Integer i : sitesNames )
-					arr[i] = inner_comp.addRoot();
-
-				for( int i = 0; i <= max ; ++i ){
-					if( arr[i] != null )
-						inner_comp.addSite( arr[i] );
-				}
-
-				for( Map.Entry<String , OuterName> o : this.outersNames.entrySet() ){
+				BigraphBuilder outer_comp = new BigraphBuilder( this.bigraph.getSignature() );
+				
+				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
 						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getKey() ) );
 				}
 				
 				for( int i = 0; i < this.bigraph.getRoots().size() ; ++i )
 					outer_comp.addSite( outer_comp.addRoot() );
 
-				this.bigraph.innerCompose( inner_comp.makeBigraph() );
 				this.bigraph.outerCompose( outer_comp.makeBigraph() );
 
-				return this.bigraph.makeBigraph();
+				Bigraph b = this.bigraph.makeBigraph();
+				
+				Site[] arr = new Site[ b.getSites().size() ];
+				int i = 0;
+				for( Site s : b.getSites() ){
+					arr[ b.getSites().indexOf( s ) ] = s;
+				}
+				Map<Site , Integer> map = new HashMap<>();
+				
+				for( Site s : bigraph.getSites() ){
+					map.put( arr[ bigraph.getSites().indexOf(s) ] , this.siteNames.get(s) );
+				}
+				this.siteNames = map;
+				
+				return b;
 			}
 
 			/* Close all sites of a ParsedBigraph 
@@ -242,14 +265,12 @@ public class BigMCParser extends Parser {
 			}
 
 			public void addSite( int n ){
-				if( sitesNames.contains( n ) )
-					throw new IllegalArgumentException( "The same site ($" + n + ") can't appear multiple time in a single bigraph" );
-				this.bigraph.addSite( this.bigraph.addRoot() );
-				sitesNames.add( n );
+				Site s = this.bigraph.addSite( this.bigraph.addRoot() );
+				siteNames.put( s , n );
 			}
 
 			public Set<String> getNames(){
-				return outersNames.keySet();
+				return outerNames.keySet();
 			}
 				
 		}
@@ -325,10 +346,8 @@ public class BigMCParser extends Parser {
 					final Symbol _symbol_b2 = _symbols[offset + 3];
 					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
 					 
-						if( !b1.sitesNames.containsAll( b2.sitesNames ) )
-							throw new RuntimeException("Every site ($num) of a reactum must appear in its redex");
-						
-						_brs.addReaction( b1.switchToBigraph() , b2.switchToBigraph() ); 
+
+						_brs.addReaction( new RedexBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new RedexBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
 						return new Symbol( null );
 				}
 			},

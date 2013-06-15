@@ -37,10 +37,10 @@ public class BigraphSystem{
 		bigraphs.add( b );
 	}
 			
-	public void addReaction( Bigraph redex , Bigraph reactum ){
+	public void addReaction( RedexBigraph redex , RedexBigraph reactum ){
 		if( redex.getRoots().size() != reactum.getRoots().size() )
 			throw new RuntimeException("The number of roots in redex and reactum must be the same");
-		reactionRules.put( new RedexBigraph( redex , outerNames ) , new RedexBigraph( reactum , outerNames ) );
+		reactionRules.put( redex , reactum );
 	}
 			
 	public Set<Bigraph> getBigraphs(){
