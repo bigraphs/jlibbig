@@ -84,15 +84,16 @@ public class BigraphParser extends Parser {
 			return _brs;
 		}
 
-		private class ParsedBigraph extends BigraphBuilder{
+		private class ParsedBigraph{
 			
+			private BigraphBuilder big;
 			private Map<String , OuterName> edgesNames;
 			private Map<String , OuterName> outersNames;
 			private Set<String> innersNames;
 			private Set<Integer> sitesNames;
 
 			ParsedBigraph( Signature sig ){
-				super( sig );
+				big = new BigraphBuilder( sig );
 				edgesNames = new HashMap<>();
 				outersNames = new HashMap<>();
 				innersNames = new HashSet<>();
@@ -102,11 +103,11 @@ public class BigraphParser extends Parser {
 			//Note:	this method doesn't return a Milner's Ion (for bigraphs). It will add to the current bigraph one root with a node.
 			//	This node have a site inside and, differently from Milner's definition of Ion, it can be linked to inner names.
 			public void makeIon( String c , List<Name<String , Character>> list ){
-				if( getSignature().getByName( c ) == null )
+				if( big.getSignature().getByName( c ) == null )
 					throw new IllegalArgumentException( "Control " + c +" should be in the signature." );
 				
-				Node node = addNode( c , addRoot() );
-				addSite( node );
+				Node node = big.addNode( c , big.addRoot() );
+				big.addSite( node );
 
 				if( list == null ) return;
 
@@ -122,20 +123,20 @@ public class BigraphParser extends Parser {
 							if( innersNames.contains( name.getName() ) )
 								throw new RuntimeException( "Innernames (" + name.getName() + ") can't appear multiple time in a single bigraph." );
 							Handle inner_edge = ((Port) portIt.next()).getHandle();
-							addInnerName( name.getName() , inner_edge );
+							big.addInnerName( name.getName() , inner_edge );
 							innersNames.add( name.getName() ); 
                      					break;
 						case 'o':
 							OuterName outer = outersNames.get( name.getName() );
 							if( outer == null )
-								outersNames.put( name.getName() , outer = addOuterName() );
-							relink( (Point) portIt.next() , outer );
+								outersNames.put( name.getName() , outer = big.addOuterName() );
+							big.relink( (Point) portIt.next() , outer );
 							break;
 						case 'e':
 							OuterName edge = edgesNames.get( name.getName() );
 							if( edge == null )
-								edgesNames.put( name.getName() , edge = addOuterName() );
-							relink( (Point) portIt.next() , edge );
+								edgesNames.put( name.getName() , edge = big.addOuterName() );
+							big.relink( (Point) portIt.next() , edge );
 							break;
 						case 'u':
 							portIt.next();
@@ -150,15 +151,15 @@ public class BigraphParser extends Parser {
 			 */
 			public void compose( ParsedBigraph pb ){
 				//preconditions: this.getRoots().size() == 1
-				if( pb.getRoots().size() != 1 )
+				if( pb.big.getRoots().size() != 1 )
 					throw new RuntimeException( "The double-parallel operator (||) can only appear at the top level" );
 				
 				if( !Collections.disjoint( this.innersNames , pb.innersNames ) )
 					throw new RuntimeException( "Innernames can't appear multiple time in a single bigraph." );
 
-				BigraphBuilder inner_juxt = new BigraphBuilder( getSignature() );
-				BigraphBuilder outer_juxt = new BigraphBuilder( getSignature() );
-				BigraphBuilder outer_comp = new BigraphBuilder( getSignature() );
+				BigraphBuilder inner_juxt = new BigraphBuilder( big.getSignature() );
+				BigraphBuilder outer_juxt = new BigraphBuilder( big.getSignature() );
+				BigraphBuilder outer_comp = new BigraphBuilder( big.getSignature() );
 
 				for( String str : this.innersNames )
 					inner_juxt.addInnerName( str , inner_juxt.addOuterName( str ) );
@@ -195,10 +196,10 @@ public class BigraphParser extends Parser {
 				
 				outer_comp.addSite( outer_comp.addRoot() );
 				
-				pb.rightJuxtapose( inner_juxt.makeBigraph() , true );
-				this.leftJuxtapose( outer_juxt.makeBigraph() , true );
-				this.innerCompose( pb.makeBigraph() , true );
-				this.outerCompose( outer_comp.makeBigraph() , true );
+				pb.big.rightJuxtapose( inner_juxt.makeBigraph() , true );
+				this.big.leftJuxtapose( outer_juxt.makeBigraph() , true );
+				this.big.innerCompose( pb.big.makeBigraph() , true );
+				this.big.outerCompose( outer_comp.makeBigraph() , true );
 
 				this.innersNames.addAll( pb.innersNames );
 				this.sitesNames.addAll( pb.sitesNames );
@@ -216,7 +217,7 @@ public class BigraphParser extends Parser {
 				if( !Collections.disjoint( this.innersNames , pb.innersNames ) )
 					throw new RuntimeException( "Innernames can't appear multiple time in a single bigraph." );
 				
-				BigraphBuilder outer_comp = new BigraphBuilder( getSignature() );
+				BigraphBuilder outer_comp = new BigraphBuilder( big.getSignature() );
 				
 				for( Map.Entry<String , OuterName> o : pb.outersNames.entrySet() ){
 					if( this.outersNames.containsKey( o.getKey() ) ){
@@ -252,11 +253,11 @@ public class BigraphParser extends Parser {
 						outer_comp.addInnerName( e.getValue().getName() , outer_comp.addOuterName( e.getValue().getName() ) );
 				}
 
-				this.leftJuxtapose( pb.makeBigraph() );
+				this.big.leftJuxtapose( pb.big.makeBigraph() );
 
- 				for( int i = 0 ; i < this.getRoots().size() ; ++i )
+ 				for( int i = 0 ; i < this.big.getRoots().size() ; ++i )
 					outer_comp.addSite( outer_comp.addRoot() );
-				this.outerCompose( outer_comp.makeBigraph() );
+				this.big.outerCompose( outer_comp.makeBigraph() );
 
 				this.innersNames.addAll( pb.innersNames );
 				this.sitesNames.addAll( pb.sitesNames );
@@ -275,20 +276,20 @@ public class BigraphParser extends Parser {
 				if( list == null && ( o == null || o.getType() == 'e' || o.getType() == 'u' ) ) return;
 
 				if( o == null ){
-					out = addOuterName();
+					out = big.addOuterName();
 					edgesNames.put( out.getName() , out );
 				}else{ 
 					switch( o.getType() ){
 						case 'o':
-							out = addOuterName();
+							out = big.addOuterName();
 							outersNames.put( o.getName() , out );
 							break;
 						case 'e':
-							out = addOuterName();
+							out = big.addOuterName();
 							edgesNames.put( o.getName() , out );
 							break;
 						case 'u':
-							out = addOuterName();
+							out = big.addOuterName();
 							edgesNames.put( out.getName() , out );
 							break;
 						default:
@@ -301,7 +302,7 @@ public class BigraphParser extends Parser {
 						throw new IllegalArgumentException( "In <- operator, only innernames can appear as a suffix (" + name.getName() + ":" + name.getType() + ")" );
 					if( innersNames.contains( name.getName() ) )
 						throw new RuntimeException( "Innernames (" + name.getName() + ") can't appear multiple time in a single bigraph." );
-					addInnerName( name.getName() , out );
+					big.addInnerName( name.getName() , out );
 					innersNames.add( name.getName() );
 				}	
 			}	
@@ -313,35 +314,54 @@ public class BigraphParser extends Parser {
 			 * @return Bigraph
 			 */
 			public Bigraph switchToBigraph(){
-				BigraphBuilder outer_comp = new BigraphBuilder( getSignature() );
+				BigraphBuilder outer_comp = new BigraphBuilder( big.getSignature() );
+				BigraphBuilder inner_comp = new BigraphBuilder( this.big.getSignature() );
+				
+				int max = 0;
+				for( Integer i : sitesNames )
+					if( max  < i ) max = i;
+
+				Root[] arr = new Root[max+1];
+
+				for( int i = 0; i <= max ; ++i )
+					arr[i] = null;
+
+				for( Integer i : sitesNames )
+					arr[i] = inner_comp.addRoot();
+
+				for( int i = 0; i <= max ; ++i ){
+					if( arr[i] != null )
+						inner_comp.addSite( arr[i] );
+				}
 				
 				for( Map.Entry<String , OuterName> o : this.outersNames.entrySet() )
 					outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getKey() ) );
 				for( OuterName o : this.edgesNames.values() )
 					outer_comp.addInnerName( o.getName() );
-				for( int i = 0; i < this.getRoots().size() ; ++i )
+				for( int i = 0; i < this.big.getRoots().size() ; ++i )
 					outer_comp.addSite( outer_comp.addRoot() );
 
-				this.outerCompose( outer_comp.makeBigraph() );
+				this.big.innerCompose( inner_comp.makeBigraph() );
+				this.big.outerCompose( outer_comp.makeBigraph() );
 
-				return this.makeBigraph();
+				return this.big.makeBigraph();
 			}
 
 			/* Close all sites of a ParsedBigraph 
 			 */
 			public void groundPlaceGraph(){
-				BigraphBuilder ground = new BigraphBuilder( getSignature() );
-				for( int i = 0; i < getSites().size() ; ++i )
+				BigraphBuilder ground = new BigraphBuilder( big.getSignature() );
+				for( int i = 0; i < big.getSites().size() ; ++i )
 					ground.addRoot();
 				for( String str : innersNames )
 					ground.addInnerName( str , ground.addOuterName( str ) );
-				innerCompose( ground.makeBigraph() );
+				big.innerCompose( ground.makeBigraph() );
 			}
 
 			public void addSite( int n ){
 				if( sitesNames.contains( n ) )
 					throw new IllegalArgumentException( "The same site ($" + n + ") can't appear multiple time in a single bigraph." );
-				addSite( addRoot() );
+				big.addSite( big.addRoot() );
 				sitesNames.add( n );
 			}
 				
@@ -532,7 +552,7 @@ public class BigraphParser extends Parser {
 					final ParsedBigraph b1 = (ParsedBigraph) _symbol_b1.value;
 					final Symbol _symbol_b2 = _symbols[offset + 3];
 					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
-					 b1.juxtapose( b2 ); b1.merge(); return new Symbol( b1 );
+					 b1.juxtapose( b2 ); b1.big.merge(); return new Symbol( b1 );
 				}
 			},
 			new Action() {	// [21] t = t.b1 DPIPE t.b2
@@ -560,7 +580,7 @@ public class BigraphParser extends Parser {
 			},
 			new Action() {	// [24] t = NIL
 				public Symbol reduce(Symbol[] _symbols, int offset) {
-					 ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.addRoot(); return new Symbol( b );
+					 ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.big.addRoot(); return new Symbol( b );
 				}
 			},
 			new Action() {	// [25] t = PAROPEN t.b PARCLOSE

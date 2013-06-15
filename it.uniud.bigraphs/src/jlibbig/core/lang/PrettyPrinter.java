@@ -1,7 +1,5 @@
 package jlibbig.core.lang;
 
-import jlibbig.core.*;
-
-public interface PrettyPrinter<B extends AbstBigraph>  {
-
+public interface PrettyPrinter<T>  {
+	public String toString( T system );
 }

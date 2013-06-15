@@ -3,6 +3,6 @@
 all: parser lexer
 
 parser:
-	java -jar ../libs/beaver-cc-0.9.11.jar parser.grammar
+	java -jar ../../../libs/beaver-cc-0.9.11.jar parser.grammar
 lexer:
-	jflex parser_src/lexer.l
+	jflex lexer.l
