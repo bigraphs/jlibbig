@@ -2,7 +2,7 @@ package jlibbig.core;
 
 import java.util.*;
 
-public abstract class AbstMatch<A extends AbstBigraph>  implements Match<A>{
+public class AbstMatch<A extends AbstBigraph>  implements Match<A>{
 
 	protected final A context;
 	protected final A redex;
@@ -13,7 +13,7 @@ public abstract class AbstMatch<A extends AbstBigraph>  implements Match<A>{
 		this.redex = redex;
 		this.params = Collections.unmodifiableList(new  LinkedList<A>(params));
 	}
-	
+		
 	@Override
 	public A getContext() {
 		return this.context;

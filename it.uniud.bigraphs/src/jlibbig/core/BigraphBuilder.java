@@ -9,7 +9,7 @@ import java.util.*;
  * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object.
  */
 final public class BigraphBuilder implements AbstBigraphBuilder {
-	final boolean CONTINUOUS_CHECK = true;
+	private final boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	private Bigraph big;
 
@@ -39,7 +39,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 */
 	public Bigraph makeBigraph() {
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		Bigraph b = big.clone();
 		if (!b.isConsistent())
@@ -99,7 +99,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		r.setOwner(this);
 		this.big.roots.add(r);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		return r;
 	}
@@ -108,7 +108,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		EditableSite s = new EditableSite((EditableParent) parent);
 		this.big.sites.add(s);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		return s;
 	}
@@ -144,7 +144,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, handles);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		return n;
 	}
@@ -161,7 +161,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		n.setOwner(this);
 		this.big.outers.add(n);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		return n;
 	}
@@ -193,7 +193,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		n.setHandle(h);
 		this.big.inners.add(n);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		return n;
 	}
@@ -209,7 +209,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		p.setHandle(h);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
@@ -227,7 +227,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		t1.setHandle(e);
 		t2.setHandle(e);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		return e;
 	}
@@ -248,7 +248,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			ps[i].setHandle(e);
 		}
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 		return e;
 	}
@@ -271,7 +271,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		big.roots.clear();
 		big.roots.add(r);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
@@ -283,7 +283,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		big.sites.clear();
 		big.inners.clear();
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 	
@@ -321,7 +321,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		r.outers.addAll(l.outers);
 		r.inners.addAll(l.inners);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
@@ -359,7 +359,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		l.outers.addAll(r.outers);
 		l.inners.addAll(r.inners);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
@@ -420,7 +420,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			((EditableEdge) e).setOwner(this);
 		}
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
@@ -486,7 +486,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			((EditableEdge) e).setOwner(this);
 		}
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
@@ -612,7 +612,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		r.outers.addAll(os);
 		r.inners.addAll(l.inners);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 
@@ -667,7 +667,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		l.outers.addAll(os);
 		l.inners.addAll(r.inners);
 		// TODO skip check on internal data
-		if (CONTINUOUS_CHECK && !big.isConsistent(this))
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
 

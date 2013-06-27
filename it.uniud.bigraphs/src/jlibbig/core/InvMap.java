@@ -18,7 +18,7 @@ class InvMap<A,B> implements Map<A,B>{
 	}
 	
 	private void computeInv(){
-		if(_inv!=null)
+		if(_inv==null)
 			_inv = new HashMap<>();
 		for(B b : _map.values()){
 			_inv.put(b, new HashSet<A>());
@@ -41,7 +41,7 @@ class InvMap<A,B> implements Map<A,B>{
 
 	@Override
 	public boolean containsValue(Object arg) {
-		if(_inv!=null)
+		if(_inv==null)
 			computeInv(); 
 		return _inv.containsKey(arg);
 	}
@@ -57,7 +57,7 @@ class InvMap<A,B> implements Map<A,B>{
 	}
 	
 	public Set<A> getKeys(B arg) {
-		if(_inv!=null)
+		if(_inv==null)
 			computeInv(); 
 		return _inv.get(arg);
 	}
