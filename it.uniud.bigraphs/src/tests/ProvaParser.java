@@ -1,6 +1,6 @@
 package tests;
 
-import java.util.Map;
+import java.util.*;
 
 import jlibbig.bigmc.*;
 import jlibbig.bigmc.lang.*;

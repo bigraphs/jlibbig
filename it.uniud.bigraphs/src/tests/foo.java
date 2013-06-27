@@ -49,10 +49,20 @@ public class foo {
 		printBB("ground",bb2);
 		b2 = bb2.makeBigraph();
 
-
-		System.out.println("--");
 		for(Match<Bigraph> m : BigraphMatcher.DEFAULT.match(b2, b1)){
-			System.out.println("--");
+			String sp = "------";
+			System.out.println("BEGIN MATCH:");
+			System.out.println("--- ctx ---" + sp);
+			System.out.println(m.getContext());
+			System.out.println("--- rdx ---" + sp);
+			System.out.println(m.getRedex());
+			int i = 0;
+			for (Bigraph prm : m.getParams()) {
+				System.out.println("--- PRM "+ i + " ---" + sp.substring(2+(int) Math.floor(Math.log10(i+1))));
+				System.out.println(prm);
+				i++;
+			}
+			System.out.println("END MATCH");
 		}
 		
 		

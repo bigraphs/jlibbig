@@ -251,7 +251,7 @@ final public class Bigraph implements AbstBigraph {
 		}
 		return big;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -350,8 +350,13 @@ final public class Bigraph implements AbstBigraph {
 	 */
 	@Override
 	public Set<? extends Edge> getEdges() {
+		return getEdges(this.getNodes());
+	}
+	
+	// avoid visit the place graph to compute the set of nodes
+	Set<? extends Edge> getEdges(Set<? extends Node> nodes) {
 		Set<Edge> s = new HashSet<>();
-		for (Node n : this.getNodes()) {
+		for (Node n : nodes) {
 			for (Port p : n.getPorts()) {
 				Handle h = p.getHandle();
 				if (h instanceof Edge) {
