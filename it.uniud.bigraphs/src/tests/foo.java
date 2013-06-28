@@ -49,7 +49,12 @@ public class foo {
 		printBB("ground",bb2);
 		b2 = bb2.makeBigraph();
 
+		Long t0 = System.currentTimeMillis();
+		Long mc = 0L;
+		System.out.println("match test...");
 		for(Match<Bigraph> m : BigraphMatcher.DEFAULT.match(b2, b1)){
+			mc++;
+			/*
 			String sp = "------";
 			System.out.println("BEGIN MATCH:");
 			System.out.println("--- ctx ---" + sp);
@@ -63,9 +68,14 @@ public class foo {
 				i++;
 			}
 			System.out.println("END MATCH");
+			*/
 		}
-		
-		
+		Long t1 = System.currentTimeMillis();
+		System.out.println("done: #" + mc + " " + (t1 - t0) + "(ms)");
+	}
+	
+	private static void printT(){
+		System.out.println(System.currentTimeMillis());
 	}
 	
 	private static BigraphBuilder printBB(BigraphBuilder b){

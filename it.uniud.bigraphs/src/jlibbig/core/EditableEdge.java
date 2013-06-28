@@ -64,5 +64,11 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 	public void setOwner(Owner value){
 		this.owner = value;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 83;
+		return prime * name.hashCode();
+	}
 	
 }
