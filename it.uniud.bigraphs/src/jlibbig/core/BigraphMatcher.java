@@ -13,9 +13,10 @@ import choco.kernel.model.variables.integer.IntegerVariable;
 
 public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
-	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = true;
-	private final static boolean DEBUG_PRINT_QUEUE_REFILL = true;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	private final static boolean DEBUG = true;
+	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
+	private final static boolean DEBUG_PRINT_QUEUE_REFILL = DEBUG;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = DEBUG;
 
 	public final static BigraphMatcher DEFAULT = new BigraphMatcher();
 
@@ -54,7 +55,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		// relates redex handles and inner names and describes aliasied names
 		final InvMap<InnerName, Handle> aliased_inners;
 		// "phantom" edges emulate edges with no points in the agent
-		final Set<Edge> pht_edges;
+		final List<Edge> pht_edges;
 
 		// caches the set of descendants of a agents entities
 		// final Map<Parent, Set<Node>> descendants_cache;
@@ -94,7 +95,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				aliased_inners.put(i, i.getHandle());
 			}
 
-			this.pht_edges = new HashSet<>();
+			this.pht_edges = new LinkedList<>();
 			for (Handle h : this.redex_handles) {
 				if (!aliased_inners.containsValue(h))
 					pht_edges.add(new EditableEdge());
@@ -399,13 +400,15 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 			solver.read(model);
 			solver.generateSearchStrategy();
 
-			System.out.println("Model created for agent:");
-			System.out.println(this.agent);
-			System.out.println("agent's ancestor map:");
-			for (Node i : this.agent_ancestors.keySet()) {
-				String s = this.agent_ancestors.get(i).toString();
-				System.out.println("" + i + ": {"
-						+ s.substring(1, s.length() - 1) + "}");
+			if(DEBUG){
+				System.out.println("Model created for agent:");
+				System.out.println(this.agent);
+				System.out.println("agent's ancestor map:");
+				for (Node i : this.agent_ancestors.keySet()) {
+					String s = this.agent_ancestors.get(i).toString();
+					System.out.println("" + i + ": {"
+							+ s.substring(1, s.length() - 1) + "}");
+				}
 			}
 
 		}
@@ -448,7 +451,13 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		private void cleanup(){
 			this.exhausted = true;
 			this.solver.clear();
-			//TODO release lists
+//			this.agent_ancestors.clear();
+//			this.agent_nodes.clear();
+//			this.aliased_inners.clear();
+//			this.matrix.clear();
+//			this.pht_edges.clear();
+//			this.redex_handles.clear();
+//			this.redex_nodes.clear();
 		}
 
 		private void populateMatchQueue(boolean first) {
@@ -792,8 +801,9 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 			}
 
 			if (pht_k > 0) {
-				// TODO group permutation symmetries
 				// enables phantom edges only if they are really used
+				List<Handle> rdx_hs = new LinkedList<>(lnk_hnd.keySet()); 
+				rdx_hs.removeAll(handle_img.keySet());
 				IntegerVariable var1 = null;
 				for (Edge e : pht_edges) {
 					IntegerVariable var2 = lnk_pht.get(e);
@@ -805,9 +815,9 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 						IntegerVariable[] vars_non_ctx = new IntegerVariable[pht_k
 								- pht_ctx_k];
 						int k = 0, k_non_ctx = 0, k_ctx = 0;
-						for (Handle h : lnk_hnd.keySet()) {
-							if (handle_img.containsKey(h))
-								continue;
+						for (Handle h : rdx_hs) {
+							//if (handle_img.containsKey(h))
+							//	continue;
 							IntegerVariable var = lnk_hnd.get(h).get(e);
 							if (this.aliased_inners.containsValue(h)) {
 								vars_non_ctx[k_non_ctx++] = var;
@@ -828,9 +838,9 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					} else {
 						IntegerVariable[] vars = new IntegerVariable[pht_k];
 						int k = 0;
-						for (Handle h : lnk_hnd.keySet()) {
-							if (handle_img.containsKey(h))
-								continue;
+						for (Handle h : rdx_hs) {
+							//if (handle_img.containsKey(h))
+							//	continue;
 							vars[k++] = lnk_hnd.get(h).get(e);
 						}
 						lnk_model
@@ -842,6 +852,32 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 						lnk_model.addConstraint(Choco.geq(var1, var2));
 					}
 					var1 = var2;
+				}
+				// avoid group permutations imposing a lexicographical ordering
+				// if h is matched with e then h'< h can't match with e' > e
+				List<Handle> hs = new LinkedList<>(); 
+				ListIterator<Handle> hi = rdx_hs.listIterator();
+				hs.add(hi.next());
+				while(hi.hasNext()){
+					Handle h1 = hi.next();
+					List<Edge> es = new LinkedList<>();
+					ListIterator<Edge> ei = pht_edges.listIterator(pht_edges.size());
+					es.add(ei.previous());
+					while(ei.hasPrevious()){
+						Edge e1 = ei.previous();
+						var1 = lnk_hnd.get(h1).get(e1);
+						int k = 0;
+						IntegerVariable[] vars = new IntegerVariable[es.size() * hs.size()];
+						for(Handle h2 : hs){
+							Map<Handle, IntegerVariable> hr = lnk_hnd.get(h2);
+							for(Edge e2 : es){
+								vars[k++] = hr.get(e2);
+							}
+						}
+						lnk_model.addConstraint(Choco.geq(var1, Choco.mult(var1, Choco.div(Choco.sum(vars), k))));
+						es.add(e1);
+					}
+					hs.add(h1);
 				}
 			} else {
 				for (Edge e : pht_edges) {
@@ -1213,98 +1249,6 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				matchQueue.add(new AbstMatch<Bigraph>(ctx, rdx, prms));
 			} while (lnk_solver.nextSolution());
-
-			/*
-			 * OLD Bigraph ctx = new Bigraph(this.agent.signature); Bigraph rdx
-			 * = new Bigraph(this.agent.signature); Bigraph prm = new
-			 * Bigraph(this.agent.signature);
-			 * 
-			 * Visits the agent from the outer face to the inner duplicating its
-			 * structure. The replicated entities are added to ctx until the an
-			 * entity of the redex image is reached; then entities are added to
-			 * the rdx until the image of a site is reached in which case
-			 * subsequent entities are added to the corresponding parameter. In
-			 * this phase, the image of any link containing two or more inner
-			 * names is checked to mark the points which will be assigned to
-			 * these names. In this way the visit can be done once for every
-			 * solution and parameters are instantiated consistently with the
-			 * distribution of points over aliased inner names.
-			 * 
-			 * 
-			 * // translation between agents handles and replicated ones
-			 * Map<Handle, EditableHandle> trs = new HashMap<>(); Map<Handle,
-			 * EditableHandle> ctx_trs = new HashMap<>(); Map<Handle,
-			 * EditableHandle> rdx_trs = new HashMap<>(); // replicate outer
-			 * names for (EditableOuterName o : this.agent.outers) {
-			 * EditableOuterName p = o.replicate(); ctx.outers.add(p);
-			 * p.setOwner(ctx); trs.put(o, p); }
-			 * 
-			 * // the queue is used for a breadth first visit class VState {
-			 * final EditableChild c; // the child to be visited final
-			 * EditableParent p; // the replicated parent final Bigraph t; //
-			 * ctx/rdx/prm
-			 * 
-			 * VState(Bigraph t, EditableParent p, EditableChild c) { this.t =
-			 * t; this.c = c; this.p = p; } } Queue<VState> q = new
-			 * LinkedList<>();
-			 * 
-			 * 
-			 * EditableSite[] ctx_sites = new
-			 * EditableSite[this.redex_roots.size()]; EditableSite[] rdx_sites =
-			 * new EditableSite[this.redex_sites.size()]; for (Root r0 :
-			 * this.redex_roots) { EditableRoot r1 = (EditableRoot) r0;
-			 * EditableRoot r2 = r1.replicate(); rdx.roots.add(r2);
-			 * r2.setOwner(rdx); if(root_img.containsValue(r1)){ // this root is
-			 * in the context-redex image cut for(Root r3 :
-			 * root_img.getKeys(r1)){ // make a site for each root whose image
-			 * is r1 int k = this.redex_roots.indexOf(r3); EditableSite s = new
-			 * EditableSite(); s.setParent(r2); ctx_sites[k] = s; // childrens
-			 * will be handled below } }else{ for (EditableChild c :
-			 * r1.getEditableChildren()) { q.add(new VState(ctx, r2, c)); } } }
-			 * for (Root r0 : this.redex_roots) { EditableRoot r1 =
-			 * (EditableRoot) r0; EditableRoot r2 = r1.replicate();
-			 * rdx.roots.add(r2); r2.setOwner(rdx); for (EditableChild c :
-			 * r1.getEditableChildren()) { q.add(new VState(rdx, r2, c)); } }
-			 * 
-			 * for (Site s : this.redex_sites) { EditableRoot r = new
-			 * EditableRoot(); prm.roots.add(r); r.setOwner(prm); for
-			 * (EditableChild c : site_img.get(s)) { q.add(new VState(prm, r,
-			 * c)); } } // BFS while (!q.isEmpty()) { VState p = q.poll();
-			 * if(p.t == ctx){ EditableNode n1 = (EditableNode) p.c;
-			 * EditableNode n2 = n1.replicate(); n2.setParent(p.p); // follows
-			 * ports and replicate linkings for (int i =
-			 * n1.getControl().getArity() - 1; 0 <= i; i--) {
-			 * 
-			 * } // check if the node is in context-redex cut
-			 * if(root_img.containsValue(n1)){ // this node belongs to the cut
-			 * // this root is in the context-redex image cut for(Root r3 :
-			 * root_img.getKeys(n1)){ // make a site for each root whose image
-			 * is r1 int k = this.redex_roots.indexOf(r3); EditableSite s = new
-			 * EditableSite(); s.setParent(p.p); ctx_sites[k] = s; // children
-			 * were handled above } }else{ // its children will be in the
-			 * context too for (EditableChild c : n1.getEditableChildren()) {
-			 * q.add(new VState(ctx, n2, c)); } } }else if(p.t == rdx){
-			 * if(p.c.isNode()){ // resolves the image in the agent and
-			 * replicates it EditableNode n2 = node_img.get((EditableNode) p.c);
-			 * EditableNode n3 = n2.replicate(); //TODO links for (EditableChild
-			 * c : n2.getEditableChildren()) { q.add(new VState(rdx, n3, c)); }
-			 * }else{ // is site EditableSite s1 = (EditableSite) p.c;
-			 * EditableSite s2 = s1.replicate(); s2.setParent(p.p); int k =
-			 * this.redex_sites.indexOf(s1); rdx_sites[k] = s2;
-			 * for(EditableChild c : site_img.get(s1)){ q.add(new VState(prm,
-			 * prm.roots.get(k), c)); } }
-			 * 
-			 * }else{ // p.t = prm EditableNode n1 = (EditableNode) p.c;
-			 * EditableNode n2 = n1.replicate(); n2.setParent(p.p); //PORTS for
-			 * (EditableChild c : n1.getEditableChildren()) { q.add(new
-			 * VState(prm, n2, c)); }
-			 * 
-			 * }
-			 * 
-			 * } // sort sites for (int i = 0; i < ctx_sites.length; i++) {
-			 * ctx.sites.add(ctx_sites[i]); } for (int i = 0; i <
-			 * rdx_sites.length; i++) { rdx.sites.add(rdx_sites[i]); }
-			 */
 		}
 
 	}
