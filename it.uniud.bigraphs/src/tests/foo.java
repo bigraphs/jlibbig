@@ -5,7 +5,43 @@ import jlibbig.core.*;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args){
-				
+/*
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put("c",false,2);
+		Signature s = sb.makeSignature();
+		// build A
+		BigraphBuilder bbA = new BigraphBuilder(s);
+		bbA.addSite(bbA.addRoot());
+		Handle h = bbA.addOuterName("x");
+		bbA.addInnerName("x7", h);
+		bbA.addInnerName("x", h);
+		bbA.addInnerName("x8", h);
+		
+		Bigraph bA = bbA.makeBigraph();
+
+		System.out.println("- A -------------------------");
+		System.out.println(bA);
+		
+		//build B
+		BigraphBuilder bbB = new BigraphBuilder(s);
+		Node n = bbB.addNode("c", bbB.addRoot());
+		bbB.addSite(n); 
+		bbB.addInnerName("x", bbB.addOuterName("x7"));
+		bbB.relink(n.getPort(0), bbB.addOuterName("x"));
+		bbB.addInnerName("y", bbB.addOuterName("x8"));
+		
+		Bigraph bB = bbB.makeBigraph();
+		
+
+		System.out.println("- B --------------------------");
+		System.out.println(bB);
+		
+		System.out.println("-----------------------------");
+		
+		bbB.outerCompose(bA);
+		bbA.innerCompose(bB);
+		*/
+		
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("a",true,0);
 		sb.put("b",true,1);
@@ -13,7 +49,6 @@ public class foo {
 		Signature s = sb.makeSignature();
 		
 		System.out.println("Signature: " + s);
-		
 		BigraphBuilder bb1 = new BigraphBuilder(s);
 		Root r = bb1.addRoot();
 		Handle h = bb1.addOuterName("x");
