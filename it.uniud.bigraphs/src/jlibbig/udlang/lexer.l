@@ -16,17 +16,17 @@ import jlibbig.udlang.BigraphParser.Terminals;
 %line
 %column
 %eofval{
-	return new Symbol(Terminals.EOF, yyline + 1, yycolumn + 1, yylength());
+	return new Symbol( Terminals.EOF, yyline + 1, yycolumn + 1, yylength() );
 %eofval}
 %{
-	private Symbol newToken(short id)
+	private Symbol newToken( short id )
 	{
-		return new Symbol(id, yyline + 1, yycolumn + 1, yylength());
+		return new Symbol( id, yyline + 1, yycolumn + 1, yylength() );
 	}
 
-	private Symbol newToken(short id, Object value)
+	private Symbol newToken( short id, Object value )
 	{
-		return new Symbol(id, yyline + 1, yycolumn + 1, yylength(), value);
+		return new Symbol( id, yyline + 1, yycolumn + 1, yylength(), value );
 	}
 %}
 
@@ -37,41 +37,42 @@ Digit = [0-9]
 %%
 
 <YYINITIAL> {
-	"%active"		{ return newToken(Terminals.CTRL , new Boolean(true) ); }
-	"%passive"		{ return newToken(Terminals.CTRL , new Boolean(false) ); }
-	"%name"|"%outer"	{ return newToken(Terminals.OUTERNAME); }
-	"%inner"		{ return newToken(Terminals.INNERNAME); }
 	
-	":"{Whites}*"o" { return newToken(Terminals.OUTER); }
-	":"{Whites}*"i" { return newToken(Terminals.INNER); }
-	":"{Whites}*"e" { return newToken(Terminals.EDGE); }
-	
-	"<-"	{ return newToken(Terminals.LINKED); }
-	
+	"%active"	{ return newToken(Terminals.MODE , true ); }
+	"%passive"	{ return newToken(Terminals.MODE , false ); }
+
 	";"	{ return newToken(Terminals.SEMICOLON); }
 	":"	{ return newToken(Terminals.COLON); }
+	"->"	{ return newToken(Terminals.REACT); }
 	
 	"nil"	{ return newToken(Terminals.NIL); }
 	
-	{Digit}+			{ return newToken(Terminals.NUM, new Integer(yytext())); }
-	{Letter}({Letter}|{Digit})*	{ return newToken(Terminals.VARID, new String(yytext())); }
+	"0"			{ return newToken( Terminals.ZERO ); }
+	"1"			{ return newToken( Terminals.ONE ); }
+
+	{Digit}+			{ return newToken( Terminals.NUM, Integer.parseInt( yytext() ) ); }
+	{Letter}({Letter}|{Digit})*	{ return newToken( Terminals.VARID, new String( yytext() ) ); }
 	
 	"."	{ return newToken(Terminals.POINT); }
 	"|"	{ return newToken(Terminals.PIPE); }
 	"||"	{ return newToken(Terminals.DPIPE); }
-	"-"	{ return newToken(Terminals.UNLINKED); }
+	"-"	{ return newToken(Terminals.DASH); }
+	"+"	{ return newToken(Terminals.PLUS); }
 	","	{ return newToken(Terminals.COMMA); }
 	
 	"["	{ return newToken(Terminals.SQOPEN); }
 	"]"	{ return newToken(Terminals.SQCLOSE); }
 	
 	"("	{ return newToken(Terminals.PAROPEN); }
-	")"	{ return newToken(Terminals.PARCLOSE); }	
+	")"	{ return newToken(Terminals.PARCLOSE); }
+
+	"<"	{ return newToken(Terminals.TAGOPEN); }
+	">"	{ return newToken(Terminals.TAGCLOSE); }
+	"/"	{ return newToken(Terminals.SLASH); }
 		
-	"$"	{ return newToken(Terminals.INNERPLACE); }
-	"->"	{ return newToken(Terminals.REACT); }
+	"$"	{ return newToken(Terminals.SIGIL); }
 	
-	{Whites} {} 
-	#.*	{}
+	
+	#.* | {Whites}	{}
 	.	{ throw new Scanner.Exception("Illegal character <" + yytext() + ">"); }
 }

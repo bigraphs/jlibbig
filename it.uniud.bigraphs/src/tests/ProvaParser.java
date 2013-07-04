@@ -1,16 +1,38 @@
 package tests;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
-import jlibbig.bigmc.*;
-import jlibbig.bigmc.lang.*;
+import jlibbig.udlang.*;
 import jlibbig.core.*;
 
 public class ProvaParser{
 	public static void main(String[] args) throws Exception{
-		
-		BigraphSystem brs = (new BigMCCompiler()).parse( " %active c : 2; %passive d : 1; %name m; %name n; c[x].$0 || d[y].($0 | $2 ) -> c[x].$1 | d[y] || nil ; c[ n , - ] | c[- , n];" );
-		System.out.print( (new BigMCPrinter()).toString( brs ) );
+		BufferedReader br = null;
+		StringBuilder b = new StringBuilder();
+		String nl = System.getProperty("line.separator");
+		try {
+ 
+			String sCurrentLine;
+ 
+			br = new BufferedReader(new FileReader( args[0] ));
+ 
+			while ((sCurrentLine = br.readLine()) != null) {
+				b.append( sCurrentLine + nl );
+			}
+ 
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)br.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		BigraphSystem brs = (new BigraphCompiler()).parse( b.toString() );
 		
 	}	
 }
