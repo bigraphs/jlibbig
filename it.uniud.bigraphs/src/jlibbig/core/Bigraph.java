@@ -385,12 +385,18 @@ final public class Bigraph implements AbstBigraph {
 				b.append(", ");
 		}
 		b.append("} :: <").append(this.sites.size()).append(",{");
-		for (EditableLinkFacet n : this.inners) {
-			b.append(n.getName());
+		Iterator<EditableInnerName> ii = this.inners.iterator();
+		while (ii.hasNext()) {
+			b.append(ii.next().toString());
+			if (ii.hasNext())
+				b.append(", ");
 		}
 		b.append("}> -> <").append(this.roots.size()).append(",{");
-		for (EditableLinkFacet n : this.outers) {
-			b.append(n.getName());
+		Iterator<EditableOuterName> io = this.outers.iterator();
+		while (io.hasNext()) {
+			b.append(io.next().toString());
+			if (io.hasNext())
+				b.append(", ");
 		}
 		b.append("}>");
 		for (Handle h : this.outers) {

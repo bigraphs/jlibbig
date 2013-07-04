@@ -399,16 +399,15 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		// iterate over inner and outer names of a and b respectively and glue
 		// them
+		Map<String,EditableHandle> a_inners = new HashMap<>();
+		for (EditableInnerName i : a.inners) {
+			a_inners.put(i.getName(), i.getHandle());
+			i.setHandle(null);
+		}
 		for (EditableOuterName o : b.outers) {
-			for (EditableInnerName i : a.inners) {
-				if (i.equals(o)) {
-					EditableHandle h = i.getHandle();
-					h.unlinkPoint(i);
-					for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
-						p.setHandle(h);
-					}
-					break;
-				}
+			EditableHandle h = a_inners.get(o.getName());
+			for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+				p.setHandle(h);
 			}
 		}
 		// update inner interfaces
@@ -443,9 +442,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			throw new IllegalArgumentException("Incompatible interfaces");
 		}
 		Bigraph a = (reuse) ? out : out.clone();
-		Bigraph b = in;
+		Bigraph b = in; //this BB		
 		Set<? extends Edge> es = a.getEdges();
-		// iterate over sites and roots of a and b respectively and glue them
+		// iterates over sites and roots of a and b respectively and glues them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
 		while (ir.hasNext()) { // |ir| == |is|
@@ -457,21 +456,20 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 				c.setParent(p);
 			}
 		}
-		// iterate over inner and outer names of a and b respectively and glue
+		// iterates over inner and outer names of a and b respectively and glues
 		// them
+		Map<String,EditableHandle> a_inners = new HashMap<>();
+		for (EditableInnerName i : a.inners) {
+			a_inners.put(i.getName(), i.getHandle());
+			i.setHandle(null);
+		}
 		for (EditableOuterName o : b.outers) {
-			for (EditableInnerName i : a.inners) {
-				if (i.equals(o)) {
-					EditableHandle h = i.getHandle();
-					h.unlinkPoint(i);
-					for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
-						p.setHandle(h);
-					}
-					break;
-				}
+			EditableHandle h = a_inners.get(o.getName());
+			for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+				p.setHandle(h);
 			}
 		}
-		// update inner interfaces
+		// updates inner interfaces
 		b.outers.clear();
 		b.roots.clear();
 		b.outers.addAll(a.outers);
