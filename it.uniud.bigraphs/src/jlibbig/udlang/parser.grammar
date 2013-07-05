@@ -14,7 +14,6 @@
 			BigraphLexer input = new BigraphLexer( new StringReader( str ) );
 			parse( input );
 
-			System.out.println( _sys.toString());
 			return _sys;
 		}
 

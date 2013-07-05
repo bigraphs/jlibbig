@@ -33,6 +33,7 @@ public class ProvaParser{
 			}
 		}
 		BigraphSystem brs = (new BigraphCompiler()).parse( b.toString() );
+		System.out.println( brs.toString());
 		
 	}	
 }

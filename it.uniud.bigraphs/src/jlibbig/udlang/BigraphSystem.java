@@ -41,17 +41,17 @@ public class BigraphSystem{
 	public String toString(){
 		String nl = System.getProperty("line.separator");
 		StringBuilder str = new StringBuilder();
+
+		str.append("REACTIONS:" + nl );
+		for( Map.Entry<Bigraph , Bigraph> reac : reactions.entrySet() ){
+			str.append( reac.getKey().toString() + nl + "-->" + nl + reac.getValue().toString() + nl + nl );
+		}
 		
 		str.append("BIGRAPHS:" + nl );
 		for( Bigraph b : bigraphs ){
 			str.append( b.toString() + nl + nl );
 		}
 		
-		str.append("REACTIONS:" + nl );
-		for( Map.Entry<Bigraph , Bigraph> reac : reactions.entrySet() ){
-			str.append( reac.getKey().toString() + nl + "-->" + nl + reac.getValue().toString() + nl + nl );
-		}
-
 		return str.toString();
 	}
 }
