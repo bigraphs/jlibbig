@@ -2,6 +2,11 @@ package jlibbig.core;
 
 import java.util.*;
 
+/**
+ * Edges of a link graph. <br />
+ * They can be linked to innernames and edges.
+ *
+ */
 class EditableEdge implements Edge, EditableHandle, Replicable{
 	private String name;
 	

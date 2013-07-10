@@ -2,6 +2,12 @@ package jlibbig.core;
 
 import java.util.*;
 
+/**
+ * Bidirectional Map: two sets with a bijective function from one set to the other.
+ *
+ * @param <A> Type of the first set
+ * @param <B> Type of the second set
+ */
 class BidMap<A,B> implements Map<A,B>{
 
 	private Map<A,B> _mapA = new HashMap<>();
@@ -24,6 +30,10 @@ class BidMap<A,B> implements Map<A,B>{
 		_mapB = mapB;
 	}
 	
+	/**
+	 * Retrieve the bidirectional map from the second set to the first.
+	 * @return the inverse bidirectional map.
+	 */
 	public BidMap<B,A> getInverse(){
 		return new BidMap<B,A>(_mapB,_mapA);
 	}

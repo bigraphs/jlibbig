@@ -26,26 +26,53 @@ public class SignatureBuilder {
 		return new Signature(ctrls.values());
 	}
 	
+	/**
+	 * Make a control and add it to the signature
+	 * @param name name of the control
+	 * @param active control's activity
+	 * @param arity number of ports
+	 */
 	public void put(String name, boolean active, int arity) {
 		ctrls.put(name, new BGControl(name,active,arity));
 	}
 
+	/**
+	 * Check if a name is already used by a signature's control
+	 * @param name control's name that will be checked
+	 * @return boolean value
+	 */
 	public boolean contains(String name) {
 		return ctrls.containsKey(name);
 	}
 
+	/**
+	 * Get the control corresponding to the name in input
+	 * @param name control's name
+	 * @return the corresponding control
+	 */
 	public Control  get(String name) {
 		return ctrls.get(name);
 	}
 
+	/**
+	 * Get a collection of all controls in the signature
+	 * @return collection of signature's controls
+	 */
 	public Collection<Control > getAll() {
 		return Collections.unmodifiableCollection(ctrls.values());
 	}
 
+	/**
+	 * Remove a control from the signature.
+	 * @param name control's name
+	 */
 	public void remove(String name) {
 		ctrls.remove(name);
 	}
 
+	/**
+	 * Remove all controls from the signature.
+	 */
 	public void clear() {
 		ctrls.clear();
 	}

@@ -4,6 +4,15 @@ import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
 
+/**
+ * The class is used to store immutable bigraphs.
+ * <p>
+ * e.g.
+ * {@link #compose(Bigraph, Bigraph)} or
+ * {@link #juxtapose(Bigraph, Bigraph)} instantiate a new object.
+ * For a mutable version of bigraphs, users can use {@link BigraphBuilder}.
+ * </p>
+ */
 final public class Bigraph implements AbstBigraph {
 
 	final Signature signature;
@@ -457,10 +466,23 @@ final public class Bigraph implements AbstBigraph {
 		return b.toString();
 	}
 	
+	/**
+	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the first (left) bigraph will precede those of the second (right) bigraph.
+	 * @param left the first bigraph
+	 * @param right the second bigraph
+	 * @return the resulting bigraph
+	 */
 	public static Bigraph juxtapose(Bigraph left, Bigraph right) {
 		return juxtapose(left, right, false);
 	}
 
+	/**
+	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the first (left) bigraph will precede those of the second (right) bigraph.
+	 * @param left the first bigraph
+	 * @param right the second bigraph
+	 * @param reuse flag. If true, bigraphs in input won't be copied.
+	 * @return the resulting bigraph
+	 */
 	static Bigraph juxtapose(Bigraph left, Bigraph right, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
@@ -482,10 +504,23 @@ final public class Bigraph implements AbstBigraph {
 		return l;
 	}
 
+	/**
+	 * Compose two bigraph. The first bigraph in input will be the "outer" one.
+	 * @param out the outer bigraph
+	 * @param in the inner bigraph
+	 * @return the resulting bigraph
+	 */
 	public static Bigraph compose(Bigraph out, Bigraph in) {
 		return compose(out, in, false);
 	}
 
+	/**
+	 * Compose two bigraph. The first bigraph in input will be the "outer" one.
+	 * @param out the outer bigraph
+	 * @param in the inner bigraph
+	 * @param reuse flag. If true, bigraphs in input won't be copied.
+	 * @return the resulting bigraph
+	 */
 	static Bigraph compose(Bigraph out, Bigraph in, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
@@ -533,10 +568,22 @@ final public class Bigraph implements AbstBigraph {
 		return a;
 	}
 
+	/**
+	 * Make an empty bigraph.
+	 * @param signature the signature of the bigraph
+	 * @return the empty bigraph
+	 */
 	public static Bigraph makeEmpty(Signature signature) {
 		return new Bigraph(signature);
 	}
 
+	/**
+	 * Make an identity bigraph.
+	 * @param signature the signature of the bigraph.
+	 * @param width the number of roots/sites. 
+	 * @param names the names of its link faces.
+	 * @return the resulting identity bigraph.
+	 */
 	public static Bigraph makeId(Signature signature, int width,
 			String... names) {
 		BigraphBuilder bb = new BigraphBuilder(signature);
@@ -549,6 +596,13 @@ final public class Bigraph implements AbstBigraph {
 		return bb.makeBigraph();
 	}
 
+	/**
+	 * Make an identity bigraph.
+	 * @param signature the signature of the bigraph.
+	 * @param width the number of roots/sites. 
+	 * @param names the set of names that will appear in resulting bigraph's link faces.
+	 * @return the resulting identity bigraph.
+	 */
 	public static Bigraph makeId(Signature signature, int width,
 			Set<LinkFacet> names) {
 		BigraphBuilder bb = new BigraphBuilder(signature);

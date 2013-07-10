@@ -2,6 +2,11 @@ package jlibbig.core;
 
 import java.util.*;
 
+/**
+ * Describes a node of a bigraph. <br />
+ * Every node must have its control.
+ *
+ */
 class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 		private Control control;
 		private final List<EditablePort> ports;
@@ -10,7 +15,7 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 		private final List<? extends Port> ro_ports;
 		private final Set<? extends Child> ro_chd;
 		private String name;
-
+		
 		EditableNode(Control control){
 			this.name = "N_" + AbstNamed.generateName();
 			this.control = control;

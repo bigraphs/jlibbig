@@ -61,15 +61,26 @@ public class BigraphParser extends Parser {
 	
 		private BigraphSystem _sys;
 
+		/**
+		 * Generate a system (sets of bigraphs and reactions with the same signature) from a string.
+		 * @param str the string that will be parsed.
+		 * @return Return a system, carrying bigraphs and reactions with the same signature.
+		 * @throws IOException
+		 * @throws Parser.Exception
+		 * @see BigraphSystem
+		 */
 		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
-			_sys = new BigraphSystem( null );
+			_sys = null;
 			BigraphLexer input = new BigraphLexer( new StringReader( str ) );
 			parse( input );
 
-			System.out.println( _sys.toString());
 			return _sys;
 		}
 
+		/**
+		 * This class stores inner and outer names
+		 *
+		 */
 		private class NameId{
 			private String name;
 			private boolean outer;
@@ -79,6 +90,10 @@ public class BigraphParser extends Parser {
 			}	
 		}
 
+		/**
+		 * Data Structure used to store the parsed bigraph
+		 *
+		 */
 		private class ParsedBigraph{
 			private boolean polymorphicSites;
 			private BigraphBuilder bb;
@@ -90,7 +105,12 @@ public class BigraphParser extends Parser {
 				siteNames = new ArrayList<>();
 			}
 
-			
+			/**
+			 * Add a Ion (also with inner link face) to the current bigraph
+			 * @param c the name of the control
+			 * @param li the list of outer and inner names
+			 * @return the resulting bigraph
+			 */
 			private ParsedBigraph makeIon( String c , List<NameId> li ){
 				polymorphicSites = true;	//this bigraph can change the number of its sites from 1 to 0.
 				if( bb.getSignature().getByName( c ) == null )
@@ -137,7 +157,12 @@ public class BigraphParser extends Parser {
 				return this;
 			}
 
-			//make a bigraph from a <x/xs> operator
+			/**
+			 * Modify the link graph
+			 * @param x the outer name that will be added. If null, an edge will be generated.
+			 * @param li list of innernames that will be linked with x (the first parameter, edge or outername)
+			 * @return the resulting bigraph
+			 */
 			private ParsedBigraph makeLinks( NameId x , List<NameId> li ){
 				polymorphicSites = true;	//this bigraph can change the number of roots and sites 
 				if( x == null && li.size() == 0 ) return this;	//case: empty , </> 
@@ -163,7 +188,10 @@ public class BigraphParser extends Parser {
 				return this;			
 			}
 
-			//close all sites of a bigraph
+			/**
+			 * Close all sites of a bigraph
+			 * @return the resulting bigraph
+			 */
 			private ParsedBigraph makeGroundPlaceGraph(){
 				polymorphicSites = false;
 				BigraphBuilder ground = new BigraphBuilder( bb.getSignature() );
@@ -175,7 +203,10 @@ public class BigraphParser extends Parser {
 				return this;
 			}
 
-			//add a site ($num) to a bigraph. Its parent will be a new root
+			/**
+			 * Add a site ($num) to a bigraph. Its parent will be a new root.
+			 * @return the resulting bigraph
+			 */
 			private ParsedBigraph makeSite( int n ){
 				if( siteNames.contains( n ) )
 					throw new IllegalArgumentException( "The same site ($" + n + ") can't appear multiple time in a single bigraph." );
@@ -184,13 +215,14 @@ public class BigraphParser extends Parser {
 				return this;
 			}
 
-			//<x/xs> operator with a bigraph B (this), resulting a bigraph D.
-			//x will appear to D's outerface
-			//-y in xs will appear in D's innerface
-			//y in xs will be linked with the outerface of B if y belongs to B's outerface
-			//	otherwise, y will appear in D's innerface
-			//outernames of B not linked with names in xs will appear in D's outerface 
-			//	(this is also true for x, eg. <x/y>c[x] is equal to <x/x,y>c[x])
+			/**
+			 * Modify the link graph, according to the parameters parsed from a <x/xs> operator.
+			 * Inner names in the list (second parameter) will appear in the resulting bigraph's innerface.
+			 * Other names in the list will be linked with the outerface of the current bigraph, if they belongs to its outerface, otherwise they will appear in the resulting bigraph's innerface.
+			 * Outernames of the current bigraph not linked with names in the list will appear in the resulting bigraph's outerface.
+			 * @param x outername , it will appear in the resulting bigraph's outerface.
+			 * @param li list of inner and outer names.
+			 */
 			private void addLinks( NameId x , List<NameId> li ){
 				if( x == null && li.size() == 0 ) return;
 				
@@ -260,6 +292,10 @@ public class BigraphParser extends Parser {
 				this.bb.outerCompose( outer.makeBigraph() );
 			}
 
+			/**
+			 * Compose the bigraph in input with the current bigraph.
+			 * @param p the bigraph that will be composed with the current one.
+			 */
 			private void compose( ParsedBigraph p ){
 				//if p is an instance of <x/xs> -> identity place graph
 				if( p.polymorphicSites && p.bb.getSites().size() == 0 ){
@@ -332,6 +368,10 @@ public class BigraphParser extends Parser {
 				this.bb.outerCompose( p.bb.makeBigraph() );
 			}
 
+			/**
+			 * Juxtapose the bigraph in input with the current bigraph.
+			 * @param p the bigraph that will be juxtaposed with the current one.
+			 */
 			private void juxtapose( ParsedBigraph p ){
 				if( p.polymorphicSites && p.bb.getSites().size() == 1 )
 					p.makeGroundPlaceGraph();
@@ -393,6 +433,11 @@ public class BigraphParser extends Parser {
 
 			}
 
+			/**
+			 * produce a bigraph from the current parsedbigraph
+			 * @return the resulting bigraph
+			 * @see Bigraph
+			 */
 			private Bigraph makeBigraph(){
 				if( this.polymorphicSites && this.bb.getSites().size() == 1 )
 					this.makeGroundPlaceGraph();
@@ -401,7 +446,9 @@ public class BigraphParser extends Parser {
 				return bb.makeBigraph();
 			}
 
-			//this procedure set the sites of a bigraph in the correct order.
+			/**
+			 * Sort the current bigraph's sites.
+			 */
 			private void adjustBigraph(){
 				class SiteInt implements Comparable<SiteInt>{
 					private Root root;

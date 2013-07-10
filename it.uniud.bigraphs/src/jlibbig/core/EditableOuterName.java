@@ -2,6 +2,7 @@ package jlibbig.core;
 
 import java.util.*;
 
+
 class EditableOuterName extends EditableLinkFacet implements OuterName, EditableNamed, EditableHandle{
 
 	private Set<EditablePoint> points = new HashSet<>();

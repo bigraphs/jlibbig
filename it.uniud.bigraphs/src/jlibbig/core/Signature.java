@@ -2,6 +2,9 @@ package jlibbig.core;
 
 import java.util.*;
 
+/**
+ * Bigraphs' signatures are immutable. To make a signature, users can use {@link SignatureBuilder}.
+ */
 public class Signature implements Set<Control>{
 
 	final private Map<String,Control> ctrls = new HashMap<>();
@@ -15,7 +18,12 @@ public class Signature implements Set<Control>{
 			}
 		}
 	}
-		
+	
+	/**
+	 * Get a control (if present), specifying its name.
+	 * @param name name of the control
+	 * @return the retrieved control
+	 */
 	public Control getByName(String name){
 		return ctrls.get(name);
 	}

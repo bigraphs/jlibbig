@@ -3,7 +3,11 @@ package jlibbig.core;
 import java.util.*;
 
 
-
+/**
+ * Inverse map. From a Map&#60;A,B&#62;, compute Map&#60;B,Set&#60;A&#62;&#62; .
+ * @param <A> keys' type
+ * @param <B> values' type
+ */
 class InvMap<A,B> implements Map<A,B>{
 	
 	// map 
@@ -17,6 +21,9 @@ class InvMap<A,B> implements Map<A,B>{
 		_map.putAll(map);
 	}
 	
+	/**
+	 * Compute the inverse map.
+	 */
 	private void computeInv(){
 		if(_inv==null)
 			_inv = new HashMap<>();
