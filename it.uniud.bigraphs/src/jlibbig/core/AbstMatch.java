@@ -2,6 +2,12 @@ package jlibbig.core;
 
 import java.util.*;
 
+/**
+ * Describe a match of a redex in a bigraph. 
+ * 
+ * @see BigraphMatcher
+ * @param <A> type of bigraph
+ */
 public class AbstMatch<A extends AbstBigraph>  implements Match<A>{
 
 	protected final A context;

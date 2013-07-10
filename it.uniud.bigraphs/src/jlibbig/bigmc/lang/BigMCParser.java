@@ -58,16 +58,15 @@ class BigMCParser extends Parser {
 		private BigraphSystem _brs;
 		
 
-		/* Parse a string, creating a BRS and a set of Bigraphs from it.
-		 * It use an extension of BigMC Language. 
-		 * @param str
-		 * 		string, in extended-BigMC syntax.
-		 * @return BigraphParser.ExtendedBRS
-		 *		class that contains a signature, a set of bigraphs and a map containing all reaction rules.
+		/** 
+		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
+		 * @param str string, in BigMC syntax.
+		 * @return A system that contains signature, set of bigraphs and all reaction rules.
+		 * @see BigraphSystem
 		 */
 		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
 			_outerNames = new HashSet<>();		
-			_brs = new BigraphSystem();
+			_brs = null;
 
 			BigMCLexer input = new BigMCLexer( new StringReader( str ) );
 			parse(input);
@@ -75,11 +74,19 @@ class BigMCParser extends Parser {
 			return _brs;
 		}
 
+		/**
+		 * Add a non-free outername (in bigmc, names indicated with %outer or %name)
+		 * @param v the name (string) that will be added
+		 */
 		private void addName( String v ){
 			_outerNames.add( v );
 			_brs.addName( v );
 		}
 
+		/**
+		 * Data Structure used to store the parsed bigraph
+		 *
+		 */
 		private class ParsedBigraph{
 			
 			private BigraphBuilder bigraph;
@@ -92,8 +99,11 @@ class BigMCParser extends Parser {
 				siteNames = new HashMap<>();
 			}
 			
-			//Note:	this method doesn't return a Milner's Ion (for bigraphs). It will add to the current bigraph one root with a node.
-			//	This node have a site inside and, differently from Milner's definition of Ion, it can be linked to inner names.
+			/**
+			 * Add a Ion to the current bigraph
+			 * @param c the name of the control
+			 * @param list the list of outer names
+			 */
 			public void makeIon( String c , List<String> list ){
 				if( bigraph.getSignature().getByName( c ) == null )
 					throw new IllegalArgumentException( "Control \"" + c +"\" should be in the signature" );
@@ -120,9 +130,9 @@ class BigMCParser extends Parser {
 				}
 			}
 
-			/* Compose two ParsedBigraph. 
-			 * @param pb
-			 * 		ParsedBigraph to be innerComposed
+			/**
+			 * Compose the bigraph in input with the current bigraph.
+			 * @param pb the ParsedBigraph that will be composed with the current one.
 			 */
 			public void compose( ParsedBigraph pb ){
 			
@@ -169,8 +179,9 @@ class BigMCParser extends Parser {
 				
 			}
 
-			/* Juxtapose two ParsedBigraph. 
-			 * @param pb
+			/**
+			 * Juxtapose the bigraph in input with the current bigraph.
+			 * @param pb the ParsedBigraph that will be juxtaposed with the current one.
 			 */
 			public void juxtapose( ParsedBigraph pb ){
 				
@@ -220,10 +231,10 @@ class BigMCParser extends Parser {
 				
 			}
 
-			/* Make a Bigraph out of a ParsedBigraph. 
-			 * Edges must be managed before calling BigraphBuilder::makeBigraph()
-			 *
-			 * @return Bigraph
+			/**
+			 * produce a bigraph from the current parsedbigraph
+			 * @return the resulting bigraph
+			 * @see Bigraph
 			 */
 			public Bigraph switchToBigraph(){
 				
@@ -255,7 +266,8 @@ class BigMCParser extends Parser {
 				return b;
 			}
 
-			/* Close all sites of a ParsedBigraph 
+			/**
+			 * Close all sites of the current bigraph
 			 */
 			public void groundPlaceGraph(){
 				BigraphBuilder ground = new BigraphBuilder( this.bigraph.getSignature() );
@@ -264,11 +276,17 @@ class BigMCParser extends Parser {
 				this.bigraph.innerCompose( ground.makeBigraph() );
 			}
 
+			/**
+			 * Add a site ($num) to the current bigraph. Its parent will be a new root.
+			 */
 			public void addSite( int n ){
 				Site s = this.bigraph.addSite( this.bigraph.addRoot() );
 				siteNames.put( s , n );
 			}
 
+			/**
+			 * Get the set of non-free outernames (indicated in the string with %outer or %name)
+			 */
 			public Set<String> getNames(){
 				return outerNames.keySet();
 			}
@@ -317,7 +335,7 @@ class BigMCParser extends Parser {
 					final Symbol _symbol_sb = _symbols[offset + 6];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
 					
-				sb.put( v , b , n ); _brs.setSignature( sb.makeSignature() );
+				sb.put( v , b , n ); _brs = new BigraphSystem( sb.makeSignature() );
 				return new Symbol( null );
 				}
 			},
@@ -466,7 +484,7 @@ class BigMCParser extends Parser {
 
  	
 		_outerNames = new HashSet<>();
-		_brs = new BigraphSystem();
+		_brs = null;
 	}
 
 	protected Symbol invokeReduceAction(int rule_num, int offset) {
