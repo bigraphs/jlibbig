@@ -25,11 +25,8 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		String ln = System.getProperty("line.separator");
 		StringBuilder s = new StringBuilder();
 		
-		for( Control ctrl : brs.getSignature() ){
-				s.append( (ctrl.isActive() ? "%active " : "%passive ")
-						+ ctrl.getName() + " : " + ctrl.getArity() +";" + ln );
-		}
-		
+		s.append( toString( brs.getSignature() ) );
+
 		s.append( ln );
 		
 		for( String str : brs.getOuterNames() )
@@ -47,6 +44,24 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		
 		s.append( ln );
 		
+		return s.toString();
+	}
+
+	/**
+	 * Translate a Signature to a string with BigMC's syntax
+	 * @param sig the signature that will be printed.
+	 * @see Signature
+	 * @return the resulting string
+	 */
+	public String toString( Signature sig ){
+		String ln = System.getProperty("line.separator");
+		StringBuilder s = new StringBuilder();
+
+		for( Control ctrl : sig ){
+				s.append( (ctrl.isActive() ? "%active " : "%passive ")
+						+ ctrl.getName() + " : " + ctrl.getArity() +";" + ln );
+		}
+
 		return s.toString();
 	}
 	
