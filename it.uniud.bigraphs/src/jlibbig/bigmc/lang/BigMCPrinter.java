@@ -53,7 +53,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	 * @see Signature
 	 * @return the resulting string
 	 */
-	public String toString( Signature sig ){
+	public static String toString( Signature sig ){
 		String ln = System.getProperty("line.separator");
 		StringBuilder s = new StringBuilder();
 
