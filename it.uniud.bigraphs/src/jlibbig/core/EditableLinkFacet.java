@@ -1,6 +1,7 @@
 package jlibbig.core;
 
-abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable{
+abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable, Comparable<String>{
+	
 	protected String name;
 	
 	protected EditableLinkFacet() {
@@ -47,5 +48,10 @@ abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable
 			return false;
 		}
 		return name.equals(other.name);
+	}
+	
+	@Override
+	public int compareTo(String arg0) {
+		return this.name.compareTo(arg0);
 	}
 }
