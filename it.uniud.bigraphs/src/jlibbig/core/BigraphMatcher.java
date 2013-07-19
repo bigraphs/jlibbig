@@ -11,6 +11,15 @@ import choco.kernel.model.constraints.Constraint;
 import choco.kernel.model.variables.integer.IntegerExpressionVariable;
 import choco.kernel.model.variables.integer.IntegerVariable;
 
+/**
+ * Implements a matcher for bigraphs.
+ * <p>
+ * <strong>Warning:</strong> site order may be altered in the case of non ground
+ * agents because parameters are split into prime bigraphs. 
+ * </p>
+ * 
+ * @see Matcher
+ */
 public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 	private final static boolean DEBUG = false;

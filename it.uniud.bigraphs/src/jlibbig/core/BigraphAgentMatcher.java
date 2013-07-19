@@ -15,7 +15,6 @@ import choco.kernel.model.variables.integer.IntegerVariable;
  * A bigraph matcher optimized for ground bigraphs (i.e. agents). <\br>
  * <em>WARNING:</em> {@link BigraphMatcher} automatically switch to this algorithm 
  * and therefore this class may be discontinued. 
- * <strong>Prefer {@link BigraphMatcher}. </strong>
  * @deprecated 
  * 
  * @see BigraphMatcher
