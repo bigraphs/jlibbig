@@ -8,10 +8,12 @@ package jlibbig.core;
  */
 public interface Matcher<A extends AbstBigraph, R extends AbstBigraph>  {
 	/**
-	 * Perform a match.
-	 * @param agent Bigraph checked.
-	 * @param redex Redex used for the match.
-	 * @return an Iterable over the results of the match.
+	 * Computes the matches of a redex into a bigraph of types
+	 * <code>R</code> and <code>A</code> respectively.
+	 * 
+	 * @param agent the bigraph where to look for matches 
+	 * @param redex the bigraph to look up for.
+	 * @return an Iterable yielding every possible match.
 	 */
 	Iterable<Match<A>> match(A agent, R redex);
 }
