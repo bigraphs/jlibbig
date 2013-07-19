@@ -5,17 +5,19 @@ import jlibbig.core.*;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args){
-/*
+
 		SignatureBuilder sb = new SignatureBuilder();
+		sb.put("a",true,0);
+		sb.put("b",true,1);
 		sb.put("c",false,2);
 		Signature s = sb.makeSignature();
-		// build A
+			// build A
 		BigraphBuilder bbA = new BigraphBuilder(s);
 		bbA.addSite(bbA.addRoot());
-		Handle h = bbA.addOuterName("x");
-		bbA.addInnerName("x7", h);
-		bbA.addInnerName("x", h);
-		bbA.addInnerName("x8", h);
+		Handle o = bbA.addOuterName("x");
+		bbA.addInnerName("x7", o);
+		bbA.addInnerName("x", o);
+		bbA.addInnerName("x8", o);
 		
 		Bigraph bA = bbA.makeBigraph();
 
@@ -24,10 +26,10 @@ public class foo {
 		
 		//build B
 		BigraphBuilder bbB = new BigraphBuilder(s);
-		Node n = bbB.addNode("c", bbB.addRoot());
-		bbB.addSite(n); 
+		Node m = bbB.addNode("c", bbB.addRoot());
+		bbB.addSite(m); 
 		bbB.addInnerName("x", bbB.addOuterName("x7"));
-		bbB.relink(n.getPort(0), bbB.addOuterName("x"));
+		bbB.relink(m.getPort(0), bbB.addOuterName("x"));
 		bbB.addInnerName("y", bbB.addOuterName("x8"));
 		
 		Bigraph bB = bbB.makeBigraph();
@@ -40,13 +42,6 @@ public class foo {
 		
 		bbB.outerCompose(bA);
 		bbA.innerCompose(bB);
-		*/
-		
-		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("a",true,0);
-		sb.put("b",true,1);
-		sb.put("c",false,2);
-		Signature s = sb.makeSignature();
 		
 		System.out.println("Signature: " + s);
 		BigraphBuilder bb1 = new BigraphBuilder(s);
@@ -83,21 +78,21 @@ public class foo {
 		bb2.ground();
 		printBB("ground",bb2);
 		b2 = bb2.makeBigraph();
-
+		
 		Long t0 = System.currentTimeMillis();
 		Long mc = 0L;
 		System.out.println("match test...");
-		for(Match<Bigraph> m : BigraphMatcher.DEFAULT.match(b2, b1)){
+		for(Match<Bigraph> t : BigraphMatcher.DEFAULT.match(b2, b1)){
 			mc++;
 			/*
 			String sp = "------";
 			System.out.println("BEGIN MATCH:");
 			System.out.println("--- ctx ---" + sp);
-			System.out.println(m.getContext());
+			System.out.println(t.getContext());
 			System.out.println("--- rdx ---" + sp);
-			System.out.println(m.getRedex());
+			System.out.println(t.getRedex());
 			int i = 0;
-			for (Bigraph prm : m.getParams()) {
+			for (Bigraph prm : t.getParams()) {
 				System.out.println("--- PRM "+ i + " ---" + sp.substring(2+(int) Math.floor(Math.log10(i+1))));
 				System.out.println(prm);
 				i++;
