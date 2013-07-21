@@ -1,6 +1,5 @@
 package jlibbig.bigmc.lang;
 
-import java.util.ArrayList;
 import java.io.*;
 import beaver.*;
 import jlibbig.bigmc.*;
@@ -65,12 +64,13 @@ class BigMCParser extends Parser {
 		 * @see BigraphSystem
 		 */
 		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
+			return parse(new StringReader( str ));
+		}
+		
+		BigraphSystem parse(Reader in) throws IOException, Parser.Exception{
 			_outerNames = new HashSet<>();		
 			_brs = null;
-
-			BigMCLexer input = new BigMCLexer( new StringReader( str ) );
-			parse(input);
-
+			parse(new BigMCLexer(in));
 			return _brs;
 		}
 

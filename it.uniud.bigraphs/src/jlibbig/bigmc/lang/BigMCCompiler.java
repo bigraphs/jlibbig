@@ -1,9 +1,13 @@
 package jlibbig.bigmc.lang;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+
 import beaver.Parser.Exception;
 import jlibbig.bigmc.*;
 import jlibbig.core.lang.Compiler;
+import jlibbig.core.lang.CompilerException;
 
 /**
  * This class is used to parse strings in bigMC syntax and generate a system (sets of bigraphs and reactions with the same signature) from them.
@@ -23,16 +27,14 @@ public class BigMCCompiler implements Compiler<BigraphSystem>{
 	 * @return the generated system.
 	 * @see BigraphSystem
 	 */
-	public BigraphSystem parse( String str ){
-			
-			BigraphSystem sys = null;
-		
-			try {
-				sys = parser.parse( str );
-			} catch (IOException | Exception e) {
-				e.printStackTrace();
-			}
-			
-			return sys;
+	public BigraphSystem parse(String str) throws CompilerException {
+		return parse(new StringReader( str ));
+	}
+	public BigraphSystem parse(Reader in) throws CompilerException {
+		try {
+			return parser.parse(in);
+		} catch (IOException | Exception e) {
+			throw new CompilerException(e);
 		}
+	}
 }
