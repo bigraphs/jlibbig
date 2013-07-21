@@ -70,10 +70,12 @@ public class BigraphParser extends Parser {
 		 * @see BigraphSystem
 		 */
 		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
+			return parse(new StringReader( str ));
+		}
+		
+		BigraphSystem parse(Reader in) throws IOException, Parser.Exception{
 			_sys = null;
-			BigraphLexer input = new BigraphLexer( new StringReader( str ) );
-			parse( input );
-
+			parse(new BigraphLexer(in));
 			return _sys;
 		}
 
