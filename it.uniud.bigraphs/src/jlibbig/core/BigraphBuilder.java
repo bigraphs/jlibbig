@@ -6,8 +6,7 @@ import java.util.*;
  * The class is meant as a helper for bigraph construction and manipulation in
  * presence of series of operations since {@link Bigraph} is immutable.
  * <p>
- * e.g.
- * {@link Bigraph#compose(Bigraph, Bigraph)} or
+ * e.g. {@link Bigraph#compose(Bigraph, Bigraph)} or
  * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object.
  * </p>
  */
@@ -60,19 +59,20 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	public Signature getSignature() {
 		return this.big.getSignature();
 	}
-	
+
 	@Override
-	public boolean isEmpty(){
+	public boolean isEmpty() {
 		return this.big.isEmpty();
 	}
-	
+
 	@Override
-	public boolean isGround(){
+	public boolean isGround() {
 		return this.big.isGround();
 	}
 
 	/**
 	 * Get bigraph's roots.
+	 * 
 	 * @return a list carrying bigraph's roots
 	 */
 	public List<? extends Root> getRoots() {
@@ -81,6 +81,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Get bigraph's sites.
+	 * 
 	 * @return a list carrying bigraph's sites
 	 */
 	public List<? extends Site> getSites() {
@@ -89,6 +90,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Get bigraph's outer names.
+	 * 
 	 * @return a list carrying bigraph's outer names
 	 */
 	public Set<? extends OuterName> getOuterNames() {
@@ -97,6 +99,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Get bigraph's inner names.
+	 * 
 	 * @return a list carrying bigraph's inner names
 	 */
 	public Set<? extends InnerName> getInnerNames() {
@@ -105,6 +108,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Get bigraph's nodes.
+	 * 
 	 * @return a set containing bigraph's nodes.
 	 */
 	public Set<? extends Node> getNodes() {
@@ -113,6 +117,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Get bigraph's edges.
+	 * 
 	 * @return a set containing bigraph's edges.
 	 */
 	public Set<? extends Edge> getEdges() {
@@ -123,6 +128,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a root to the current bigraph
+	 * 
 	 * @return the reference of the new root
 	 */
 	public Root addRoot() {
@@ -137,7 +143,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a site to the current bigraph
-	 * @param parent the handler, in the place graph, father of the new site
+	 * 
+	 * @param parent
+	 *            the handler, in the place graph, father of the new site
 	 * @return the reference of the new site
 	 */
 	public Site addSite(Parent parent) {
@@ -151,8 +159,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a new node to the bigraph
-	 * @param controlName the control's name of the new node
-	 * @param parent the father of the new node, in the place graph
+	 * 
+	 * @param controlName
+	 *            the control's name of the new node
+	 * @param parent
+	 *            the father of the new node, in the place graph
 	 * @return the reference of the new node
 	 */
 	public Node addNode(String controlName, Parent parent) {
@@ -161,9 +172,14 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a new node to the bigraph
-	 * @param controlName the control's name of the new node
-	 * @param parent the father of the new node, in the place graph
-	 * @param handles Handles (outernames or edges) that will be linked to new node's ports
+	 * 
+	 * @param controlName
+	 *            the control's name of the new node
+	 * @param parent
+	 *            the father of the new node, in the place graph
+	 * @param handles
+	 *            Handles (outernames or edges) that will be linked to new
+	 *            node's ports
 	 * @return the reference of the new node
 	 */
 	public Node addNode(String controlName, Parent parent, Handle... handles) {
@@ -172,9 +188,14 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a new node to the bigraph
-	 * @param controlName the control's name of the new node
-	 * @param parent the father of the new node, in the place graph
-	 * @param handles list of handles (outernames or edges) that will be linked to new node's ports
+	 * 
+	 * @param controlName
+	 *            the control's name of the new node
+	 * @param parent
+	 *            the father of the new node, in the place graph
+	 * @param handles
+	 *            list of handles (outernames or edges) that will be linked to
+	 *            new node's ports
 	 * @return the reference of the new node
 	 */
 	public Node addNode(String controlName, Parent parent, List<Handle> handles) {
@@ -207,7 +228,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add an outername to the current bigraph. <br />
-	 * Its name will be automatically chosen and can be retrieved with {@link OuterName#getName() }.
+	 * Its name will be automatically chosen and can be retrieved with
+	 * {@link OuterName#getName() }.
+	 * 
 	 * @return the reference of the new outername
 	 */
 	public OuterName addOuterName() {
@@ -216,7 +239,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add an outername to the current bigraph.
-	 * @param name name of the new outername
+	 * 
+	 * @param name
+	 *            name of the new outername
 	 * @return the reference of the new outername
 	 */
 	public OuterName addOuterName(String name) {
@@ -225,7 +250,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add an outername to the current bigraph.
-	 * @param n outername that will be added
+	 * 
+	 * @param n
+	 *            outername that will be added
 	 * @return the reference to the new outername
 	 * @see EditableOuterName
 	 */
@@ -240,8 +267,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a new innername to the current bigraph. <br />
-	 * Its name will be automatically chosen and can be retrieved with {@link InnerName#getName() }. <br />
-	 * This innername will be linked to a new edge that can be retrieved with {@link InnerName#getHandle() }.
+	 * Its name will be automatically chosen and can be retrieved with
+	 * {@link InnerName#getName() }. <br />
+	 * This innername will be linked to a new edge that can be retrieved with
+	 * {@link InnerName#getHandle() }.
+	 * 
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName() {
@@ -250,8 +280,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a new innername to the current bigraph. <br />
-	 * Its name will be automatically chosen and can be retrieved with {@link InnerName#getName() }.
-	 * @param handle outername or edge that will be linked with the new innername
+	 * Its name will be automatically chosen and can be retrieved with
+	 * {@link InnerName#getName() }.
+	 * 
+	 * @param handle
+	 *            outername or edge that will be linked with the new innername
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(Handle handle) {
@@ -260,8 +293,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a new innername to the current bigraph. <br />
-	 * It will be linked to a new edge that can be retrieved with {@link InnerName#getHandle()}.
-	 * @param name name of the new innername
+	 * It will be linked to a new edge that can be retrieved with
+	 * {@link InnerName#getHandle()}.
+	 * 
+	 * @param name
+	 *            name of the new innername
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(String name) {
@@ -270,8 +306,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add a new innername to the current bigraph.
-	 * @param name name of the new innername
-	 * @param handle outername or edge that will be linked with the new innername
+	 * 
+	 * @param name
+	 *            name of the new innername
+	 * @param handle
+	 *            outername or edge that will be linked with the new innername
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(String name, Handle handle) {
@@ -281,8 +320,12 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Add an innername to the current bigraph. <br />
-	 * @param n innername that will be added
-	 * @param h outername or edge that will be linked with the innername in input
+	 * 
+	 * @param n
+	 *            innername that will be added
+	 * @param h
+	 *            outername or edge that will be linked with the innername in
+	 *            input
 	 * @return the reference of the innername
 	 */
 	private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
@@ -301,8 +344,10 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	}
 
 	/**
-	 * Set a new handle (outername or edge) for a point (innername or node's port).
-	 * @param point 
+	 * Set a new handle (outername or edge) for a point (innername or node's
+	 * port).
+	 * 
+	 * @param point
 	 * @param handle
 	 */
 	public void relink(Point point, Handle handle) {
@@ -322,8 +367,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Set a new edge for two points (innername or node's port), linking them.
-	 * @param p1 first point 
-	 * @param p2 second point
+	 * 
+	 * @param p1
+	 *            first point
+	 * @param p2
+	 *            second point
 	 * @return the new edge connecting the points in input
 	 */
 	public Edge relink(Point p1, Point p2) {
@@ -346,8 +394,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	}
 
 	/**
-	 * Set a new edge for an arbitrary number of points (innername or node's port), linking them.
-	 * @param points series of points
+	 * Set a new edge for an arbitrary number of points (innername or node's
+	 * port), linking them.
+	 * 
+	 * @param points
+	 *            series of points
 	 * @return the new edge connecting the points in input
 	 */
 	public Edge relink(Point... points) {
@@ -372,8 +423,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	}
 
 	/**
-	 * disconnect a point from its current handle and connect it with a new edge.
-	 * @param p the point that will be unlinked
+	 * disconnect a point from its current handle and connect it with a new
+	 * edge.
+	 * 
+	 * @param p
+	 *            the point that will be unlinked
 	 * @return the new edge
 	 */
 	public Edge unlink(Point p) {
@@ -399,12 +453,13 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	}
 
 	/**
-	 * Close all site an innernames of the current bigraph, generating a ground bigraph.
+	 * Close all site an innernames of the current bigraph, generating a ground
+	 * bigraph.
 	 */
-	public void ground(){
-		for(EditableChild s : big.sites)
+	public void ground() {
+		for (EditableChild s : big.sites)
 			s.setParent(null);
-		for(EditablePoint i : big.inners)
+		for (EditablePoint i : big.inners)
 			i.setHandle(null);
 		big.sites.clear();
 		big.inners.clear();
@@ -412,11 +467,14 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
-	
+
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * Roots and sites of the bigraph will precede those of the bigraphbuilder in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
+	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
 	 */
 	public void leftJuxtapose(Bigraph graph) {
 		leftJuxtapose(graph, false);
@@ -424,9 +482,13 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * Roots and sites of the bigraph will precede those of the bigraphbuilder in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void leftJuxtapose(Bigraph graph, boolean reuse) {
 		Bigraph left = graph;
@@ -439,8 +501,10 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		if (!Collections.disjoint(left.inners, right.inners)
 				|| !Collections.disjoint(left.outers, right.outers)) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(left, right,
+					new NameClashException(intersectNames(left.inners,
+							right.inners,
+							intersectNames(left.outers, right.outers))));
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = right;
@@ -464,8 +528,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * Roots and sites of the bigraphbuilder will precede those of the bigraph in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
+	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
 	 */
 	public void rightJuxtapose(Bigraph graph) {
 		rightJuxtapose(graph, false);
@@ -473,9 +540,13 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * Roots and sites of the bigraphbuilder will precede those of the bigraph in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void rightJuxtapose(Bigraph graph, boolean reuse) {
 		Bigraph left = this.big;
@@ -488,8 +559,10 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		if (!Collections.disjoint(left.inners, right.inners)
 				|| !Collections.disjoint(left.outers, right.outers)) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(left, right,
+					new NameClashException(intersectNames(left.inners,
+							right.inners,
+							intersectNames(left.outers, right.outers))));
 		}
 		Bigraph l = left;
 		Bigraph r = (reuse) ? right : right.clone();
@@ -513,7 +586,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Compose the current bigraphbuilder with the bigraph in input.
-	 * @param graph the "inner" bigraph
+	 * 
+	 * @param graph
+	 *            the "inner" bigraph
 	 */
 	public void innerCompose(Bigraph graph) {
 		innerCompose(graph, false);
@@ -521,8 +596,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Compose the current bigraphbuilder with the bigraph in input.
-	 * @param graph the "inner" bigraph
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * 
+	 * @param graph
+	 *            the "inner" bigraph
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void innerCompose(Bigraph graph, boolean reuse) {
 		Bigraph in = graph;
@@ -535,8 +613,8 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		if (!out.inners.equals(in.outers)
 				|| out.sites.size() != in.roots.size()) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(in, out,
+					"The outer face of the first graph must be equal to inner face of the second");
 		}
 		Bigraph a = out;
 		Bigraph b = (reuse) ? in : in.clone();
@@ -556,7 +634,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		// iterate over inner and outer names of a and b respectively and glue
 		// them
-		Map<String,EditableHandle> a_inners = new HashMap<>();
+		Map<String, EditableHandle> a_inners = new HashMap<>();
 		for (EditableInnerName i : a.inners) {
 			a_inners.put(i.getName(), i.getHandle());
 			i.setHandle(null);
@@ -582,7 +660,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Compose bigraph in input with the current bigraphbuilder
-	 * @param graph the "outer" bigraph
+	 * 
+	 * @param graph
+	 *            the "outer" bigraph
 	 */
 	public void outerCompose(Bigraph graph) {
 		outerCompose(graph, false);
@@ -590,8 +670,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Compose the current bigraph in input with the bigraphbuilder.
-	 * @param graph the "outer" bigraph
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * 
+	 * @param graph
+	 *            the "outer" bigraph
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void outerCompose(Bigraph graph, boolean reuse) {
 		Bigraph in = this.big;
@@ -604,11 +687,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		if (!out.inners.equals(in.outers)
 				|| out.sites.size() != in.roots.size()) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(in, out,
+					"The outer face of the first graph must be equal to inner face of the second");
 		}
 		Bigraph a = (reuse) ? out : out.clone();
-		Bigraph b = in; //this BB		
+		Bigraph b = in; // this BB
 		Set<? extends Edge> es = a.getEdges();
 		// iterates over sites and roots of a and b respectively and glues them
 		Iterator<EditableRoot> ir = b.roots.iterator();
@@ -624,7 +707,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		}
 		// iterates over inner and outer names of a and b respectively and glues
 		// them
-		Map<String,EditableHandle> a_inners = new HashMap<>();
+		Map<String, EditableHandle> a_inners = new HashMap<>();
 		for (EditableInnerName i : a.inners) {
 			a_inners.put(i.getName(), i.getHandle());
 			i.setHandle(null);
@@ -656,8 +739,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Nest the current bigraphbuilder with the bigraph in input. <br />
-	 * Nesting, differently from composition, add bigraph's outernames to bigraphbuilder if they aren't already present.
-	 * @param graph the "inner" bigraph
+	 * Nesting, differently from composition, add bigraph's outernames to
+	 * bigraphbuilder if they aren't already present.
+	 * 
+	 * @param graph
+	 *            the "inner" bigraph
 	 */
 	public void innerNest(Bigraph graph) {
 		innerNest(graph, false);
@@ -665,9 +751,13 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Nest the current bigraphbuilder with the bigraph in input. <br />
-	 * Nesting, differently from composition, add bigraph's outername to bigraphbuilder if they aren't already present.
-	 * @param graph the "inner" bigraph
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * Nesting, differently from composition, add bigraph's outername to
+	 * bigraphbuilder if they aren't already present.
+	 * 
+	 * @param graph
+	 *            the "inner" bigraph
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void innerNest(Bigraph graph, boolean reuse) {
 		Bigraph in = graph;
@@ -679,8 +769,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 					in.signature);
 		}
 		if (out.inners.size() != 0 || out.sites.size() != in.roots.size()) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(in, out);
 		}
 		Map<String, EditableOuterName> nmap = new HashMap<>();
 		for (EditableOuterName o : out.outers) {
@@ -698,8 +787,12 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Nest bigraph in input with the current bigraphbuilder. <br />
-	 * Nesting, differently from composition, add bigraph's outername to bigraphbuilder if they aren't already present. It will then perform the standard composition.
-	 * @param graph the "inner" bigraph
+	 * Nesting, differently from composition, add bigraph's outername to
+	 * bigraphbuilder if they aren't already present. It will then perform the
+	 * standard composition.
+	 * 
+	 * @param graph
+	 *            the "inner" bigraph
 	 */
 	public void outerNest(Bigraph graph) {
 		outerNest(graph, false);
@@ -707,9 +800,14 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Nest bigraph in input with the current bigraphbuilder. <br />
-	 * Nesting, differently from composition, add bigraph's outername to bigraphbuilder if they aren't already present. It will then perform the standard composition.
-	 * @param graph the "inner" bigraph
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * Nesting, differently from composition, add bigraph's outername to
+	 * bigraphbuilder if they aren't already present. It will then perform the
+	 * standard composition.
+	 * 
+	 * @param graph
+	 *            the "inner" bigraph
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void outerNest(Bigraph graph, boolean reuse) {
 		Bigraph in = this.big;
@@ -721,8 +819,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 					in.signature);
 		}
 		if (out.inners.size() != 0 || out.sites.size() != in.roots.size()) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(in, out);
 		}
 		if (reuse)
 			out = out.clone();
@@ -748,9 +845,14 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose bigraph in input with the current bigraphbuilder. <br />
-	 * ParallelProduct, differently from the normal juxtapose, doesn't need disjoint sets of outernames for the two bigraphs. Common outernames will be merged. <br />
-	 * Roots and sites of the bigraph will precede those of the bigraphbuilder in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
+	 * ParallelProduct, differently from the normal juxtapose, doesn't need
+	 * disjoint sets of outernames for the two bigraphs. Common outernames will
+	 * be merged. <br />
+	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
 	 */
 	public void leftParallelProduct(Bigraph graph) {
 		leftParallelProduct(graph, false);
@@ -758,10 +860,16 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose bigraph in input with the current bigraphbuilder. <br />
-	 * ParallelProduct, differently from the normal juxtapose, doesn't need disjoint sets of outernames for the two bigraphs. Common outernames will be merged. <br />
-	 * Roots and sites of the bigraph will precede those of the bigraphbuilder in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * ParallelProduct, differently from the normal juxtapose, doesn't need
+	 * disjoint sets of outernames for the two bigraphs. Common outernames will
+	 * be merged. <br />
+	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void leftParallelProduct(Bigraph graph, boolean reuse) {
 		Bigraph left = graph;
@@ -773,8 +881,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 					right.signature);
 		}
 		if (!Collections.disjoint(left.inners, right.inners)) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(left, right,
+					new NameClashException(intersectNames(left.inners,
+							right.inners)));
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = right;
@@ -816,9 +925,14 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * ParallelProduct, differently from the normal juxtapose, doesn't need disjoint sets of outernames for the two bigraphs. Common outernames will be merged. <br />
-	 * Roots and sites of the bigraphbuilder will precede those of the bigraph in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
+	 * ParallelProduct, differently from the normal juxtapose, doesn't need
+	 * disjoint sets of outernames for the two bigraphs. Common outernames will
+	 * be merged. <br />
+	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
 	 */
 	public void rightParallelProduct(Bigraph graph) {
 		rightParallelProduct(graph, false);
@@ -826,10 +940,16 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * ParallelProduct, differently from the normal juxtapose, doesn't need disjoint sets of outernames for the two bigraphs. Common outernames will be merged. <br />
-	 * Roots and sites of the bigraphbuilder will precede those of the bigraph in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * ParallelProduct, differently from the normal juxtapose, doesn't need
+	 * disjoint sets of outernames for the two bigraphs. Common outernames will
+	 * be merged. <br />
+	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
+	 * in the resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void rightParallelProduct(Bigraph graph, boolean reuse) {
 		Bigraph left = this.big;
@@ -841,8 +961,9 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 					right.signature);
 		}
 		if (!Collections.disjoint(left.inners, right.inners)) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(left, right,
+					new NameClashException(intersectNames(left.inners,
+							right.inners)));
 		}
 		Bigraph l = left;
 		Bigraph r = (reuse) ? right : right.clone();
@@ -884,9 +1005,13 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose bigraph in input with the current bigraphbuilder. <br />
-	 * Perform then {@link BigraphBuilder#merge()} on the resulting bigraphbuilder. <br />
-	 * Sites of the bigraph will precede those of the bigraphbuilder in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
+	 * Perform then {@link BigraphBuilder#merge()} on the resulting
+	 * bigraphbuilder. <br />
+	 * Sites of the bigraph will precede those of the bigraphbuilder in the
+	 * resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
 	 */
 	public void leftMergeProduct(Bigraph graph) {
 		leftMergeProduct(graph, false);
@@ -894,10 +1019,15 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose bigraph in input with the current bigraphbuilder. <br />
-	 * Perform then {@link BigraphBuilder#merge()} on the resulting bigraphbuilder. <br />
-	 * Sites of the bigraph will precede those of the bigraphbuilder in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * Perform then {@link BigraphBuilder#merge()} on the resulting
+	 * bigraphbuilder. <br />
+	 * Sites of the bigraph will precede those of the bigraphbuilder in the
+	 * resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void leftMergeProduct(Bigraph graph, boolean reuse) {
 		leftJuxtapose(graph, reuse);
@@ -906,9 +1036,13 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * Perform then {@link BigraphBuilder#merge()} on the resulting bigraphbuilder. <br />
-	 * Sites of the bigraphbuilder will precede those of the bigraph in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
+	 * Perform then {@link BigraphBuilder#merge()} on the resulting
+	 * bigraphbuilder. <br />
+	 * Sites of the bigraphbuilder will precede those of the bigraph in the
+	 * resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
 	 */
 	public void rightMergeProduct(Bigraph graph) {
 		rightMergeProduct(graph, false);
@@ -916,13 +1050,39 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	/**
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
-	 * Perform then {@link BigraphBuilder#merge()} on the resulting bigraphbuilder. <br />
-	 * Sites of the bigraphbuilder will precede those of the bigraph in the resulting bigraphbuilder.
-	 * @param graph bigraph that will be juxtaposed.
-	 * @param reuse flag. If true, the bigraph in input won't be copied.
+	 * Perform then {@link BigraphBuilder#merge()} on the resulting
+	 * bigraphbuilder. <br />
+	 * Sites of the bigraphbuilder will precede those of the bigraph in the
+	 * resulting bigraphbuilder.
+	 * 
+	 * @param graph
+	 *            bigraph that will be juxtaposed.
+	 * @param reuse
+	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void rightMergeProduct(Bigraph graph, boolean reuse) {
 		rightJuxtapose(graph, reuse);
 		merge();
+	}
+
+	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
+			Set<? extends LinkFacet> arg1) {
+		return intersectNames(arg0, arg1, new HashSet<String>());
+	}
+
+	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
+			Set<? extends LinkFacet> arg1, Set<String> ns0) {
+		Set<String> ns1 = new HashSet<>();
+		for (LinkFacet l : arg0) {
+			ns1.add(l.getName());
+		}
+		for (LinkFacet r : arg1) {
+			String s = r.getName();
+			if (ns1.contains(s)) {
+				ns0.add(s);
+				ns1.remove(s);
+			}
+		}
+		return ns0;
 	}
 }

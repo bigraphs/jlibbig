@@ -7,10 +7,9 @@ import jlibbig.core.EditableNode.EditablePort;
 /**
  * The class is used to store immutable bigraphs.
  * <p>
- * e.g.
- * {@link #compose(Bigraph, Bigraph)} or
- * {@link #juxtapose(Bigraph, Bigraph)} instantiate a new object.
- * For a mutable version of bigraphs, users can use {@link BigraphBuilder}.
+ * e.g. {@link #compose(Bigraph, Bigraph)} or
+ * {@link #juxtapose(Bigraph, Bigraph)} instantiate a new object. For a mutable
+ * version of bigraphs, users can use {@link BigraphBuilder}.
  * </p>
  */
 final public class Bigraph implements AbstBigraph {
@@ -29,11 +28,11 @@ final public class Bigraph implements AbstBigraph {
 			.unmodifiableSet(this.outers);
 	private final Set<? extends InnerName> ro_inners = Collections
 			.unmodifiableSet(this.inners);
-	
+
 	Bigraph(Signature sig) {
 		this.signature = sig;
 	}
-	
+
 	boolean isConsistent() {
 		return this.isConsistent(this);
 	}
@@ -129,14 +128,14 @@ final public class Bigraph implements AbstBigraph {
 	/**
 	 * Set owner of internal structures of this bigraph (but leaves them
 	 * connected to it). Be careful. This method is meant to be used by Builder
-	 * to avoid leaking references to their internal working bigraph.
-	 * If the argument is null, the owner is set to the cloned bigraph.
+	 * to avoid leaking references to their internal working bigraph. If the
+	 * argument is null, the owner is set to the cloned bigraph.
 	 * 
 	 * @param owner
 	 * @return this bigraph
 	 */
 	Bigraph setOwner(Owner owner) {
-		if(owner == null)
+		if (owner == null)
 			owner = this;
 		for (EditableOwned o : this.roots) {
 			o.setOwner(owner);
@@ -157,8 +156,9 @@ final public class Bigraph implements AbstBigraph {
 
 	/**
 	 * Same as clone, but set a custom owner for the internal structures of the
-	 * cloned bigraph. It correspond to <code>someBigraph.clone().setOwner(someOwner)</code>.
-	 * If the argument is null, the owner is set to the cloned bigraph.
+	 * cloned bigraph. It correspond to
+	 * <code>someBigraph.clone().setOwner(someOwner)</code>. If the argument is
+	 * null, the owner is set to the cloned bigraph.
 	 * 
 	 * @param owner
 	 * @return a cloned bigraph
@@ -260,7 +260,7 @@ final public class Bigraph implements AbstBigraph {
 		}
 		return big;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -272,16 +272,16 @@ final public class Bigraph implements AbstBigraph {
 	}
 
 	@Override
-	public boolean isEmpty(){
-		return this.outers.isEmpty() && this.inners.isEmpty() && this.roots.isEmpty() && this.sites.isEmpty();
+	public boolean isEmpty() {
+		return this.outers.isEmpty() && this.inners.isEmpty()
+				&& this.roots.isEmpty() && this.sites.isEmpty();
 	}
-	
+
 	@Override
-	public boolean isGround(){
+	public boolean isGround() {
 		return this.inners.isEmpty() && this.sites.isEmpty();
 	}
-	
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -361,7 +361,7 @@ final public class Bigraph implements AbstBigraph {
 	public Set<? extends Edge> getEdges() {
 		return getEdges(this.getNodes());
 	}
-	
+
 	// avoid visit the place graph to compute the set of nodes
 	Set<? extends Edge> getEdges(Set<? extends Node> nodes) {
 		Set<Edge> s = new HashSet<>();
@@ -465,11 +465,15 @@ final public class Bigraph implements AbstBigraph {
 		}
 		return b.toString();
 	}
-	
+
 	/**
-	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the first (left) bigraph will precede those of the second (right) bigraph.
-	 * @param left the first bigraph
-	 * @param right the second bigraph
+	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the
+	 * first (left) bigraph will precede those of the second (right) bigraph.
+	 * 
+	 * @param left
+	 *            the first bigraph
+	 * @param right
+	 *            the second bigraph
 	 * @return the resulting bigraph
 	 */
 	public static Bigraph juxtapose(Bigraph left, Bigraph right) {
@@ -477,10 +481,15 @@ final public class Bigraph implements AbstBigraph {
 	}
 
 	/**
-	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the first (left) bigraph will precede those of the second (right) bigraph.
-	 * @param left the first bigraph
-	 * @param right the second bigraph
-	 * @param reuse flag. If true, bigraphs in input won't be copied.
+	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the
+	 * first (left) bigraph will precede those of the second (right) bigraph.
+	 * 
+	 * @param left
+	 *            the first bigraph
+	 * @param right
+	 *            the second bigraph
+	 * @param reuse
+	 *            flag. If true, bigraphs in input won't be copied.
 	 * @return the resulting bigraph
 	 */
 	static Bigraph juxtapose(Bigraph left, Bigraph right, boolean reuse) {
@@ -492,8 +501,10 @@ final public class Bigraph implements AbstBigraph {
 		}
 		if (!Collections.disjoint(left.inners, right.inners)
 				|| !Collections.disjoint(left.outers, right.outers)) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(left, right,
+					new NameClashException(intersectNames(left.inners,
+							right.inners,
+							intersectNames(left.outers, right.outers))));
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = (reuse) ? right : right.clone();
@@ -506,8 +517,11 @@ final public class Bigraph implements AbstBigraph {
 
 	/**
 	 * Compose two bigraph. The first bigraph in input will be the "outer" one.
-	 * @param out the outer bigraph
-	 * @param in the inner bigraph
+	 * 
+	 * @param out
+	 *            the outer bigraph
+	 * @param in
+	 *            the inner bigraph
 	 * @return the resulting bigraph
 	 */
 	public static Bigraph compose(Bigraph out, Bigraph in) {
@@ -516,9 +530,13 @@ final public class Bigraph implements AbstBigraph {
 
 	/**
 	 * Compose two bigraph. The first bigraph in input will be the "outer" one.
-	 * @param out the outer bigraph
-	 * @param in the inner bigraph
-	 * @param reuse flag. If true, bigraphs in input won't be copied.
+	 * 
+	 * @param out
+	 *            the outer bigraph
+	 * @param in
+	 *            the inner bigraph
+	 * @param reuse
+	 *            flag. If true, bigraphs in input won't be copied.
 	 * @return the resulting bigraph
 	 */
 	static Bigraph compose(Bigraph out, Bigraph in, boolean reuse) {
@@ -530,8 +548,8 @@ final public class Bigraph implements AbstBigraph {
 		}
 		if (!out.inners.equals(in.outers)
 				|| out.sites.size() != in.roots.size()) {
-			// TODO exceptions
-			throw new IllegalArgumentException("Incompatible interfaces");
+			throw new IncompatibleInterfacesException(in, out,
+					"The outer face of the first graph must be equal to inner face of the second");
 		}
 		Bigraph a = (reuse) ? out : out.clone();
 		Bigraph b = (reuse) ? in : in.clone();
@@ -570,7 +588,9 @@ final public class Bigraph implements AbstBigraph {
 
 	/**
 	 * Make an empty bigraph.
-	 * @param signature the signature of the bigraph
+	 * 
+	 * @param signature
+	 *            the signature of the bigraph
 	 * @return the empty bigraph
 	 */
 	public static Bigraph makeEmpty(Signature signature) {
@@ -579,9 +599,13 @@ final public class Bigraph implements AbstBigraph {
 
 	/**
 	 * Make an identity bigraph.
-	 * @param signature the signature of the bigraph.
-	 * @param width the number of roots/sites. 
-	 * @param names the names of its link faces.
+	 * 
+	 * @param signature
+	 *            the signature of the bigraph.
+	 * @param width
+	 *            the number of roots/sites.
+	 * @param names
+	 *            the names of its link faces.
 	 * @return the resulting identity bigraph.
 	 */
 	public static Bigraph makeId(Signature signature, int width,
@@ -598,9 +622,14 @@ final public class Bigraph implements AbstBigraph {
 
 	/**
 	 * Make an identity bigraph.
-	 * @param signature the signature of the bigraph.
-	 * @param width the number of roots/sites. 
-	 * @param names the set of names that will appear in resulting bigraph's link faces.
+	 * 
+	 * @param signature
+	 *            the signature of the bigraph.
+	 * @param width
+	 *            the number of roots/sites.
+	 * @param names
+	 *            the set of names that will appear in resulting bigraph's link
+	 *            faces.
 	 * @return the resulting identity bigraph.
 	 */
 	public static Bigraph makeId(Signature signature, int width,
@@ -615,7 +644,27 @@ final public class Bigraph implements AbstBigraph {
 		}
 		return bb.makeBigraph();
 	}
-	
+
 	// TODO factory methods
 
+	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
+			Set<? extends LinkFacet> arg1) {
+		return intersectNames(arg0, arg1, new HashSet<String>());
+	}
+
+	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
+			Set<? extends LinkFacet> arg1, Set<String> ns0) {
+		Set<String> ns1 = new HashSet<>();
+		for (LinkFacet l : arg0) {
+			ns1.add(l.getName());
+		}
+		for (LinkFacet r : arg1) {
+			String s = r.getName();
+			if (ns1.contains(s)) {
+				ns0.add(s);
+				ns1.remove(s);
+			}
+		}
+		return ns0;
+	}
 }
