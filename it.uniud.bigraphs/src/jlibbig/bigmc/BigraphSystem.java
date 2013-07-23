@@ -18,6 +18,8 @@ public class BigraphSystem{
 	 * @param sig signature used for every bigraph and reaction of this system.	
 	 */
 	public BigraphSystem( Signature sig ){
+		if( sig == null )
+			throw new IllegalArgumentException( "Signature can't be null" );
 		signature = sig;
 		bigraphs = new HashSet<>();
 		outerNames = new HashSet<>();

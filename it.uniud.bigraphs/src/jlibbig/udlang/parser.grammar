@@ -10,18 +10,34 @@
 		private BigraphSystem _sys;
 
 		/**
-		 * Generate a system (sets of bigraphs and reactions with the same signature) from a string.
-		 * @param str the string that will be parsed.
-		 * @return Return a system, carrying bigraphs and reactions with the same signature,
+		 * Generate a system (sets of bigraphs and reactions with the same
+		 * signature) from a string.
+		 * 
+		 * @param str
+		 *            the string that will be parsed.
+		 * @return Return a system, carrying bigraphs and reactions with the same
+		 *         signature.
 		 * @throws IOException
 		 * @throws Parser.Exception
 		 * @see BigraphSystem
 		 */
-		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
-			_sys = null;
-			BigraphLexer input = new BigraphLexer( new StringReader( str ) );
-			parse( input );
+		BigraphSystem parse(String str) throws IOException, Parser.Exception {
+			return parse(new StringReader(str));
+		}
 
+		BigraphSystem parse(Reader in) throws IOException, Parser.Exception {
+			_sys = null;
+			parse(new BigraphLexer(in));
+			return _sys;
+		}
+
+		BigraphSystem parse(String str , Signature sig) throws IOException, Parser.Exception {
+			return parse(new StringReader(str) , sig);
+		}
+
+		BigraphSystem parse(Reader in , Signature sig) throws IOException, Parser.Exception {
+			_sys = new BigraphSystem( sig );
+			parse(new BigraphLexer(in));
 			return _sys;
 		}
 
@@ -37,7 +53,16 @@
 				this.outer = outer;
 			}	
 		}
-
+		
+		/**
+		 * Retrieve the current BigraphSystem's signature
+		 * @return The current signature
+		 */
+		private Signature getSystemSignature(){
+			if( _sys == null )
+				_sys = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+			return _sys.getSignature();
+		}
 		/**
 		 * Data Structure used to store the parsed bigraph
 		 *
@@ -453,22 +478,34 @@ start	= definitions reactions
 	| reactions
 	;
 
-definitions = controls.sb	{: _sys = new BigraphSystem( sb.makeSignature() ); return new Symbol( null ); :}
+definitions = controls.sb	{: if( _sys == null ) _sys = new BigraphSystem( sb.makeSignature() ); return new Symbol( null ); :}
 	;
 
 controls	= controls.sb MODE.b VARID.v COLON num.n SEMICOLON	
 				{: 
-					if( sb.contains( v ) )
-						throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() )  
-										+ " - Control already defined: " + v );
-					sb.put( v , b , n ); 
-					return new Symbol( sb ); 
+					if( _sys == null ){
+						if( sb.contains( v ) )
+							throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() )  
+											+ " - Control already defined: " + v );
+						sb.put( v , b , n ); 
+						return new Symbol( sb );
+					}
+					Control c = null;
+					if( (c = getSystemSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+						throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+					return new Symbol( null );
 				:}
 		| MODE.b VARID.v COLON num.n SEMICOLON	
 				{: 
-					SignatureBuilder sb = new SignatureBuilder(); 
-					sb.put( v , b , n );
-					return new Symbol( sb );
+					if( _sys == null ){
+						SignatureBuilder sb = new SignatureBuilder(); 
+						sb.put( v , b , n );
+						return new Symbol( sb );
+					}
+					Control c = null;
+					if( (c = getSystemSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+						throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+					return new Symbol( null );					
 				:}
 		;
 
@@ -480,7 +517,10 @@ reactions = big.r REACT big.s SEMICOLON reactions
 	| bigraphs
 	;
 
-bigraphs = 
+bigraphs = 			{: 	
+					if( _sys == null ) _sys = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+					return new Symbol( null );
+				:}
 	| big.b SEMICOLON bigraphs 
 				{: 
 					_sys.addBigraph( b.makeBigraph() );
@@ -532,7 +572,7 @@ big	= big.b DPIPE big.p	{:
 				{:
 					ParsedBigraph b;
 					try{
-						b = ( new ParsedBigraph( _sys.getSignature() ) ).makeLinks( x , l );
+						b = ( new ParsedBigraph( getSystemSignature() ) ).makeLinks( x , l );
 					}catch( IllegalArgumentException e ){
 						throw new IllegalArgumentException( "Line: " + Symbol.getLine( _symbol_x.getStart() )  
 										+ " - " + e.getMessage() );
@@ -558,23 +598,23 @@ big	= big.b DPIPE big.p	{:
 					return new Symbol( b );
 				:}
 	| place.pb	{: return new Symbol( pb ); :} 
-	| SIGIL num.n	{: return new Symbol( ( new ParsedBigraph( _sys.getSignature() ) ).makeSite( n ) ); :}
-	| ZERO		{: ParsedBigraph b = new ParsedBigraph( _sys.getSignature() ); return new Symbol( b ); :}
-	| ONE		{: ParsedBigraph b = new ParsedBigraph( _sys.getSignature() ); b.bb.addRoot(); return new Symbol( b ); :}
+	| SIGIL num.n	{: return new Symbol( ( new ParsedBigraph( getSystemSignature() ) ).makeSite( n ) ); :}
+	| ZERO		{: ParsedBigraph b = new ParsedBigraph( getSystemSignature() ); return new Symbol( b ); :}
+	| ONE		{: ParsedBigraph b = new ParsedBigraph( getSystemSignature() ); b.bb.addRoot(); return new Symbol( b ); :}
 	| PAROPEN big.pb PARCLOSE	
 			{: 
 				return new Symbol( pb ); 
 			:}
-	| NIL		{: ParsedBigraph b = new ParsedBigraph( _sys.getSignature() ); b.bb.addRoot(); return new Symbol( b ); :}
+	| NIL		{: ParsedBigraph b = new ParsedBigraph( getSystemSignature() ); b.bb.addRoot(); return new Symbol( b ); :}
 	;
 
 place	= VARID.c SQOPEN names.l SQCLOSE	
 				{: 
-					if( _sys.getSignature() == null )
+					if( getSystemSignature() == null )
 						throw new RuntimeException( "Signature not found\n" );
 					ParsedBigraph b; 
 					try{
-						b = ( new ParsedBigraph( _sys.getSignature() ) ).makeIon( c , l );
+						b = ( new ParsedBigraph( getSystemSignature() ) ).makeIon( c , l );
 					}catch( IllegalArgumentException e ){
 						throw new IllegalArgumentException( "Line: " + Symbol.getLine( _symbol_c.getStart() )  
 										+ " - " + e.getMessage() );
@@ -589,7 +629,7 @@ place	= VARID.c SQOPEN names.l SQCLOSE
 				{: 
 					ParsedBigraph b;
 					try{
-						b = ( new ParsedBigraph( _sys.getSignature() ) ).makeIon( c , new LinkedList<NameId>() );
+						b = ( new ParsedBigraph( getSystemSignature() ) ).makeIon( c , new LinkedList<NameId>() );
 					}catch( IllegalArgumentException e ){
 						throw new IllegalArgumentException( "Line: " + Symbol.getLine( _symbol_c.getStart() )  
 										+ " - " + e.getMessage() );
