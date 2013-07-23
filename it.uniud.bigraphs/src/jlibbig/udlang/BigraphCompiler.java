@@ -3,6 +3,7 @@ package jlibbig.udlang;
 import java.io.*;
 
 import beaver.Parser.Exception;
+import jlibbig.core.Signature;
 import jlibbig.core.lang.Compiler;
 import jlibbig.core.lang.CompilerException;
 
@@ -41,4 +42,16 @@ public class BigraphCompiler implements Compiler<BigraphSystem> {
 			throw new CompilerException(e);
 		}
 	}
+	
+	public BigraphSystem parse(String str , Signature s) throws CompilerException {
+		return parse(new StringReader( str ) , s);
+	}
+	public BigraphSystem parse(Reader in , Signature s) throws CompilerException {
+		try {
+			return parser.parse(in , s);
+		} catch (IOException | Exception e) {
+			throw new CompilerException(e);
+		}
+	}
+	
 }

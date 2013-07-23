@@ -19,12 +19,24 @@
 		 * @see BigraphSystem
 		 */
 		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
+			return parse(new StringReader( str ));
+		}
+		
+		BigraphSystem parse(Reader in) throws IOException, Parser.Exception{
 			_outerNames = new HashSet<>();		
 			_brs = null;
+			parse(new BigMCLexer(in));
+			return _brs;
+		}
 
-			BigMCLexer input = new BigMCLexer( new StringReader( str ) );
-			parse(input);
+		BigraphSystem parse(String str , Signature sig) throws IOException, Parser.Exception {
+			return parse(new StringReader(str) , sig);
+		}
 
+		BigraphSystem parse(Reader in , Signature sig) throws IOException, Parser.Exception {
+			_outerNames = new HashSet<>();
+			_brs = new BigraphSystem( sig );
+			parse(new BigMCLexer(in));
 			return _brs;
 		}
 
@@ -34,7 +46,18 @@
 		 */
 		private void addName( String v ){
 			_outerNames.add( v );
+			if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
 			_brs.addName( v );
+		}
+
+		/**
+		 * Retrieve the current BigraphSystem's signature
+		 * @return The current signature
+		 */
+		private Signature getSystemSignature(){
+			if( _brs == null )
+				_brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+			return _brs.getSignature();
 		}
 
 		/**
@@ -288,7 +311,10 @@ reactions = reaction reactions
 	| models		
 	;
 
-models	= 				
+models	= 			{: 
+					if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+					return new Symbol( null );
+				:}
 	| t.b SEMICOLON models	{:
 					if( b.bigraph.getSites().size() != 0)
 						throw new RuntimeException("Sites ($num) can only appear in reaction rules");
@@ -300,17 +326,35 @@ models	=
 
 definitionlist = CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb 
 			{:
-				sb.put( v , b , n ); _brs = new BigraphSystem( sb.makeSignature() );
+				if( _brs == null ){
+					sb.put( v , b , n ); 
+					_brs = new BigraphSystem( sb.makeSignature() );
+				}else{
+					Control c = null;
+				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+					throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+				}
 				return new Symbol( null ); 
 			:}
 	;
 
 definitions = {: return new Symbol( new SignatureBuilder() ); :}
-	| CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb	{: sb.put( v , b , n ); return new Symbol( sb ); :}
+	| CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb	
+			{: 	if( _brs == null ){
+					if( sb.contains( v ) )
+						throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() )  
+										+ " - Control already defined: " + v );
+					sb.put( v , b , n ); 
+					return new Symbol( sb );
+				}
+				Control c = null;
+				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+					throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+				return new Symbol( null );
+			:}
 	;
 
-reaction = t.b1 REACT t.b2 SEMICOLON	{: 
-
+reaction = t.b1 REACT t.b2 SEMICOLON	{: 	if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
 						_brs.addReaction( new RedexBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new RedexBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
 						return new Symbol( null ); 
 					:}

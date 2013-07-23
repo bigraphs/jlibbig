@@ -1,5 +1,6 @@
 package jlibbig.bigmc.lang;
 
+import java.util.ArrayList;
 import java.io.*;
 import beaver.*;
 import jlibbig.bigmc.*;
@@ -74,13 +75,35 @@ class BigMCParser extends Parser {
 			return _brs;
 		}
 
+		BigraphSystem parse(String str , Signature sig) throws IOException, Parser.Exception {
+			return parse(new StringReader(str) , sig);
+		}
+
+		BigraphSystem parse(Reader in , Signature sig) throws IOException, Parser.Exception {
+			_outerNames = new HashSet<>();
+			_brs = new BigraphSystem( sig );
+			parse(new BigMCLexer(in));
+			return _brs;
+		}
+
 		/**
 		 * Add a non-free outername (in bigmc, names indicated with %outer or %name)
 		 * @param v the name (string) that will be added
 		 */
 		private void addName( String v ){
 			_outerNames.add( v );
+			if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
 			_brs.addName( v );
+		}
+
+		/**
+		 * Retrieve the current BigraphSystem's signature
+		 * @return The current signature
+		 */
+		private Signature getSystemSignature(){
+			if( _brs == null )
+				_brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+			return _brs.getSignature();
 		}
 
 		/**
@@ -311,7 +334,13 @@ class BigMCParser extends Parser {
 			},
 			RETURN2,	// [5] reactions = reaction reactions; returns 'reactions' although none is marked
 			Action.RETURN,	// [6] reactions = models
-			Action.NONE,  	// [7] models = 
+			new Action() {	// [7] models = 
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					 
+					if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+					return new Symbol( null );
+				}
+			},
 			new Action() {	// [8] models = t.b SEMICOLON models
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_b = _symbols[offset + 1];
@@ -335,7 +364,14 @@ class BigMCParser extends Parser {
 					final Symbol _symbol_sb = _symbols[offset + 6];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
 					
-				sb.put( v , b , n ); _brs = new BigraphSystem( sb.makeSignature() );
+				if( _brs == null ){
+					sb.put( v , b , n ); 
+					_brs = new BigraphSystem( sb.makeSignature() );
+				}else{
+					Control c = null;
+				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+					throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+				}
 				return new Symbol( null );
 				}
 			},
@@ -354,7 +390,17 @@ class BigMCParser extends Parser {
 					final Integer n = (Integer) _symbol_n.value;
 					final Symbol _symbol_sb = _symbols[offset + 6];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
-					 sb.put( v , b , n ); return new Symbol( sb );
+					 	if( _brs == null ){
+					if( sb.contains( v ) )
+						throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() )  
+										+ " - Control already defined: " + v );
+					sb.put( v , b , n ); 
+					return new Symbol( sb );
+				}
+				Control c = null;
+				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+					throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+				return new Symbol( null );
 				}
 			},
 			new Action() {	// [12] reaction = t.b1 REACT t.b2 SEMICOLON
@@ -363,8 +409,7 @@ class BigMCParser extends Parser {
 					final ParsedBigraph b1 = (ParsedBigraph) _symbol_b1.value;
 					final Symbol _symbol_b2 = _symbols[offset + 3];
 					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
-					 
-
+					 	if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
 						_brs.addReaction( new RedexBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new RedexBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
 						return new Symbol( null );
 				}
