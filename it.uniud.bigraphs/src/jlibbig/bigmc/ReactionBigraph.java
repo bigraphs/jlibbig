@@ -8,7 +8,7 @@ import jlibbig.core.*;
  * Class used to store a bigMC's redex or reactum bigraph
  * @see AbstBigraph
  */
-public class RedexBigraph implements AbstBigraph{
+public class ReactionBigraph implements AbstBigraph{
 	private Set<String> outerNames;
 	private Map<Site , Integer> siteNames;
 	private Bigraph big;
@@ -20,7 +20,7 @@ public class RedexBigraph implements AbstBigraph{
 	 * @see Bigraph
 	 * @see <a href="http://bigraph.org/bigmc/">bigraph.org/bigmc</a>
 	 */
-	public RedexBigraph( Bigraph big, Set<String> outerNames, Map<Site , Integer> siteNames ){
+	public ReactionBigraph( Bigraph big, Set<String> outerNames, Map<Site , Integer> siteNames ){
 		this.outerNames = outerNames;
 		this.siteNames = siteNames;
 		this.big = big;

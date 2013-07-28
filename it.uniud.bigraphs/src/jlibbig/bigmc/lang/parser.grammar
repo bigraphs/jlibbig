@@ -355,7 +355,7 @@ definitions = {: return new Symbol( new SignatureBuilder() ); :}
 	;
 
 reaction = t.b1 REACT t.b2 SEMICOLON	{: 	if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-						_brs.addReaction( new RedexBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new RedexBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
+						_brs.addReaction( new ReactionBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new ReactionBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
 						return new Symbol( null ); 
 					:}
 	;

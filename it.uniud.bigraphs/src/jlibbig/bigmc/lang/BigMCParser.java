@@ -410,7 +410,7 @@ class BigMCParser extends Parser {
 					final Symbol _symbol_b2 = _symbols[offset + 3];
 					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
 					 	if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-						_brs.addReaction( new RedexBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new RedexBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
+						_brs.addReaction( new ReactionBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new ReactionBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
 						return new Symbol( null );
 				}
 			},
