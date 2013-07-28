@@ -34,8 +34,8 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		
 		s.append( ln );
 		
-		for(Map.Entry<RedexBigraph, RedexBigraph> reaction : brs.getReactions().entrySet() )
-			s.append( toString( reaction.getKey() ) + " -> " + toString( reaction.getValue() ) + " ;" + ln );
+		for( Reaction<ReactionBigraph> reaction : brs.getReactions() )
+			s.append( toString( reaction.getRedex() ) + " -> " + toString( reaction.getReactum() ) + " ;" + ln );
 		
 		s.append( ln );
 		
@@ -68,10 +68,10 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	/**
 	 * Translate a RedexBigraph to a string with BigMC's syntax
 	 * @param big the redex bigraph that will be printed.
-	 * @see RedexBigraph
+	 * @see ReactionBigraph
 	 * @return the resulting string
 	 */
-	public static String toString( RedexBigraph big ){
+	public static String toString( ReactionBigraph big ){
 		StringBuilder s = new StringBuilder();
 		Iterator<? extends Root> it = big.getRoots().iterator();
 		while( it.hasNext() ){
@@ -115,7 +115,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	 * @param d control or site handler
 	 * @param outrnms set of outernames
 	 * @param sitenum sites' enumeration, used to retrieve the right number of the site
-	 * @see RedexBigraph
+	 * @see ReactionBigraph
 	 * @return the resulting string
 	 */
 	private static String toString( Child d , Set<? extends OuterName> outrnms , Map<Site , Integer> sitenum ){
