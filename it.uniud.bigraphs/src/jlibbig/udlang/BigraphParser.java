@@ -106,6 +106,10 @@ public class BigraphParser extends Parser {
 			}	
 		}
 		
+		/**
+		 * Retrieve the current BigraphSystem's signature
+		 * @return The current signature
+		 */
 		private Signature getSystemSignature(){
 			if( _sys == null )
 				_sys = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
