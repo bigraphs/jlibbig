@@ -12,7 +12,7 @@ public class BigraphSystem{
 	private Signature signature;
 	private Set<Bigraph> bigraphs;
 	private Set<String> outerNames;
-	private Map<RedexBigraph , RedexBigraph> reactionRules;
+	private Set<Reaction<ReactionBigraph>> reactionRules;
 	
 	/**
 	 * @param sig signature used for every bigraph and reaction of this system.	
@@ -23,7 +23,7 @@ public class BigraphSystem{
 		signature = sig;
 		bigraphs = new HashSet<>();
 		outerNames = new HashSet<>();
-		reactionRules = new HashMap<>();
+		reactionRules = new HashSet<>();
 	}
 	
 	/**
@@ -58,8 +58,10 @@ public class BigraphSystem{
 	 * @see Bigraph
 	 */
 	public void addBigraph( Bigraph b ){
-		if( !signature.containsAll( b.getSignature() ) || !b.getSignature().containsAll( signature ) )
+		if( signature != b.getSignature() )
 			throw new RuntimeException( "Can't add a Bigraph to a BigraphSystem. Its Signature must be equal to the BigraphSystem's signature" );
+		if( !b.isGround() )
+			throw new IllegalArgumentException( "BigMC's bigraphs can only be ground (Agents)" );
 		bigraphs.add( b );
 	}
 	
@@ -68,14 +70,14 @@ public class BigraphSystem{
 	 * @param redex the bigraph representing reaction's redex
 	 * @param reactum the bigraph representing reaction's reactum
 	 * @throws RuntimeException if signatures don't match or if redex and reactum don't have the same number of roots
-	 * @see RedexBigraph
+	 * @see ReactionBigraph
 	 */
-	public void addReaction( RedexBigraph redex , RedexBigraph reactum ){
-		if( !signature.containsAll( redex.getSignature() ) || !redex.getSignature().containsAll( signature ) || !signature.containsAll( reactum.getSignature() ) || !reactum.getSignature().containsAll( signature ) )
+	public void addReaction( ReactionBigraph redex , ReactionBigraph reactum ){
+		if( signature != redex.getSignature() || signature != reactum.getSignature() )
 			throw new RuntimeException( "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
 		if( redex.getRoots().size() != reactum.getRoots().size() )
 			throw new RuntimeException("The number of roots in redex and reactum must be the same");
-		reactionRules.put( redex , reactum );
+		reactionRules.add( new Reaction<ReactionBigraph>( redex , reactum ) );
 	}
 	
 	/**
@@ -88,11 +90,12 @@ public class BigraphSystem{
 	}
 	
 	/**
-	 * Get the "set" of reactions.
-	 * @return A map ( redex , reactum ). Each entry of this map represent a reaction.
+	 * Get the set of reactions.
+	 * @return A set or Reaction.
 	 * @see Bigraph
+	 * @see Reaction
 	 */
-	public Map<RedexBigraph , RedexBigraph> getReactions(){
-		return Collections.unmodifiableMap( reactionRules );
+	public Set<Reaction<ReactionBigraph>> getReactions(){
+		return Collections.unmodifiableSet( reactionRules );
 	}
 }
