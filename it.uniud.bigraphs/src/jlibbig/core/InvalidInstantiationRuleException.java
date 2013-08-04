@@ -3,19 +3,19 @@
  */
 package jlibbig.core;
 
-public class InvalidInstantiationRule extends RuntimeException {
+public class InvalidInstantiationRuleException extends RuntimeException {
 
 	/**
 	 * 
 	 */
-	public InvalidInstantiationRule() {
+	public InvalidInstantiationRuleException() {
 		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @param arg0
 	 */
-	public InvalidInstantiationRule(String arg0) {
+	public InvalidInstantiationRuleException(String arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
 	}
@@ -23,7 +23,7 @@ public class InvalidInstantiationRule extends RuntimeException {
 	/**
 	 * @param arg0
 	 */
-	public InvalidInstantiationRule(Throwable arg0) {
+	public InvalidInstantiationRuleException(Throwable arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
 	}
@@ -32,7 +32,7 @@ public class InvalidInstantiationRule extends RuntimeException {
 	 * @param arg0
 	 * @param arg1
 	 */
-	public InvalidInstantiationRule(String arg0, Throwable arg1) {
+	public InvalidInstantiationRuleException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
 		// TODO Auto-generated constructor stub
 	}
@@ -43,7 +43,7 @@ public class InvalidInstantiationRule extends RuntimeException {
 	 * @param arg2
 	 * @param arg3
 	 */
-	public InvalidInstantiationRule(String arg0, Throwable arg1, boolean arg2,
+	public InvalidInstantiationRuleException(String arg0, Throwable arg1, boolean arg2,
 			boolean arg3) {
 		super(arg0, arg1, arg2, arg3);
 		// TODO Auto-generated constructor stub
