@@ -34,7 +34,12 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 	 */
 	@Override
 	public Iterable<Match<Bigraph>> match(Bigraph agent, Bigraph redex) {
-		return new MatchIterable(agent, redex);
+		return match(agent, redex, null);
+	}
+
+	Iterable<Match<Bigraph>> match(Bigraph agent, Bigraph redex,
+			boolean[] neededParams) {
+		return new MatchIterable(agent, redex, neededParams);
 	}
 
 	/**
@@ -78,7 +83,9 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 		// caches the set of descendants of a agents entities
 		// final Map<Parent, Set<Node>> descendants_cache;
 
-		private MatchIterable(Bigraph agent, Bigraph redex) {
+		final boolean[] neededParams;
+
+		private MatchIterable(Bigraph agent, Bigraph redex, boolean[] neededParams) {
 			if (!agent.isGround()) {
 				throw new UnsupportedOperationException(
 						"Agent should be a bigraph with empty inner interface i.e. ground.");
@@ -118,6 +125,11 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 					pht_edges.add(new EditableEdge());
 			}
 
+			this.neededParams = new boolean[redex_sites.size()];
+			for (int i = 0; i < this.neededParams.length; i++) {
+				this.neededParams[i] = (neededParams == null) || neededParams[i];
+			}
+
 		}
 
 		@Override
@@ -138,7 +150,7 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 			int ans = agent_nodes.size();
 			int rrs = redex_roots.size();
 			int rss = redex_sites.size();
-			
+
 			MatchIterator() {
 
 				// MODEL
@@ -320,8 +332,7 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 				// nodes
 				for (Node i : agent_nodes) {
 					Map<PlaceEntity, IntegerVariable> row = matrix.get(i);
-					vars = new IntegerVariable[redex_nodes.size()
-							+ rss];
+					vars = new IntegerVariable[redex_nodes.size() + rss];
 					k = 0;
 					for (PlaceEntity j : redex_nodes) {
 						vars[k++] = row.get(j);
@@ -1107,7 +1118,7 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 						Map<Handle, EditableHandle> rdx_hnd_dic = new HashMap<>();
 						Map<Handle, EditableHandle> prm_hnd_dic = new HashMap<>();
 						Map<InnerName, EditableOuterName> prm_ion_dic = new HashMap<>();
-						
+
 						// the queue is used for a breadth first visit
 						class VState {
 							final EditableParent c; // the agent root/node to be
@@ -1306,69 +1317,76 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 						// /////////////////////////////////////////////
 
 						for (int i = 0; i < rss; i++) {
-							// replicates the i-th parameter
-							Bigraph prm = new Bigraph(agent.signature);
-							prms.add(prm);
-							prm_hnd_dic.clear();
-							prm_ion_dic.clear();
-							// replicate inners
-							for (EditableInnerName i1 : redex.inners) {
-								EditableOuterName o2 = new EditableOuterName(
-										i1.getName());
-								prm_ion_dic.put(i1, o2);
-								o2.setOwner(prm);
-								prm.outers.add(o2);
-							}
-							
-							// there is exactly one root
-							EditableRoot r0 = new EditableRoot();
-							prm.roots.add(r0);
-							r0.setOwner(prm);
-							// enqueue each node that is image of the i-th site
-							for (EditableParent n0 : site_img.get(redex_sites
-									.get(i))) {
-								q.add(new VState(r0, n0));
-							}
-							while (!q.isEmpty()) {
-								VState v = q.poll();
-								// there are only nodes in the queue
-								EditableNode n1 = (EditableNode) v.c;
-								EditableNode n2 = n1.replicate();
-								n2.setParent(v.p);
-								// replicate links from node ports
-								for (int j = n1.getControl().getArity() - 1; -1 < j; j--) {
-									EditablePort o = n1.getPort(j);
-									EditableHandle h2 = null;
-									// is this port assigned to an inner name of
-									// the redex?
-									Map<InnerName, IntegerVariable> pr = lnk_pts
-											.get(o);
-									if (pr != null) {
-										for (InnerName i1 : pr.keySet()) {
-											if (lnk_solver.getVar(pr.get(i1))
-													.getVal() == 1) {
-												h2 = prm_ion_dic.get(i1);
-												break;
+							if (neededParams[i]) {
+								// replicates the i-th parameter
+								Bigraph prm = new Bigraph(agent.signature);
+								prms.add(prm);
+								prm_hnd_dic.clear();
+								prm_ion_dic.clear();
+								// replicate inners
+								for (EditableInnerName i1 : redex.inners) {
+									EditableOuterName o2 = new EditableOuterName(
+											i1.getName());
+									prm_ion_dic.put(i1, o2);
+									o2.setOwner(prm);
+									prm.outers.add(o2);
+								}
+
+								// there is exactly one root
+								EditableRoot r0 = new EditableRoot();
+								prm.roots.add(r0);
+								r0.setOwner(prm);
+								// enqueue each node that is image of the i-th
+								// site
+								for (EditableParent n0 : site_img
+										.get(redex_sites.get(i))) {
+									q.add(new VState(r0, n0));
+								}
+								while (!q.isEmpty()) {
+									VState v = q.poll();
+									// there are only nodes in the queue
+									EditableNode n1 = (EditableNode) v.c;
+									EditableNode n2 = n1.replicate();
+									n2.setParent(v.p);
+									// replicate links from node ports
+									for (int j = n1.getControl().getArity() - 1; -1 < j; j--) {
+										EditablePort o = n1.getPort(j);
+										EditableHandle h2 = null;
+										// is this port assigned to an inner
+										// name of
+										// the redex?
+										Map<InnerName, IntegerVariable> pr = lnk_pts
+												.get(o);
+										if (pr != null) {
+											for (InnerName i1 : pr.keySet()) {
+												if (lnk_solver.getVar(
+														pr.get(i1)).getVal() == 1) {
+													h2 = prm_ion_dic.get(i1);
+													break;
+												}
 											}
 										}
-									}
-									if (h2 == null) {
-										EditableHandle h1 = o.getHandle();
-										h2 = prm_hnd_dic.get(h1);
 										if (h2 == null) {
-											h2 = h1.replicate();
-											h2.setOwner(prm);
+											EditableHandle h1 = o.getHandle();
+											h2 = prm_hnd_dic.get(h1);
+											if (h2 == null) {
+												h2 = h1.replicate();
+												h2.setOwner(prm);
+											}
+											prm_hnd_dic.put(h1, h2);
 										}
-										prm_hnd_dic.put(h1, h2);
+										n2.getPort(j).setHandle(h2);
 									}
-									n2.getPort(j).setHandle(h2);
+									// enqueues children
+									for (EditableChild c : n1
+											.getEditableChildren()) {
+										q.add(new VState(n2, c));
+									}
 								}
-								// enqueues children
-								for (EditableChild c : n1.getEditableChildren()) {
-									q.add(new VState(n2, c));
-								}
+							} else {
+								// this param can be ignored
+								prms.add(null);
 							}
-
 						}
 
 						if (DEBUG_CONSISTENCY_CHECK) {
@@ -1381,7 +1399,8 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 										"Inconsistent bigraph (rdx)");
 							}
 							for (int i = 0; i < rss; i++) {
-								if (!prms.get(i).isConsistent()) {
+								if (neededParams[i]
+										&& !prms.get(i).isConsistent()) {
 									throw new RuntimeException(
 											"Inconsistent bigraph (prm " + i
 													+ ")");

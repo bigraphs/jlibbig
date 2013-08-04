@@ -4,8 +4,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 /**
- * Describes a name identified entity <br />
- * (e.g. edges, nodes, controls).
+ * Describes a name identified entity and provides a some name generation methods.
  */
 abstract class AbstNamed implements Named {
 	private final String name;
