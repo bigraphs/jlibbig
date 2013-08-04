@@ -102,6 +102,17 @@ public class foo {
 		}
 		Long t1 = System.currentTimeMillis();
 		System.out.println("done: #" + mc + " " + (t1 - t0) + "(ms)");
+		
+
+		BigraphAgentRewriting ar =  new BigraphAgentRewriting(b2,b2);
+		t0 = System.currentTimeMillis();
+		mc = 0L;
+		System.out.println("ground rewrite test...");
+		for(Bigraph b3 : ar.apply(b2)){
+			mc++;
+		}
+		t1 = System.currentTimeMillis();
+		System.out.println("done: #" + mc + " " + (t1 - t0) + "(ms)");
 	}
 	
 	private static void printT(){
