@@ -2,6 +2,9 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.exceptions.IncompatibleInterfacesException;
+import jlibbig.core.exceptions.IncompatibleSignatureException;
+
 /**
  * The class is meant as a helper for bigraph construction and manipulation in
  * presence of series of operations since {@link Bigraph} is immutable.
@@ -183,7 +186,33 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the new node
 	 */
 	public Node addNode(String controlName, Parent parent, Handle... handles) {
-		return addNode(controlName, parent, Arrays.asList(handles));
+		Control c = this.big.getSignature().getByName(controlName);
+		if (c == null)
+			throw new IllegalArgumentException(
+					"Control should be in the signature.");
+		if (!this.getRoots().contains(parent)
+				&& !this.getNodes().contains(parent))
+			throw new IllegalArgumentException(
+					"Parent sould be in the bigraph.");
+		EditableHandle[] hs = new EditableHandle[c.getArity()];
+		for(int i = 0;i < hs.length;i++){
+			if(i < handles.length){
+				hs[i] = (EditableHandle) handles[i];
+			}
+			if(hs[i] == null)
+				hs[i] = new EditableEdge();
+			Owner o = hs[i].getOwner();
+			if (o == null)
+				hs[i].setOwner(this);
+			else if (o != this)
+				throw new IllegalArgumentException(
+						"Handles sould be in the bigraph or be idle edges.");
+		}
+		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
+		// TODO skip check on internal data
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
+		return n;
 	}
 
 	/**
@@ -207,19 +236,21 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 				&& !this.getNodes().contains(parent))
 			throw new IllegalArgumentException(
 					"Parent sould be in the bigraph.");
-		handles = new LinkedList<>(handles);
-		for (int i = handles.size(); i < c.getArity(); i++) {
-			handles.add(new EditableEdge()); // add spare edges
-		}
-		for (Handle h : handles) {
-			Owner o = ((EditableHandle) h).getOwner();
+		EditableHandle[] hs = new EditableHandle[c.getArity()];
+		for(int i = 0;i < hs.length;i++){
+			if(i < handles.size()){
+				hs[i] = (EditableHandle) handles.get(i);
+			}
+			if(hs[i] == null)
+				hs[i] = new EditableEdge();
+			Owner o = hs[i].getOwner();
 			if (o == null)
-				((EditableHandle) h).setOwner(this);
+				hs[i].setOwner(this);
 			else if (o != this)
 				throw new IllegalArgumentException(
 						"Handles sould be in the bigraph or be idle edges.");
 		}
-		EditableNode n = new EditableNode(c, (EditableParent) parent, handles);
+		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -495,7 +526,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph right = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (left.signature != right.signature) {
+		if (!left.signature.equals(right.signature)) {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
@@ -553,7 +584,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph right = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (left.signature != right.signature) {
+		if (!left.signature.equals(right.signature)) {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
@@ -607,7 +638,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph out = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (out.signature != in.signature) {
+		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
@@ -681,7 +712,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph out = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (out.signature != in.signature) {
+		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
@@ -764,7 +795,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph out = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (out.signature != in.signature) {
+		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
@@ -814,7 +845,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph out = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (out.signature != in.signature) {
+		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
@@ -876,7 +907,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph right = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (left.signature != right.signature) {
+		if (!left.signature.equals(right.signature)) {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
@@ -956,7 +987,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		Bigraph right = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (left.signature != right.signature) {
+		if (!left.signature.equals(right.signature)) {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}

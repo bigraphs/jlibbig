@@ -42,6 +42,14 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 			}
 		}
 		
+		EditableNode(Control control,EditableParent parent, EditableHandle... handles){
+			this(control);
+			setParent(parent);
+			for(int i = 0;i< Math.min(handles.length,control.getArity());i++){
+				this.ports.get(i).setHandle(handles[i]);
+			}
+		}
+		
 		@Override
 		public String toString() {
 			return this.name + ":" + this.control.getName();

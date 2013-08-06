@@ -9,16 +9,68 @@ public class Signature implements Set<Control>{
 
 	final private Map<String,Control> ctrls = new HashMap<>();
 
-	Signature(Collection<Control > controls) {
-		for(Control  c : controls){
-			if(ctrls.containsKey(c.getName())){
-				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
-			}else{
-				ctrls.put(c.getName(), c);
-			}
-		}
+	final protected UUID USID;
+	
+	public Signature(Collection<Control > controls) {
+		this(null, controls);
 	}
 	
+	public Signature(UUID usid, Collection<Control > controls) {
+		for(Control  c : controls){
+			if(ctrls.put(c.getName(), c) != null){
+				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
+			}
+		}
+		this.USID = (usid == null) ? UUID.randomUUID() : usid;
+	}
+	
+	public Signature(Control... controls) {
+		this(null, controls);
+	}
+	
+	public Signature(UUID usid, Control... controls) {
+		for(Control  c : controls){
+			if(ctrls.put(c.getName(), c) != null){
+				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
+			}
+		}
+		this.USID = (usid == null) ? UUID.randomUUID() : usid;
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + USID.hashCode();
+		result = prime * result + ctrls.hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Signature))
+			return false;
+		Signature other = (Signature) obj;
+		if (!USID.equals(other.USID))
+			return false;
+		for(Control c : ctrls.values()){
+			if(!c.equals(other.getByName(c.getName())))
+				return false;
+		}
+		for(String name : other.ctrls.keySet()){
+			if(!ctrls.containsKey(name))
+				return false;
+		}
+		if (!ctrls.equals(other.ctrls))
+			return false;
+		return true;
+	}
+
 	/**
 	 * Get a control (if present), specifying its name.
 	 * @param name name of the control

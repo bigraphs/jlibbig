@@ -26,6 +26,15 @@ public class SignatureBuilder {
 		return new Signature(ctrls.values());
 	}
 	
+	/** 
+	 * Creates a signature with the control present in the builder and the given
+	 * signature identifier.
+	 * @return a signature
+	 */
+	public Signature makeSignature(UUID usid) {
+		return new Signature(ctrls.values());
+	}
+	
 	/**
 	 * Make a control and add it to the signature
 	 * @param name name of the control
@@ -33,7 +42,7 @@ public class SignatureBuilder {
 	 * @param arity number of ports
 	 */
 	public void put(String name, boolean active, int arity) {
-		ctrls.put(name, new BGControl(name,active,arity));
+		ctrls.put(name, new Control(name,active,arity));
 	}
 
 	/**
@@ -77,53 +86,54 @@ public class SignatureBuilder {
 		ctrls.clear();
 	}
 	
-	private static class BGControl extends AbstNamed implements Control{
-		private final boolean active;
-		private final int arity;
-				
-		BGControl(String name,boolean active, int arity){
-			super(name);
-			this.arity = arity;
-			this.active = active;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = super.hashCode();
-			result = prime * result + arity;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (!super.equals(obj))
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			BGControl other = (BGControl) obj;
-			if (arity != other.arity || super.getName() != other.getName())
-				return false;
-			return true;
-		}
-	
-		@Override
-		public String toString() {
-			return getName() + ":(" + arity + ((active) ? ",a)" : ",p)");
-		}
-
-		@Override
-		public int getArity() {
-			return arity;
-		}
-
-		@Override
-		public boolean isActive() {
-			return active;
-		}
-		
-	}
+//	
+//	private static class BGControl extends AbstNamed implements Control{
+//		private final boolean active;
+//		private final int arity;
+//				
+//		BGControl(String name,boolean active, int arity){
+//			super(name);
+//			this.arity = arity;
+//			this.active = active;
+//		}
+//
+//		@Override
+//		public int hashCode() {
+//			final int prime = 31;
+//			int result = super.hashCode();
+//			result = prime * result + arity;
+//			return result;
+//		}
+//
+//		@Override
+//		public boolean equals(Object obj) {
+//			if (this == obj)
+//				return true;
+//			if (!super.equals(obj))
+//				return false;
+//			if (getClass() != obj.getClass())
+//				return false;
+//			BGControl other = (BGControl) obj;
+//			if (arity != other.arity || super.getName() != other.getName())
+//				return false;
+//			return true;
+//		}
+//	
+//		@Override
+//		public String toString() {
+//			return getName() + ":(" + arity + ((active) ? ",a)" : ",p)");
+//		}
+//
+//		@Override
+//		public int getArity() {
+//			return arity;
+//		}
+//
+//		@Override
+//		public boolean isActive() {
+//			return active;
+//		}
+//		
+//	}
 
 }

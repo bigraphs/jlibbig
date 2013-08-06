@@ -3,6 +3,8 @@ package jlibbig.core;
 import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
+import jlibbig.core.exceptions.IncompatibleInterfacesException;
+import jlibbig.core.exceptions.IncompatibleSignatureException;
 
 /**
  * The class is used to store immutable bigraphs.
@@ -495,7 +497,7 @@ final public class Bigraph implements AbstBigraph {
 	static Bigraph juxtapose(Bigraph left, Bigraph right, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (left.signature != right.signature) {
+		if (!left.signature.equals(right.signature)) {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
@@ -542,7 +544,7 @@ final public class Bigraph implements AbstBigraph {
 	static Bigraph compose(Bigraph out, Bigraph in, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
-		if (out.signature != in.signature) {
+		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
