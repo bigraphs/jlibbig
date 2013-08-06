@@ -90,7 +90,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				throw new UnsupportedOperationException(
 						"Agent should be a bigraph with empty inner interface i.e. ground.");
 			}
-			if (agent.signature != redex.signature) {
+			if (!agent.signature.equals(redex.signature)) {
 				throw new UnsupportedOperationException(
 						"Agent and redex should have the same singature.");
 			}

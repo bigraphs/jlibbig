@@ -5,6 +5,9 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.exceptions.IncompatibleSignatureException;
+import jlibbig.core.exceptions.InvalidInstantiationRuleException;
+
 public class BigraphAgentRewriting implements ReactionRule<Bigraph> {
 
 	final private boolean[] neededParams;
@@ -35,10 +38,10 @@ public class BigraphAgentRewriting implements ReactionRule<Bigraph> {
 					"Redex and reactum should have the same singature.");
 		}
 		if (redex.getSites().size() != eta.getPlaceCodomain()) {
-			throw new InvalidInstantiationRule("The instantiation rule does not match the redex inner interface.");
+			throw new InvalidInstantiationRuleException("The instantiation rule does not match the redex inner interface.");
 		}
 		if (reactum.getSites().size() != eta.getPlaceDomain()) {
-			throw new InvalidInstantiationRule("The instantiation rule does not match the reactum inner interface.");
+			throw new InvalidInstantiationRuleException("The instantiation rule does not match the reactum inner interface.");
 		}
 		this.redex = redex;
 		this.reactum = reactum;
@@ -100,16 +103,16 @@ public class BigraphAgentRewriting implements ReactionRule<Bigraph> {
 	}
 	
 	@Override
-	public Iterable<Bigraph> apply(Bigraph to) {
-		if (!to.isGround()) {
+	public Iterable<Bigraph> apply(Bigraph agent) {
+		if (!agent.isGround()) {
 			throw new UnsupportedOperationException(
 					"Agent should be a bigraph with empty inner interface i.e. ground.");
 		}
-		if (to.signature != redex.signature) {
-				throw new IncompatibleSignatureException(to.signature, redex.signature,
+		if (!agent.signature.equals(redex.signature)) {
+				throw new IncompatibleSignatureException(agent.signature, redex.signature,
 					"Agent and redex should have the same singature.");
 		}
-		return new RewriteIterable(to);
+		return new RewriteIterable(agent);
 	}
 	
 	private class RewriteIterable implements Iterable<Bigraph> {
