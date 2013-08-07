@@ -19,34 +19,31 @@ class BigMCParser extends Parser {
 		static public final short INNERPLACE = 2;
 		static public final short PAROPEN = 3;
 		static public final short NIL = 4;
-		static public final short SEMICOLON = 5;
-		static public final short PIPE = 6;
-		static public final short OUTERNAME = 7;
-		static public final short SQCLOSE = 8;
+		static public final short SQCLOSE = 5;
+		static public final short SEMICOLON = 6;
+		static public final short PIPE = 7;
+		static public final short CTRL = 8;
 		static public final short DPIPE = 9;
-		static public final short UNLINKED = 10;
-		static public final short CTRL = 11;
-		static public final short NUM = 12;
+		static public final short NUM = 10;
+		static public final short POINT = 11;
+		static public final short UNLINKED = 12;
 		static public final short COLON = 13;
 		static public final short SQOPEN = 14;
-		static public final short REACT = 15;
-		static public final short POINT = 16;
+		static public final short OUTERNAME = 15;
+		static public final short REACT = 16;
 		static public final short PARCLOSE = 17;
 		static public final short COMMA = 18;
 	}
 
 	static final ParsingTables PARSING_TABLES = new ParsingTables(
-		"U9o5bCbFL44GXtzl7iWi30ECi#3CWE8Ehg0YDmyUl6Z2mNZouC631pKnCQuOuX9tO#BDVqz" +
-		"nmLrnLzglsnwcVJZw9bzNrQ#hA$Lwkf#aXwfeI1qgQxcMQPDM4AKqO1wPByfgM6krHdMqBW" +
-		"qo5hKvq5SvVPtJmofna3DYSumnFnCvdMREp5c5qIebyqCvgx5sm##rBK$zgggcWj9gKEsv#" +
-		"gYMqSR5#V$PWg#GLu#je6xy8ZGqgffvQhwfOPwP9rfllfhFzB6WNgtM5gtKkBPgcxPhJ3iq" +
-		"ePtQfTreHTinVLUeEk2YEj6Wf8ZTYtbBgtMvCQjS6$tFAiaS#oHpEjavgsIy8jwdGA#jjIq" +
-		"lSjabR8PgQVxPB4eXcF#tBVaATgMjqC3FGiQhmalpwtETza0$#nhHJOvzxYQhvYhatMxRFP" +
-		"YSSQd4ShsFmGYCmruu28TypWHCmGaVNuHpS0gchURrVN0PhiC1s0ytu2GSzZb7u0nSWgDUc" +
-		"mbg78FJthy0n#6yZs$17RW2r#0kNFLp3#0ct8RxSAzPa$F#2jFhyuQRUf9cZmbjJo8U3MDg" +
-		"pmV#Wi#9WlpiNshc4t6zNKz#$cmRVThRIIrvp7Spw#oBHMNMF5wIzGxUcjUCx#6DsocPbtm" +
-		"7hFqGP7uqdm9$tdRD7Kj1n5tWAuKjSLQh#5NyCXbbuZhdiuPVmrRSVOe3KX1vOkvI1qISRa" +
-		"74MRV4xlHRXdu1dNYYam==");
+		"U9o5acbF544GXj$POPTZ5pbwmMLSbLCGv8YHc430uujNK18#yM$ujLnogA1obqztUjO98Q4" +
+		"dJzVHLTN7bAHDJIZJa4PKKe#UsRQPkkKqg06xoJMLrQasLLjsfgOgBUi#sK7sOrNjhphjW2" +
+		"gfxMEFg5rFz5GDTUc1QiJqOZzIl$hqK7NxRdiQrfZ6DShUavhIZ9vhslweJir1OXgSEoD3I" +
+		"ZXzIjH$hK9rHytSzXczBUi#wRCJiZkG$kvrveGT7UUiSZx7YLrOgt5UXyznYpAV8wx2Ipfo" +
+		"a$16NMZIYos5CHkbzzMYFW0pKMz6EGmhy0fUmbjOXV6u$ixBg4$1VDG$m28imST2JBx$U$W" +
+		"AdwFT3LzW0px16do3TRzknlyI7SAx5cfD5$IvA1Todyyfh2$cUi7t#WvV#PQzV3ic#j$SvS" +
+		"$loEvNTkLLkmpp1Vo47$OxsAVm2uxjADY7YiDsROVvnCw3TQt2i3Ec8Vgi1BuBsa3qH1hwe" +
+		"ewlmP$Ey6L8tm6E6CUw2tOQASMrb6g#Oa9FUb8w80aq$m4XFcUq");
 
 	static final Action RETURN2 = new Action() {
 		public Symbol reduce(Symbol[] _symbols, int offset) {
@@ -54,266 +51,58 @@ class BigMCParser extends Parser {
 		}
 	};
 		
-		private Set<String> _outerNames;	//set of %outer
 		private BigraphSystem _brs;
-		
 
 		/** 
 		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
-		 * @param str string, in BigMC syntax.
-		 * @return A system that contains signature, set of bigraphs and all reaction rules.
+		 * @param str 
+		 *		String that will be parsed, in BigMC syntax.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
 		 * @see BigraphSystem
 		 */
 		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
 			return parse(new StringReader( str ));
 		}
 		
-		BigraphSystem parse(Reader in) throws IOException, Parser.Exception{
-			_outerNames = new HashSet<>();		
+		/** 
+		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
+		 * @param in 
+		 *		Reader that will be parsed, in BigMC syntax.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
+		 * @see BigraphSystem
+		 */
+		BigraphSystem parse(Reader in) throws IOException, Parser.Exception{	
 			_brs = null;
 			parse(new BigMCLexer(in));
 			return _brs;
 		}
 
+		/** 
+		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
+		 * @param str 
+		 *		String that will be parsed, in BigMC syntax.
+		 * @param sig
+		 *		Signature that will be used by the BigraphSystem. Controls defined in the parsed string must agree with the signature's controls.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
+		 * @see BigraphSystem
+		 */
 		BigraphSystem parse(String str , Signature sig) throws IOException, Parser.Exception {
 			return parse(new StringReader(str) , sig);
 		}
-
+	
+		/** 
+		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
+		 * @param in 
+		 *		Reader that will be parsed, in BigMC syntax.
+		 * @param sig
+		 *		Signature that will be used by the BigraphSystem. Controls defined in the parsed string must agree with the signature's controls.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
+		 * @see BigraphSystem
+		 */
 		BigraphSystem parse(Reader in , Signature sig) throws IOException, Parser.Exception {
-			_outerNames = new HashSet<>();
 			_brs = new BigraphSystem( sig );
 			parse(new BigMCLexer(in));
 			return _brs;
-		}
-
-		/**
-		 * Add a non-free outername (in bigmc, names indicated with %outer or %name)
-		 * @param v the name (string) that will be added
-		 */
-		private void addName( String v ){
-			_outerNames.add( v );
-			if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-			_brs.addName( v );
-		}
-
-		/**
-		 * Retrieve the current BigraphSystem's signature
-		 * @return The current signature
-		 */
-		private Signature getSystemSignature(){
-			if( _brs == null )
-				_brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-			return _brs.getSignature();
-		}
-
-		/**
-		 * Data Structure used to store the parsed bigraph
-		 *
-		 */
-		private class ParsedBigraph{
-			
-			private BigraphBuilder bigraph;
-			private Map<String , OuterName> outerNames;
-			private Map<Site , Integer> siteNames;
-
-			ParsedBigraph( Signature sig ){
-				bigraph = new BigraphBuilder( sig );
-				outerNames = new HashMap<>();
-				siteNames = new HashMap<>();
-			}
-			
-			/**
-			 * Add a Ion to the current bigraph
-			 * @param c the name of the control
-			 * @param list the list of outer names
-			 */
-			public void makeIon( String c , List<String> list ){
-				if( bigraph.getSignature().getByName( c ) == null )
-					throw new IllegalArgumentException( "Control \"" + c +"\" should be in the signature" );
-				
-				Node node = bigraph.addNode( c , bigraph.addRoot() );
-				bigraph.addSite( node );
-
-				if( list == null ) return;
-
-				List<? extends Port> ports = node.getPorts();
-
-				if( ports.size() < list.size() )
-					throw new IllegalArgumentException( "Too many ports indicated ( " + list.size() + " ): control \"" + c +"\" has " + ports.size() + " port(s)" );
-
-				Iterator<? extends Port> portIt = ports.iterator();
-				for( String name : list ){
-					if( name != null ){
-						OuterName outer = outerNames.get( name );
-						if( outer == null )
-							outerNames.put( name , outer = bigraph.addOuterName() );
-						bigraph.relink( (Point) portIt.next() , outer );
-					}else
-						portIt.next();
-				}
-			}
-
-			/**
-			 * Compose the bigraph in input with the current bigraph.
-			 * @param pb the ParsedBigraph that will be composed with the current one.
-			 */
-			public void compose( ParsedBigraph pb ){
-			
-				if( pb.bigraph.getRoots().size() != 1 )
-					throw new RuntimeException( "The juxtaposition (||) can only appear at the top level" );
-				
-				BigraphBuilder outer_juxt = new BigraphBuilder( bigraph.getSignature() );
-				BigraphBuilder outer_comp = new BigraphBuilder( bigraph.getSignature() );
-								
-				for( Map.Entry<String , OuterName> o : pb.outerNames.entrySet() ){
-					outer_juxt.addInnerName( o.getValue().getName() , outer_juxt.addOuterName( o.getValue().getName() ) );
-					if( this.outerNames.containsKey( o.getKey() ) ){
-						OuterName outer = outer_comp.addOuterName();
-						outer_comp.addInnerName( o.getValue().getName() , outer );
-						outer_comp.addInnerName( this.outerNames.put( o.getKey() , outer ).getName() , outer );
-					}else
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
-				}
-
-				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
-					if( !pb.outerNames.containsKey( o.getKey() ) )
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
-				}
-
-				outer_comp.addSite( outer_comp.addRoot() );
-				
-				this.bigraph.leftJuxtapose( outer_juxt.makeBigraph() , true );
-				this.bigraph.innerCompose( pb.bigraph.makeBigraph() , true );
-				this.bigraph.outerCompose( outer_comp.makeBigraph() , true );
-
-				//recalculate siteNames map (makeBigraph make a copy of the bigraph, so pointer will change)
-				Site[] arr = new Site[ pb.bigraph.getSites().size() ];
-				
-				for( Site s : pb.bigraph.getSites() ){
-					arr[ pb.bigraph.getSites().indexOf( s ) ] = s;
-				}
-				
-				Map<Site , Integer> map = new HashMap<>();
-				
-				for( Site s : bigraph.getSites() )
-						map.put( s , pb.siteNames.get( arr[ bigraph.getSites().indexOf( s ) ] ) );
-				
-				this.siteNames.putAll( map );
-				
-			}
-
-			/**
-			 * Juxtapose the bigraph in input with the current bigraph.
-			 * @param pb the ParsedBigraph that will be juxtaposed with the current one.
-			 */
-			public void juxtapose( ParsedBigraph pb ){
-				
-				BigraphBuilder outer_comp = new BigraphBuilder( bigraph.getSignature() );
-				
-				for( Map.Entry<String , OuterName> o : pb.outerNames.entrySet() ){
-					if( this.outerNames.containsKey( o.getKey() ) ){
-						OuterName outer = outer_comp.addOuterName();
-						outer_comp.addInnerName( o.getValue().getName() , outer );
-						outer_comp.addInnerName( this.outerNames.put( o.getKey() , outer).getName() , outer );
-					}else{
-						OuterName out = outer_comp.addOuterName( o.getValue().getName() );
-						outer_comp.addInnerName( o.getValue().getName() , out );
-						this.outerNames.put( o.getKey() , out );
-					}
-				}
-				
-				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
-					if( !pb.outerNames.containsKey( o.getKey() ) )
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
-				}
-				
-				int siteSize = this.bigraph.getSites().size();
-				this.bigraph.leftJuxtapose( pb.bigraph.makeBigraph() );
-								
- 				for( int i = 0 ; i < this.bigraph.getRoots().size() ; ++i )
-					outer_comp.addSite( outer_comp.addRoot() );
- 				
-				this.bigraph.outerCompose( outer_comp.makeBigraph() );
-
-				//recalculate siteNames map (makeBigraph make a copy of the bigraph, so pointer will change)
-				Site[] arr = new Site[ pb.bigraph.getSites().size() ];
-				
-				for( Site s : pb.bigraph.getSites() ){
-					arr[ pb.bigraph.getSites().indexOf( s ) ] = s;
-				}
-				
-				Map<Site , Integer> map = new HashMap<>();
-				
-				for( Site s : bigraph.getSites() ){
-					int index = bigraph.getSites().indexOf( s );
-					if( index >= siteSize )
-						map.put( s , pb.siteNames.get( arr[ index - siteSize ] ) );
-				}
-				
-				this.siteNames.putAll( map );
-				
-			}
-
-			/**
-			 * produce a bigraph from the current parsedbigraph
-			 * @return the resulting bigraph
-			 * @see Bigraph
-			 */
-			public Bigraph switchToBigraph(){
-				
-				BigraphBuilder outer_comp = new BigraphBuilder( this.bigraph.getSignature() );
-				
-				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getKey() ) );
-				}
-				
-				for( int i = 0; i < this.bigraph.getRoots().size() ; ++i )
-					outer_comp.addSite( outer_comp.addRoot() );
-
-				this.bigraph.outerCompose( outer_comp.makeBigraph() );
-
-				Bigraph b = this.bigraph.makeBigraph();
-				
-				Site[] arr = new Site[ b.getSites().size() ];
-				int i = 0;
-				for( Site s : b.getSites() ){
-					arr[ b.getSites().indexOf( s ) ] = s;
-				}
-				Map<Site , Integer> map = new HashMap<>();
-				
-				for( Site s : bigraph.getSites() ){
-					map.put( arr[ bigraph.getSites().indexOf(s) ] , this.siteNames.get(s) );
-				}
-				this.siteNames = map;
-				
-				return b;
-			}
-
-			/**
-			 * Close all sites of the current bigraph
-			 */
-			public void groundPlaceGraph(){
-				BigraphBuilder ground = new BigraphBuilder( this.bigraph.getSignature() );
-				for( int i = 0; i < this.bigraph.getSites().size() ; ++i )
-					ground.addRoot();
-				this.bigraph.innerCompose( ground.makeBigraph() );
-			}
-
-			/**
-			 * Add a site ($num) to the current bigraph. Its parent will be a new root.
-			 */
-			public void addSite( int n ){
-				Site s = this.bigraph.addSite( this.bigraph.addRoot() );
-				siteNames.put( s , n );
-			}
-
-			/**
-			 * Get the set of non-free outernames (indicated in the string with %outer or %name)
-			 */
-			public Set<String> getNames(){
-				return outerNames.keySet();
-			}
-				
 		}
 
 	private final Action[] actions;
@@ -321,48 +110,59 @@ class BigMCParser extends Parser {
 	public BigMCParser() {
 		super(PARSING_TABLES);
 		actions = new Action[] {
-			RETURN2,	// [0] start = definitionlist names; returns 'names' although none is marked
-			Action.RETURN,	// [1] start = names
-			RETURN2,	// [2] names = name names; returns 'names' although none is marked
-			Action.RETURN,	// [3] names = reactions
-			new Action() {	// [4] name = OUTERNAME VARID.v SEMICOLON
+			RETURN2,	// [0] start = definitionlist models; returns 'models' although none is marked
+			Action.RETURN,	// [1] start = models
+			new Action() {	// [2] names = names OUTERNAME VARID.v SEMICOLON
 				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_v = _symbols[offset + 2];
+					final Symbol _symbol_v = _symbols[offset + 3];
 					final String v = (String) _symbol_v.value;
-					 addName( v ); return new Symbol( null );
+					 _brs.addName( v ); return new Symbol( null );
 				}
 			},
-			RETURN2,	// [5] reactions = reaction reactions; returns 'reactions' although none is marked
-			Action.RETURN,	// [6] reactions = models
-			new Action() {	// [7] models = 
+			new Action() {	// [3] names = 
 				public Symbol reduce(Symbol[] _symbols, int offset) {
-					 
-					if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-					return new Symbol( null );
+					 if( _brs == null ) _brs = new BigraphSystem( new SignatureBuilder().makeSignature() ); return new Symbol( null );
 				}
 			},
-			new Action() {	// [8] models = t.b SEMICOLON models
+			new Action() {	// [4] models = models big.b SEMICOLON
 				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b = _symbols[offset + 1];
-					final ParsedBigraph b = (ParsedBigraph) _symbol_b.value;
+					final Symbol _symbol_b = _symbols[offset + 2];
+					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
 					
-					if( b.bigraph.getSites().size() != 0)
-						throw new RuntimeException("Sites ($num) can only appear in reaction rules");
-					if( !_outerNames.containsAll( b.getNames() ) )
-						throw new RuntimeException("Free names can only appear in reaction rules");
-					_brs.addBigraph( b.switchToBigraph() ); return new Symbol( null );
+			for( OuterName out : b.getOuterNames() ){
+				if( !_brs.getOuterNames().contains( out.getName() ) )
+					throw new RuntimeException( "Agents' outernames can't be free names. Eachone of them must be declared (using %outer or %name). Undeclared name: " + out.getName() );
+			} 
+			try{
+				_brs.addBigraph( new AgentBigraph( b.makeBigraph() ) );
+			}catch( IllegalArgumentException e ){ 
+				throw new RuntimeException( "Sites can only appear in reaction rules." );
+			}
+			return new Symbol( null );
 				}
 			},
-			new Action() {	// [9] definitionlist = CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb
+			new Action() {	// [5] models = models big.b1 REACT big.b2 SEMICOLON
 				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b = _symbols[offset + 1];
-					final Boolean b = (Boolean) _symbol_b.value;
-					final Symbol _symbol_v = _symbols[offset + 2];
-					final String v = (String) _symbol_v.value;
-					final Symbol _symbol_n = _symbols[offset + 4];
-					final Integer n = (Integer) _symbol_n.value;
-					final Symbol _symbol_sb = _symbols[offset + 6];
+					final Symbol _symbol_b1 = _symbols[offset + 2];
+					final ReactionBigraphBuilder b1 = (ReactionBigraphBuilder) _symbol_b1.value;
+					final Symbol _symbol_b2 = _symbols[offset + 4];
+					final ReactionBigraphBuilder b2 = (ReactionBigraphBuilder) _symbol_b2.value;
+					
+			_brs.addReaction( b1.makeReactionBigraph() , b2.makeReactionBigraph() );
+			return new Symbol( null );
+				}
+			},
+			Action.RETURN,	// [6] models = names
+			new Action() {	// [7] definitionlist = definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_sb = _symbols[offset + 1];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
+					final Symbol _symbol_b = _symbols[offset + 2];
+					final Boolean b = (Boolean) _symbol_b.value;
+					final Symbol _symbol_v = _symbols[offset + 3];
+					final String v = (String) _symbol_v.value;
+					final Symbol _symbol_n = _symbols[offset + 5];
+					final Integer n = (Integer) _symbol_n.value;
 					
 				if( _brs == null ){
 					sb.put( v , b , n ); 
@@ -375,127 +175,147 @@ class BigMCParser extends Parser {
 				return new Symbol( null );
 				}
 			},
-			new Action() {	// [10] definitions = 
+			new Action() {	// [8] definitions = 
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					 return new Symbol( new SignatureBuilder() );
 				}
 			},
-			new Action() {	// [11] definitions = CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb
+			new Action() {	// [9] definitions = definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON
 				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b = _symbols[offset + 1];
-					final Boolean b = (Boolean) _symbol_b.value;
-					final Symbol _symbol_v = _symbols[offset + 2];
-					final String v = (String) _symbol_v.value;
-					final Symbol _symbol_n = _symbols[offset + 4];
-					final Integer n = (Integer) _symbol_n.value;
-					final Symbol _symbol_sb = _symbols[offset + 6];
+					final Symbol _symbol_sb = _symbols[offset + 1];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
-					 	if( _brs == null ){
-					if( sb.contains( v ) )
-						throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() )  
-										+ " - Control already defined: " + v );
-					sb.put( v , b , n ); 
-					return new Symbol( sb );
-				}
-				Control c = null;
-				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
-					throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
-				return new Symbol( null );
-				}
-			},
-			new Action() {	// [12] reaction = t.b1 REACT t.b2 SEMICOLON
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b1 = _symbols[offset + 1];
-					final ParsedBigraph b1 = (ParsedBigraph) _symbol_b1.value;
-					final Symbol _symbol_b2 = _symbols[offset + 3];
-					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
-					 	if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-						_brs.addReaction( new ReactionBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new ReactionBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
-						return new Symbol( null );
-				}
-			},
-			new Action() {	// [13] t = k.b1 POINT t.b2
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b1 = _symbols[offset + 1];
-					final ParsedBigraph b1 = (ParsedBigraph) _symbol_b1.value;
-					final Symbol _symbol_b2 = _symbols[offset + 3];
-					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
-					 b1.compose( b2 ); return new Symbol( b1 );
-				}
-			},
-			new Action() {	// [14] t = t.b1 PIPE t.b2
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b1 = _symbols[offset + 1];
-					final ParsedBigraph b1 = (ParsedBigraph) _symbol_b1.value;
-					final Symbol _symbol_b2 = _symbols[offset + 3];
-					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
-					 b1.juxtapose( b2 ); b1.bigraph.merge(); return new Symbol( b1 );
-				}
-			},
-			new Action() {	// [15] t = t.b1 DPIPE t.b2
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b1 = _symbols[offset + 1];
-					final ParsedBigraph b1 = (ParsedBigraph) _symbol_b1.value;
-					final Symbol _symbol_b2 = _symbols[offset + 3];
-					final ParsedBigraph b2 = (ParsedBigraph) _symbol_b2.value;
-					 b1.juxtapose( b2 ); return new Symbol( b1 );
-				}
-			},
-			new Action() {	// [16] t = INNERPLACE NUM.n
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_n = _symbols[offset + 2];
-					final Integer n = (Integer) _symbol_n.value;
-					 ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.addSite( n ); return new Symbol( b );
-				}
-			},
-			new Action() {	// [17] t = k.b
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b = _symbols[offset + 1];
-					final ParsedBigraph b = (ParsedBigraph) _symbol_b.value;
-					 b.groundPlaceGraph(); return new Symbol( b );
-				}
-			},
-			new Action() {	// [18] t = NIL
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					 ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.bigraph.addRoot(); return new Symbol( b );
-				}
-			},
-			new Action() {	// [19] t = PAROPEN t.b PARCLOSE
-				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_b = _symbols[offset + 2];
-					final ParsedBigraph b = (ParsedBigraph) _symbol_b.value;
-					 return new Symbol( b );
+					final Boolean b = (Boolean) _symbol_b.value;
+					final Symbol _symbol_v = _symbols[offset + 3];
+					final String v = (String) _symbol_v.value;
+					final Symbol _symbol_n = _symbols[offset + 5];
+					final Integer n = (Integer) _symbol_n.value;
+					 	
+			if( _brs == null ){
+				if( sb.contains( v ) )
+					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Control already defined: " + v );
+				sb.put( v , b , n ); 
+				return new Symbol( sb );
+			}
+			Control c = null;
+			if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+				throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+			return new Symbol( null );
 				}
 			},
-			new Action() {	// [20] k = VARID.v SQOPEN nms.l SQCLOSE
+			new Action() {	// [10] big = VARID.v
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_v = _symbols[offset + 1];
+					final String v = (String) _symbol_v.value;
+					 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() ); 
+			rbb.addNode( v , rbb.addRoot() );
+			return new Symbol( rbb );
+				}
+			},
+			new Action() {	// [11] big = VARID.v SQOPEN nms.l SQCLOSE
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_v = _symbols[offset + 1];
 					final String v = (String) _symbol_v.value;
 					final Symbol _symbol_l = _symbols[offset + 3];
 					final LinkedList<String> l = (LinkedList<String>) _symbol_l.value;
-					 ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.makeIon( v , l ); return new Symbol( b );
+					 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() );
+			rbb.addNode( v , rbb.addRoot() , rbb.addOuterNames( l ) );
+			return new Symbol( rbb );
 				}
 			},
-			new Action() {	// [21] k = VARID.v
+			new Action() {	// [12] big = VARID.v POINT big.b
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_v = _symbols[offset + 1];
 					final String v = (String) _symbol_v.value;
-					 ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.makeIon( v , null ); return new Symbol( b );
+					final Symbol _symbol_b = _symbols[offset + 3];
+					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
+					
+			if( b.getRoots().size() != 1 )
+				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+			b.outerAddNode( v );
+			return new Symbol( b );
 				}
 			},
-			new Action() {	// [22] nms = 
+			new Action() {	// [13] big = VARID.v SQOPEN nms.l SQCLOSE POINT big.b
 				public Symbol reduce(Symbol[] _symbols, int offset) {
-					 return new Symbol( null );
+					final Symbol _symbol_v = _symbols[offset + 1];
+					final String v = (String) _symbol_v.value;
+					final Symbol _symbol_l = _symbols[offset + 3];
+					final LinkedList<String> l = (LinkedList<String>) _symbol_l.value;
+					final Symbol _symbol_b = _symbols[offset + 6];
+					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
+					
+			if( b.getRoots().size() != 1 )
+				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+			b.outerAddNode( v , b.addOuterNames( l ) );
+			return new Symbol( b );
 				}
 			},
-			new Action() {	// [23] nms = nameli.l
+			new Action() {	// [14] big = big.b1 PIPE big.b2
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_b1 = _symbols[offset + 1];
+					final ReactionBigraphBuilder b1 = (ReactionBigraphBuilder) _symbol_b1.value;
+					final Symbol _symbol_b2 = _symbols[offset + 3];
+					final ReactionBigraphBuilder b2 = (ReactionBigraphBuilder) _symbol_b2.value;
+					
+			if( b1.getRoots().size() != 1 || b2.getRoots().size() != 1 )
+				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+			b1.rightParallelProduct( b2.makeReactionBigraph() );
+			b1.merge();
+			return new Symbol( b1 );
+				}
+			},
+			new Action() {	// [15] big = big.b1 DPIPE big.b2
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_b1 = _symbols[offset + 1];
+					final ReactionBigraphBuilder b1 = (ReactionBigraphBuilder) _symbol_b1.value;
+					final Symbol _symbol_b2 = _symbols[offset + 3];
+					final ReactionBigraphBuilder b2 = (ReactionBigraphBuilder) _symbol_b2.value;
+					 
+			b1.rightParallelProduct( b2.makeReactionBigraph() );
+			return new Symbol( b1 );
+				}
+			},
+			new Action() {	// [16] big = INNERPLACE NUM.n
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_n = _symbols[offset + 2];
+					final Integer n = (Integer) _symbol_n.value;
+					 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() ); 
+			rbb.addSite( rbb.addRoot() , n );
+			return new Symbol( rbb );
+				}
+			},
+			new Action() {	// [17] big = NIL
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() ); 
+			rbb.addRoot();
+			return new Symbol( rbb );
+				}
+			},
+			new Action() {	// [18] big = PAROPEN big.b PARCLOSE
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_b = _symbols[offset + 2];
+					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
+					 return new Symbol( b );
+				}
+			},
+			new Action() {	// [19] nms = 
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					 return new Symbol( new LinkedList<>() );
+				}
+			},
+			new Action() {	// [20] nms = nameli.l
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_l = _symbols[offset + 1];
 					final LinkedList<String> l = (LinkedList<String>) _symbol_l.value;
 					 return new Symbol( l );
 				}
 			},
-			new Action() {	// [24] nameli = name.v
+			new Action() {	// [21] nameli = name.v
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_v = _symbols[offset + 1];
 					final String v = (String) _symbol_v.value;
@@ -504,7 +324,7 @@ class BigMCParser extends Parser {
 					list.add( v ); return new Symbol( list );
 				}
 			},
-			new Action() {	// [25] nameli = name.v COMMA nameli.l
+			new Action() {	// [22] nameli = name.v COMMA nameli.l
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_v = _symbols[offset + 1];
 					final String v = (String) _symbol_v.value;
@@ -513,14 +333,14 @@ class BigMCParser extends Parser {
 					 l.addFirst( v ); return new Symbol( l );
 				}
 			},
-			new Action() {	// [26] name = VARID.v
+			new Action() {	// [23] name = VARID.v
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_v = _symbols[offset + 1];
 					final String v = (String) _symbol_v.value;
 					 return new Symbol( v );
 				}
 			},
-			new Action() {	// [27] name = UNLINKED
+			new Action() {	// [24] name = UNLINKED
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					 return new Symbol( null );
 				}
@@ -528,7 +348,6 @@ class BigMCParser extends Parser {
 		};
 
  	
-		_outerNames = new HashSet<>();
 		_brs = null;
 	}
 

@@ -8,21 +8,21 @@ import jlibbig.core.lang.*;
 
 /**
  * BigMC's syntax pretty printer.
- * Print all the bigraph that can be represented with BigMC's Language
+ * Convert into Strings all the bigraphs or systems that can be represented with the BigMC's Language
  * @see <a href="http://bigraph.org/bigmc/">bigraph.org/bigmc</a>
  *
  */
 public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	public BigMCPrinter(){}
+	public static final String ln = System.getProperty( "line.separator" );
 	
 	/**
-	 * Translate a BigraphSystem to a string with BigMC's syntax
-	 * @param brs the system that will be printed.
+	 * Convert a BigraphSystem into a string in BigMC's syntax
+	 * @param brs the system that will be converted into a string.
 	 * @see BigraphSystem
 	 * @return the resulting string
 	 */
 	public String toString( BigraphSystem brs ){
-		String ln = System.getProperty("line.separator");
 		StringBuilder s = new StringBuilder();
 		
 		s.append( toString( brs.getSignature() ) );
@@ -34,13 +34,12 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		
 		s.append( ln );
 		
-		for( Reaction<ReactionBigraph> reaction : brs.getReactions() )
-			s.append( toString( reaction.getRedex() ) + " -> " + toString( reaction.getReactum() ) + " ;" + ln );
+		s.append( toString( brs.getReactions() ) );
 		
 		s.append( ln );
 		
-		for( Bigraph big : brs.getBigraphs() )
-			s.append( toString( big ) + " ;" + ln );
+		for( AgentBigraph big : brs.getBigraphs() )
+			s.append( toString( big.asBigraph() ) + " ;" + ln );
 		
 		s.append( ln );
 		
@@ -48,13 +47,14 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 
 	/**
-	 * Translate a Signature to a string with BigMC's syntax
-	 * @param sig the signature that will be printed.
+	 * Convert a Signature into a string in BigMC's syntax
+	 * @param sig 
+	 * 			The Signature that will be converted into a string.
 	 * @see Signature
-	 * @return the resulting string
+	 * @return 
+	 * 			The String representing the element in input.
 	 */
 	public static String toString( Signature sig ){
-		String ln = System.getProperty("line.separator");
 		StringBuilder s = new StringBuilder();
 
 		for( Control ctrl : sig ){
@@ -66,8 +66,32 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
-	 * Translate a RedexBigraph to a string with BigMC's syntax
-	 * @param big the redex bigraph that will be printed.
+	 * Convert a Collection of reaction rules into a string in BigMC's syntax.
+	 * @param reaction_rules
+	 * 			Collection of Reaction<ReactionBigraph> that will be converted into a string.
+	 * @return
+	 * 			The String representing the element in input.
+	 */
+	public static String toString( Collection<Reaction<ReactionBigraph>> reaction_rules ){
+		StringBuilder s = new StringBuilder();
+		for( Reaction<ReactionBigraph> reaction : reaction_rules ){
+			s.append( toString( reaction ) + ";" + ln );
+		}
+		return s.toString();
+	}
+	
+	/**
+	 * Convert a reaction rule into the corresponding String in BigMC's syntax.
+	 * @param reaction
+	 * @return the resulting string
+	 */
+	public static String toString( Reaction<ReactionBigraph> reaction ){
+		return toString( reaction.getRedex() ) + " -> " + toString( reaction.getReactum() );
+	}
+	
+	/**
+	 * Translate a {@link ReactionBigraph} to a string with BigMC's syntax
+	 * @param big the redex bigraph that will be converted into a string.
 	 * @see ReactionBigraph
 	 * @return the resulting string
 	 */
@@ -88,8 +112,19 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
+	 * Translate a AgentBigraph to a string with BigMC's syntax
+	 * @param big
+	 * 			AgentBigraph
+	 * @return
+	 * 			the resulting string
+	 */
+	public static String toString( AgentBigraph big ){
+		return toString( big.asBigraph() );
+	}
+	
+	/**
 	 * Translate a Bigraph to a string with BigMC's syntax
-	 * @param big the bigraph that will be printed.
+	 * @param big the bigraph that will be converted into a string.
 	 * @see Bigraph
 	 * @return the resulting string
 	 */

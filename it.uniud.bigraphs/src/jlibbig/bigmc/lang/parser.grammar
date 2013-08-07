@@ -8,272 +8,63 @@
 %class "BigMCParser";
 
 %embed	{:		
-		private Set<String> _outerNames;	//set of %outer
 		private BigraphSystem _brs;
-		
 
 		/** 
 		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
-		 * @param str string, in BigMC syntax.
-		 * @return A system that contains signature, set of bigraphs and all reaction rules.
+		 * @param str 
+		 *		String that will be parsed, in BigMC syntax.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
 		 * @see BigraphSystem
 		 */
 		BigraphSystem parse( String str ) throws IOException, Parser.Exception{
 			return parse(new StringReader( str ));
 		}
 		
-		BigraphSystem parse(Reader in) throws IOException, Parser.Exception{
-			_outerNames = new HashSet<>();		
+		/** 
+		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
+		 * @param in 
+		 *		Reader that will be parsed, in BigMC syntax.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
+		 * @see BigraphSystem
+		 */
+		BigraphSystem parse(Reader in) throws IOException, Parser.Exception{	
 			_brs = null;
 			parse(new BigMCLexer(in));
 			return _brs;
 		}
 
+		/** 
+		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
+		 * @param str 
+		 *		String that will be parsed, in BigMC syntax.
+		 * @param sig
+		 *		Signature that will be used by the BigraphSystem. Controls defined in the parsed string must agree with the signature's controls.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
+		 * @see BigraphSystem
+		 */
 		BigraphSystem parse(String str , Signature sig) throws IOException, Parser.Exception {
 			return parse(new StringReader(str) , sig);
 		}
-
+	
+		/** 
+		 * Parse a string, creating a BRS and a set of Bigraphs from it. Everything will be stored in a BigraphSystem.
+		 * @param in 
+		 *		Reader that will be parsed, in BigMC syntax.
+		 * @param sig
+		 *		Signature that will be used by the BigraphSystem. Controls defined in the parsed string must agree with the signature's controls.
+		 * @return A system that contains signature, set of bigraphs and a set of reaction rules.
+		 * @see BigraphSystem
+		 */
 		BigraphSystem parse(Reader in , Signature sig) throws IOException, Parser.Exception {
-			_outerNames = new HashSet<>();
 			_brs = new BigraphSystem( sig );
 			parse(new BigMCLexer(in));
 			return _brs;
 		}
 
-		/**
-		 * Add a non-free outername (in bigmc, names indicated with %outer or %name)
-		 * @param v the name (string) that will be added
-		 */
-		private void addName( String v ){
-			_outerNames.add( v );
-			if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-			_brs.addName( v );
-		}
-
-		/**
-		 * Retrieve the current BigraphSystem's signature
-		 * @return The current signature
-		 */
-		private Signature getSystemSignature(){
-			if( _brs == null )
-				_brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-			return _brs.getSignature();
-		}
-
-		/**
-		 * Data Structure used to store the parsed bigraph
-		 *
-		 */
-		private class ParsedBigraph{
-			
-			private BigraphBuilder bigraph;
-			private Map<String , OuterName> outerNames;
-			private Map<Site , Integer> siteNames;
-
-			ParsedBigraph( Signature sig ){
-				bigraph = new BigraphBuilder( sig );
-				outerNames = new HashMap<>();
-				siteNames = new HashMap<>();
-			}
-			
-			/**
-			 * Add a Ion to the current bigraph
-			 * @param c the name of the control
-			 * @param list the list of outer names
-			 */
-			public void makeIon( String c , List<String> list ){
-				if( bigraph.getSignature().getByName( c ) == null )
-					throw new IllegalArgumentException( "Control \"" + c +"\" should be in the signature" );
-				
-				Node node = bigraph.addNode( c , bigraph.addRoot() );
-				bigraph.addSite( node );
-
-				if( list == null ) return;
-
-				List<? extends Port> ports = node.getPorts();
-
-				if( ports.size() < list.size() )
-					throw new IllegalArgumentException( "Too many ports indicated ( " + list.size() + " ): control \"" + c +"\" has " + ports.size() + " port(s)" );
-
-				Iterator<? extends Port> portIt = ports.iterator();
-				for( String name : list ){
-					if( name != null ){
-						OuterName outer = outerNames.get( name );
-						if( outer == null )
-							outerNames.put( name , outer = bigraph.addOuterName() );
-						bigraph.relink( (Point) portIt.next() , outer );
-					}else
-						portIt.next();
-				}
-			}
-
-			/**
-			 * Compose the bigraph in input with the current bigraph.
-			 * @param pb the ParsedBigraph that will be composed with the current one.
-			 */
-			public void compose( ParsedBigraph pb ){
-			
-				if( pb.bigraph.getRoots().size() != 1 )
-					throw new RuntimeException( "The juxtaposition (||) can only appear at the top level" );
-				
-				BigraphBuilder outer_juxt = new BigraphBuilder( bigraph.getSignature() );
-				BigraphBuilder outer_comp = new BigraphBuilder( bigraph.getSignature() );
-								
-				for( Map.Entry<String , OuterName> o : pb.outerNames.entrySet() ){
-					outer_juxt.addInnerName( o.getValue().getName() , outer_juxt.addOuterName( o.getValue().getName() ) );
-					if( this.outerNames.containsKey( o.getKey() ) ){
-						OuterName outer = outer_comp.addOuterName();
-						outer_comp.addInnerName( o.getValue().getName() , outer );
-						outer_comp.addInnerName( this.outerNames.put( o.getKey() , outer ).getName() , outer );
-					}else
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
-				}
-
-				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
-					if( !pb.outerNames.containsKey( o.getKey() ) )
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
-				}
-
-				outer_comp.addSite( outer_comp.addRoot() );
-				
-				this.bigraph.leftJuxtapose( outer_juxt.makeBigraph() , true );
-				this.bigraph.innerCompose( pb.bigraph.makeBigraph() , true );
-				this.bigraph.outerCompose( outer_comp.makeBigraph() , true );
-
-				//recalculate siteNames map (makeBigraph make a copy of the bigraph, so pointer will change)
-				Site[] arr = new Site[ pb.bigraph.getSites().size() ];
-				
-				for( Site s : pb.bigraph.getSites() ){
-					arr[ pb.bigraph.getSites().indexOf( s ) ] = s;
-				}
-				
-				Map<Site , Integer> map = new HashMap<>();
-				
-				for( Site s : bigraph.getSites() )
-						map.put( s , pb.siteNames.get( arr[ bigraph.getSites().indexOf( s ) ] ) );
-				
-				this.siteNames.putAll( map );
-				
-			}
-
-			/**
-			 * Juxtapose the bigraph in input with the current bigraph.
-			 * @param pb the ParsedBigraph that will be juxtaposed with the current one.
-			 */
-			public void juxtapose( ParsedBigraph pb ){
-				
-				BigraphBuilder outer_comp = new BigraphBuilder( bigraph.getSignature() );
-				
-				for( Map.Entry<String , OuterName> o : pb.outerNames.entrySet() ){
-					if( this.outerNames.containsKey( o.getKey() ) ){
-						OuterName outer = outer_comp.addOuterName();
-						outer_comp.addInnerName( o.getValue().getName() , outer );
-						outer_comp.addInnerName( this.outerNames.put( o.getKey() , outer).getName() , outer );
-					}else{
-						OuterName out = outer_comp.addOuterName( o.getValue().getName() );
-						outer_comp.addInnerName( o.getValue().getName() , out );
-						this.outerNames.put( o.getKey() , out );
-					}
-				}
-				
-				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
-					if( !pb.outerNames.containsKey( o.getKey() ) )
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getValue().getName() ) );
-				}
-				
-				int siteSize = this.bigraph.getSites().size();
-				this.bigraph.leftJuxtapose( pb.bigraph.makeBigraph() );
-								
- 				for( int i = 0 ; i < this.bigraph.getRoots().size() ; ++i )
-					outer_comp.addSite( outer_comp.addRoot() );
- 				
-				this.bigraph.outerCompose( outer_comp.makeBigraph() );
-
-				//recalculate siteNames map (makeBigraph make a copy of the bigraph, so pointer will change)
-				Site[] arr = new Site[ pb.bigraph.getSites().size() ];
-				
-				for( Site s : pb.bigraph.getSites() ){
-					arr[ pb.bigraph.getSites().indexOf( s ) ] = s;
-				}
-				
-				Map<Site , Integer> map = new HashMap<>();
-				
-				for( Site s : bigraph.getSites() ){
-					int index = bigraph.getSites().indexOf( s );
-					if( index >= siteSize )
-						map.put( s , pb.siteNames.get( arr[ index - siteSize ] ) );
-				}
-				
-				this.siteNames.putAll( map );
-				
-			}
-
-			/**
-			 * produce a bigraph from the current parsedbigraph
-			 * @return the resulting bigraph
-			 * @see Bigraph
-			 */
-			public Bigraph switchToBigraph(){
-				
-				BigraphBuilder outer_comp = new BigraphBuilder( this.bigraph.getSignature() );
-				
-				for( Map.Entry<String , OuterName> o : this.outerNames.entrySet() ){
-						outer_comp.addInnerName( o.getValue().getName() , outer_comp.addOuterName( o.getKey() ) );
-				}
-				
-				for( int i = 0; i < this.bigraph.getRoots().size() ; ++i )
-					outer_comp.addSite( outer_comp.addRoot() );
-
-				this.bigraph.outerCompose( outer_comp.makeBigraph() );
-
-				Bigraph b = this.bigraph.makeBigraph();
-				
-				Site[] arr = new Site[ b.getSites().size() ];
-				int i = 0;
-				for( Site s : b.getSites() ){
-					arr[ b.getSites().indexOf( s ) ] = s;
-				}
-				Map<Site , Integer> map = new HashMap<>();
-				
-				for( Site s : bigraph.getSites() ){
-					map.put( arr[ bigraph.getSites().indexOf(s) ] , this.siteNames.get(s) );
-				}
-				this.siteNames = map;
-				
-				return b;
-			}
-
-			/**
-			 * Close all sites of the current bigraph
-			 */
-			public void groundPlaceGraph(){
-				BigraphBuilder ground = new BigraphBuilder( this.bigraph.getSignature() );
-				for( int i = 0; i < this.bigraph.getSites().size() ; ++i )
-					ground.addRoot();
-				this.bigraph.innerCompose( ground.makeBigraph() );
-			}
-
-			/**
-			 * Add a site ($num) to the current bigraph. Its parent will be a new root.
-			 */
-			public void addSite( int n ){
-				Site s = this.bigraph.addSite( this.bigraph.addRoot() );
-				siteNames.put( s , n );
-			}
-
-			/**
-			 * Get the set of non-free outernames (indicated in the string with %outer or %name)
-			 */
-			public Set<String> getNames(){
-				return outerNames.keySet();
-			}
-				
-		}
-	
 	:};
 
 %init	{: 	
-		_outerNames = new HashSet<>();
 		_brs = null;
 	:};
 
@@ -282,13 +73,11 @@
 %typeof VARID , name  = "String";
 %typeof NUM = "Integer";
 %typeof CTRL = "Boolean";
+%typeof big = "ReactionBigraphBuilder";
 
 %typeof definitions = "SignatureBuilder";
 
-%typeof k , t  = "ParsedBigraph";
-
 %typeof nms , nameli = "LinkedList<String>";
-
 
 %left POINT;
 %left PIPE;
@@ -296,35 +85,37 @@
 
 %goal start;
 
-start	= definitionlist names	
-	| names			
-	;
-
-names	= name names
-	| reactions		
-	;
-
-name	= OUTERNAME VARID.v SEMICOLON	{: addName( v ); return new Symbol( null ); :}	
-	;
-
-reactions = reaction reactions
+start	= definitionlist models	
 	| models		
 	;
 
-models	= 			{: 
-					if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-					return new Symbol( null );
-				:}
-	| t.b SEMICOLON models	{:
-					if( b.bigraph.getSites().size() != 0)
-						throw new RuntimeException("Sites ($num) can only appear in reaction rules");
-					if( !_outerNames.containsAll( b.getNames() ) )
-						throw new RuntimeException("Free names can only appear in reaction rules");
-					_brs.addBigraph( b.switchToBigraph() ); return new Symbol( null );
-				:}
+names	= names OUTERNAME VARID.v SEMICOLON	{: _brs.addName( v ); return new Symbol( null ); :}
+	| {: if( _brs == null ) _brs = new BigraphSystem( new SignatureBuilder().makeSignature() ); return new Symbol( null ); :}		
 	;
 
-definitionlist = CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb 
+
+models	= models big.b SEMICOLON
+		{:
+			for( OuterName out : b.getOuterNames() ){
+				if( !_brs.getOuterNames().contains( out.getName() ) )
+					throw new RuntimeException( "Agents' outernames can't be free names. Eachone of them must be declared (using %outer or %name). Undeclared name: " + out.getName() );
+			} 
+			try{
+				_brs.addBigraph( new AgentBigraph( b.makeBigraph() ) );
+			}catch( IllegalArgumentException e ){ 
+				throw new RuntimeException( "Sites can only appear in reaction rules." );
+			}
+			return new Symbol( null );
+		:}
+	| models big.b1 REACT big.b2 SEMICOLON
+		{:
+			_brs.addReaction( b1.makeReactionBigraph() , b2.makeReactionBigraph() );
+			return new Symbol( null );
+		:}
+	| names
+	;
+
+definitionlist = definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON 
 			{:
 				if( _brs == null ){
 					sb.put( v , b , n ); 
@@ -339,41 +130,76 @@ definitionlist = CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb
 	;
 
 definitions = {: return new Symbol( new SignatureBuilder() ); :}
-	| CTRL.b VARID.v COLON NUM.n SEMICOLON definitions.sb	
-			{: 	if( _brs == null ){
-					if( sb.contains( v ) )
-						throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() )  
-										+ " - Control already defined: " + v );
-					sb.put( v , b , n ); 
-					return new Symbol( sb );
-				}
-				Control c = null;
-				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
-					throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
-				return new Symbol( null );
-			:}
+	| definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON 	
+		{: 	
+			if( _brs == null ){
+				if( sb.contains( v ) )
+					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Control already defined: " + v );
+				sb.put( v , b , n ); 
+				return new Symbol( sb );
+			}
+			Control c = null;
+			if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+				throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+			return new Symbol( null );
+		:}
 	;
 
-reaction = t.b1 REACT t.b2 SEMICOLON	{: 	if( _brs == null ) _brs = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
-						_brs.addReaction( new ReactionBigraph( b1.switchToBigraph() , _outerNames , b1.siteNames ) , new ReactionBigraph( b2.switchToBigraph() , _outerNames , b2.siteNames ) ); 
-						return new Symbol( null ); 
-					:}
+big	= VARID.v			
+		{: 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() ); 
+			rbb.addNode( v , rbb.addRoot() );
+			return new Symbol( rbb );
+		:}
+	| VARID.v SQOPEN nms.l SQCLOSE	
+		{: 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() );
+			rbb.addNode( v , rbb.addRoot() , rbb.addOuterNames( l ) );
+			return new Symbol( rbb );
+		:}
+	| VARID.v POINT big.b		
+		{:
+			if( b.getRoots().size() != 1 )
+				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+			b.outerAddNode( v );
+			return new Symbol( b );
+		:}
+	| VARID.v SQOPEN nms.l SQCLOSE POINT big.b
+		{:
+			if( b.getRoots().size() != 1 )
+				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+			b.outerAddNode( v , b.addOuterNames( l ) );
+			return new Symbol( b );
+		:}
+	| big.b1 PIPE big.b2		
+		{:
+			if( b1.getRoots().size() != 1 || b2.getRoots().size() != 1 )
+				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+			b1.rightParallelProduct( b2.makeReactionBigraph() );
+			b1.merge();
+			return new Symbol( b1 );
+		:}
+	| big.b1 DPIPE big.b2		
+		{: 
+			b1.rightParallelProduct( b2.makeReactionBigraph() );
+			return new Symbol( b1 );
+		 :}
+	| INNERPLACE NUM.n		
+		{: 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() ); 
+			rbb.addSite( rbb.addRoot() , n );
+			return new Symbol( rbb ); 
+		:}
+	| NIL	
+		{: 
+			ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( _brs.getSignature() ); 
+			rbb.addRoot();
+			return new Symbol( rbb ); 
+		:}
+	| PAROPEN big.b PARCLOSE	{: return new Symbol( b ); :}
 	;
 
-t	= k.b1 POINT t.b2		{: b1.compose( b2 ); return new Symbol( b1 ); :}
-	| t.b1 PIPE t.b2		{: b1.juxtapose( b2 ); b1.bigraph.merge(); return new Symbol( b1 ); :}
-	| t.b1 DPIPE t.b2		{: b1.juxtapose( b2 ); return new Symbol( b1 ); :}
-	| INNERPLACE NUM.n		{: ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.addSite( n ); return new Symbol( b ); :}
-	| k.b				{: b.groundPlaceGraph(); return new Symbol( b ); :}
-	| NIL				{: ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.bigraph.addRoot(); return new Symbol( b ); :}
-	| PAROPEN t.b PARCLOSE		{: return new Symbol( b ); :}
-	;
-
-k	= VARID.v SQOPEN nms.l SQCLOSE	{: ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.makeIon( v , l ); return new Symbol( b ); :}
-	| VARID.v			{: ParsedBigraph b = new ParsedBigraph( _brs.getSignature() ); b.makeIon( v , null ); return new Symbol( b ); :}
-	;
-
-nms	= 			{: return new Symbol( null ); :}
+nms	= 			{: return new Symbol( new LinkedList<>() ); :}
 	| nameli.l		{: return new Symbol( l ); :}
 	;
 

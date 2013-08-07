@@ -9,21 +9,22 @@ import jlibbig.core.*;
  * @see AbstBigraph
  */
 public class ReactionBigraph implements AbstBigraph{
-	private Set<String> outerNames;
-	private Map<Site , Integer> siteNames;
-	private Bigraph big;
-
-	/**
-	 * @param big the Bigraph representing the redex (or reactum)
-	 * @param outerNames set of outernames that represent non-free names in the redex/reactum
-	 * @param siteNames map used to retrieve the right number of the sites (note: in bigmc, two or more sites can have the same name)
-	 * @see Bigraph
-	 * @see <a href="http://bigraph.org/bigmc/">bigraph.org/bigmc</a>
-	 */
-	public ReactionBigraph( Bigraph big, Set<String> outerNames, Map<Site , Integer> siteNames ){
-		this.outerNames = outerNames;
-		this.siteNames = siteNames;
-		this.big = big;
+	final Map<Site , Integer> siteNames;
+	final Bigraph big;
+	private List<Site> sites;
+	
+	public ReactionBigraph( ReactionBigraphBuilder rbb ){
+		this.big = rbb.rbig.makeBigraph();
+		this.siteNames = new HashMap<>();
+		sites = new ArrayList<>();
+		
+		Iterator<? extends Site> site_iter = rbb.rbig.getSites().iterator();
+		for( Site site : big.getSites() ){
+			this.siteNames.put( site , rbb.siteNames.get( site_iter.next() ) );
+			sites.add( site );
+		}
+		Collections.sort( sites , new SiteComparator() );
+		sites = Collections.unmodifiableList( sites );
 	}
 
 	/**
@@ -53,11 +54,21 @@ public class ReactionBigraph implements AbstBigraph{
 
 	@Override
 	public List<? extends Site> getSites() {
-		return big.getSites();
+		return sites;
 	}
 	
 	/**
-	 * Get the map ( Site , Integer ) storing, for each Site, the right number.
+	 * Get the name of a site, if it belongs to this ReactionBigraph
+	 * @param site
+	 * @return
+	 * 			The name of the site in input.
+	 */
+	public Integer getSiteName( Site site ){
+		return siteNames.get( site );
+	}
+	
+	/**
+	 * Get the map ( Site , Integer ) storing, for each Site, its name (Integer).
 	 */
 	public Map<Site , Integer> getSitesMap(){
 		return Collections.unmodifiableMap( this.siteNames );
@@ -66,13 +77,6 @@ public class ReactionBigraph implements AbstBigraph{
 	@Override
 	public Set<? extends OuterName> getOuterNames() {
 		return big.getOuterNames();
-	}
-
-	/**
-	 * Get the set of non-free outernames in the redex/reactum.
-	 */
-	public Set<String> getOuters(){
-		return Collections.unmodifiableSet( this.outerNames );
 	}
 	
 	@Override
@@ -88,5 +92,12 @@ public class ReactionBigraph implements AbstBigraph{
 	@Override
 	public Set<? extends Edge> getEdges() {
 		return big.getEdges();
+	}
+	
+	private class SiteComparator implements Comparator<Site> {
+	    @Override
+	    public int compare( Site s1, Site s2 ) {
+	        return siteNames.get( s1 ).compareTo( siteNames.get( s2 ) );
+	    }
 	}
 }
