@@ -8,7 +8,7 @@ import java.util.*;
 import jlibbig.core.exceptions.IncompatibleSignatureException;
 import jlibbig.core.exceptions.InvalidInstantiationRuleException;
 
-public class BigraphAgentRewriting implements ReactionRule<Bigraph> {
+public class BigraphAgentRewriting{
 
 	final private boolean[] neededParams;
 	final private boolean[] cloneParams; 
@@ -102,7 +102,6 @@ public class BigraphAgentRewriting implements ReactionRule<Bigraph> {
 		}
 	}
 	
-	@Override
 	public Iterable<Bigraph> apply(Bigraph agent) {
 		if (!agent.isGround()) {
 			throw new UnsupportedOperationException(
