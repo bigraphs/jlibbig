@@ -20,12 +20,12 @@ public class AgentBigraph implements AbstBigraph{
 	 * 			If the bigraph in input isn't ground.
 	 */
 	public AgentBigraph( Bigraph bigraph ) throws IllegalArgumentException{
+		if( !bigraph.isGround() )
+			throw new IllegalArgumentException("Bigraph must be ground to be converted to a BigMC's Agent.");
 		for( Edge edge : bigraph.getEdges() ){
 			if( edge.getPoints().size() > 1 )
 				throw new IllegalArgumentException( "This bigraph can't be converted to a BigMC's Agent. Every edge must have only one handled point." );
-		}
-		if( !bigraph.isGround() )
-			throw new IllegalArgumentException("Bigraph must be ground to be converted to a BigMC's Agent.");
+		}	
 		this.bigraph = bigraph;
 	}
 	
@@ -36,6 +36,13 @@ public class AgentBigraph implements AbstBigraph{
 	 */
 	public AgentBigraph( AgentBigraphBuilder abb ) throws IllegalArgumentException{
 		bigraph = abb.bigraph.makeBigraph();
+	}
+	
+	/**
+	 * Clone the current AgentBigraph.
+	 */
+	public AgentBigraph clone(){
+		return new AgentBigraph( this.bigraph.clone() );
 	}
 	
 	@Override

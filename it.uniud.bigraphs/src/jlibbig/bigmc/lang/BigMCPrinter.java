@@ -88,47 +88,13 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	public static String toString( Reaction<ReactionBigraph> reaction ){
 		return toString( reaction.getRedex() ) + " -> " + toString( reaction.getReactum() );
 	}
-	
+		
 	/**
-	 * Translate a {@link ReactionBigraph} to a string with BigMC's syntax
-	 * @param big the redex bigraph that will be converted into a string.
-	 * @see ReactionBigraph
-	 * @return the resulting string
-	 */
-	public static String toString( ReactionBigraph big ){
-		StringBuilder s = new StringBuilder();
-		Iterator<? extends Root> it = big.getRoots().iterator();
-		while( it.hasNext() ){
-			
-			Set<? extends Child> childs = it.next().getChildren();
-			if( !childs.isEmpty() ){
-				Iterator<? extends Child> childIt = childs.iterator();
-				while( childIt.hasNext() )
-					s.append( toString( childIt.next() , big.getOuterNames() , big.getSitesMap() ) + (childIt.hasNext() ? " | " : "") );
-			}else s.append( "nil" );
-			s.append( it.hasNext() ? " || " : "" );
-		}
-		return s.toString();
-	}
-	
-	/**
-	 * Translate a AgentBigraph to a string with BigMC's syntax
-	 * @param big
-	 * 			AgentBigraph
-	 * @return
-	 * 			the resulting string
-	 */
-	public static String toString( AgentBigraph big ){
-		return toString( big.asBigraph() );
-	}
-	
-	/**
-	 * Translate a Bigraph to a string with BigMC's syntax
+	 * Translate a bigraph ( {@link jlibbig.core.AbstBigraphHandler} ) to a string with BigMC's syntax
 	 * @param big the bigraph that will be converted into a string.
-	 * @see Bigraph
 	 * @return the resulting string
 	 */
-	public static String toString( Bigraph big ){
+	public static String toString( AbstBigraphHandler big ){
 		StringBuilder s = new StringBuilder();
 		
 		Iterator<? extends Root> it = big.getRoots().iterator();
@@ -137,8 +103,14 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			Set<? extends Child> childs = it.next().getChildren();
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
-				while( childIt.hasNext() )
-					s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() ) + (childIt.hasNext() ? " | " : "") );
+				while( childIt.hasNext() ){
+					if( big instanceof ReactionBigraph )
+						s.append( toString( childIt.next() , big.getOuterNames() , ((ReactionBigraph) big).getSitesMap() ) + (childIt.hasNext() ? " | " : "") );
+					else if( big instanceof ReactionBigraphBuilder )
+						s.append( toString( childIt.next() , big.getOuterNames() , ((ReactionBigraphBuilder) big).getSitesMap() ) + (childIt.hasNext() ? " | " : "") );
+					else
+						s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() ) + (childIt.hasNext() ? " | " : "") );
+				}
 			}else s.append( "nil" );
 			s.append( it.hasNext() ? " || " : "" );
 		}

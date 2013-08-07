@@ -1,7 +1,7 @@
 package jlibbig.bigmc;
 
 import jlibbig.core.*;
-import jlibbig.core.exceptions.IncompatibleSignatureException;
+import jlibbig.core.exceptions.*;
 
 import java.util.*;
 
@@ -61,7 +61,7 @@ public class BigraphSystem{
 	 */
 	public void addBigraph( AgentBigraph b ){
 		if( signature != b.getSignature() )
-			throw new RuntimeException( "Can't add a Bigraph to a BigraphSystem. Its Signature must be equal to the BigraphSystem's signature" );
+			throw new IncompatibleSignatureException( signature , b.getSignature() , "Can't add a Bigraph to a BigraphSystem. Its Signature must be equal to the BigraphSystem's signature" );
 		bigraphs.add( b );
 	}
 	
@@ -76,7 +76,7 @@ public class BigraphSystem{
 		if( signature != redex.getSignature() || signature != reactum.getSignature() )
 			throw new IncompatibleSignatureException( signature , redex.getSignature() , "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
 		if( redex.getRoots().size() != reactum.getRoots().size() )
-			throw new RuntimeException( "Redex and Reactum must have the same number of roots." );
+			throw new IncompatibleInterfacesException( redex , reactum , "Redex and Reactum must have the same number of roots." );
 		reactionRules.add( new Reaction<ReactionBigraph>( redex , reactum ) );
 	}
 	
