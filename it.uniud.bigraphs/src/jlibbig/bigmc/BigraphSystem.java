@@ -1,6 +1,8 @@
 package jlibbig.bigmc;
 
 import jlibbig.core.*;
+import jlibbig.core.exceptions.IncompatibleSignatureException;
+
 import java.util.*;
 
 /**
@@ -10,7 +12,7 @@ import java.util.*;
  */
 public class BigraphSystem{
 	private Signature signature;
-	private Set<Bigraph> bigraphs;
+	private Set<AgentBigraph> bigraphs;
 	private Set<String> outerNames;
 	private Set<Reaction<ReactionBigraph>> reactionRules;
 	
@@ -57,16 +59,14 @@ public class BigraphSystem{
 	 * @throws RuntimeException if both signatures don't match.
 	 * @see Bigraph
 	 */
-	public void addBigraph( Bigraph b ){
+	public void addBigraph( AgentBigraph b ){
 		if( signature != b.getSignature() )
 			throw new RuntimeException( "Can't add a Bigraph to a BigraphSystem. Its Signature must be equal to the BigraphSystem's signature" );
-		if( !b.isGround() )
-			throw new IllegalArgumentException( "BigMC's bigraphs can only be ground (Agents)" );
 		bigraphs.add( b );
 	}
 	
 	/**
-	 * Add a reaction to the system. Signatures of redex and reactum must match with the system's signature.
+	 * Add a reaction to the system. Signatures of redex and reactum must match the system's signature.
 	 * @param redex the bigraph representing reaction's redex
 	 * @param reactum the bigraph representing reaction's reactum
 	 * @throws RuntimeException if signatures don't match or if redex and reactum don't have the same number of roots
@@ -74,10 +74,20 @@ public class BigraphSystem{
 	 */
 	public void addReaction( ReactionBigraph redex , ReactionBigraph reactum ){
 		if( signature != redex.getSignature() || signature != reactum.getSignature() )
-			throw new RuntimeException( "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
+			throw new IncompatibleSignatureException( signature , redex.getSignature() , "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
 		if( redex.getRoots().size() != reactum.getRoots().size() )
-			throw new RuntimeException("The number of roots in redex and reactum must be the same");
+			throw new RuntimeException( "Redex and Reactum must have the same number of roots." );
 		reactionRules.add( new Reaction<ReactionBigraph>( redex , reactum ) );
+	}
+	
+	/**
+	 * Add a reaction to the system. Reaction's signature must match the system's signature.
+	 * @param reaction
+	 */
+	public void addReaction( Reaction<ReactionBigraph> reaction ){
+		if( signature != reaction.getSignature() )
+			throw new IncompatibleSignatureException( signature , reaction.getSignature() , "Can't add a Reaction<ReactionBigraph> to a BigraphSystem. Reaction's signature must be equal to the BigraphSystem's signature" );
+		reactionRules.add( reaction );
 	}
 	
 	/**
@@ -85,7 +95,7 @@ public class BigraphSystem{
 	 * @return The set of bigraphs stored in the system.
 	 * @see Bigraph
 	 */
-	public Set<Bigraph> getBigraphs(){
+	public Set<AgentBigraph> getBigraphs(){
 		return Collections.unmodifiableSet( bigraphs );
 	}
 	
