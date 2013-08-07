@@ -9,22 +9,31 @@ import jlibbig.core.*;
  * @see AbstBigraph
  */
 public class ReactionBigraph implements AbstBigraph{
-	final Map<Site , Integer> siteNames;
+	Map<Site , Integer> siteNames;
 	final Bigraph big;
-	private List<Site> sites;
 	
 	public ReactionBigraph( ReactionBigraphBuilder rbb ){
 		this.big = rbb.rbig.makeBigraph();
 		this.siteNames = new HashMap<>();
-		sites = new ArrayList<>();
 		
 		Iterator<? extends Site> site_iter = rbb.rbig.getSites().iterator();
-		for( Site site : big.getSites() ){
+		for( Site site : this.big.getSites() )
 			this.siteNames.put( site , rbb.siteNames.get( site_iter.next() ) );
-			sites.add( site );
-		}
-		Collections.sort( sites , new SiteComparator() );
-		sites = Collections.unmodifiableList( sites );
+		this.siteNames = Collections.unmodifiableMap( this.siteNames );
+	}
+	
+	public ReactionBigraph( ReactionBigraph rb ){
+		this.big = rb.big.clone();
+		this.siteNames = new HashMap<>();
+		
+		Iterator<? extends Site> site_iter = rb.big.getSites().iterator();
+		for( Site site : this.big.getSites() )
+			this.siteNames.put( site , rb.siteNames.get( site_iter.next() ) );
+		this.siteNames = Collections.unmodifiableMap( this.siteNames );
+	}
+	
+	public ReactionBigraph clone(){
+		return new ReactionBigraph( this );
 	}
 
 	/**
@@ -54,7 +63,7 @@ public class ReactionBigraph implements AbstBigraph{
 
 	@Override
 	public List<? extends Site> getSites() {
-		return sites;
+		return big.getSites();
 	}
 	
 	/**
@@ -71,7 +80,7 @@ public class ReactionBigraph implements AbstBigraph{
 	 * Get the map ( Site , Integer ) storing, for each Site, its name (Integer).
 	 */
 	public Map<Site , Integer> getSitesMap(){
-		return Collections.unmodifiableMap( this.siteNames );
+		return this.siteNames;
 	}
 
 	@Override
@@ -92,12 +101,5 @@ public class ReactionBigraph implements AbstBigraph{
 	@Override
 	public Set<? extends Edge> getEdges() {
 		return big.getEdges();
-	}
-	
-	private class SiteComparator implements Comparator<Site> {
-	    @Override
-	    public int compare( Site s1, Site s2 ) {
-	        return siteNames.get( s1 ).compareTo( siteNames.get( s2 ) );
-	    }
 	}
 }

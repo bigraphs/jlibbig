@@ -80,7 +80,7 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 
 	@Override
 	public boolean isGround() {
-		return this.bigraph.isEmpty();
+		return this.bigraph.isGround();
 	}
 
 	@Override

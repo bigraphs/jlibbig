@@ -131,12 +131,12 @@ class BigMCParser extends Parser {
 					
 			for( OuterName out : b.getOuterNames() ){
 				if( !_brs.getOuterNames().contains( out.getName() ) )
-					throw new RuntimeException( "Agents' outernames can't be free names. Eachone of them must be declared (using %outer or %name). Undeclared name: " + out.getName() );
+					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Agents' outernames can't be free names. Eachone of them must be declared (using %outer or %name). Undeclared name: " + out.getName() );
 			} 
 			try{
 				_brs.addBigraph( new AgentBigraph( b.makeBigraph() ) );
 			}catch( IllegalArgumentException e ){ 
-				throw new RuntimeException( "Sites can only appear in reaction rules." );
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Sites can only appear in reaction rules." );
 			}
 			return new Symbol( null );
 				}
@@ -170,7 +170,7 @@ class BigMCParser extends Parser {
 				}else{
 					Control c = null;
 				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
-					throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_v.getStart() ) + " - Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
 				}
 				return new Symbol( null );
 				}
@@ -193,13 +193,13 @@ class BigMCParser extends Parser {
 					 	
 			if( _brs == null ){
 				if( sb.contains( v ) )
-					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Control already defined: " + v );
+					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_v.getStart() ) + " - Control already defined: " + v );
 				sb.put( v , b , n ); 
 				return new Symbol( sb );
 			}
 			Control c = null;
 			if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
-				throw new RuntimeException( "Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_v.getStart() ) + " - Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
 			return new Symbol( null );
 				}
 			},
@@ -233,7 +233,7 @@ class BigMCParser extends Parser {
 					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
 					
 			if( b.getRoots().size() != 1 )
-				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Juxtaposition (||) can only appear at top level." );
 			b.outerAddNode( v );
 			return new Symbol( b );
 				}
@@ -248,7 +248,7 @@ class BigMCParser extends Parser {
 					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
 					
 			if( b.getRoots().size() != 1 )
-				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Juxtaposition (||) can only appear at top level." );
 			b.outerAddNode( v , b.addOuterNames( l ) );
 			return new Symbol( b );
 				}
@@ -261,7 +261,7 @@ class BigMCParser extends Parser {
 					final ReactionBigraphBuilder b2 = (ReactionBigraphBuilder) _symbol_b2.value;
 					
 			if( b1.getRoots().size() != 1 || b2.getRoots().size() != 1 )
-				throw new RuntimeException( "Juxtaposition (||) can only appear at top level." );
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b2.getStart() ) + " - Juxtaposition (||) can only appear at top level." );
 			b1.rightParallelProduct( b2.makeReactionBigraph() );
 			b1.merge();
 			return new Symbol( b1 );

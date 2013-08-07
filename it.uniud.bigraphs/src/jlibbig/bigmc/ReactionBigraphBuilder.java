@@ -120,6 +120,12 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 		return this.rbig.getEdges();
 	}
 
+	/**
+	 * Get the map ( Site , Integer ) storing, for each Site, its name (Integer).
+	 */
+	public Map<Site , Integer> getSitesMap(){
+		return Collections.unmodifiableMap( this.siteNames );
+	}
 	
 	/**
 	 * Add a root to the current ReactionBigraphBuilder.
@@ -440,6 +446,7 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * Sort the bigraph's sites (according to the values in the Map {@code siteNames}).
 	 */
 	private void sortSites(){
+		//TODO: migliorare computazionalmente, (stile mergesort)
 		List<? extends Site> sites = new ArrayList<>( rbig.getSites() );
 		Collections.sort( sites , new SiteComparator() );
 		BigraphBuilder bb = new BigraphBuilder( rbig.getSignature() );
