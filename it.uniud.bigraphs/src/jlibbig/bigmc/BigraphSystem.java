@@ -14,7 +14,7 @@ public class BigraphSystem{
 	private Signature signature;
 	private Set<AgentBigraph> bigraphs;
 	private Set<String> outerNames;
-	private Set<Reaction<ReactionBigraph>> reactionRules;
+	private Set<RewritingRule> reactionRules;
 	
 	/**
 	 * @param sig signature used for every bigraph and reaction of this system.	
@@ -72,22 +72,22 @@ public class BigraphSystem{
 	 * @throws RuntimeException if signatures don't match or if redex and reactum don't have the same number of roots
 	 * @see ReactionBigraph
 	 */
-	public void addReaction( ReactionBigraph redex , ReactionBigraph reactum ){
+	public void addReaction( ReactionBigraph redex , ReactionBigraph reactum, int... instantiationMap){
 		if( signature != redex.getSignature() || signature != reactum.getSignature() )
 			throw new IncompatibleSignatureException( signature , redex.getSignature() , "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
 		if( redex.getRoots().size() != reactum.getRoots().size() )
 			throw new IncompatibleInterfacesException( redex , reactum , "Redex and Reactum must have the same number of roots." );
-		reactionRules.add( new Reaction<ReactionBigraph>( redex , reactum ) );
+		reactionRules.add( new RewritingRule(redex , reactum, instantiationMap) );
 	}
 	
 	/**
 	 * Add a reaction to the system. Reaction's signature must match the system's signature.
 	 * @param reaction
 	 */
-	public void addReaction( Reaction<ReactionBigraph> reaction ){
-		if( signature != reaction.getSignature() )
-			throw new IncompatibleSignatureException( signature , reaction.getSignature() , "Can't add a Reaction<ReactionBigraph> to a BigraphSystem. Reaction's signature must be equal to the BigraphSystem's signature" );
-		reactionRules.add( reaction );
+	public void addReaction( RewritingRule rule ){
+		if( signature != rule.getSignature() )
+			throw new IncompatibleSignatureException( signature , rule.getSignature() , "Can't add a Reaction<ReactionBigraph> to a BigraphSystem. Reaction's signature must be equal to the BigraphSystem's signature" );
+		reactionRules.add( rule);
 	}
 	
 	/**
@@ -103,9 +103,9 @@ public class BigraphSystem{
 	 * Get the set of reactions.
 	 * @return A set or Reaction.
 	 * @see Bigraph
-	 * @see Reaction
+	 * @see AbstRewritingRule
 	 */
-	public Set<Reaction<ReactionBigraph>> getReactions(){
+	public Set<RewritingRule> getReactions(){
 		return Collections.unmodifiableSet( reactionRules );
 	}
 }

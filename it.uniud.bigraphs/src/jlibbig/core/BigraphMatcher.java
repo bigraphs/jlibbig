@@ -40,7 +40,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	@Override
 	public Iterable<Match<Bigraph>> match(Bigraph agent, Bigraph redex) {
 		if (agent.isGround())
-			return BigraphAgentMatcher.DEFAULT.match(agent, redex);
+			return AgentMatcher.DEFAULT.match(agent, redex);
 		else
 			return new MatchIterable(agent, redex);
 	}

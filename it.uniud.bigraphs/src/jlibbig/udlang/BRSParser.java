@@ -11,7 +11,7 @@ import jlibbig.core.*;
  * <a href="http://beaver.sourceforge.net">Beaver</a> v0.9.6.1
  * from the grammar specification "parser.grammar".
  */
-public class BigraphParser extends Parser {
+public class BRSParser extends Parser {
 	static public class Terminals {
 		static public final short EOF = 0;
 		static public final short VARID = 1;
@@ -59,7 +59,7 @@ public class BigraphParser extends Parser {
 		}
 	};
 	
-		private BigraphSystem _sys;
+		private BigraphReactiveSystem _sys;
 
 		/**
 		 * Generate a system (sets of bigraphs and reactions with the same
@@ -71,25 +71,25 @@ public class BigraphParser extends Parser {
 		 *         signature.
 		 * @throws IOException
 		 * @throws Parser.Exception
-		 * @see BigraphSystem
+		 * @see BigraphReactiveSystem
 		 */
-		BigraphSystem parse(String str) throws IOException, Parser.Exception {
+		BigraphReactiveSystem parse(String str) throws IOException, Parser.Exception {
 			return parse(new StringReader(str));
 		}
 
-		BigraphSystem parse(Reader in) throws IOException, Parser.Exception {
+		BigraphReactiveSystem parse(Reader in) throws IOException, Parser.Exception {
 			_sys = null;
-			parse(new BigraphLexer(in));
+			parse(new BRSLexer(in));
 			return _sys;
 		}
 
-		BigraphSystem parse(String str , Signature sig) throws IOException, Parser.Exception {
+		BigraphReactiveSystem parse(String str , Signature sig) throws IOException, Parser.Exception {
 			return parse(new StringReader(str) , sig);
 		}
 
-		BigraphSystem parse(Reader in , Signature sig) throws IOException, Parser.Exception {
-			_sys = new BigraphSystem( sig );
-			parse(new BigraphLexer(in));
+		BigraphReactiveSystem parse(Reader in , Signature sig) throws IOException, Parser.Exception {
+			_sys = new BigraphReactiveSystem( sig );
+			parse(new BRSLexer(in));
 			return _sys;
 		}
 
@@ -112,7 +112,7 @@ public class BigraphParser extends Parser {
 		 */
 		private Signature getSystemSignature(){
 			if( _sys == null )
-				_sys = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+				_sys = new BigraphReactiveSystem( (new SignatureBuilder()).makeSignature() );
 			return _sys.getSignature();
 		}
 		/**
@@ -403,7 +403,7 @@ public class BigraphParser extends Parser {
 				if( this.polymorphicSites && this.bb.getSites().size() == 1 )
 					this.makeGroundPlaceGraph();
 								
-				Set<String> right_inner = new HashSet();
+				Set<String> right_inner = new HashSet<>();
 				for(InnerName in : p.bb.getInnerNames() )
 					right_inner.add( in.getName() );
 
@@ -412,7 +412,7 @@ public class BigraphParser extends Parser {
 						throw new RuntimeException( "Innernames ( -" + in.getName() + " ) can't appear multiple time in a single bigraph." );
 				}
 
-				Set<String> right_outer = new HashSet();
+				Set<String> right_outer = new HashSet<>();
 				for(OuterName out : p.bb.getOuterNames() )
 					right_outer.add( out.getName() );
 
@@ -437,7 +437,7 @@ public class BigraphParser extends Parser {
 					}
 				}
 
-				Set<String> left_outer = new HashSet();
+				Set<String> left_outer = new HashSet<>();
 				for(OuterName out : this.bb.getOuterNames() )
 					left_outer.add( out.getName() );
 
@@ -509,7 +509,7 @@ public class BigraphParser extends Parser {
 
 	private final Action[] actions;
 
-	public BigraphParser() {
+	public BRSParser() {
 		super(PARSING_TABLES);
 		actions = new Action[] {
 			RETURN2,	// [0] start = definitions reactions; returns 'reactions' although none is marked
@@ -518,7 +518,7 @@ public class BigraphParser extends Parser {
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_sb = _symbols[offset + 1];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
-					 if( _sys == null ) _sys = new BigraphSystem( sb.makeSignature() ); return new Symbol( null );
+					 if( _sys == null ) _sys = new BigraphReactiveSystem( sb.makeSignature() ); return new Symbol( null );
 				}
 			},
 			new Action() {	// [3] controls = controls.sb MODE.b VARID.v COLON num.n SEMICOLON
@@ -580,7 +580,7 @@ public class BigraphParser extends Parser {
 			new Action() {	// [7] bigraphs = 
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					 	
-					if( _sys == null ) _sys = new BigraphSystem( (new SignatureBuilder()).makeSignature() );
+					if( _sys == null ) _sys = new BigraphReactiveSystem( (new SignatureBuilder()).makeSignature() );
 					return new Symbol( null );
 				}
 			},

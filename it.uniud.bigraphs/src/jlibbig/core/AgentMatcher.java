@@ -16,7 +16,7 @@ import choco.kernel.model.variables.integer.IntegerVariable;
  * 
  * @see BigraphMatcher
  */
-public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
+public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 	private final static boolean DEBUG = false;
 	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
@@ -26,7 +26,7 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 	/**
 	 * The default instance of the macher.
 	 */
-	public final static BigraphAgentMatcher DEFAULT = new BigraphAgentMatcher();
+	public final static AgentMatcher DEFAULT = new AgentMatcher();
 
 	/**
 	 * @see jlibbig.core.Matcher#match(jlibbig.core.AbstBigraph,
@@ -1407,7 +1407,7 @@ public final class BigraphAgentMatcher implements Matcher<Bigraph, Bigraph> {
 								}
 							}
 						}
-						matchQueue.add(new BigraphAgentMatch(ctx, rdx, prms));
+						matchQueue.add(new AgentMatch(ctx, rdx, prms));
 					} while (lnk_solver.nextSolution());
 				} while (this.matchQueue.isEmpty());
 			}

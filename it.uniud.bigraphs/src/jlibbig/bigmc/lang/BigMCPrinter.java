@@ -3,6 +3,7 @@ package jlibbig.bigmc.lang;
 import java.util.*;
 
 import jlibbig.bigmc.*;
+import jlibbig.bigmc.RewritingRule;
 import jlibbig.core.*;
 import jlibbig.core.lang.*;
 
@@ -72,9 +73,9 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	 * @return
 	 * 			The String representing the element in input.
 	 */
-	public static String toString( Collection<Reaction<ReactionBigraph>> reaction_rules ){
+	public static String toString( Collection<RewritingRule> reaction_rules ){
 		StringBuilder s = new StringBuilder();
-		for( Reaction<ReactionBigraph> reaction : reaction_rules ){
+		for( RewritingRule reaction : reaction_rules ){
 			s.append( toString( reaction ) + ";" + ln );
 		}
 		return s.toString();
@@ -85,7 +86,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	 * @param reaction
 	 * @return the resulting string
 	 */
-	public static String toString( Reaction<ReactionBigraph> reaction ){
+	public static String toString( RewritingRule reaction ){
 		return toString( reaction.getRedex() ) + " -> " + toString( reaction.getReactum() );
 	}
 		

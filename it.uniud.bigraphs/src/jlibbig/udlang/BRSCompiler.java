@@ -14,14 +14,14 @@ import jlibbig.core.lang.CompilerException;
  * 
  * @see <a href="../../aux_doc/infoCompiler.html">Language syntax and
  *      semantic</a>
- * @see BigraphSystem
+ * @see BigraphReactiveSystem
  * 
  */
-public class BigraphCompiler implements Compiler<BigraphSystem> {
-	public BigraphCompiler() {
+public class BRSCompiler implements Compiler<BigraphReactiveSystem> {
+	public BRSCompiler() {
 	}
 
-	private static BigraphParser parser = new BigraphParser();
+	private static BRSParser parser = new BRSParser();
 
 	/**
 	 * Return a system, carrying bigraphs and reactions with the same signature.
@@ -30,12 +30,12 @@ public class BigraphCompiler implements Compiler<BigraphSystem> {
 	 *            the compiler will parse this string.
 	 * @return the generated system.
 	 * @throws CompilerException 
-	 * @see BigraphSystem
+	 * @see BigraphReactiveSystem
 	 */
-	public BigraphSystem parse(String str) throws CompilerException {
+	public BigraphReactiveSystem parse(String str) throws CompilerException {
 		return parse(new StringReader( str ));
 	}
-	public BigraphSystem parse(Reader in) throws CompilerException {
+	public BigraphReactiveSystem parse(Reader in) throws CompilerException {
 		try {
 			return parser.parse(in);
 		} catch (IOException | Exception e) {
@@ -43,10 +43,10 @@ public class BigraphCompiler implements Compiler<BigraphSystem> {
 		}
 	}
 	
-	public BigraphSystem parse(String str , Signature s) throws CompilerException {
+	public BigraphReactiveSystem parse(String str , Signature s) throws CompilerException {
 		return parse(new StringReader( str ) , s);
 	}
-	public BigraphSystem parse(Reader in , Signature s) throws CompilerException {
+	public BigraphReactiveSystem parse(Reader in , Signature s) throws CompilerException {
 		try {
 			return parser.parse(in , s);
 		} catch (IOException | Exception e) {

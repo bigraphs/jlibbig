@@ -22,7 +22,7 @@ public interface Match<A extends AbstBigraph> {
 	A getRedex();
 	
 	
-	/** The parameters of the match indexed over redex sites.
+	/** The parameters of the match.
 	 * @return
 	 */
 	A getParam();
