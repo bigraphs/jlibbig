@@ -13,7 +13,7 @@ public class RewritingRule implements jlibbig.core.RewritingRule<AbstBigraph> {
 	final BigraphInstantiationMap eta;
 	
 	public RewritingRule(ReactionBigraph redex, ReactionBigraph reactum, int... eta) {
-		this(redex,reactum,new BigraphInstantiationMap(eta));
+		this(redex,reactum,new BigraphInstantiationMap(redex.getSites().size(),eta));
 	}
 	
 	/**

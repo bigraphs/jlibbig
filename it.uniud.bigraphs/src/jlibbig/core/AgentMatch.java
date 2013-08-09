@@ -2,16 +2,13 @@ package jlibbig.core;
 
 import java.util.*;
 
-public class AgentMatch implements Match<Bigraph>{
+public class AgentMatch extends BigraphMatch{
 
-	protected final Bigraph context;
-	protected final Bigraph redex;
 	protected final List<Bigraph> params;
 	protected Bigraph param;
 	
 	protected AgentMatch(Bigraph context, Bigraph redex, List<Bigraph> params){
-		this.context = context;
-		this.redex = redex;
+		super(context,redex,null);
 		this.params = Collections.unmodifiableList(new  LinkedList<Bigraph>(params));
 	}
 		
