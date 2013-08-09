@@ -33,11 +33,11 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	 *      jlibbig.core.AbstBigraph)
 	 */
 	@Override
-	public Iterable<Match<Bigraph>> match(Bigraph agent, Bigraph redex) {
+	public Iterable<AgentMatch> match(Bigraph agent, Bigraph redex) {
 		return match(agent, redex, null);
 	}
 
-	Iterable<Match<Bigraph>> match(Bigraph agent, Bigraph redex,
+	Iterable<AgentMatch> match(Bigraph agent, Bigraph redex,
 			boolean[] neededParams) {
 		return new MatchIterable(agent, redex, neededParams);
 	}
@@ -55,7 +55,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	 * empty looks for a place graph match and iterates the algorithm outlined
 	 * above.
 	 */
-	private static class MatchIterable implements Iterable<Match<Bigraph>> {
+	private static class MatchIterable implements Iterable<AgentMatch> {
 
 		final Bigraph agent, redex;
 
@@ -133,11 +133,11 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 		}
 
 		@Override
-		public Iterator<Match<Bigraph>> iterator() {
+		public Iterator<AgentMatch> iterator() {
 			return new MatchIterator();
 		}
 
-		private class MatchIterator implements Iterator<Match<Bigraph>> {
+		private class MatchIterator implements Iterator<AgentMatch> {
 
 			private boolean exhausted = false;
 
@@ -145,7 +145,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			final CPSolver solver;
 			final Map<PlaceEntity, Map<PlaceEntity, IntegerVariable>> matrix;
 
-			Queue<Match<Bigraph>> matchQueue = null;
+			Queue<AgentMatch> matchQueue = null;
 
 			int ans = agent_nodes.size();
 			int rrs = redex_roots.size();
@@ -489,7 +489,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			}
 
 			@Override
-			public Match<Bigraph> next() {
+			public AgentMatch next() {
 				if (exhausted)
 					return null;
 				if (matchQueue == null) {
@@ -498,7 +498,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				// if (this.matchQueue.isEmpty())
 				// return null;
-				Match<Bigraph> match = this.matchQueue.poll();
+				AgentMatch match = this.matchQueue.poll();
 				if (matchQueue.isEmpty())
 					populateMatchQueue(false);
 				return match;

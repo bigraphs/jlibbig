@@ -38,7 +38,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	 *      jlibbig.core.AbstBigraph)
 	 */
 	@Override
-	public Iterable<Match<Bigraph>> match(Bigraph agent, Bigraph redex) {
+	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex) {
 		if (agent.isGround())
 			return AgentMatcher.DEFAULT.match(agent, redex);
 		else
@@ -58,7 +58,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	 * empty looks for a place graph match and iterates the algorithm outlined
 	 * above.
 	 */
-	private static class MatchIterable implements Iterable<Match<Bigraph>> {
+	private static class MatchIterable implements Iterable<BigraphMatch> {
 		final Bigraph agent, redex;
 
 		boolean agent_ancestors_is_empty = true;
@@ -128,11 +128,11 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		}
 
 		@Override
-		public Iterator<Match<Bigraph>> iterator() {
+		public Iterator<BigraphMatch> iterator() {
 			return new MatchIterator();
 		}
 
-		private class MatchIterator implements Iterator<Match<Bigraph>> {
+		private class MatchIterator implements Iterator<BigraphMatch> {
 
 			private boolean exhausted = false;
 
@@ -140,7 +140,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 			final CPSolver solver;
 			final Map<PlaceEntity, Map<PlaceEntity, IntegerVariable>> matrix;
 
-			Queue<Match<Bigraph>> matchQueue = null;
+			Queue<BigraphMatch> matchQueue = null;
 
 			MatchIterator() {
 
@@ -556,7 +556,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 			}
 
 			@Override
-			public Match<Bigraph> next() {
+			public BigraphMatch next() {
 				if (exhausted)
 					return null;
 				if (matchQueue == null) {
@@ -565,7 +565,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				// if (this.matchQueue.isEmpty())
 				// return null;
-				Match<Bigraph> match = this.matchQueue.poll();
+				BigraphMatch match = this.matchQueue.poll();
 				if (matchQueue.isEmpty())
 					populateMatchQueue(false);
 				return match;
@@ -1466,7 +1466,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								throw new RuntimeException(
 										"Inconsistent bigraph (prm)");
 						}
-						matchQueue.add(new AbstMatch<Bigraph>(ctx, rdx, prm));
+						matchQueue.add(new BigraphMatch(ctx, rdx, prm));
 					} while (lnk_solver.nextSolution());
 				} while (this.matchQueue.isEmpty());
 			}

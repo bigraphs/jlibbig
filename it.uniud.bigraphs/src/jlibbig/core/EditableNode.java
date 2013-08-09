@@ -17,7 +17,7 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 		private String name;
 		
 		EditableNode(Control control){
-			this.name = "N_" + AbstNamed.generateName();
+			this.name = "N_" + AbstractNamed.generateName();
 			this.control = control;
 			List<EditablePort> ports = new ArrayList<>();
 			for(int i = 0;i<control.getArity();i++){

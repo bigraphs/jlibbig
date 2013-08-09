@@ -3,13 +3,13 @@ package jlibbig.core;
 /**
  * Describes a control. Each node of a bigraph have its control.
  */
-public class Control extends AbstNamed implements Named {
+public class Control extends AbstractNamed implements Named {
 
 	private final boolean active;
 	private final int arity;
 
 	public Control(boolean active, int arity) {
-		this("C_" + AbstNamed.generateName(), active, arity);
+		this("C_" + AbstractNamed.generateName(), active, arity);
 	}
 
 	public Control(String name, boolean active, int arity) {

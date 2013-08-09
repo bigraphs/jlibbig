@@ -15,5 +15,5 @@ public interface Matcher<A extends AbstBigraph, R extends AbstBigraph>  {
 	 * @param redex the bigraph to look up for.
 	 * @return an Iterable yielding every possible match.
 	 */
-	Iterable<Match<A>> match(A agent, R redex);
+	Iterable<? extends Match<A>> match(A agent, R redex);
 }

@@ -2,8 +2,7 @@ package jlibbig.core;
 
 import java.util.*;
 
-import jlibbig.core.exceptions.IncompatibleInterfacesException;
-import jlibbig.core.exceptions.IncompatibleSignatureException;
+import jlibbig.core.exceptions.*;
 
 /**
  * The class is meant as a helper for bigraph construction and manipulation in
@@ -17,59 +16,98 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	private final boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	private Bigraph big;
+	private boolean closed = false;
 
 	public BigraphBuilder(Signature sig) {
 		this.big = Bigraph.makeEmpty(sig);
 	}
 
 	public BigraphBuilder(Bigraph big) {
-		this(big, true);
+		this(big, false);
 	}
 
-	BigraphBuilder(Bigraph big, boolean clone) {
+	BigraphBuilder(Bigraph big, boolean reuse) {
 		if (!big.isConsistent())
 			throw new IllegalArgumentException("Inconsistent bigraph.");
-		this.big = (clone) ? big.clone(this) : big.setOwner(this);
+		this.big = (reuse) ? big.setOwner(this) : big.clone(this);
 	}
 
 	@Override
 	public String toString() {
+		assertOpen();
 		return big.toString();
 	}
 
 	/**
-	 * Creates a new bigraph from its inner one.
+	 * Return the bigraph build so far.
 	 * 
 	 * @return a bigraph.
 	 */
 	public Bigraph makeBigraph() {
+		return makeBigraph(false);
+	}
+
+	/**
+	 * Return the bigraph build so far.
+	 * 
+	 * @param close
+	 *            disables the builder to perform any other operation.
+	 * @return
+	 */
+	public Bigraph makeBigraph(boolean close) {
+		assertOpen();
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
-		Bigraph b = big.clone();
-		if (!b.isConsistent())
-			throw new RuntimeException("Inconsistent bigraph.");
+		Bigraph b;
+		if (close) {
+			b = big.setOwner(big);
+			closed = true;
+		} else {
+			b = big.clone();
+			if (DEBUG_CONSISTENCY_CHECK && !b.isConsistent())
+				throw new RuntimeException("Inconsistent bigraph.");
+		}
 		return b;
 	}
+	
+	public boolean isClosed(){
+		return closed;
+	}
+	
+	private void assertOpen(){
+		if(this.closed)
+			throw new UnsupportedOperationException("The operation is not supported by a closed BigraphBuilder");
+	}
+	/*
+	private void assertOpen(String operation){
+		if(this.closed)
+			throw new UnsupportedOperationException("The operation <" + operation +"> is not supported by a closed BigraphBuilder");
+	}
+	*/
 
 	@Override
 	public BigraphBuilder clone() {
+		assertOpen();
 		BigraphBuilder bb = new BigraphBuilder(this.big.getSignature());
 		bb.big = this.big.clone(bb);
 		return bb;
 	}
 
 	public Signature getSignature() {
+		assertOpen();
 		return this.big.getSignature();
 	}
 
 	@Override
 	public boolean isEmpty() {
+		assertOpen();
 		return this.big.isEmpty();
 	}
 
 	@Override
 	public boolean isGround() {
+		assertOpen();
 		return this.big.isGround();
 	}
 
@@ -79,6 +117,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return a list carrying bigraph's roots
 	 */
 	public List<? extends Root> getRoots() {
+		assertOpen();
 		return this.big.getRoots();
 	}
 
@@ -88,6 +127,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return a list carrying bigraph's sites
 	 */
 	public List<? extends Site> getSites() {
+		assertOpen();
 		return this.big.getSites();
 	}
 
@@ -97,6 +137,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return a list carrying bigraph's outer names
 	 */
 	public Set<? extends OuterName> getOuterNames() {
+		assertOpen();
 		return this.big.getOuterNames();
 	}
 
@@ -106,6 +147,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return a list carrying bigraph's inner names
 	 */
 	public Set<? extends InnerName> getInnerNames() {
+		assertOpen();
 		return this.big.getInnerNames();
 	}
 
@@ -115,6 +157,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return a set containing bigraph's nodes.
 	 */
 	public Set<? extends Node> getNodes() {
+		assertOpen();
 		return this.big.getNodes();
 	}
 
@@ -124,6 +167,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return a set containing bigraph's edges.
 	 */
 	public Set<? extends Edge> getEdges() {
+		assertOpen();
 		return this.big.getEdges();
 	}
 
@@ -135,6 +179,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the new root
 	 */
 	public Root addRoot() {
+		assertOpen();
 		EditableRoot r = new EditableRoot();
 		r.setOwner(this);
 		this.big.roots.add(r);
@@ -152,6 +197,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the new site
 	 */
 	public Site addSite(Parent parent) {
+		assertOpen();
 		EditableSite s = new EditableSite((EditableParent) parent);
 		this.big.sites.add(s);
 		// TODO skip check on internal data
@@ -186,6 +232,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the new node
 	 */
 	public Node addNode(String controlName, Parent parent, Handle... handles) {
+		assertOpen();
 		Control c = this.big.getSignature().getByName(controlName);
 		if (c == null)
 			throw new IllegalArgumentException(
@@ -195,11 +242,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			throw new IllegalArgumentException(
 					"Parent sould be in the bigraph.");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
-		for(int i = 0;i < hs.length;i++){
-			if(i < handles.length){
+		for (int i = 0; i < hs.length; i++) {
+			if (i < handles.length) {
 				hs[i] = (EditableHandle) handles[i];
 			}
-			if(hs[i] == null)
+			if (hs[i] == null)
 				hs[i] = new EditableEdge();
 			Owner o = hs[i].getOwner();
 			if (o == null)
@@ -228,6 +275,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the new node
 	 */
 	public Node addNode(String controlName, Parent parent, List<Handle> handles) {
+		assertOpen();
 		Control c = this.big.getSignature().getByName(controlName);
 		if (c == null)
 			throw new IllegalArgumentException(
@@ -237,11 +285,11 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			throw new IllegalArgumentException(
 					"Parent sould be in the bigraph.");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
-		for(int i = 0;i < hs.length;i++){
-			if(i < handles.size()){
+		for (int i = 0; i < hs.length; i++) {
+			if (i < handles.size()) {
 				hs[i] = (EditableHandle) handles.get(i);
 			}
-			if(hs[i] == null)
+			if (hs[i] == null)
 				hs[i] = new EditableEdge();
 			Owner o = hs[i].getOwner();
 			if (o == null)
@@ -288,6 +336,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @see EditableOuterName
 	 */
 	private OuterName addOuterName(EditableOuterName n) {
+		assertOpen();
 		n.setOwner(this);
 		this.big.outers.add(n);
 		// TODO skip check on internal data
@@ -360,6 +409,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the innername
 	 */
 	private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
+		assertOpen();
 		Set<? extends Edge> es = this.getEdges();
 		if (!this.getOuterNames().contains(h)
 				&& !(h instanceof Edge && (es.contains(h) || (h.getPoints()
@@ -382,6 +432,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @param handle
 	 */
 	public void relink(Point point, Handle handle) {
+		assertOpen();
 		EditablePoint p = (EditablePoint) point;
 		EditableHandle h = (EditableHandle) handle;
 		Owner o1 = p.getOwner();
@@ -406,6 +457,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the new edge connecting the points in input
 	 */
 	public Edge relink(Point p1, Point p2) {
+		assertOpen();
 		EditablePoint t1 = (EditablePoint) p1;
 		EditablePoint t2 = (EditablePoint) p2;
 		Owner o1 = t1.getOwner();
@@ -433,6 +485,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the new edge connecting the points in input
 	 */
 	public Edge relink(Point... points) {
+		assertOpen();
 		EditablePoint[] ps = new EditablePoint[points.length];
 		for (int i = 0; i < points.length; i++) {
 			ps[i] = (EditablePoint) points[i];
@@ -469,6 +522,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * Merge regions (roots of a place graph)
 	 */
 	public void merge() {
+		assertOpen();
 		EditableRoot r = new EditableRoot();
 		r.setOwner(this);
 		for (EditableParent p : big.roots) {
@@ -488,6 +542,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * bigraph.
 	 */
 	public void ground() {
+		assertOpen();
 		for (EditableChild s : big.sites)
 			s.setParent(null);
 		for (EditablePoint i : big.inners)
@@ -522,6 +577,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void leftJuxtapose(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph left = graph;
 		Bigraph right = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -580,6 +636,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void rightJuxtapose(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph left = this.big;
 		Bigraph right = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -634,6 +691,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void innerCompose(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph in = graph;
 		Bigraph out = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -708,6 +766,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void outerCompose(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph in = this.big;
 		Bigraph out = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -791,6 +850,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void innerNest(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph in = graph;
 		Bigraph out = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -841,6 +901,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void outerNest(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph in = this.big;
 		Bigraph out = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -903,6 +964,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void leftParallelProduct(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph left = graph;
 		Bigraph right = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -983,6 +1045,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 *            flag. If true, the bigraph in input won't be copied.
 	 */
 	public void rightParallelProduct(Bigraph graph, boolean reuse) {
+		assertOpen();
 		Bigraph left = this.big;
 		Bigraph right = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are

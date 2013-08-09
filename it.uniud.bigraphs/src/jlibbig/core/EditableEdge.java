@@ -14,7 +14,7 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 	private final Set<? extends Point> ro_points = Collections.unmodifiableSet(this.points);
 	private Owner owner;
 	
-	EditableEdge(){name = "E_" + AbstNamed.generateName();}
+	EditableEdge(){name = "E_" + AbstractNamed.generateName();}
 	
 	EditableEdge(Owner owner){
 		this();

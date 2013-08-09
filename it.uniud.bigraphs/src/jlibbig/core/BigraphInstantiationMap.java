@@ -1,21 +1,23 @@
 package jlibbig.core;
 
 public class BigraphInstantiationMap implements InstantiationRule<Bigraph>{
-	private int map[];
-	private int dom;
-	private int cod;
+	final private int map[];
+	final private int dom;
+	final private int cod;
 	
-	public BigraphInstantiationMap(int... map) {
+	final private boolean[] neededParam;
+	
+	public BigraphInstantiationMap(int codomain, int... map) {
 		dom = map.length;
-		cod = 0;
+		cod = codomain--;
 		this.map = new int[dom];
+		neededParam = new boolean[cod];
 		for(int i = 0;i< map.length;i++){
-			if(map[i] < 0){
+			if(map[i] < 0 || map[i] > codomain){
 				throw new IllegalArgumentException("Invalid image");
-			}else if(map[i] > cod){
-				cod = map[i];
 			}
 			this.map[i] = map[i];
+			neededParam[map[i]] = true;
 		}
 	}
 
@@ -28,11 +30,15 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph>{
 	}
 
 	public int getPlaceInstance(int arg) {
-		if(arg > 0 && arg < dom){
+		if(-1 < arg && arg < dom){
 			return map[arg];
 		}else{
 			return -1;
 		}
+	}
+	
+	public boolean isNeeded(int prm){
+		return -1 < prm  && prm < cod && neededParam[prm];
 	}
 
 	@Override
