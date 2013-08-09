@@ -104,7 +104,7 @@ public class foo {
 		System.out.println("done: #" + mc + " " + (t1 - t0) + "(ms)");
 		
 
-		BigraphAgentRewriting ar =  new BigraphAgentRewriting(b2,b2);
+		AgentRewritingRule ar =  new AgentRewritingRule(b2,b2);
 		t0 = System.currentTimeMillis();
 		mc = 0L;
 		System.out.println("ground rewrite test...");

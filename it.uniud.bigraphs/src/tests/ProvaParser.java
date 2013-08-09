@@ -1,39 +1,15 @@
 package tests;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
+import java.io.*;
 
 import jlibbig.udlang.*;
-import jlibbig.core.*;
 
 public class ProvaParser{
 	public static void main(String[] args) throws Exception{
-		BufferedReader br = null;
-		StringBuilder b = new StringBuilder();
-		String nl = System.getProperty("line.separator");
-		try {
+		//System.out.println(System.getProperty("user.dir"));
+		String file = (args.length > 0) ? args[0] : "src/tests/ProvaParser.txt";
  
-			String sCurrentLine;
- 
-			br = new BufferedReader(new FileReader( args[0] ));
- 
-			while ((sCurrentLine = br.readLine()) != null) {
-				b.append( sCurrentLine + nl );
-			}
- 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null)br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-		BigraphSystem brs = (new BigraphCompiler()).parse( b.toString() );
-		System.out.println( brs.toString());
-		
+		BigraphReactiveSystem brs = (new BRSCompiler()).parse(new FileReader(file));
+		System.out.println(brs.toString());
 	}	
 }

@@ -5,7 +5,7 @@ package jlibbig.udlang;
 import beaver.Symbol;
 import beaver.Scanner;
 
-import jlibbig.udlang.BigraphParser.Terminals;
+import jlibbig.udlang.BRSParser.Terminals;
 
 
 /**
@@ -14,7 +14,7 @@ import jlibbig.udlang.BigraphParser.Terminals;
  * on 7/28/13 8:37 PM from the specification file
  * <tt>lexer.l</tt>
  */
-class BigraphLexer extends Scanner {
+class BRSLexer extends Scanner {
 
   /** This character denotes the end of file */
   public static final int YYEOF = -1;
@@ -225,7 +225,8 @@ class BigraphLexer extends Scanner {
   private int yyline;
 
   /** the number of characters up to the start of the matched text */
-  private int yychar;
+  @SuppressWarnings("unused")
+private int yychar;
 
   /**
    * the number of characters from the last newline up to the start of the 
@@ -236,13 +237,15 @@ class BigraphLexer extends Scanner {
   /** 
    * zzAtBOL == true <=> the scanner is currently at the beginning of a line
    */
-  private boolean zzAtBOL = true;
+  @SuppressWarnings("unused")
+private boolean zzAtBOL = true;
 
   /** zzAtEOF == true <=> the scanner is at the EOF */
   private boolean zzAtEOF;
 
   /** denotes if the user-EOF-code has already been executed */
-  private boolean zzEOFDone;
+  @SuppressWarnings("unused")
+private boolean zzEOFDone;
 
   /* user code: */
 	private Symbol newToken( short id )
@@ -262,7 +265,7 @@ class BigraphLexer extends Scanner {
    *
    * @param   in  the java.io.Reader to read input from.
    */
-  BigraphLexer(java.io.Reader in) {
+  BRSLexer(java.io.Reader in) {
     this.zzReader = in;
   }
 
@@ -272,7 +275,7 @@ class BigraphLexer extends Scanner {
    *
    * @param   in  the java.io.Inputstream to read input from.
    */
-  BigraphLexer(java.io.InputStream in) {
+  BRSLexer(java.io.InputStream in) {
     this(new java.io.InputStreamReader(in));
   }
 

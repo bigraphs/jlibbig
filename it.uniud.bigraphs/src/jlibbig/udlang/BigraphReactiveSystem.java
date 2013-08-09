@@ -7,15 +7,15 @@ import java.util.*;
  * This class stores a set of bigraphs and a set of reactions.
  * Bigraphs, redexes and reacta of the same system share the same signature and this signature (system's signature) can't change.
  */
-public class BigraphSystem{
-	private Signature signature;
-	private Set<Bigraph> bigraphs;
-	private Set<Reaction<Bigraph>> reactions;
+public class BigraphReactiveSystem{
+	final private Signature signature;
+	final private Set<Bigraph> bigraphs;
+	final private Set<BigraphRewritingRule> reactions;
 	
 	/**
 	 * @param sig signature used for every bigraph and reaction of this system.	
 	 */
-	public BigraphSystem( Signature sig ){
+	public BigraphReactiveSystem( Signature sig ){
 		if( sig == null )
 			throw new IllegalArgumentException( "Signature can't be null" );
 		signature = sig;
@@ -45,9 +45,9 @@ public class BigraphSystem{
 	 * Get the set of reactions.
 	 * @return A set of Reaction.
 	 * @see Bigraph
-	 * @see Reaction
+	 * @see AbstRewritingRule
 	 */
-	public Set<Reaction<Bigraph>> getReactions(){
+	public Set<BigraphRewritingRule> getReactions(){
 		return Collections.unmodifiableSet( reactions );
 	}
 
@@ -70,12 +70,12 @@ public class BigraphSystem{
 	 * @throws RuntimeException if signatures don't match
 	 * @see Bigraph
 	 */
-	public void addReaction( Bigraph redex , Bigraph reactum ){
+	public void addReaction( Bigraph redex , Bigraph reactum, int... instantiationMap ){
 		if( signature != redex.getSignature() || signature != reactum.getSignature() )
 			throw new RuntimeException( "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
 		if( redex.getRoots().size() != reactum.getRoots().size() )
 			throw new RuntimeException("The number of roots in redex and reactum must be the same");
-		reactions.add( new Reaction<Bigraph>( redex , reactum ) );
+		reactions.add( new BigraphRewritingRule( redex , reactum, instantiationMap) );
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class BigraphSystem{
 		StringBuilder str = new StringBuilder();
 
 		str.append("REACTIONS:" + nl );
-		for( Reaction<Bigraph> reac : reactions ){
+		for( BigraphRewritingRule reac : reactions ){
 			str.append( reac.getRedex().toString() + nl + "-->" + nl + reac.getReactum().toString() + nl + nl );
 		}
 		

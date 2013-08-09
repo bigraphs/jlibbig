@@ -8,51 +8,43 @@ import java.util.*;
 import jlibbig.core.exceptions.IncompatibleSignatureException;
 import jlibbig.core.exceptions.InvalidInstantiationRuleException;
 
-public class BigraphAgentRewriting{
+public class AgentRewritingRule implements RewritingRule<Bigraph>{
 
 	final private boolean[] neededParams;
 	final private boolean[] cloneParams; 
 	
 	final Bigraph redex;
 	final Bigraph reactum;
-	final InstantiationMap eta;
+	final BigraphInstantiationMap eta;
 	
 	/**
 	 * @param redex
 	 * @param reactum
 	 * @param eta
 	 */
-	public BigraphAgentRewriting(Bigraph redex, Bigraph reactum, int... eta) {
-		this(redex,reactum,new InstantiationMap(eta));
-	}
-	
-	/**
-	 * @param redex
-	 * @param reactum
-	 * @param eta
-	 */
-	public BigraphAgentRewriting(Bigraph redex, Bigraph reactum,
-			InstantiationMap eta) {
+	public AgentRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
+		
+		this.redex = redex;
+		this.reactum = reactum;
+		this.eta = new BigraphInstantiationMap(eta);
+		
 		if (reactum.getSignature() != redex.getSignature()) {
 			throw new IncompatibleSignatureException(reactum.getSignature(), redex.getSignature(),
 					"Redex and reactum should have the same singature.");
 		}
-		if (redex.getSites().size() != eta.getPlaceCodomain()) {
+		if (redex.getSites().size() != this.eta.getPlaceCodomain()) {
 			throw new InvalidInstantiationRuleException("The instantiation rule does not match the redex inner interface.");
 		}
-		if (reactum.getSites().size() != eta.getPlaceDomain()) {
+		if (reactum.getSites().size() != this.eta.getPlaceDomain()) {
 			throw new InvalidInstantiationRuleException("The instantiation rule does not match the reactum inner interface.");
 		}
-		this.redex = redex;
-		this.reactum = reactum;
-		this.eta = eta;
 		
 		
-		this.neededParams = new boolean[eta.getPlaceCodomain()];
-		this.cloneParams = new boolean[eta.getPlaceDomain()];
-		int prms[] = new int[eta.getPlaceDomain()];
-		for(int i = 0;i< eta.getPlaceDomain();i++){
-			int j = eta.getPlaceInstance(i);
+		this.neededParams = new boolean[this.eta.getPlaceCodomain()];
+		this.cloneParams = new boolean[this.eta.getPlaceDomain()];
+		int prms[] = new int[this.eta.getPlaceDomain()];
+		for(int i = 0;i< this.eta.getPlaceDomain();i++){
+			int j = this.eta.getPlaceInstance(i);
 			neededParams[j] = true;
 			prms[i] = j; 
 		}
@@ -65,41 +57,20 @@ public class BigraphAgentRewriting{
 		}
 	}
 
-	public static class InstantiationMap{ // implements InstantiationRule<Bigraph>{
 
-		private int map[];
-		private int dom;
-		private int cod;
-		
-		public InstantiationMap(int... map) {
-			dom = map.length;
-			cod = 0;
-			this.map = new int[dom];
-			for(int i = 0;i< map.length;i++){
-				if(map[i] < 0){
-					throw new IllegalArgumentException("Invalid image");
-				}else if(map[i] > cod){
-					cod = map[i];
-				}
-				this.map[i] = map[i];
-			}
-		}
+	@Override
+	public Bigraph getRedex() {
+		return this.redex;
+	}
 
-		public int getPlaceDomain() {
-			return dom;
-		}
+	@Override
+	public Bigraph getReactum() {
+		return this.reactum;
+	}
 
-		public int getPlaceCodomain() {
-			return cod;
-		}
-
-		public int getPlaceInstance(int arg) {
-			if(arg > 0 && arg < dom){
-				return map[arg];
-			}else{
-				return -1;
-			}
-		}
+	@Override
+	public BigraphInstantiationMap getInstantiationRule() {
+		return this.eta;
 	}
 	
 	public Iterable<Bigraph> apply(Bigraph agent) {
@@ -127,7 +98,7 @@ public class BigraphAgentRewriting{
 		@Override
 		public Iterator<Bigraph> iterator() {
 			if (mAble == null)
-				mAble = BigraphAgentMatcher.DEFAULT.match(target, redex,neededParams);
+				mAble = AgentMatcher.DEFAULT.match(target, redex,neededParams);
 			return new RewriteIterator();
 		}
 
@@ -145,7 +116,7 @@ public class BigraphAgentRewriting{
 			@Override
 			public Bigraph next() {
 				if (hasNext()) {
-					BigraphAgentMatch match = (BigraphAgentMatch) matches
+					AgentMatch match = (AgentMatch) matches
 							.next();
 					BigraphBuilder bb = new BigraphBuilder(redex.getSignature());
 					for(int i = eta.getPlaceDomain()-1;0 <= i; i--){
