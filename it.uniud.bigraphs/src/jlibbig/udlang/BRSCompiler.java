@@ -18,10 +18,13 @@ import jlibbig.core.lang.CompilerException;
  * 
  */
 public class BRSCompiler implements Compiler<BigraphReactiveSystem> {
-	public BRSCompiler() {
-	}
 
-	private static BRSParser parser = new BRSParser();
+	private static final BRSParser parser = new BRSParser();
+	private static final BRSCompiler instance = new BRSCompiler();
+	
+	public static BRSCompiler getInstance(){
+		return instance;
+	}
 
 	/**
 	 * Return a system, carrying bigraphs and reactions with the same signature.

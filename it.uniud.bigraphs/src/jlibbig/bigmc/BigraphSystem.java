@@ -16,12 +16,18 @@ public class BigraphSystem{
 	private Set<String> outerNames;
 	private Set<RewritingRule> reactionRules;
 	
+	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";
+	
 	/**
 	 * @param sig signature used for every bigraph and reaction of this system.	
 	 */
 	public BigraphSystem( Signature sig ){
 		if( sig == null )
 			throw new IllegalArgumentException( "Signature can't be null" );
+		for( Control ctrl : sig ){
+			if( !ctrl.getName().matches( nameexpr ) )
+				throw new IllegalArgumentException( "Control's name: " + ctrl.getName() + " - controls' names must match the following regular expression: " + nameexpr );
+		}
 		signature = sig;
 		bigraphs = new HashSet<>();
 		outerNames = new HashSet<>();

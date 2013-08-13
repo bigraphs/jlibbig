@@ -22,6 +22,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	BigraphBuilder rbig;
 	Map<Site , Integer> siteNames;
 	
+	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";
+	
 	/**
 	 * Create a new ReactionBigraphBuilder
 	 * @param sig
@@ -189,6 +191,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * @return the reference of the new node
 	 */
 	public Node addNode( String controlName , Parent parent , List<OuterName> outernames ) {
+		if( !controlName.matches(nameexpr) )
+			throw new IllegalArgumentException( "Control's name: " + controlName + " - Controls' names must match the following regular expression: " + nameexpr );
 		List<Handle> handles = new LinkedList<>();
 		for( Handle outer : outernames )
 			handles.add( outer );
@@ -213,6 +217,9 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * @return the reference of the new outername
 	 */
 	public OuterName addOuterName( String name ) {
+		if( !name.matches(nameexpr) )
+			throw new IllegalArgumentException( "OuterName: " + name + " - OuterNames must match the following regular expression: " + nameexpr );
+		
 		return this.rbig.addOuterName( name );
 	}
 	
@@ -226,9 +233,11 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	public List<OuterName> addOuterNames( List<String> names ){
 		List<OuterName> list = new LinkedList<>();
 		for( String name : names ){
-			if( name != null )
+			if( name != null ){
+				if( !name.matches(nameexpr) )
+					throw new IllegalArgumentException( "OuterName: " + name + " - OuterNames must match the following regular expression: " + nameexpr );
 				list.add( this.rbig.addOuterName( name ) );
-			else
+			}else
 				list.add( null );
 		}
 		return list;
@@ -292,6 +301,9 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * 			Outernames that will be linked to the node's ports
 	 */
 	public void outerAddNode( String controlName , List<OuterName> outernames ){
+		if( !controlName.matches(nameexpr) )
+			throw new IllegalArgumentException( "Control's name: " + controlName + " - Controls' names must match the following regular expression: " + nameexpr );
+		
 		BigraphBuilder bb = new BigraphBuilder( rbig.getSignature() );
 		List<Handle> outers = new ArrayList<>();
 		for( OuterName outer : outernames ){

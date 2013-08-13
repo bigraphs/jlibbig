@@ -47,7 +47,7 @@ Digit = [0-9]
 	"nil"	{ return newToken(Terminals.NIL); }
 	
 	{Digit}+			{ return newToken(Terminals.NUM, new Integer(yytext())); }
-	{Letter}({Letter}|{Digit})*	{ return newToken(Terminals.VARID, new String(yytext())); }
+	{Letter}({Letter}|{Digit}|"_")*	{ return newToken(Terminals.VARID, new String(yytext())); }
 	
 	"."	{ return newToken(Terminals.POINT); }
 	"|"	{ return newToken(Terminals.PIPE); }
