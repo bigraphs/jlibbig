@@ -41,6 +41,7 @@ Digit = [0-9]
 	"%active"	{ return newToken(Terminals.MODE , true ); }
 	"%passive"	{ return newToken(Terminals.MODE , false ); }
 
+	"%" 	{ return newToken(Terminals.PERCENT); }
 	";"	{ return newToken(Terminals.SEMICOLON); }
 	":"	{ return newToken(Terminals.COLON); }
 	"->"	{ return newToken(Terminals.REACT); }
@@ -51,7 +52,7 @@ Digit = [0-9]
 	"1"			{ return newToken( Terminals.ONE ); }
 
 	{Digit}+			{ return newToken( Terminals.NUM, Integer.parseInt( yytext() ) ); }
-	{Letter}({Letter}|{Digit})*	{ return newToken( Terminals.VARID, new String( yytext() ) ); }
+	{Letter}({Letter}|{Digit}|"_")*	{ return newToken( Terminals.VARID, new String( yytext() ) ); }
 	
 	"."	{ return newToken(Terminals.POINT); }
 	"|"	{ return newToken(Terminals.PIPE); }

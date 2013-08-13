@@ -36,14 +36,14 @@ class BigMCParser extends Parser {
 	}
 
 	static final ParsingTables PARSING_TABLES = new ParsingTables(
-		"U9o5acbF544GXj$POPTZ5pbwmMLSbLCGv8YHc430uujNK18#yM$ujLnogA1obqztUjO98Q4" +
-		"dJzVHLTN7bAHDJIZJa4PKKe#UsRQPkkKqg06xoJMLrQasLLjsfgOgBUi#sK7sOrNjhphjW2" +
-		"gfxMEFg5rFz5GDTUc1QiJqOZzIl$hqK7NxRdiQrfZ6DShUavhIZ9vhslweJir1OXgSEoD3I" +
-		"ZXzIjH$hK9rHytSzXczBUi#wRCJiZkG$kvrveGT7UUiSZx7YLrOgt5UXyznYpAV8wx2Ipfo" +
-		"a$16NMZIYos5CHkbzzMYFW0pKMz6EGmhy0fUmbjOXV6u$ixBg4$1VDG$m28imST2JBx$U$W" +
-		"AdwFT3LzW0px16do3TRzknlyI7SAx5cfD5$IvA1Todyyfh2$cUi7t#WvV#PQzV3ic#j$SvS" +
-		"$loEvNTkLLkmpp1Vo47$OxsAVm2uxjADY7YiDsROVvnCw3TQt2i3Ec8Vgi1BuBsa3qH1hwe" +
-		"ewlmP$Ey6L8tm6E6CUw2tOQASMrb6g#Oa9FUb8w80aq$m4XFcUq");
+		"U9o5acbFKq4KXj$RsrwM5WMc8DGgY#me408nqO3B5mKYcFY9VyElbLq11KM1upEJkVM6a33" +
+		"DCsS$CtTw96rhN0qDQaGbFTI4VJLJbvpwrMStkQQAEbHMjMKtr5JMikwJxLG$KTMkr657T4" +
+		"dj07j4RNgg8GseKmzK8wSR#x5wrQD7gjkXxMjOppIcKSwUr9HcDQqP#wiwFVl96U3U3IgaX" +
+		"DkdPFtNChexUkQsh#XkMVT9NvrGtOxqtrvdJpZHSSygztFSs8LOZViwV8wlgF1pv6MyfACs" +
+		"2M$KYIOztr5OBwBqlbhK#s0swiqeXs45bc0Hti8gZCNuEo#ZFWNpKVy0o$0AFXPoylFVmoQ" +
+		"iHxiBDk0BhC4ds8BFFcx6$oKcX7Sjz9efw7DHBkG#NrE8B#TwmVVo3b$bbltwTaxqlxdBdt" +
+		"yZfr$QfLVjTzX$mIcSs7cmVy8PVBTlmJvMNBPdk#m$x29OVrHOTiqso9oL867gCgPEa34HP" +
+		"H3paOOPgHDtWJAaa4NfASLOIZVVCM4cFIaJa0IQ$m0t3MUn");
 
 	static final Action RETURN2 = new Action() {
 		public Symbol reduce(Symbol[] _symbols, int offset) {
@@ -112,48 +112,7 @@ class BigMCParser extends Parser {
 		actions = new Action[] {
 			RETURN2,	// [0] start = definitionlist models; returns 'models' although none is marked
 			Action.RETURN,	// [1] start = models
-			new Action() {	// [2] names = names OUTERNAME VARID.v SEMICOLON
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_v = _symbols[offset + 3];
-					final String v = (String) _symbol_v.value;
-					 _brs.addName( v ); return new Symbol( null );
-				}
-			},
-			new Action() {	// [3] names = 
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					 if( _brs == null ) _brs = new BigraphSystem( new SignatureBuilder().makeSignature() ); return new Symbol( null );
-				}
-			},
-			new Action() {	// [4] models = models big.b SEMICOLON
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b = _symbols[offset + 2];
-					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
-					
-			for( OuterName out : b.getOuterNames() ){
-				if( !_brs.getOuterNames().contains( out.getName() ) )
-					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Agents' outernames can't be free names. Eachone of them must be declared (using %outer or %name). Undeclared name: " + out.getName() );
-			} 
-			try{
-				_brs.addBigraph( new AgentBigraph( b.makeBigraph() ) );
-			}catch( IllegalArgumentException e ){ 
-				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Sites can only appear in reaction rules." );
-			}
-			return new Symbol( null );
-				}
-			},
-			new Action() {	// [5] models = models big.b1 REACT big.b2 SEMICOLON
-				public Symbol reduce(Symbol[] _symbols, int offset) {
-					final Symbol _symbol_b1 = _symbols[offset + 2];
-					final ReactionBigraphBuilder b1 = (ReactionBigraphBuilder) _symbol_b1.value;
-					final Symbol _symbol_b2 = _symbols[offset + 4];
-					final ReactionBigraphBuilder b2 = (ReactionBigraphBuilder) _symbol_b2.value;
-					
-			_brs.addReaction( b1.makeReactionBigraph() , b2.makeReactionBigraph() );
-			return new Symbol( null );
-				}
-			},
-			Action.RETURN,	// [6] models = names
-			new Action() {	// [7] definitionlist = definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON
+			new Action() {	// [2] definitionlist = definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_sb = _symbols[offset + 1];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
@@ -164,23 +123,23 @@ class BigMCParser extends Parser {
 					final Symbol _symbol_n = _symbols[offset + 5];
 					final Integer n = (Integer) _symbol_n.value;
 					
-				if( _brs == null ){
-					sb.put( v , b , n ); 
-					_brs = new BigraphSystem( sb.makeSignature() );
-				}else{
-					Control c = null;
-				if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
-					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_v.getStart() ) + " - Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
-				}
-				return new Symbol( null );
+			if( _brs == null ){
+				sb.put( v , b , n ); 
+				_brs = new BigraphSystem( sb.makeSignature() );
+			}else{
+				Control c = null;
+			if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_v.getStart() ) + " - Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
+			}
+			return new Symbol( null );
 				}
 			},
-			new Action() {	// [8] definitions = 
+			new Action() {	// [3] definitions = 
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					 return new Symbol( new SignatureBuilder() );
 				}
 			},
-			new Action() {	// [9] definitions = definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON
+			new Action() {	// [4] definitions = definitions.sb CTRL.b VARID.v COLON NUM.n SEMICOLON
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_sb = _symbols[offset + 1];
 					final SignatureBuilder sb = (SignatureBuilder) _symbol_sb.value;
@@ -203,6 +162,50 @@ class BigMCParser extends Parser {
 			return new Symbol( null );
 				}
 			},
+			new Action() {	// [5] names = names OUTERNAME VARID.v SEMICOLON
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_v = _symbols[offset + 3];
+					final String v = (String) _symbol_v.value;
+					 _brs.addName( v ); return new Symbol( null );
+				}
+			},
+			new Action() {	// [6] names = 
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					 if( _brs == null ) _brs = new BigraphSystem( new SignatureBuilder().makeSignature() ); return new Symbol( null );
+				}
+			},
+			new Action() {	// [7] models = models big.b SEMICOLON
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_b = _symbols[offset + 2];
+					final ReactionBigraphBuilder b = (ReactionBigraphBuilder) _symbol_b.value;
+					
+			for( OuterName out : b.getOuterNames() ){
+				if( !_brs.getOuterNames().contains( out.getName() ) )
+					throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Agents' outernames can't be free names. Eachone of them must be declared (using %outer or %name). Undeclared name: " + out.getName() );
+			}
+			if( b.getRoots().size() != 1 )
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - BigMC's agent can't have more than one top level region (root). The double-parallel operator (||) can only appear in reaction rules." );
+			
+			try{
+				_brs.addBigraph( new AgentBigraph( b.makeBigraph() ) );
+			}catch( IllegalArgumentException e ){ 
+				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Sites can only appear in reaction rules." );
+			}
+			return new Symbol( null );
+				}
+			},
+			new Action() {	// [8] models = models big.b1 REACT big.b2 SEMICOLON
+				public Symbol reduce(Symbol[] _symbols, int offset) {
+					final Symbol _symbol_b1 = _symbols[offset + 2];
+					final ReactionBigraphBuilder b1 = (ReactionBigraphBuilder) _symbol_b1.value;
+					final Symbol _symbol_b2 = _symbols[offset + 4];
+					final ReactionBigraphBuilder b2 = (ReactionBigraphBuilder) _symbol_b2.value;
+					
+			_brs.addReaction( b1.makeReactionBigraph() , b2.makeReactionBigraph() );
+			return new Symbol( null );
+				}
+			},
+			Action.RETURN,	// [9] models = names
 			new Action() {	// [10] big = VARID.v
 				public Symbol reduce(Symbol[] _symbols, int offset) {
 					final Symbol _symbol_v = _symbols[offset + 1];
