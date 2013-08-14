@@ -105,6 +105,13 @@ class BigMCParser extends Parser {
 			return _brs;
 		}
 
+		/**
+		 * Override default recoverFromError method. Policy: never recover.
+		 */
+		protected void recoverFromError(Symbol token, TokenStream in) throws IOException, Parser.Exception{
+			throw new IOException("Syntax Error.");
+		}
+
 	private final Action[] actions;
 
 	public BigMCParser() {
