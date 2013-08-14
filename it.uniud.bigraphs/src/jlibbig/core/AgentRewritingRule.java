@@ -131,6 +131,15 @@ public class AgentRewritingRule implements RewritingRule<Bigraph> {
 								match.params.get(eta.getPlaceInstance(i)),
 								!cloneParam[i]);
 					}
+					Bigraph lambda = match.getLinking();
+					Set<? extends LinkFacet> ons = bb.getOuterNames();
+					Iterator<EditableInnerName> ir = lambda.inners.iterator();
+					while(ir.hasNext()){
+						EditableInnerName i = ir.next();
+						if(!ons.contains(i)){
+							ir.remove();
+						}
+					}
 					bb.outerCompose(match.redex, true);
 					bb.outerCompose(match.context, true);
 					return bb.makeBigraph(true);

@@ -635,7 +635,7 @@ final public class Bigraph implements AbstBigraph {
 	 * @return the resulting identity bigraph.
 	 */
 	public static Bigraph makeId(Signature signature, int width,
-			Set<LinkFacet> names) {
+			Set<? extends LinkFacet> names) {
 		BigraphBuilder bb = new BigraphBuilder(signature);
 		for (int i = 0; i < width; i++) {
 			bb.addSite(bb.addRoot());

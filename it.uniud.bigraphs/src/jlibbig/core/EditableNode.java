@@ -126,6 +126,11 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 		
 		public Set<EditableChild> getEditableChildren(){
 			return this.children;
+		}	
+		
+		@Override
+		public EditableRoot getRoot() {
+			return this.parent.getRoot();
 		}
 		
 		@Override
