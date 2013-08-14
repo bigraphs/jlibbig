@@ -5,11 +5,13 @@ import java.util.*;
 public class AgentMatch extends BigraphMatch{
 
 	protected final List<Bigraph> params;
+	protected final Bigraph lambda;
 	protected Bigraph param;
 	
-	protected AgentMatch(Bigraph context, Bigraph redex, List<Bigraph> params){
+	protected AgentMatch(Bigraph context, Bigraph redex, Bigraph lambda, List<Bigraph> params){
 		super(context,redex,null);
 		this.params = Collections.unmodifiableList(new  LinkedList<Bigraph>(params));
+		this.lambda = lambda;
 	}
 		
 	/**
@@ -37,6 +39,7 @@ public class AgentMatch extends BigraphMatch{
 			for(Bigraph prm : this.params){
 				bb.rightParallelProduct(prm);
 			}
+			bb.outerCompose(lambda);
 			this.param = bb.makeBigraph();
 		}
 		return this.param;
@@ -44,6 +47,10 @@ public class AgentMatch extends BigraphMatch{
 	
 	public List<Bigraph> getParams() {
 		return this.params;
+	}
+	
+	public Bigraph getLinking() {
+		return this.lambda;
 	}
 	
 	

@@ -24,6 +24,8 @@ interface EditableParent extends Parent, Replicable, Owned {
 	 */
 	void removeChild(EditableChild child);
 	
+	EditableRoot getRoot();
+	
 	/**
 	 * @see Replicable#replicate()
 	 */

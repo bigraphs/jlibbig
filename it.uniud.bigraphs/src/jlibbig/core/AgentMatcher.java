@@ -1315,7 +1315,11 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 						// Replicates prms
 						// /////////////////////////////////////////////
-
+						Bigraph lambda = Bigraph.makeId(redex.signature, rss, redex.inners);
+						// unused inner names
+						Set<? extends LinkFacet> lambda_inners = new HashSet<>(lambda.inners);
+						// translates cross-parameter edges to lambda's inner names.
+						Map<Handle,EditableInnerName> prm_crx_dic = new HashMap<>();
 						for (int i = 0; i < rss; i++) {
 							if (neededParams[i]) {
 								// replicates the i-th parameter
@@ -1323,6 +1327,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								prms.add(prm);
 								prm_hnd_dic.clear();
 								prm_ion_dic.clear();
+								/*
 								// replicate inners
 								for (EditableInnerName i1 : redex.inners) {
 									EditableOuterName o2 = new EditableOuterName(
@@ -1331,6 +1336,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 									o2.setOwner(prm);
 									prm.outers.add(o2);
 								}
+								*/
 
 								// there is exactly one root
 								EditableRoot r0 = new EditableRoot();
@@ -1353,8 +1359,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 										EditablePort o = n1.getPort(j);
 										EditableHandle h2 = null;
 										// is this port assigned to an inner
-										// name of
-										// the redex?
+										// name of the redex?
 										Map<InnerName, IntegerVariable> pr = lnk_pts
 												.get(o);
 										if (pr != null) {
@@ -1362,6 +1367,14 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 												if (lnk_solver.getVar(
 														pr.get(i1)).getVal() == 1) {
 													h2 = prm_ion_dic.get(i1);
+													if(h2 == null){
+														EditableOuterName i2 = new EditableOuterName(i1.getName());
+														prm.outers.add(i2);
+														i2.setOwner(prm);
+														h2 = i2;
+														prm_ion_dic.put(i1, i2);
+														lambda_inners.remove(i2);
+													}
 													break;
 												}
 											}
@@ -1370,10 +1383,38 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 											EditableHandle h1 = o.getHandle();
 											h2 = prm_hnd_dic.get(h1);
 											if (h2 == null) {
-												h2 = h1.replicate();
+												// detect cross-param edges
+												if(h1 instanceof Edge){
+													EditableInnerName il = prm_crx_dic.get(h1);
+													if(il == null){
+														Root r1 = n1.getRoot();
+														for(Point p1 : h1.getPoints()){
+															if(p1 instanceof EditablePort && r1 != ((EditablePort) p1).getNode().getRoot()){
+																// h1 is a cross-param edge
+																il = new EditableInnerName();
+																prm_crx_dic.put(h1,il);
+																lambda.inners.add(il);
+																il.setHandle(new EditableEdge(lambda));
+																break;
+															}
+														}
+													}
+													if(il == null){
+														// not a cross-edge
+														h2 = h1.replicate();
+													}else{
+														EditableOuterName ol = new EditableOuterName(il.getName());
+														//ol.setOwner(prm);
+														prm.outers.add(ol);
+														//prm_hnd_dic.put(h1,ol);
+														h2 = ol;
+													}
+												}else{
+													h2 = h1.replicate();
+												}
 												h2.setOwner(prm);
+												prm_hnd_dic.put(h1, h2);
 											}
-											prm_hnd_dic.put(h1, h2);
 										}
 										n2.getPort(j).setHandle(h2);
 									}
@@ -1388,7 +1429,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								prms.add(null);
 							}
 						}
-
+						lambda.inners.removeAll(lambda_inners);
 						if (DEBUG_CONSISTENCY_CHECK) {
 							if (!ctx.isConsistent()) {
 								throw new RuntimeException(
@@ -1407,7 +1448,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								}
 							}
 						}
-						matchQueue.add(new AgentMatch(ctx, rdx, prms));
+						matchQueue.add(new AgentMatch(ctx, rdx, lambda, prms));
 					} while (lnk_solver.nextSolution());
 				} while (this.matchQueue.isEmpty());
 			}

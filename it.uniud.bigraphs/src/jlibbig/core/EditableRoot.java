@@ -42,6 +42,11 @@ class EditableRoot implements EditableParent, Root, PlaceEntity, EditableOwned{
 	}	
 	
 	@Override
+	public EditableRoot getRoot() {
+		return this;
+	}
+	
+	@Override
 	public EditableRoot replicate(){
 		return new EditableRoot();
 	}
