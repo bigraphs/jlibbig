@@ -5,8 +5,7 @@ package jlibbig.core;
 
 import java.util.*;
 
-import jlibbig.core.exceptions.IncompatibleSignatureException;
-import jlibbig.core.exceptions.InvalidInstantiationRuleException;
+import jlibbig.core.exceptions.*;
 
 public class AgentRewritingRule implements RewritingRule<Bigraph> {
 
@@ -32,14 +31,21 @@ public class AgentRewritingRule implements RewritingRule<Bigraph> {
 			throw new IncompatibleSignatureException(reactum.getSignature(),
 					redex.getSignature(),
 					"Redex and reactum should have the same singature.");
-		}
-		if (redex.sites.size() < this.eta.getPlaceCodomain()) {
+		}if (redex.sites.size() < this.eta.getPlaceCodomain()) {
 			throw new InvalidInstantiationRuleException(
 					"The instantiation rule does not match the redex inner interface.");
 		}
 		if (reactum.sites.size() != this.eta.getPlaceDomain()) {
 			throw new InvalidInstantiationRuleException(
 					"The instantiation rule does not match the reactum inner interface.");
+		}
+		if (redex.roots.size() != reactum.roots.size() || !redex.outers.containsAll(reactum.outers) || !reactum.outers.containsAll(redex.outers)){
+			throw new IncompatibleInterfacesException(redex,reactum,
+					"Redex and reactum should have the same outer interface.");
+		}
+		if (!redex.inners.containsAll(reactum.inners) || !reactum.inners.containsAll(redex.inners)){
+			throw new IncompatibleInterfacesException(redex,reactum,
+					"Redex and reactum should have the same outer interface.");
 		}
 
 		this.neededParam = new boolean[redex.sites.size()];
