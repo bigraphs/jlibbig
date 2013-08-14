@@ -45,7 +45,7 @@ public class BigraphReactiveSystem{
 	 * Get the set of reactions.
 	 * @return A set of Reaction.
 	 * @see Bigraph
-	 * @see AbstRewritingRule
+	 * @see BigraphRewritingRule
 	 */
 	public Set<BigraphRewritingRule> getReactions(){
 		return Collections.unmodifiableSet( reactions );
@@ -75,6 +75,10 @@ public class BigraphReactiveSystem{
 			throw new RuntimeException( "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
 		if( redex.getRoots().size() != reactum.getRoots().size() )
 			throw new RuntimeException("The number of roots in redex and reactum must be the same");
+		if( !redex.getOuterNames().containsAll( reactum.getOuterNames() ) || !reactum.getOuterNames().containsAll( redex.getOuterNames() ) )
+			throw new RuntimeException("Redex and reactum must have the same set of outernames.");
+		if( !redex.getInnerNames().containsAll( reactum.getInnerNames() ) || !reactum.getInnerNames().containsAll( redex.getInnerNames() ) )
+			throw new RuntimeException("Redex and reactum must have the same set of innernames.");
 		reactions.add( new BigraphRewritingRule( redex , reactum, instantiationMap) );
 	}
 

@@ -66,6 +66,10 @@ public class BRSParser extends Parser {
 	private BigraphReactiveSystem _sys;
 
 
+	/**
+	 * Get an instance of this parser.
+	 * @return Parser's instance.
+	 */
 	BRSParser getInstance(){
 		return instance;
 	}
@@ -86,20 +90,67 @@ public class BRSParser extends Parser {
 		return parse(new StringReader(str));
 	}
 
+	/**
+	 * Generate a system (sets of bigraphs and reactions with the same
+	 * signature) from a string.
+	 * 
+	 * @param in
+	 *            the Reader that will be parsed.
+	 * @return Return a system, carrying bigraphs and reactions with the same
+	 *         signature.
+	 * @throws IOException
+	 * @throws Parser.Exception
+	 * @see BigraphReactiveSystem
+	 */
 	BigraphReactiveSystem parse(Reader in) throws IOException, Exception {
 		_sys = null;
 		parse(new BRSLexer(in));
 		return _sys;
 	}
 
+	/**
+	 * Generate a system (sets of bigraphs and reactions with the same
+	 * signature) from a string.
+	 * 
+	 * @param str
+	 *		the string that will be parsed.
+	 * @param sig
+	 *		the signature that will be used in the system.
+	 * @return Return a system, carrying bigraphs and reactions with the same
+	 *         signature.
+	 * @throws IOException
+	 * @throws Parser.Exception
+	 * @see BigraphReactiveSystem
+	 */
 	BigraphReactiveSystem parse(String str , Signature sig) throws IOException, Exception {
 		return parse(new StringReader(str) , sig);
 	}
 
+	/**
+	 * Generate a system (sets of bigraphs and reactions with the same
+	 * signature) from a string.
+	 * 
+	 * @param in
+	 *            the Reader that will be parsed.
+	 * @param sig
+	 *		the signature that will be used in the system.
+	 * @return Return a system, carrying bigraphs and reactions with the same
+	 *         signature.
+	 * @throws IOException
+	 * @throws Parser.Exception
+	 * @see BigraphReactiveSystem
+	 */
 	BigraphReactiveSystem parse(Reader in , Signature sig) throws IOException, Exception {
 		_sys = new BigraphReactiveSystem( sig );
 		parse(new BRSLexer(in));
 		return _sys;
+	}
+
+	/**
+	 * Override default recoverFromError method. Policy: never recover.
+	 */
+	protected void recoverFromError(Symbol token, TokenStream in) throws IOException, Parser.Exception{
+		throw new IOException("Syntax Error.");
 	}
 
 	/**
@@ -114,7 +165,11 @@ public class BRSParser extends Parser {
 			this.outer = outer;
 		}	
 	}
-		
+	
+	/**
+	 * Class used to store bigraphs during parse.
+	 *
+	 */
 	private class ParsedBigraph{
 		private BigraphBuilder bb;
 		private Boolean polymorphicSites;
@@ -126,6 +181,9 @@ public class BRSParser extends Parser {
 			siteNames = new ArrayList<>();			
 		}
 
+		/**
+		 * Close all sites of the parsed bigraph. 
+		 */
 		void closeSites(){
 			this.polymorphicSites = false;
 			BigraphBuilder ground = new BigraphBuilder( this.bb.getSignature() );
@@ -136,6 +194,11 @@ public class BRSParser extends Parser {
 			this.bb.innerCompose( ground.makeBigraph() );
 		}
 
+		/**
+		 * Juxtapose the current bigraph with the ParsedBigraph in input.
+		 * @param pb
+		 * 		bigraph that will be juxtaposed.
+		 */
 		void juxtapose( ParsedBigraph pb ) throws IllegalArgumentException{
 			if( !Collections.disjoint( this.siteNames , pb.siteNames ) )
 				throw new IllegalArgumentException( "Can't juxtapose two bigraph with overlapping sites: " + this.siteNames + " + " + pb.siteNames );
@@ -148,6 +211,11 @@ public class BRSParser extends Parser {
 			this.siteNames.addAll( pb.siteNames );
 		}
 
+		/**
+		 * Juxtapose the current bigraph with the bigraph in input. Outernames in both bigraph will be merged.
+		 * @param pb
+		 *		bigraph that will be juxtaposed.
+		 */
 		void parallelProduct( ParsedBigraph pb ) throws IllegalArgumentException{
 			if( !Collections.disjoint( this.siteNames , pb.siteNames ) )
 				throw new IllegalArgumentException( "Can't juxtapose two bigraph with overlapping sites: " + this.siteNames + " + " + pb.siteNames );
@@ -160,6 +228,11 @@ public class BRSParser extends Parser {
 			this.siteNames.addAll( pb.siteNames );
 		}
 
+		/**
+		 * Merge the current bigraph with the bigraph in input.
+		 * @param pb
+		 *		bigraph that will be juxtaposed.
+		 */
 		void merge( ParsedBigraph pb ) throws IllegalArgumentException{
 			if( !Collections.disjoint( this.siteNames , pb.siteNames ) )
 				throw new IllegalArgumentException( "Can't juxtapose two bigraph with overlapping sites: " + this.siteNames + " + " + pb.siteNames );
@@ -173,6 +246,11 @@ public class BRSParser extends Parser {
 			this.siteNames.addAll( pb.siteNames );
 		}
 
+		/**
+		 * Nest the bigraph in input with the current bigraph. Input bigraph's innernames not appearing in current bigraph's outerface will appear in the resulting bigraph's innerface. bigraph's outernames not appearing in input bigraph's innerface will appear in the resulting bigraph's outerface.
+		 * @param pb
+		 *		bigraph that will be composed.
+		 */
 		void outerNest( ParsedBigraph pb ) throws RuntimeException{
 			if( pb.polymorphicSites ){
 				if( pb.bb.getSites().size() == 0 ){
@@ -222,6 +300,17 @@ public class BRSParser extends Parser {
 			this.bb.outerCompose( pb.makeBigraph() );
 		}
 
+		/**
+		 * This operation is meant to be used to perform a set of operation on the link graph.
+		 * The first parameter, if not null, represent an outername that will be added. if null, it represent an edge.
+		 * The second parameter is a list of names that will be linked with the Handle generated from the first parameter.
+		 * The resulting link graph will be nested with the current bigraph (using an identity place graph), according with the following rules:
+		 * if a name of the second parameter is an innername (-x) then it will appear in the resulting bigraph's innerface. if it isnt an innername, then if exists an outername of the current bigraph with the same name, it will be linked with this outername, otherwise the name will be treated as an innername.
+		 * @param outer
+		 *		outername
+		 * @param names
+		 *		list of names.
+		 */
 		void rename( NameId outer , List<NameId> names ) throws RuntimeException{
 			if( outer == null && names.size() == 0 ) return;
 			if( outer != null && outer.outer != null && !outer.outer )
@@ -274,6 +363,12 @@ public class BRSParser extends Parser {
 			this.bb.outerCompose( outer_bigraph.makeBigraph() );				
 		}
 
+		/**
+		 * Make a Bigraph from the current ParsedBigraph.
+		 * This procedure isn't meant to be used by the user, as it change the internal state of the ParsedBigraph and can only be used once.
+		 * @return
+		 *		The generated bigraph.		
+		 */
 		Bigraph makeBigraph() throws RuntimeException{
 			if( polymorphicSites && bb.getSites().size() == 1 ){
 				closeSites();
@@ -315,6 +410,15 @@ public class BRSParser extends Parser {
 
 	}
 
+	/**
+	 * Generate a ParsedBigraph with only one root and a site ($i).
+	 * @param sig
+	 *		Signature of the bigraph.
+	 * @param i
+			Index of the site ($i).
+	 * @return
+	 *		A bigraph with only one root and one site.
+	 */
 	static ParsedBigraph site( Signature sig , Integer i ){
 		ParsedBigraph pb = instance.new ParsedBigraph( sig );
 		pb.bb.addSite( pb.bb.addRoot() );
@@ -322,12 +426,30 @@ public class BRSParser extends Parser {
 		return pb;
 	}
 
+	/**
+	 * Generate a ParsedBigraph with only one root.
+	 * @param sig
+	 *		Signature of the bigraph.
+	 * @return
+	 *		A bigraph with only one root.
+	 */
 	static ParsedBigraph nil( Signature sig ){
 		ParsedBigraph pb = instance.new ParsedBigraph( sig );
 		pb.bb.addRoot();
 		return pb;
 	}
 
+	/**
+	 * Generate a ParsedBigraph with one root and a node inside it. The node will have an "anonymous site" inside it, that will automatically closed if no composition are made using this bigraph.
+	 * @param sig
+	 *		Signature of the bigraph.
+	 * @param name
+	 *		control's name.
+	 * @param list
+	 *		list of names connected with the node's ports. If an entry of this list is null, then the corresponding port will remain unlinked.
+	 * @return
+	 *		The resulting bigraph.
+	 */
 	static ParsedBigraph node( Signature sig , String name , List<NameId> list ) throws RuntimeException{
 		ParsedBigraph pb = instance.new ParsedBigraph( sig );
 		pb.polymorphicSites = true;
@@ -375,6 +497,10 @@ public class BRSParser extends Parser {
 		return pb;
 	}
 
+	/**
+	 *	This function is meant to change the value of the parsed eta, and build a new eta where all values are <= redex_sites.size().
+	 * 	The user can also use non-consecutives names for redex' sites, but redex will be represented as consecutives and, with this function, the same will be done for the eta.
+	 */
 	static int[] eta( List<Integer> redex_sites , List<Integer> parsed_eta ) throws RuntimeException{
 		int[] r_eta = new int[ parsed_eta.size() ];
 		int i = 0;

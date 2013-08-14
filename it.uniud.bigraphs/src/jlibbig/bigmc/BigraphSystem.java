@@ -88,7 +88,8 @@ public class BigraphSystem{
 	
 	/**
 	 * Add a reaction to the system. Reaction's signature must match the system's signature.
-	 * @param reaction
+	 * @param rule
+	 * 			rewriting rule.
 	 */
 	public void addReaction( RewritingRule rule ){
 		if( signature != rule.getSignature() )
@@ -109,7 +110,7 @@ public class BigraphSystem{
 	 * Get the set of reactions.
 	 * @return A set or Reaction.
 	 * @see Bigraph
-	 * @see AbstRewritingRule
+	 * @see RewritingRule
 	 */
 	public Set<RewritingRule> getReactions(){
 		return Collections.unmodifiableSet( reactionRules );
