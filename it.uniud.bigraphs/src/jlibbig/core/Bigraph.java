@@ -181,25 +181,24 @@ final public class Bigraph implements AbstBigraph {
 		// owner == null -> self
 		if (owner == null)
 			owner = big;
-		Map<Handle, EditableHandle> trs = new HashMap<>();
+		Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
 		// replicate outer names
 		for (EditableOuterName o : this.outers) {
 			EditableOuterName p = o.replicate();
 			big.outers.add(p);
 			p.setOwner(owner);
-			trs.put(o, p);
+			hnd_dic.put(o, p);
 		}
 		// replicate inner names
 		for (EditableInnerName i : this.inners) {
 			EditableInnerName j = i.replicate();
-			// set replicated handle for j
 			EditableHandle g = i.getHandle();
-			EditableHandle h = trs.get(g);
+			EditableHandle h = hnd_dic.get(g);
 			if (h == null) {
 				// the bigraph is inconsistent if g is null
 				h = g.replicate();
 				h.setOwner(owner);
-				trs.put(g, h);
+				hnd_dic.put(g, h);
 			}
 			j.setHandle(h);
 			big.inners.add(j);
@@ -236,12 +235,12 @@ final public class Bigraph implements AbstBigraph {
 					EditablePort o = n.getPort(i);
 					EditableHandle g = o.getHandle();
 					// looks for an existing replica
-					EditableHandle h = trs.get(g);
+					EditableHandle h = hnd_dic.get(g);
 					if (h == null) {
 						// the bigraph is inconsistent if g is null
 						h = g.replicate();
 						h.setOwner(owner);
-						trs.put(g, h);
+						hnd_dic.put(g, h);
 					}
 					m.getPort(i).setHandle(h);
 				}

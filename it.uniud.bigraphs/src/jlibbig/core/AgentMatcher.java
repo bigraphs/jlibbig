@@ -1383,37 +1383,19 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 											EditableHandle h1 = o.getHandle();
 											h2 = prm_hnd_dic.get(h1);
 											if (h2 == null) {
-												// detect cross-param edges
-												if(h1 instanceof Edge){
-													EditableInnerName il = prm_crx_dic.get(h1);
-													if(il == null){
-														Root r1 = n1.getRoot();
-														for(Point p1 : h1.getPoints()){
-															if(p1 instanceof EditablePort && r1 != ((EditablePort) p1).getNode().getRoot()){
-																// h1 is a cross-param edge
-																il = new EditableInnerName();
-																prm_crx_dic.put(h1,il);
-																lambda.inners.add(il);
-																il.setHandle(new EditableEdge(lambda));
-																break;
-															}
-														}
-													}
-													if(il == null){
-														// not a cross-edge
-														h2 = h1.replicate();
-													}else{
-														EditableOuterName ol = new EditableOuterName(il.getName());
-														//ol.setOwner(prm);
-														prm.outers.add(ol);
-														//prm_hnd_dic.put(h1,ol);
-														h2 = ol;
-													}
-												}else{
-													h2 = h1.replicate();
+												//if(h1 instanceof Edge)
+												EditableInnerName il = prm_crx_dic.get(h1);
+												if(il == null){
+													il = new EditableInnerName("X("+h1+")");
+													prm_crx_dic.put(h1,il);
+													lambda.inners.add(il);
+													il.setHandle(new EditableEdge(lambda));
 												}
-												h2.setOwner(prm);
-												prm_hnd_dic.put(h1, h2);
+												EditableOuterName ol = new EditableOuterName(il.getName());
+												ol.setOwner(prm);
+												prm.outers.add(ol);
+												h2 = ol;
+												prm_hnd_dic.put(h1,h2);
 											}
 										}
 										n2.getPort(j).setHandle(h2);

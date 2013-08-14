@@ -29,7 +29,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph> {
 		if (reactum.sites.size() != eta.getPlaceDomain()) {
 			throw new InvalidInstantiationRuleException("The instantiation rule does not match the reactum inner interface.");
 		}
-		if (reactum.sites.size() != this.eta.getPlaceDomain()) {
+		if (reactum.sites.size() != eta.getPlaceDomain()) {
 			throw new InvalidInstantiationRuleException(
 					"The instantiation rule does not match the reactum inner interface.");
 		}
