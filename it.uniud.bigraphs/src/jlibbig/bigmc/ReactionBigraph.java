@@ -9,31 +9,70 @@ import jlibbig.core.*;
  * @see AbstBigraph
  */
 public class ReactionBigraph implements AbstBigraph{
-	Map<Site , Integer> siteNames;
+	final int[] sites;
+	private final List<Integer> ro_sites;
 	final Bigraph big;
+	private boolean asRedex;
 	
+	/**
+	 * Create a ReactionBigraph from the ReactionBigraphBuilder in input.
+	 * @param rbb
+	 * 			ReactionBigraphBuilder used to build the new ReactionBigraph
+	 */
 	public ReactionBigraph( ReactionBigraphBuilder rbb ){
+		if( rbb.getRoots().size() == 0 )
+			throw new IllegalArgumentException("This bigraph can't be converted to a BigMC's ReactionBigraph. The place graph's outerface must be at least 1 (one root).");
 		this.big = rbb.rbig.makeBigraph();
-		this.siteNames = new HashMap<>();
+		this.asRedex = true;
 		
-		Iterator<? extends Site> site_iter = rbb.rbig.getSites().iterator();
-		for( Site site : this.big.getSites() )
-			this.siteNames.put( site , rbb.siteNames.get( site_iter.next() ) );
-		this.siteNames = Collections.unmodifiableMap( this.siteNames );
+		ro_sites =  Collections.unmodifiableList( new ArrayList<>( rbb.getSitesIndices() ) );
+		this.sites = new int[ ro_sites.size() ];
+		
+		if( ro_sites.size() > 0 ){
+			Iterator<Integer> indicIter = ro_sites.iterator();
+			this.sites[ 0 ] = indicIter.next();
+			for( int j = 1 ; j < ro_sites.size(); ++j ){
+				this.sites[ j ] = indicIter.next();
+				if( sites[ j ] == sites[ j - 1 ] )
+					this.asRedex = false;
+			}
+		}
 	}
 	
-	public ReactionBigraph( ReactionBigraph rb ){
-		this.big = rb.big.clone();
-		this.siteNames = new HashMap<>();
-		
-		Iterator<? extends Site> site_iter = rb.big.getSites().iterator();
-		for( Site site : this.big.getSites() )
-			this.siteNames.put( site , rb.siteNames.get( site_iter.next() ) );
-		this.siteNames = Collections.unmodifiableMap( this.siteNames );
+	/**
+	 * Create a ReactionBigraph from the Bigraph in input (if the Bigraph can be converted into a BigMC's ReactionBigraph).
+	 * @param big
+	 * 			Bigraph used to build the new ReactionBigraph
+	 * 			
+	 */
+	public ReactionBigraph( Bigraph big ){
+		if( big.getRoots().size() == 0 )
+			throw new IllegalArgumentException("This bigraph can't be converted to a BigMC's ReactionBigraph. The place graph's outerface must be at least 1 (one root).");
+		for( Edge edge : big.getEdges() ){
+			if( edge.getPoints().size() > 1 )
+				throw new IllegalArgumentException( "Redex can't be converted to a BigMC's ReactionBigraph. Every edge must have only one handled point." );
+		}
+		if( big.getInnerNames().size() > 0 )
+			throw new IllegalArgumentException( "Redex can't be converted to a BigMC's ReactionBigraph. Its link graph's innerface must be empty." );
+		this.big = big;
+		this.asRedex = true;
+		this.sites = new int[ big.getSites().size() ];
+		List<Integer> siteslist = new ArrayList<>( big.getSites().size() );
+		for( int i = 0 ; i < big.getSites().size() ; ++i )
+			siteslist.add( this.sites[ i ] = i );
+		this.ro_sites = Collections.unmodifiableList( siteslist );
 	}
 	
-	public ReactionBigraph clone(){
-		return new ReactionBigraph( this );
+	/**
+	 * Create a ReactionBigraph from the Bigraph in input (if the Bigraph can be converted into a BigMC's ReactionBigraph) and an array of sites' indices.
+	 * @param big
+	 * 			Bigraph used to build the new ReactionBigraph
+	 * @param sitesindices
+	 * 			Sites' indices
+	 * 			
+	 */
+	public ReactionBigraph( Bigraph big , int... sitesindices ){
+		this( new ReactionBigraphBuilder( big , sitesindices ) );
 	}
 
 	/**
@@ -72,15 +111,26 @@ public class ReactionBigraph implements AbstBigraph{
 	 * @return
 	 * 			The name of the site in input.
 	 */
-	public Integer getSiteName( Site site ){
-		return siteNames.get( site );
+	public int getSiteIndex( Site site ){
+		int i = 0;
+		for( Site s : big.getSites() ){
+			if( s == site ){
+				return sites[ i ];
+			}
+			++i;
+		}
+		return -1;
 	}
 	
 	/**
 	 * Get the map ( Site , Integer ) storing, for each Site, its name (Integer).
 	 */
-	public Map<Site , Integer> getSitesMap(){
-		return this.siteNames;
+	public List<Integer> getSitesIndices(){
+		return this.ro_sites;
+	}
+	
+	public boolean isRedex(){
+		return asRedex;
 	}
 
 	@Override
@@ -101,5 +151,9 @@ public class ReactionBigraph implements AbstBigraph{
 	@Override
 	public Set<? extends Edge> getEdges() {
 		return big.getEdges();
+	}
+	
+	public Bigraph asBigraph(){
+		return big;
 	}
 }

@@ -244,7 +244,7 @@ class BigMCParser extends Parser {
 					
 			if( b.getRoots().size() != 1 )
 				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Juxtaposition (||) can only appear at top level." );
-			b.outerAddNode( v );
+			b.outerNestNode( v );
 			return new Symbol( b );
 				}
 			},
@@ -259,7 +259,7 @@ class BigMCParser extends Parser {
 					
 			if( b.getRoots().size() != 1 )
 				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_b.getStart() ) + " - Juxtaposition (||) can only appear at top level." );
-			b.outerAddNode( v , b.addOuterNames( l ) );
+			b.outerNestNode( v , b.addOuterNames( l ) );
 			return new Symbol( b );
 				}
 			},

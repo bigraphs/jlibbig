@@ -25,7 +25,9 @@ public class AgentBigraph implements AbstBigraph{
 		for( Edge edge : bigraph.getEdges() ){
 			if( edge.getPoints().size() > 1 )
 				throw new IllegalArgumentException( "This bigraph can't be converted to a BigMC's Agent. Every edge must have only one handled point." );
-		}	
+		}
+		if( bigraph.getRoots().size() != 1 )
+			throw new IllegalArgumentException("This bigraph can't be converted to a BigMC's Agent. The place graph's outerface must be 1 (exactly one root).");
 		this.bigraph = bigraph;
 	}
 	
@@ -98,20 +100,4 @@ public class AgentBigraph implements AbstBigraph{
 	public Bigraph asBigraph(){
 		return bigraph;
 	}
-	
-	/**
-	 * Juxtapose two AgentBigraph.
-	 * @param left
-	 * 			The first AgentBigraph. Its roots will precede those of the second AgentBigraph.
-	 * @param right
-	 * 			The second AgentBigraph.
-	 * @return
-	 * 			The resulting AgentBigraph.
-	 */
-	public static AgentBigraph juxtapose( AgentBigraph left , AgentBigraph right ){
-		AgentBigraphBuilder l = new AgentBigraphBuilder( left );
-		l.rightJuxtapose( right );
-		return l.makeAgent();
-	}
-	
 }

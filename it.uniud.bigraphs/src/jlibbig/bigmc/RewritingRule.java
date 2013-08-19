@@ -1,6 +1,7 @@
 package jlibbig.bigmc;
 
 import jlibbig.core.*;
+import jlibbig.core.exceptions.IncompatibleInterfacesException;
 import jlibbig.core.exceptions.IncompatibleSignatureException;
 import jlibbig.core.exceptions.InvalidInstantiationRuleException;
 
@@ -12,21 +13,26 @@ public class RewritingRule implements jlibbig.core.RewritingRule<AbstBigraph> {
 	final ReactionBigraph reactum;
 	final BigraphInstantiationMap eta;
 	
-	public RewritingRule(ReactionBigraph redex, ReactionBigraph reactum, int... eta) {
-		this(redex,reactum,new BigraphInstantiationMap(redex.getSites().size(),eta));
-	}
-	
-	/**
-	 * @param redex
-	 * @param reactum
-	 * @param eta
-	 */
-	public RewritingRule(ReactionBigraph redex, ReactionBigraph reactum,
-			BigraphInstantiationMap eta) {
+	public RewritingRule( ReactionBigraph redex , ReactionBigraph reactum ){
+		if( !redex.isRedex() )
+			throw new IllegalArgumentException("The first ReactionBigraph can't be used as a redex: two sites with the same index.");
 		if (reactum.getSignature() != redex.getSignature()) {
 			throw new IncompatibleSignatureException(reactum.getSignature(), redex.getSignature(),
 					"Redex and reactum should have the same singature.");
 		}
+		
+		if( redex.getRoots().size() != reactum.getRoots().size() )
+			throw new IncompatibleInterfacesException( redex , reactum , "Redex and Reactum must have the same number of roots." );
+		
+		int[] re_eta = new int[ reactum.getSitesIndices().size() ];
+		
+		for( int i = 0 ; i < reactum.getSitesIndices().size() ; ++i ){
+			if( ( re_eta[ i ] = redex.getSitesIndices().indexOf( reactum.sites[ i ] ) ) == -1 )
+				throw new RuntimeException( "No site indexed as $" + reactum.sites[ i ] + " in the redex." );
+		}
+		
+		BigraphInstantiationMap eta = new BigraphInstantiationMap( redex.getSites().size(), re_eta );
+		
 		if (redex.getSites().size() != eta.getPlaceCodomain()) {
 			throw new InvalidInstantiationRuleException("The instantiation rule does not match the redex inner interface.");
 		}
@@ -36,7 +42,6 @@ public class RewritingRule implements jlibbig.core.RewritingRule<AbstBigraph> {
 		this.redex = redex;
 		this.reactum = reactum;
 		this.eta = eta;
-		
 		
 		this.neededParams = new boolean[eta.getPlaceCodomain()];
 		this.cloneParams = new boolean[eta.getPlaceDomain()];
@@ -53,6 +58,14 @@ public class RewritingRule implements jlibbig.core.RewritingRule<AbstBigraph> {
 				cloneParams[j] = cloneParams[j] || (prms[i] == prms[j]);
 			} 
 		}
+	}
+	
+	public RewritingRule( Bigraph redex, Bigraph reactum ) {
+		this( new ReactionBigraph( redex ) ,  new ReactionBigraph ( reactum ) );
+	}
+	
+	public RewritingRule( Bigraph redex , Bigraph reactum , int... eta ){
+		this( new ReactionBigraph( redex ) , new ReactionBigraph( reactum , eta ) );
 	}
 	
 	public Signature getSignature(){

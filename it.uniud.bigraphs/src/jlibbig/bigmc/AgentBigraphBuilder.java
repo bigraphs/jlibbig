@@ -19,16 +19,17 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";
 	
 	/**
-	 * Start a new AgentBigraphBuilder.
+	 * Construct a new AgentBigraphBuilder.
 	 * @param sig
 	 * 			the Signature of the AgentBigraph that will be created.
 	 */
 	public AgentBigraphBuilder( Signature sig ) {
 		this.bigraph = new BigraphBuilder( sig );
+		this.bigraph.addRoot();
 	}
 
 	/**
-	 * Start a new AgentBigraphBuilder from an AgentBigraph.
+	 * Construct a new AgentBigraphBuilder from an AgentBigraph.
 	 * @param big
 	 * 			the AgentBigraph that will be copied in the new AgentBigraphBuilder
 	 */
@@ -37,7 +38,16 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 	}
 	
 	/**
-	 * Start a new AgentBigraphBuilder from a (ground) Bigraph.
+	 * Construct a new AgentBigraphBuilder  from the one in input.
+	 * @param big
+	 * 			AgentBigraphBuilder that will be used to construct the new AgentBigraphBuilder
+	 */
+	public AgentBigraphBuilder( AgentBigraphBuilder big ){
+		this.bigraph = big.bigraph.clone();
+	}
+	
+	/**
+	 * Construct a new AgentBigraphBuilder from a (ground) Bigraph.
 	 * @param big
 	 * 			the Ground Bigraph that will be copied in the new AgentBigraphBuilder
 	 */
@@ -65,9 +75,7 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 
 	@Override
 	public AgentBigraphBuilder clone() {
-		AgentBigraphBuilder abb = new AgentBigraphBuilder( this.bigraph.getSignature() );
-		abb.bigraph = bigraph.clone();
-		return abb;
+		return new AgentBigraphBuilder( this );
 	}
 	
 	@Override
@@ -117,12 +125,12 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 
 	
 	/**
-	 * Add a root to the current AgentBigraphBuilder.
-	 * 
+	 * Get the root of the current AgentBigraphBuilder.
+	 * bigMC's bigraph (non reaction-rules) have exactly one root.
 	 * @return the reference of the new root
 	 */
-	public Root addRoot() {
-		return this.bigraph.addRoot();
+	public Root getRoot() {
+		return getRoots().get( 0 );
 	}
 
 	/**
@@ -229,7 +237,7 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 	
 	/**
 	 * Add a node to the current AgentBigraphBuilder.
-	 * The resulting bigraph will have only one root, connected with a node that contains the old AgentBigraphBuilder.
+	 * The resulting bigraph will have one root, connected with a node that contains the old AgentBigraphBuilder.
 	 * @param controlName
 	 * 			Node's name.
 	 * @param outernames
@@ -241,7 +249,7 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 	
 	/**
 	 * Add a node to the current AgentBigraphBuilder.
-	 * The resulting bigraph will have only one root, connected with a node that contains the old AgentBigraphBuilder.
+	 * The resulting bigraph will have one root, connected with a node that contains the old AgentBigraphBuilder.
 	 * @param controlName
 	 * 			Node's name.
 	 * @param outernames
@@ -283,67 +291,6 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 	}
 
 	/**
-	 * Merge regions (roots of a place graph)
-	 */
-	public void merge() {
-		this.bigraph.merge();
-	}
-
-	/**
-	 * Juxtapose the current AgentBigraphBuilder with the AgentBigraph in input. <br />
-	 * Roots of the AgentBigraph will precede those of the AgentBigraphBuilder
-	 * in the resulting AgentBigraphBuilder.
-	 * 
-	 * @param graph
-	 *            bigraph that will be juxtaposed.
-	 */
-	public void leftJuxtapose( AgentBigraph graph ) {
-		this.bigraph.leftJuxtapose( graph.bigraph );
-	}
-
-	/**
-	 * Juxtapose the current AgentBigraphBuilder with the AgentBigraph in input. <br />
-	 * Roots of the AgentBigraphBuilder will precede those of the AgentBigraph
-	 * in the resulting AgentBigraphBuilder.
-	 * 
-	 * @param graph
-	 *            Bigraph that will be juxtaposed.
-	 */
-	public void rightJuxtapose( AgentBigraph graph ) {
-		this.bigraph.rightJuxtapose( graph.bigraph );
-	}
-
-	/**
-	 * Juxtapose AgentBigraph in input with the current AgentBigraphBuilder.
-	 * ParallelProduct, differently from the normal juxtapose, doesn't need
-	 * disjoint sets of outernames for the two bigraphs. Common outernames will
-	 * be merged.
-	 * Roots of the AgentBigraph will precede those of the AgentBigraphBuilder
-	 * in the resulting AgentBigraphBuilder.
-	 * 
-	 * @param graph
-	 *            Bigraph that will be juxtaposed.
-	 */
-	public void leftParallelProduct( AgentBigraph graph ) {
-		this.bigraph.leftParallelProduct( graph.bigraph );
-	}
-
-	/**
-	 * Juxtapose the current AgentBigraphBuilder with the AgentBigraph in input.
-	 * ParallelProduct, differently from the normal juxtapose, doesn't need
-	 * disjoint sets of outernames for the two bigraphs. Common outernames will
-	 * be merged.
-	 * Roots of the AgentBigraphBuilder will precede those of the AgentBigraph
-	 * in the resulting AgentBigraphBuilder.
-	 * 
-	 * @param graph
-	 *            bigraph that will be juxtaposed.
-	 */
-	public void rightParallelProduct( AgentBigraph graph ) {
-		this.bigraph.rightParallelProduct( graph.bigraph );
-	}
-
-	/**
 	 * Juxtapose AgentBigraph in input with the current AgentBigraphBuilder. <br />
 	 * It will then perform {@link AgentBigraphBuilder#merge()} on the resulting
 	 * AgentBigraphBuilder.
@@ -352,7 +299,8 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 	 *            bigraph that will be juxtaposed.
 	 */
 	public void leftMergeProduct( AgentBigraph graph ) {
-		this.bigraph.leftMergeProduct( graph.bigraph );
+		this.bigraph.leftParallelProduct( graph.bigraph );
+		this.bigraph.merge();
 	}
 
 	/**
@@ -364,7 +312,8 @@ public class AgentBigraphBuilder implements AbstBigraphBuilder{
 	 *            AgentBigraph that will be juxtaposed.
 	 */
 	public void rightMergeProduct( AgentBigraph graph ) {
-		this.bigraph.rightMergeProduct(graph.bigraph );
+		this.bigraph.rightParallelProduct( graph.bigraph );
+		this.bigraph.merge();
 	}
 
 }

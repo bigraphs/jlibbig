@@ -78,12 +78,10 @@ public class BigraphSystem{
 	 * @throws RuntimeException if signatures don't match or if redex and reactum don't have the same number of roots
 	 * @see ReactionBigraph
 	 */
-	public void addReaction( ReactionBigraph redex , ReactionBigraph reactum, int... instantiationMap){
+	public void addReaction( ReactionBigraph redex , ReactionBigraph reactum ){
 		if( signature != redex.getSignature() || signature != reactum.getSignature() )
 			throw new IncompatibleSignatureException( signature , redex.getSignature() , "Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature" );
-		if( redex.getRoots().size() != reactum.getRoots().size() )
-			throw new IncompatibleInterfacesException( redex , reactum , "Redex and Reactum must have the same number of roots." );
-		reactionRules.add( new RewritingRule(redex , reactum, instantiationMap) );
+		reactionRules.add( new RewritingRule(redex , reactum ) );
 	}
 	
 	/**
