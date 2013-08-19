@@ -40,7 +40,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		s.append( ln );
 		
 		for( AgentBigraph big : brs.getBigraphs() )
-			s.append( toString( big.asBigraph() ) + " ;" + ln );
+			s.append( toString( big ) + " ;" + ln );
 		
 		s.append( ln );
 		
@@ -67,9 +67,9 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
-	 * Convert a Collection of reaction rules into a string in BigMC's syntax.
+	 * Convert a Collection of {@link RewritingRule} into a string in BigMC's syntax.
 	 * @param reaction_rules
-	 * 			Collection of Reaction<ReactionBigraph> that will be converted into a string.
+	 * 			Collection of RewritingRules that will be converted into a string.
 	 * @return
 	 * 			The String representing the element in input.
 	 */
@@ -82,7 +82,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
-	 * Convert a reaction rule into the corresponding String in BigMC's syntax.
+	 * Convert a {@link RewritingRule} into the corresponding String in BigMC's syntax.
 	 * @param reaction
 	 * @return the resulting string
 	 */
@@ -91,13 +91,13 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 		
 	/**
-	 * Translate a bigraph ( {@link jlibbig.core.AbstBigraphHandler} ) to a string with BigMC's syntax
+	 * Translate a bigraph ( {@link ReactionBigraph} ) to a string with BigMC's syntax
 	 * @param big the bigraph that will be converted into a string.
 	 * @return the resulting string
 	 */
-	public static String toString( AbstBigraphHandler big ){
+	
+	public static String toString( ReactionBigraph big ){
 		StringBuilder s = new StringBuilder();
-		
 		Iterator<? extends Root> it = big.getRoots().iterator();
 		while( it.hasNext() ){
 			
@@ -105,12 +105,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() ){
-					if( big instanceof ReactionBigraph )
-						s.append( toString( childIt.next() , big.getOuterNames() , ((ReactionBigraph) big).getSitesMap() ) + (childIt.hasNext() ? " | " : "") );
-					else if( big instanceof ReactionBigraphBuilder )
-						s.append( toString( childIt.next() , big.getOuterNames() , ((ReactionBigraphBuilder) big).getSitesMap() ) + (childIt.hasNext() ? " | " : "") );
-					else
-						s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() ) + (childIt.hasNext() ? " | " : "") );
+						s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() , big.getSitesIndices() ) + (childIt.hasNext() ? " | " : "") );
 				}
 			}else s.append( "nil" );
 			s.append( it.hasNext() ? " || " : "" );
@@ -119,18 +114,130 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
-	 * Auxiliary procedure, used by toString( RedexBigraph ) 
+	 * Translate a bigraph ( {@link ReactionBigraphBuilder} ) to a string with BigMC's syntax
+	 * @param big the bigraph that will be converted into a string.
+	 * @return the resulting string
+	 */
+	public static String toString( ReactionBigraphBuilder big ){
+		StringBuilder s = new StringBuilder();
+		Iterator<? extends Root> it = big.getRoots().iterator();
+		while( it.hasNext() ){
+			
+			Set<? extends Child> childs = it.next().getChildren();
+			if( !childs.isEmpty() ){
+				Iterator<? extends Child> childIt = childs.iterator();
+				while( childIt.hasNext() ){
+						s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() , big.getSitesIndices() ) + (childIt.hasNext() ? " | " : "") );
+				}
+			}else s.append( "nil" );
+			s.append( it.hasNext() ? " || " : "" );
+		}
+		return s.toString();
+	}
+	
+	/**
+	 * Translate a bigraph ( {@link AgentBigraph} ) to a string with BigMC's syntax
+	 * @param big the bigraph that will be converted into a string.
+	 * @return the resulting string
+	 */
+	public static String toString( AgentBigraph big ){
+		StringBuilder s = new StringBuilder();
+		
+		Set<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
+		if( !childs.isEmpty() ){
+			Iterator<? extends Child> childIt = childs.iterator();
+			while( childIt.hasNext() ){
+					s.append( toString( childIt.next() , big.getOuterNames() ) + (childIt.hasNext() ? " | " : "") );
+			}
+		}else s.append( "nil" );
+		
+		return s.toString();
+	}
+	
+	/**
+	 * Translate a bigraph ( {@link AgentBigraphBuilder} ) to a string with BigMC's syntax
+	 * @param big the bigraph that will be converted into a string.
+	 * @return the resulting string
+	 */
+	public static String toString( AgentBigraphBuilder big ){
+		StringBuilder s = new StringBuilder();
+		
+		Set<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
+		if( !childs.isEmpty() ){
+			Iterator<? extends Child> childIt = childs.iterator();
+			while( childIt.hasNext() ){
+					s.append( toString( childIt.next() , big.getOuterNames() ) + (childIt.hasNext() ? " | " : "") );
+			}
+		}else s.append( "nil" );
+		
+		return s.toString();
+	}
+	
+	/**
+	 * Translate a bigraph ( {@link AbstBigraphHandler} ) to a string with BigMC's syntax (if the bigraph can be converted into a ReactionBigraph or an AgentBigraph).
+	 * @param big the bigraph that will be converted into a string.
+	 * @return the resulting string
+	 */
+	public static String toString( AbstBigraphHandler big ){
+		if( big.getRoots().size() == 0 )
+			throw new IllegalArgumentException("The place graph's outerface must be at least 1 (one root). Cannot be converted into a string with BigMC's syntax.");
+		for( Edge edge : big.getEdges() ){
+			if( edge.getPoints().size() > 1 )
+				throw new IllegalArgumentException( "Every edge must have only one handled point. Cannot be converted into a string with BigMC's syntax." );
+		}
+		if( big.getInnerNames().size() > 0 )
+			throw new IllegalArgumentException( "Link graph's innerface must be empty. Cannot be converted into a string with BigMC's syntax." );
+		
+		StringBuilder s = new StringBuilder();
+		
+		if( big.isGround() ){
+			if( big.getRoots().size() != 1 )
+				throw new IllegalArgumentException("Bigraph isn't an Agent - The place graph's outerface must be 1 (exactly one root). Cannot be converted into a string with BigMC's syntax.");
+			
+			Set<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
+			if( !childs.isEmpty() ){
+				Iterator<? extends Child> childIt = childs.iterator();
+				while( childIt.hasNext() ){
+						s.append( toString( childIt.next() , big.getOuterNames() ) + (childIt.hasNext() ? " | " : "") );
+				}
+			}else s.append( "nil" );
+			
+		}else{
+			
+			List<Integer> sitesindices = new ArrayList<>( big.getSites().size() );
+			for( int i = 0 ; i < big.getSites().size() ; ++i )
+				sitesindices.add( i );
+			
+			Iterator<? extends Root> it = big.getRoots().iterator();
+			while( it.hasNext() ){	
+				Set<? extends Child> childs = it.next().getChildren();
+				if( !childs.isEmpty() ){
+					Iterator<? extends Child> childIt = childs.iterator();
+					while( childIt.hasNext() ){
+							s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() , sitesindices ) + (childIt.hasNext() ? " | " : "") );
+					}
+				}else s.append( "nil" );
+				s.append( it.hasNext() ? " || " : "" );
+			}
+			
+		}
+		
+		return s.toString();
+	}
+		
+	/**
+	 * Auxiliary procedure, used by toString( ReactionBigraph ) 
 	 * @param d control or site handler
 	 * @param outrnms set of outernames
 	 * @param sitenum sites' enumeration, used to retrieve the right number of the site
 	 * @see ReactionBigraph
 	 * @return the resulting string
 	 */
-	private static String toString( Child d , Set<? extends OuterName> outrnms , Map<Site , Integer> sitenum ){
+	private static String toString( Child d , Set<? extends OuterName> outrnms , List<? extends Site> sitelist , List<Integer> sitenum ){
 		StringBuilder s = new StringBuilder();
 		
 		if( d instanceof Site ){
-			s.append( "$" + sitenum.get( d ) );
+			s.append( "$" + sitenum.get( sitelist.indexOf( d ) ) );
 		}else{
 			s.append( ((Node) d).getControl().getName() );
 			
@@ -158,7 +265,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() )
-					s.append( toString( childIt.next() , outrnms , sitenum ) + (childIt.hasNext() ? " | " : "") );
+					s.append( toString( childIt.next() , outrnms , sitelist , sitenum ) + (childIt.hasNext() ? " | " : "") );
 				
 				if( childs.size() > 1 ) s.append(" )");
 			}
@@ -168,18 +275,18 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
-	 * Auxiliary procedure, used by toString( Bigraph ) 
+	 * Auxiliary procedure, used by toString( AgentBigraph ) 
 	 * @param c control or site handler
 	 * @param outerNames set of outernames
 	 * @param sites list of sites
 	 * @see Bigraph
 	 * @return the resulting string
 	 */
-	private static String toString( Child c , Set<? extends OuterName> outerNames , List<? extends Site> sites ){
+	private static String toString( Child c , Set<? extends OuterName> outerNames ){
 		StringBuilder s = new StringBuilder();
 		
 		if( c instanceof Site ){
-			s.append( "$" + sites.indexOf(c) );
+			throw new RuntimeException("Unexpected error while printing: AgentBigraph with Sites." );
 		}else{
 			s.append( ((Node) c).getControl().getName() );
 			
@@ -207,7 +314,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() )
-					s.append( toString( childIt.next() , outerNames , sites ) + (childIt.hasNext() ? " | " : "") );
+					s.append( toString( childIt.next() , outerNames ) + (childIt.hasNext() ? " | " : "") );
 				
 				if( childs.size() > 1 ) s.append(" )");
 			}

@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import jlibbig.core.*;
@@ -19,8 +17,9 @@ import jlibbig.core.*;
  *
  */
 public class ReactionBigraphBuilder implements AbstBigraphBuilder{
-	BigraphBuilder rbig;
-	Map<Site , Integer> siteNames;
+	final BigraphBuilder rbig;
+	private final List<Integer> sites;
+	private final List<Integer> ro_sites;
 	
 	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";
 	
@@ -31,7 +30,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 */
 	public ReactionBigraphBuilder( Signature sig ) {
 		this.rbig = new BigraphBuilder( sig );
-		siteNames = new HashMap<>();
+		sites = new LinkedList<>();
+		ro_sites = Collections.unmodifiableList( sites );
 	}
 	
 	/**
@@ -41,11 +41,57 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 */
 	public ReactionBigraphBuilder( ReactionBigraph big ) {
 		this.rbig = new BigraphBuilder( big.big );
-		this.siteNames = new HashMap<>();
+		sites = new LinkedList<>( big.getSitesIndices() );
+		ro_sites = Collections.unmodifiableList( sites );
+	}
+	
+	/**
+	 * Create a new ReactionBigraphBuilder from the one in input.
+	 * @param big
+	 * 			ReactionBigraphBuilder that will be cloned.
+	 */
+	public ReactionBigraphBuilder( ReactionBigraphBuilder big ){
+		this.rbig = big.rbig.clone();
+		this.sites = new LinkedList<>( big.sites );
+		this.ro_sites = Collections.unmodifiableList( this.sites );
+	}
+	
+	/**
+	 * Create a new ReactionBigraphBuilder from the Bigraph in input.
+	 * It's sites will be indexed from 0 to Bigraph#getSites().size().
+	 * @param big
+	 * 			Bigraph that will be used to create the new ReactionBigraphBuilder
+	 */
+	public ReactionBigraphBuilder( Bigraph big ){
+		this( new ReactionBigraph( big ) );
+	}
+	
+	/**
+	 * Create a new ReactionBigraphBuilder from the Bigraph in input and an array of sites' indices.
+	 * @param big
+	 * 			Bigraph that will be used to create the new ReactionBigraphBuilder
+	 * @param sitesindices
+	 * 			Sites' indices
+	 */
+	public ReactionBigraphBuilder( Bigraph big , int... sitesindices ){
+		if( big.getRoots().size() == 0 )
+			throw new IllegalArgumentException("This bigraph can't be converted to a BigMC's ReactionBigraph. The place graph's outerface must be at least 1 (one root).");
+		for( Edge edge : big.getEdges() ){
+			if( edge.getPoints().size() > 1 )
+				throw new IllegalArgumentException( "Redex can't be converted to a BigMC's ReactionBigraph. Every edge must have only one handled point." );
+		}
+		if( big.getInnerNames().size() > 0 )
+			throw new IllegalArgumentException( "Redex can't be converted to a BigMC's ReactionBigraph. Its link graph's innerface must be empty." );
+		if( sitesindices.length != big.getSites().size() )
+			throw new IllegalArgumentException( "The size of list of sites indices must be equal to the number of sites in the bigraph." );
 		
-		Iterator<? extends Site> site_iter = big.getSites().iterator();
-		for( Site site : rbig.getSites() )
-			this.siteNames.put( site , big.siteNames.get( site_iter.next() ) );
+		this.rbig = new BigraphBuilder( big );
+		this.sites = new ArrayList<>( sitesindices.length );
+		
+		for( int i = 0 ; i < sitesindices.length ; ++i )
+			sites.add( sitesindices[ i ] );
+		
+		this.ro_sites = Collections.unmodifiableList( sites );
 	}
 	
 	/**
@@ -54,6 +100,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * 			The generated {@link jlibbig.bigmc.ReactionBigraph}
 	 */
 	public ReactionBigraph makeReactionBigraph() {
+		this.sortSites();
+		
 		return new ReactionBigraph( this );
 	}
 	
@@ -63,18 +111,14 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * 			The generated {@link jlibbig.core.Bigraph}
 	 */
 	public Bigraph makeBigraph(){
+		this.sortSites();
+		
 		return rbig.makeBigraph();
 	}
 
 	@Override
 	public ReactionBigraphBuilder clone() {
-		ReactionBigraphBuilder rbb = new ReactionBigraphBuilder( this.rbig.getSignature() );
-		rbb.rbig = this.rbig.clone();
-		
-		Iterator<? extends Site> site_iter = this.rbig.getSites().iterator();
-		for( Site site : rbb.rbig.getSites() )
-			rbb.siteNames.put( site , this.siteNames.get( site_iter.next() ) );
-		return rbb;
+		return new ReactionBigraphBuilder( this );
 	}
 	
 	@Override
@@ -125,8 +169,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	/**
 	 * Get the map ( Site , Integer ) storing, for each Site, its name (Integer).
 	 */
-	public Map<Site , Integer> getSitesMap(){
-		return Collections.unmodifiableMap( this.siteNames );
+	public List<Integer> getSitesIndices(){
+		return ro_sites;
 	}
 	
 	/**
@@ -142,12 +186,16 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * Add a site to the current ReactionBigraphBuilder.
 	 * 
 	 * @param parent
-	 *            the handler, in the place graph, father of the new site
+	 * 			the handler, in the place graph, father of the new site
+	 * @param index
+	 * 			the index of the new site ($i).
 	 * @return the reference of the new site
 	 */
-	public Site addSite( Parent parent , int name ) {
+	public Site addSite( Parent parent , int index ) {
+		if( index < 0 )
+			throw new IllegalArgumentException( "Sites' indices cant be less than zero." );
 		Site site = this.rbig.addSite( parent );
-		siteNames.put( site , name );
+		this.sites.add( index );
 		return site;
 	}
 
@@ -276,8 +324,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * @param controlName
 	 * 			Node's name.
 	 */
-	public void outerAddNode( String controlName ){
-		outerAddNode( controlName , new LinkedList<OuterName>() );
+	public void outerNestNode( String controlName ){
+		outerNestNode( controlName , new LinkedList<OuterName>() );
 	}
 	
 	/**
@@ -288,8 +336,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * @param outernames
 	 * 			Outernames that will be linked to the node's ports
 	 */
-	public void outerAddNode( String controlName , OuterName... outernames ){
-		outerAddNode( controlName , Arrays.asList( outernames ) );
+	public void outerNestNode( String controlName , OuterName... outernames ){
+		outerNestNode( controlName , Arrays.asList( outernames ) );
 	}
 	
 	/**
@@ -300,7 +348,7 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 * @param outernames
 	 * 			Outernames that will be linked to the node's ports
 	 */
-	public void outerAddNode( String controlName , List<OuterName> outernames ){
+	public void outerNestNode( String controlName , List<OuterName> outernames ){
 		if( !controlName.matches(nameexpr) )
 			throw new IllegalArgumentException( "Control's name: " + controlName + " - Controls' names must match the following regular expression: " + nameexpr );
 		
@@ -316,40 +364,6 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 		rbig.outerNest( bb.makeBigraph() );
 	}
 	
-	/**
-	 * Juxtapose the current ReactionBigraphBuilder with the ReactionBigraph in input.
-	 * Roots and sites of the ReactionBigraph will precede those of the ReactionBigraphBuilder
-	 * in the resulting ReactionBigraphBuilder.
-	 * 
-	 * @param graph
-	 *            bigraph that will be juxtaposed.
-	 */
-	public void leftJuxtapose( ReactionBigraph graph ) {
-		this.rbig.leftJuxtapose( graph.big );
-		Iterator<? extends Site> site_iter = this.rbig.getSites().iterator();
-		for( Site site : graph.big.getSites() )
-			this.siteNames.put( site_iter.next() , graph.siteNames.get( site ) );
-		sortSites();
-	}
-
-	/**
-	 * Juxtapose the current ReactionBigraphBuilder with the ReactionBigraph in input.
-	 * Roots and sites of the ReactionbBigraphBuilder will precede those of the ReactionBigraph
-	 * in the resulting ReactionBigraphBuilder.
-	 * 
-	 * @param graph
-	 *            bigraph that will be juxtaposed.
-	 */
-	public void rightJuxtapose( ReactionBigraph graph ) {
-		int sitenum = this.rbig.getSites().size();
-		this.rbig.rightJuxtapose( graph.big );
-		Iterator<? extends Site> site_iter = this.rbig.getSites().iterator();
-		for( int i = 0; i < sitenum; ++i ) site_iter.next();
-		for( Site site : graph.big.getSites() )
-			this.siteNames.put( site_iter.next() , graph.siteNames.get( site ) );
-		sortSites();
-	}
-
 	/**
 	 * Nest the current ReactionBigraphBuilder with the ReactionBigraph in input.
 	 * Nesting, differently from composition, add ReactionBigraph's outernames to
@@ -389,10 +403,7 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 */
 	public void leftParallelProduct( ReactionBigraph graph ) {
 		this.rbig.leftParallelProduct( graph.big );
-		Iterator<? extends Site> site_iter = this.rbig.getSites().iterator();
-		for( Site site : graph.big.getSites() )
-			this.siteNames.put( site_iter.next() , graph.siteNames.get( site ) );
-		sortSites();
+		this.sites.addAll( 0 , graph.getSitesIndices() );
 	}
 
 	/**
@@ -407,13 +418,8 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 *            bigraph that will be juxtaposed.
 	 */
 	public void rightParallelProduct( ReactionBigraph graph ) {
-		int sitenum = this.rbig.getSites().size();
 		this.rbig.rightParallelProduct( graph.big );
-		Iterator<? extends Site> site_iter = this.rbig.getSites().iterator();
-		for( int i = 0; i < sitenum; ++i ) site_iter.next();
-		for( Site site : graph.big.getSites() )
-			this.siteNames.put( site_iter.next() , graph.siteNames.get( site ) );
-		sortSites();
+		this.sites.addAll( graph.getSitesIndices() );
 	}
 
 	/**
@@ -427,11 +433,11 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 *            bigraph that will be juxtaposed.
 	 */
 	public void leftMergeProduct( ReactionBigraph graph ) {
-		this.rbig.leftMergeProduct( graph.big );
-		Iterator<? extends Site> site_iter = this.rbig.getSites().iterator();
-		for( Site site : graph.big.getSites() )
-			this.siteNames.put( site_iter.next() , graph.siteNames.get( site ) );
-		sortSites();
+		if( graph.getRoots().size() > 1 || this.getRoots().size() > 1 )
+			throw new RuntimeException( "Cannot apply the merge product '|' between to Bigraphs with more than one root. Parallel Product '||' can only appear at top level" );
+		this.rbig.leftParallelProduct( graph.big );
+		this.rbig.merge();	
+		this.sites.addAll( 0 , graph.getSitesIndices() );
 	}
 
 	/**
@@ -445,35 +451,28 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	 *            bigraph that will be juxtaposed.
 	 */
 	public void rightMergeProduct( ReactionBigraph graph ) {
-		int sitenum = this.rbig.getSites().size();
-		this.rbig.rightMergeProduct(graph.big );
-		Iterator<? extends Site> site_iter = this.rbig.getSites().iterator();
-		for( int i = 0; i < sitenum; ++i ) site_iter.next();
-		for( Site site : graph.big.getSites() )
-			this.siteNames.put( site_iter.next() , graph.siteNames.get( site ) );
-		sortSites();
+		if( graph.getRoots().size() > 1 || this.getRoots().size() > 1 )
+			throw new RuntimeException( "Cannot apply the merge product '|' between to Bigraphs with more than one root. Parallel Product '||' can only appear at top level" );
+		this.rbig.rightParallelProduct( graph.big );
+		this.rbig.merge();
+		this.sites.addAll( graph.getSitesIndices() );
 	}
 	
 	/**
 	 * Sort the bigraph's sites (according to the values in the Map {@code siteNames}).
 	 */
 	private void sortSites(){
-		//TODO: migliorare computazionalmente, (stile mergesort)
-		List<? extends Site> sites = new ArrayList<>( rbig.getSites() );
-		Collections.sort( sites , new SiteComparator() );
+		
+		List<? extends Site> big_sites = new ArrayList<>( rbig.getSites() );
+		Collections.sort( big_sites , new SiteComparator() );
 		BigraphBuilder bb = new BigraphBuilder( rbig.getSignature() );
 		Root[] roots = new Root[ rbig.getSites().size() ];
 		for( int i = 0; i < rbig.getSites().size(); ++i )
 			roots[i] = bb.addRoot();
-		for( Site site : sites )
+		for( Site site : big_sites )
 			bb.addSite( roots[ rbig.getSites().indexOf( site ) ] );
 		rbig.innerCompose( bb.makeBigraph() );
-		HashMap<Site, Integer> newSiteNames = new HashMap<>();
-		
-		Iterator<? extends Site> site_iter = sites.iterator();
-		for( Site site : rbig.getSites() )
-			newSiteNames.put( site , siteNames.get( site_iter.next() ) );
-		siteNames = newSiteNames;
+		Collections.sort( sites );
 	}
 	
 	/**
@@ -484,7 +483,18 @@ public class ReactionBigraphBuilder implements AbstBigraphBuilder{
 	private class SiteComparator implements Comparator<Site> {
 	    @Override
 	    public int compare( Site s1, Site s2 ) {
-	        return siteNames.get( s1 ).compareTo( siteNames.get( s2 ) );
+	    	Integer i1 = null;
+	    	Integer i2 = null;
+	    	Iterator<Integer> intIter = sites.iterator();
+	    	for( Site s : rbig.getSites() ){
+	    		if( s == s1 ) 
+	    			i1 = intIter.next();
+	    		else if( s == s2 )
+	    			i2 = intIter.next();
+	    		else
+	    			intIter.next();
+	    	}
+	        return i1.compareTo( i2 );
 	    }
 	}
 	
