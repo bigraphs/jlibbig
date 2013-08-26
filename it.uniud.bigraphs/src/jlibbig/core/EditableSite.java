@@ -1,12 +1,27 @@
 package jlibbig.core;
 
-class EditableSite implements EditableChild, Site, PlaceEntity{
+import jlibbig.core.attachedProperties.DelegatedProperty;
+import jlibbig.core.attachedProperties.Property;
+import jlibbig.core.attachedProperties.PropertyContainer;
+
+class EditableSite implements EditableChild, Site{
+    static final String PROPERTY_OWNER = "Owner";
 	
 	private EditableParent parent;
 	
-	EditableSite(){}
+	private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<Owner>();
+	@SuppressWarnings("unchecked")
+	private final DelegatedProperty<Owner> owner =  new DelegatedProperty<Owner>(PROPERTY_OWNER,true,ownerSetter);
+			
+	private final ReplicateListenerContainer rep  = new ReplicateListenerContainer();
+	private final PropertyContainer props = new PropertyContainer();
+	
+	EditableSite(){
+		props.attachProperty(this.owner);
+	}
 	
 	EditableSite(EditableParent parent){
+		props.attachProperty(this.owner);
 		this.setParent(parent);
 	}
 	
@@ -17,9 +32,10 @@ class EditableSite implements EditableChild, Site, PlaceEntity{
 	
 	@Override
 	public Owner getOwner() {
-		return (parent == null) ? null : parent.getOwner();
+		return this.owner.get();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setParent(EditableParent parent){
 		if(this.parent != null){
@@ -30,15 +46,28 @@ class EditableSite implements EditableChild, Site, PlaceEntity{
 			}
 		}
 		this.parent = parent;
-		if(parent != null){
-			parent.addChild(this);
+		if(this.parent != null){
+			this.parent.addChild(this);
+			this.ownerSetter.set((Property<Owner>) this.parent.getProperty(PROPERTY_OWNER));
 		}
 	}
 	
 	@Override
 	public EditableSite replicate(){
-		return new EditableSite();
+		EditableSite copy = new EditableSite();
+		rep.tell(this, copy);
+		return copy;
 	}
+	
+	@Override
+	public void registerListener(ReplicateListener listener) {
+		rep.registerListener(listener);
+	}
+
+	@Override
+	public boolean unregisterListener(ReplicateListener listener) {
+		return rep.unregisterListener(listener);
+	}	
 	
 	@Override
 	public boolean isParent() {

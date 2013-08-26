@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-interface PlaceEntity {
+interface PlaceEntity extends Owned{
 	/**
 	 * Check if a entity in the place graph is a parent.
 	 * @return the result of the check

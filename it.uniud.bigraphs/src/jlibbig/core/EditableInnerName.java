@@ -46,6 +46,8 @@ class EditableInnerName extends EditableLinkFacet implements InnerName, Editable
 
 	@Override
 	public EditableInnerName replicate() {
-		return new EditableInnerName(this.getName());
+		EditableInnerName copy = new EditableInnerName(this.getName());
+		rep.tell(this, copy);
+		return copy;
 	}
 }

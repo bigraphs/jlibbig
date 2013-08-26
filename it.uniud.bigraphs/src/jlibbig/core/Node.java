@@ -2,11 +2,13 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.attachedProperties.PropertyTarget;
+
 /**
  * Describes a node of a bigraph.
  *
  */
-public interface Node extends Parent, Child, PlaceEntity {
+public interface Node extends Parent, Child, PlaceEntity, PropertyTarget {
 	public List<? extends Port> getPorts();
 
 	/**

@@ -5,5 +5,9 @@ interface Replicable {
 	 * replicate an entity
 	 * @return the entity's duplicate
 	 */
-	Replicable replicate();
+	public abstract Replicable replicate();
+	
+	public abstract void registerListener(ReplicateListener listener);
+	
+	public abstract boolean unregisterListener(ReplicateListener listener);
 }

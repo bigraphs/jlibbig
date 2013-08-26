@@ -13,6 +13,7 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 	private Set<EditablePoint> points = new HashSet<>();
 	private final Set<? extends Point> ro_points = Collections.unmodifiableSet(this.points);
 	private Owner owner;
+	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	
 	EditableEdge(){name = "E_" + AbstractNamed.generateName();}
 	
@@ -57,7 +58,19 @@ class EditableEdge implements Edge, EditableHandle, Replicable{
 
 	@Override
 	public EditableEdge replicate() {
-		return new EditableEdge();
+		EditableEdge copy = new EditableEdge();
+		rep.tell(this, copy);
+		return copy;
+	}
+
+	@Override
+	public void registerListener(ReplicateListener listener) {
+		rep.registerListener(listener);
+	}
+
+	@Override
+	public boolean unregisterListener(ReplicateListener listener) {
+		return rep.unregisterListener(listener);
 	}
 	
 	@Override

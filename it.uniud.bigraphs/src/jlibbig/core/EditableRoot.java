@@ -2,15 +2,26 @@ package jlibbig.core;
 
 import java.util.*;
 
-class EditableRoot implements EditableParent, Root, PlaceEntity, EditableOwned{
+import jlibbig.core.attachedProperties.*;
+
+class EditableRoot implements EditableParent, Root, EditableOwned{
+	
+	static final String PROPERTY_OWNER = "Owner";
 	
 	private Set<EditableChild> children = new HashSet<>();
 	private final Set<Child> ro_chd;
-	private Owner owner;
+	
+	private final ProtectedProperty.ValueSetter<Owner> ownerSetter = new ProtectedProperty.ValueSetter<Owner>();
+	@SuppressWarnings("unchecked")
+	private final ProtectedProperty<Owner> owner = new ProtectedProperty<Owner>(PROPERTY_OWNER,null,ownerSetter);
+
+	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
+	private final PropertyContainer props = new PropertyContainer();
 	
 	@SuppressWarnings("unchecked")
 	EditableRoot(){
 		ro_chd = (Set<Child>) (Set<? extends Child>)  Collections.unmodifiableSet(this.children);
+		props.attachProperty(this.owner);
 	}
 
 	@Override
@@ -48,17 +59,53 @@ class EditableRoot implements EditableParent, Root, PlaceEntity, EditableOwned{
 	
 	@Override
 	public EditableRoot replicate(){
-		return new EditableRoot();
+		EditableRoot copy = new EditableRoot();
+		rep.tell(this, copy);
+		return copy;
+	}
+	
+	@Override
+	public void registerListener(ReplicateListener listener) {
+		rep.registerListener(listener);
+	}
+
+	@Override
+	public boolean unregisterListener(ReplicateListener listener) {
+		return rep.unregisterListener(listener);
+	}
+	
+	@Override
+	public Property<?> attachProperty(Property<?> prop) {
+		if(prop.getName().equals(PROPERTY_OWNER))
+			throw new IllegalArgumentException("Property '"+PROPERTY_OWNER+"' can not be substituted");
+		return props.attachProperty(prop);
+	}
+
+	@Override
+	public Property<?> detachProperty(Property<?> prop) {
+		return this.detachProperty(prop.getName());
+	}
+
+	@Override
+	public Property<?> detachProperty(String name) {
+		if(name.equals(PROPERTY_OWNER))
+			throw new IllegalArgumentException("Property '"+PROPERTY_OWNER+"' can not be substituted");
+		return props.detachProperty(name);
+	}
+
+	@Override
+	public Property<?> getProperty(String name) {
+		return props.getProperty(name);
 	}
 
 	@Override
 	public Owner getOwner() {
-		return this.owner;
+		return this.owner.get();
 	}
 
 	@Override
 	public void setOwner(Owner value){
-		this.owner = value;
+		this.ownerSetter.set(value);
 	}
 
 	@Override
