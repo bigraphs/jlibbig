@@ -3,6 +3,7 @@ package jlibbig.core;
 abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable, Comparable<String>{
 	
 	protected String name;
+	protected final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	
 	protected EditableLinkFacet() {
 		this("X_" + AbstractNamed.generateName());
@@ -22,6 +23,16 @@ abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public void registerListener(ReplicateListener listener) {
+		rep.registerListener(listener);
+	}
+
+	@Override
+	public boolean unregisterListener(ReplicateListener listener) {
+		return rep.unregisterListener(listener);
 	}
 
 	@Override

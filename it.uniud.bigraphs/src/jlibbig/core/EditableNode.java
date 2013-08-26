@@ -2,12 +2,16 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.attachedProperties.*;
+
 /**
  * Describes a node of a bigraph. <br />
  * Every node must have its control.
  *
  */
-class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
+class EditableNode implements Node, EditableParent, EditableChild{
+	    static final String PROPERTY_OWNER = "Owner";
+	    
 		private Control control;
 		private final List<EditablePort> ports;
 		private EditableParent parent;
@@ -16,6 +20,13 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 		private final Set<? extends Child> ro_chd;
 		private String name;
 		
+		private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<Owner>();
+		@SuppressWarnings("unchecked")
+		private final DelegatedProperty<Owner> owner =  new DelegatedProperty<Owner>(PROPERTY_OWNER,true,ownerSetter);
+				
+		private final ReplicateListenerContainer rep  = new ReplicateListenerContainer();
+		private final PropertyContainer props = new PropertyContainer();
+				
 		EditableNode(Control control){
 			this.name = "N_" + AbstractNamed.generateName();
 			this.control = control;
@@ -25,8 +36,10 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 			}
 			this.ports = Collections.unmodifiableList(ports);
 			this.children = new HashSet<>();
-			ro_ports = Collections.unmodifiableList(this.ports);
-			ro_chd =  Collections.unmodifiableSet(this.children);
+			this.ro_ports = Collections.unmodifiableList(this.ports);
+			this.ro_chd =  Collections.unmodifiableSet(this.children);
+
+			props.attachProperty(this.owner);
 		}
 		
 		EditableNode(Control control,EditableParent parent){
@@ -90,6 +103,7 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 			//this.control = value;
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public void setParent(EditableParent parent){
 			if(this.parent != null){
@@ -100,8 +114,9 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 				}
 			}
 			this.parent = parent;
-			if(parent != null){
-				parent.addChild(this);
+			if(this.parent != null){
+				this.parent.addChild(this);
+				this.ownerSetter.set((Property<Owner>) this.parent.getProperty(PROPERTY_OWNER));
 			}
 		}
 		
@@ -135,13 +150,48 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 		
 		@Override
 		public EditableNode replicate(){
-			return new EditableNode(this.control);
+			EditableNode copy = new EditableNode(this.control);
+			rep.tell(this, copy);
+			return copy;
+		}
+
+		@Override
+		public void registerListener(ReplicateListener listener) {
+			rep.registerListener(listener);
+		}
+
+		@Override
+		public boolean unregisterListener(ReplicateListener listener) {
+			return rep.unregisterListener(listener);
+		}	
+		
+		@Override
+		public Property<?> attachProperty(Property<?> prop) {
+			if(prop.getName().equals(PROPERTY_OWNER))
+				throw new IllegalArgumentException("Property '"+PROPERTY_OWNER+"' can not be substituted");
+			return props.attachProperty(prop);
+		}
+
+		@Override
+		public Property<?> detachProperty(Property<?> prop) {
+			return this.detachProperty(prop.getName());
+		}
+
+		@Override
+		public Property<?> detachProperty(String name) {
+			if(name.equals(PROPERTY_OWNER))
+				throw new IllegalArgumentException("Property '"+PROPERTY_OWNER+"' can not be substituted");
+			return props.detachProperty(name);
 		}
 		
+		@Override
+		public Property<?> getProperty(String name) {
+			return props.getProperty(name);
+		}
 
 		@Override
 		public Owner getOwner() {
-			return (parent == null) ? null : parent.getOwner();
+			return this.owner.get();
 		}
 		
 		@Override
@@ -223,4 +273,5 @@ class EditableNode implements Node, EditableParent, EditableChild, PlaceEntity {
 				return (handle != null) ? handle.getOwner() : EditableNode.this.getOwner();
 			}
 		}
-	}
+
+}
