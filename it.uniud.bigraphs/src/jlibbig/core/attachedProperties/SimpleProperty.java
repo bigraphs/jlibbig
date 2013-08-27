@@ -2,15 +2,22 @@ package jlibbig.core.attachedProperties;
 
 import java.util.*;
 
-public class SimpleProperty<V> implements Property<V>{
+public class SimpleProperty<V> extends Property<V>{
 	
 	private V value;
 	private final String name;
 	
 	private List<PropertyListener<V>> _listeners = new LinkedList<>();
+	
+	/**
+	 * A list holding all the listener registered for this property
+	 */
 	protected List<PropertyListener<V>> listeners = Collections.unmodifiableList(_listeners);
 	
-	protected boolean writable = true;
+	/**
+	 * A flag indicating whatever the property is writable
+	 */
+	protected boolean readOnly = true;
 	
 	public SimpleProperty(String name, @SuppressWarnings("unchecked") PropertyListener<V>... listeners){
 		this.name = name;
@@ -20,16 +27,23 @@ public class SimpleProperty<V> implements Property<V>{
 	}
 	
 	public SimpleProperty(String name, V value, @SuppressWarnings("unchecked") PropertyListener<V>... listeners){
-		this(name,value,true,listeners);
+		this(name,value,false,listeners);
 	}
 	
-	public SimpleProperty(String name, V value, boolean canWrite, @SuppressWarnings("unchecked") PropertyListener<V>... listeners){
+	public SimpleProperty(String name, V value, boolean readOnly, @SuppressWarnings("unchecked") PropertyListener<V>... listeners){
 		this.name = name;
 		this.value = value;
-		this.writable = canWrite;
+		this.readOnly = readOnly;
 		for(PropertyListener<V> l : listeners){
 			this._listeners.add(l);
 		}
+	}
+	
+	public SimpleProperty(String name, V value, boolean writable, Collection<PropertyListener<V>> listeners){
+		this.name = name;
+		this.value = value;
+		this.readOnly = writable;
+		this._listeners.addAll(listeners);
 	}
 	
 	/* (non-Javadoc)
@@ -37,7 +51,7 @@ public class SimpleProperty<V> implements Property<V>{
 	 */
 	@Override
 	public boolean isReadOnly(){
-		return this.writable;
+		return this.readOnly;
 	}
 	
 	@Override
@@ -104,6 +118,5 @@ public class SimpleProperty<V> implements Property<V>{
 	public String getName() {
 		return this.name;
 	}
-
 
 }
