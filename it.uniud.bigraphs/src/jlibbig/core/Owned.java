@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-interface Owned {
+public interface Owned {
 	/**
 	 * Get the current owner
 	 * @return the current owner

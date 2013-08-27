@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-interface EditableChild extends Child, Replicable, Owned {
+interface EditableChild extends Child, ReplicableEx, Owned {
 	void setParent(EditableParent parent);
 	@Override
 	EditableChild replicate();

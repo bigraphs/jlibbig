@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable, Comparable<String>{
+abstract class EditableLinkFacet implements LinkFacet, EditableNamed, ReplicableEx, Comparable<String>{
 	
 	protected String name;
 	protected final ReplicateListenerContainer rep = new ReplicateListenerContainer();

@@ -1,5 +1,5 @@
 package jlibbig.core;
 
-interface Owner {
+public interface Owner {
 
 }

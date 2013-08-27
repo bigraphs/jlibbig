@@ -7,7 +7,7 @@ import java.util.*;
  * They can be linked to innernames and edges.
  *
  */
-class EditableEdge implements Edge, EditableHandle, Replicable{
+class EditableEdge implements Edge, EditableHandle, ReplicableEx{
 	private String name;
 	
 	private Set<EditablePoint> points = new HashSet<>();
