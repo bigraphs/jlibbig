@@ -6,6 +6,23 @@ import jlibbig.core.*;
 public class foo {
 	public static void main(String[] args){
 
+		NodeCheaser nc = new NodeCheaser(){
+			protected void onNodeAdded(Node node){
+				System.out.println("- CHEASING " + node + ".");
+			}
+			
+//			protected void onNodeRemoved(Node node){
+//				System.out.println("- REMOVED " + node + ".");
+//			}
+			
+			protected void onReplicates(Node original, Node copy){
+				System.out.println("- REPLICATION DETECTED FOR " + original + " => " + copy + ".");
+			}
+			protected void onOwnerChanges(Node node,Owner oldValue,Owner newValue){
+				System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
+			}
+		};
+		
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("a",true,0);
 		sb.put("b",true,1);
@@ -27,6 +44,9 @@ public class foo {
 		//build B
 		BigraphBuilder bbB = new BigraphBuilder(s);
 		Node m = bbB.addNode("c", bbB.addRoot());
+		
+		nc.chease(m);
+		
 		bbB.addSite(m); 
 		bbB.addInnerName("x", bbB.addOuterName("x7"));
 		bbB.relink(m.getPort(0), bbB.addOuterName("x"));
@@ -50,6 +70,9 @@ public class foo {
 		bb1.addInnerName("x", h);
 		h = bb1.addInnerName("x",h).getHandle();
 		Node n = bb1.addNode("c", r, h);
+
+		nc.chease(n);
+		
 		bb1.addSite(r);
 		//System.out.println(bb + "\n");
 		Bigraph b1 = bb1.makeBigraph();
@@ -64,6 +87,9 @@ public class foo {
 		r = bb2.addRoot();
 		h = bb2.addOuterName("x");
 		n = bb2.addNode("b", r, h);
+		
+		nc.chease(n);
+		
 		bb2.addOuterName("y");
 		bb2.addSite(n);
 		Bigraph b2 = bb2.makeBigraph();

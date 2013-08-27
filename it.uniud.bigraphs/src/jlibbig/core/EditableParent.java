@@ -9,7 +9,7 @@ import jlibbig.core.attachedProperties.PropertyTarget;
  * @see Parent
  *
  */
-interface EditableParent extends Parent, Replicable, Owned, PropertyTarget {
+interface EditableParent extends Parent, ReplicableEx, Owned, PropertyTarget {
 	/**
 	 * Get the set of children. This set and every object inside it can be modified.
 	 * @return the set of parent's children
@@ -29,7 +29,7 @@ interface EditableParent extends Parent, Replicable, Owned, PropertyTarget {
 	public abstract EditableRoot getRoot();
 	
 	/**
-	 * @see Replicable#replicate()
+	 * @see ReplicableEx#replicate()
 	 */
 	public abstract EditableParent replicate();
 }
