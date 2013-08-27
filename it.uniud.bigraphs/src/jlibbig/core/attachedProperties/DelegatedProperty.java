@@ -27,7 +27,7 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 	
 	public DelegatedProperty(String name, Property<V> property, boolean cacheValue, PropertySetter<V> setter,
 			PropertyListener<V>... listeners) {
-		super(name,listeners);
+		super(name,null,listeners);
 		this.prop = property;
 		this.cacheValue = cacheValue;
 		if(cacheValue){

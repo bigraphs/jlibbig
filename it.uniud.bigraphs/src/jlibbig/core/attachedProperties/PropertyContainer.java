@@ -10,6 +10,7 @@ public class PropertyContainer implements PropertyTarget{
 	 */
 	@Override
 	public Property<?> attachProperty(Property<?> prop) {
+		prop.onAttach(this);
 		return this.props.put(prop.getName(), prop);
 	}
 
@@ -18,6 +19,7 @@ public class PropertyContainer implements PropertyTarget{
 	 */
 	@Override
 	public Property<?> detachProperty(Property<?> prop) {
+		prop.onDetach(this);
 		return props.remove(prop.getName());
 	}
 
@@ -26,7 +28,7 @@ public class PropertyContainer implements PropertyTarget{
 	 */
 	@Override
 	public Property<?> detachProperty(String name) {
-		return props.remove(name);
+		return detachProperty(props.get(name)); 
 	}
 
 	/* (non-Javadoc)

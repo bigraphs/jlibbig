@@ -3,20 +3,17 @@ package jlibbig.core.attachedProperties;
 @SuppressWarnings("unchecked")
 public class ProtectedProperty<V> extends SimpleProperty<V> {
 
-	public ProtectedProperty(String name,
+	public ProtectedProperty(String name, ValueSetter<V> setter,
 			PropertyListener<V>... listeners) {
 		super(name, listeners);
-		super.writable = false;
-	}
-	
-	public ProtectedProperty(String name, V value,
-			PropertyListener<V>... listeners) {
-		this(name, value, null, listeners);
+		super.readOnly = true;
+		if(setter != null)
+			setter.target = this;
 	}
 	
 	public ProtectedProperty(String name, V value, ValueSetter<V> setter,
 			PropertyListener<V>... listeners) {
-		super(name, value, false, listeners);
+		super(name, value, true, listeners);
 		if(setter != null)
 			setter.target = this;
 	}
