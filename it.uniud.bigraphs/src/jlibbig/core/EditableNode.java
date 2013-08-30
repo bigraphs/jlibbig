@@ -190,6 +190,11 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		}
 
 		@Override
+		public Set<String> getPropertyNames() {
+			return props.getPropertyNames();
+		}
+
+		@Override
 		public Owner getOwner() {
 			return this.owner.get();
 		}

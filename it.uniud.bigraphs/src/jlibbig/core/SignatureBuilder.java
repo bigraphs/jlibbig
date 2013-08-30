@@ -31,8 +31,8 @@ public class SignatureBuilder {
 	 * signature identifier.
 	 * @return a signature
 	 */
-	public Signature makeSignature(UUID usid) {
-		return new Signature(ctrls.values());
+	public Signature makeSignature(String usid) {
+		return new Signature(usid, ctrls.values());
 	}
 	
 	/**

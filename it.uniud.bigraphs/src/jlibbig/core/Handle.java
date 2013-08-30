@@ -6,7 +6,7 @@ import java.util.Set;
  * Handle: outername or edge
  *
  */
-public interface Handle {
+public interface Handle extends Owned{
 	/**
 	 * Get a set of handle's points (innernames or ports).
 	 */

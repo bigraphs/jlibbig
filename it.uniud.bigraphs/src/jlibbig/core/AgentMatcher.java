@@ -23,6 +23,18 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	private final static boolean DEBUG_PRINT_QUEUE_REFILL = DEBUG;
 	private final static boolean DEBUG_CONSISTENCY_CHECK = DEBUG || true;
 
+	private final NodeEquivalence eq;
+	
+	public AgentMatcher(){
+		this(StandardNodeEquivalence.DEFAULT);
+	}
+
+	public AgentMatcher(NodeEquivalence eq){
+		if(eq == null)
+			throw new IllegalArgumentException("Euivalence can not be null.");
+		this.eq = eq;
+	}
+	
 	/**
 	 * The default instance of the macher.
 	 */
@@ -34,12 +46,20 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	 */
 	@Override
 	public Iterable<AgentMatch> match(Bigraph agent, Bigraph redex) {
-		return match(agent, redex, null);
+		return match(agent, redex, this.eq);
+	}
+	
+	public Iterable<AgentMatch> match(Bigraph agent, Bigraph redex, NodeEquivalence eq) {
+		if(eq == null)
+			throw new IllegalArgumentException("Euivalence can not be null.");
+		return match(agent, redex, eq, null);
 	}
 
-	Iterable<AgentMatch> match(Bigraph agent, Bigraph redex,
+	Iterable<AgentMatch> match(Bigraph agent, Bigraph redex, NodeEquivalence eq,
 			boolean[] neededParams) {
-		return new MatchIterable(agent, redex, neededParams);
+		if(eq == null)
+			eq = this.eq;
+		return new MatchIterable(agent, redex,eq, neededParams);
 	}
 
 	/**
@@ -84,8 +104,10 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 		// final Map<Parent, Set<Node>> descendants_cache;
 
 		final boolean[] neededParams;
+		
+		private final NodeEquivalence eq;
 
-		private MatchIterable(Bigraph agent, Bigraph redex, boolean[] neededParams) {
+		private MatchIterable(Bigraph agent, Bigraph redex, NodeEquivalence eq, boolean[] neededParams) {
 			if (!agent.isGround()) {
 				throw new UnsupportedOperationException(
 						"Agent should be a bigraph with empty inner interface i.e. ground.");
@@ -108,6 +130,8 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			this.redex_sites = redex.getSites();
 			this.redex_nodes = redex.getNodes();
 
+			this.eq = eq;
+			
 			this.redex_handles = new HashSet<Handle>(
 					redex.getEdges(this.redex_nodes));
 			for (OuterName o : redex.outers) {
@@ -222,13 +246,13 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 				// Constraints
 
-				// 2 // M_ij = 0 if ctrls are different
+				// 2 // M_ij = 0 if nodes are different in the sense of this.eq
 				// ////////////////////////////
 				for (Node i : agent_nodes) {
 					Map<PlaceEntity, IntegerVariable> row = matrix.get(i);
 					for (Node j : redex_nodes) {
 						IntegerVariable var = row.get(j);
-						if (i.getControl() != j.getControl()) {
+						if (!eq.areEquiv(i, j)) {
 							model.addConstraint(Choco.eq(0, var));
 						}
 					}

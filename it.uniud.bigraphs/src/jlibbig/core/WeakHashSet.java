@@ -8,6 +8,7 @@ import java.lang.ref.*;
  * collected, if there is no strong reference to this element.
  */
 class WeakHashSet<V> implements Set<V> {
+
 	protected static final long serialVersionUID = 7157522610134013359L;
 
 	protected final ReferenceQueue<V> queue = new ReferenceQueue<>();

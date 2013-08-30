@@ -9,32 +9,32 @@ public class Signature implements Set<Control>{
 
 	final private Map<String,Control> ctrls = new HashMap<>();
 
-	final protected UUID USID;
+	final protected String USID;
 	
 	public Signature(Collection<Control > controls) {
 		this(null, controls);
 	}
 	
-	public Signature(UUID usid, Collection<Control > controls) {
+	public Signature(String usid, Collection<Control > controls) {
 		for(Control  c : controls){
 			if(ctrls.put(c.getName(), c) != null){
 				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
 			}
 		}
-		this.USID = (usid == null) ? UUID.randomUUID() : usid;
+		this.USID = (usid == null || usid.trim().length() == 0) ? UUID.randomUUID().toString() : usid;
 	}
 	
 	public Signature(Control... controls) {
 		this(null, controls);
 	}
 	
-	public Signature(UUID usid, Control... controls) {
+	public Signature(String usid, Control... controls) {
 		for(Control  c : controls){
 			if(ctrls.put(c.getName(), c) != null){
 				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
 			}
 		}
-		this.USID = (usid == null) ? UUID.randomUUID() : usid;
+		this.USID = (usid == null || usid.trim().length() == 0) ? UUID.randomUUID().toString() : usid;
 	}
 
 
@@ -79,10 +79,14 @@ public class Signature implements Set<Control>{
 	public Control getByName(String name){
 		return ctrls.get(name);
 	}
+	
+	public String getUSID(){
+		return this.USID.toString();
+	}
 		
 	@Override
 	public String toString() {
-		return "Signature " + ctrls.values();
+		return USID + ":" + ctrls.values();
 	}
 
 	

@@ -6,28 +6,23 @@ import jlibbig.core.*;
 public class foo {
 	public static void main(String[] args){
 
-		NodeCheaser nc = new NodeCheaser(){
-			protected void onNodeAdded(Node node){
-				System.out.println("- CHEASING " + node + ".");
-			}
-			
-//			protected void onNodeRemoved(Node node){
-//				System.out.println("- REMOVED " + node + ".");
+		NodeChaser nc = new NodeChaser(){
+//			protected void onNodeAdded(Node node){
+//				System.out.println("- CHEASING " + node + ".");
 //			}
-			
-			protected void onReplicates(Node original, Node copy){
-				System.out.println("- REPLICATION DETECTED FOR " + original + " => " + copy + ".");
-			}
-			protected void onOwnerChanges(Node node,Owner oldValue,Owner newValue){
-				System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
-			}
+//			protected void onReplicates(Node original, Node copy){
+//				System.out.println("- REPLICATION DETECTED FOR " + original + " => " + copy + ".");
+//			}
+//			protected void onOwnerChanges(Node node,Owner oldValue,Owner newValue){
+//				System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
+//			}
 		};
 		
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("a",true,0);
 		sb.put("b",true,1);
 		sb.put("c",false,2);
-		Signature s = sb.makeSignature();
+		Signature s = sb.makeSignature("MySig");
 			// build A
 		BigraphBuilder bbA = new BigraphBuilder(s);
 		bbA.addSite(bbA.addRoot());
