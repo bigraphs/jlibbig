@@ -3,8 +3,8 @@ package jlibbig.core;
 import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
-import jlibbig.core.exceptions.IncompatibleInterfacesException;
-import jlibbig.core.exceptions.IncompatibleSignatureException;
+//import jlibbig.core.attachedProperties.*;
+import jlibbig.core.exceptions.*;
 
 /**
  * The class is used to store immutable bigraphs.
@@ -14,7 +14,7 @@ import jlibbig.core.exceptions.IncompatibleSignatureException;
  * version of bigraphs, users can use {@link BigraphBuilder}.
  * </p>
  */
-final public class Bigraph implements AbstBigraph {
+final public class Bigraph implements AbstBigraph{//, PropertyTarget {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
@@ -387,7 +387,8 @@ final public class Bigraph implements AbstBigraph {
 	public String toString() {
 		String nl = System.getProperty("line.separator");
 		StringBuilder b = new StringBuilder();
-		b.append('{');
+		b.append(signature.getUSID());
+		b.append("#{");
 		Iterator<Control> is = this.signature.iterator();
 		while (is.hasNext()) {
 			b.append(is.next().toString());
@@ -668,4 +669,35 @@ final public class Bigraph implements AbstBigraph {
 		}
 		return ns0;
 	}
+
+	/*
+	//ATTACHED PROPERTIES 
+	
+	private final PropertyContainer props = new PropertyContainer();
+	
+	@Override
+	public Property<?> attachProperty(Property<?> prop) {
+		return props.attachProperty(prop);
+	}
+
+	@Override
+	public Property<?> detachProperty(Property<?> prop) {
+		return this.detachProperty(prop.getName());
+	}
+
+	@Override
+	public Property<?> detachProperty(String name) {
+		return props.detachProperty(name);
+	}
+	
+	@Override
+	public Property<?> getProperty(String name) {
+		return props.getProperty(name);
+	}
+
+	@Override
+	public Set<String> getPropertyNames() {
+		return props.getPropertyNames();
+	}
+	*/
 }

@@ -13,10 +13,6 @@ import choco.kernel.model.variables.integer.IntegerVariable;
 
 /**
  * Implements a matcher for bigraphs.
- * <p>
- * <strong>Warning:</strong> site order may be altered in the case of non ground
- * agents because parameters are split into prime bigraphs.
- * </p>
  * 
  * @see Matcher
  */
@@ -27,6 +23,18 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	private final static boolean DEBUG_PRINT_QUEUE_REFILL = DEBUG;
 	private final static boolean DEBUG_CONSISTENCY_CHECK = DEBUG || true;
 
+	private final NodeEquivalence eq;
+	
+	public BigraphMatcher(){
+		this(StandardNodeEquivalence.DEFAULT);
+	}
+
+	public BigraphMatcher(NodeEquivalence eq){
+		if(eq == null)
+			throw new IllegalArgumentException("Euivalence can not be null.");
+		this.eq = eq;
+	}
+	
 	/**
 	 * The default instance of the macher.
 	 */
@@ -39,14 +47,20 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	 */
 	@Override
 	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex) {
+		return match(agent, redex, eq);
+	}
+	
+	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex, NodeEquivalence eq) {
+		if(eq == null)
+			throw new IllegalArgumentException("Euivalence can not be null.");
 		if (agent.isGround())
-			return AgentMatcher.DEFAULT.match(agent, redex);
+			return AgentMatcher.DEFAULT.match(agent, redex, eq);
 		else
-			return new MatchIterable(agent, redex);
+			return new MatchIterable(agent, redex, eq);
 	}
 
 	/**
-	 * A class for incrementally solve the matching problem. Solutions are
+	 * A class for incrementally solving the matching problem. Solutions are
 	 * computed on demand. The algorithm divides the matching in two phases:
 	 * first a place graph match is solved, then the solution is checked for
 	 * extensibility to a bigraph match (is the given place match consistent
@@ -84,8 +98,10 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 		// caches the set of descendants of a agents entities
 		// final Map<Parent, Set<Node>> descendants_cache;
+		
+		private final NodeEquivalence eq;
 
-		private MatchIterable(Bigraph agent, Bigraph redex) {
+		private MatchIterable(Bigraph agent, Bigraph redex, NodeEquivalence eq) {
 			if (!agent.isGround()) {
 				throw new UnsupportedOperationException(
 						"Agent should be a bigraph with empty inner interface i.e. ground.");
@@ -94,6 +110,9 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				throw new UnsupportedOperationException(
 						"Agent and redex should have the same singature.");
 			}
+			
+			this.eq = eq;
+			
 			this.agent = agent;
 			this.redex = redex;
 
@@ -246,13 +265,13 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 				// Constraints
 
-				// 2 // M_ij = 0 if ctrls are different
+				// 2 // M_ij = 0 if nodes are different in the sense of this.eq
 				// ////////////////////////////
 				for (Node i : agent_nodes) {
 					Map<PlaceEntity, IntegerVariable> row = matrix.get(i);
 					for (Node j : redex_nodes) {
 						IntegerVariable var = row.get(j);
-						if (i.getControl() != j.getControl()) {
+						if (!eq.areEquiv(i, j)) {
 							model.addConstraint(Choco.eq(0, var));
 						}
 					}

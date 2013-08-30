@@ -106,7 +106,7 @@ public class AgentRewritingRule implements RewritingRule<Bigraph> {
 		@Override
 		public Iterator<Bigraph> iterator() {
 			if (mAble == null)
-				mAble = AgentMatcher.DEFAULT.match(target, redex, neededParam);
+				mAble = AgentMatcher.DEFAULT.match(target, redex, null, neededParam);
 			return new RewriteIterator();
 		}
 

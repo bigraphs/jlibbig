@@ -173,6 +173,16 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 
 	// /////////////////////////////////////////////////////////////////////////
 
+	private void assertAndSetOwner(Owned owned, String obj){
+		if(owned == null)
+			throw new IllegalArgumentException(obj + " can not be null.");			
+		Owner o = owned.getOwner();
+		if(o == null)
+			((EditableOwned) owned).setOwner(this);
+		else if(o != this)
+				throw new IllegalArgumentException(obj + " already owned by an other structure.");
+	}
+	
 	/**
 	 * Add a root to the current bigraph
 	 * 
@@ -198,6 +208,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 */
 	public Site addSite(Parent parent) {
 		assertOpen();
+		assertAndSetOwner(parent,"Parent");
 		EditableSite s = new EditableSite((EditableParent) parent);
 		this.big.sites.add(s);
 		// TODO skip check on internal data
@@ -237,10 +248,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		if (c == null)
 			throw new IllegalArgumentException(
 					"Control should be in the signature.");
-		if (!this.getRoots().contains(parent)
-				&& !this.getNodes().contains(parent))
-			throw new IllegalArgumentException(
-					"Parent sould be in the bigraph.");
+		assertAndSetOwner(parent,"Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
 			if (i < handles.length) {
@@ -248,12 +256,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			}
 			if (hs[i] == null)
 				hs[i] = new EditableEdge();
-			Owner o = hs[i].getOwner();
-			if (o == null)
-				hs[i].setOwner(this);
-			else if (o != this)
-				throw new IllegalArgumentException(
-						"Handles sould be in the bigraph or be idle edges.");
+			assertAndSetOwner(hs[i],"Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
 		// TODO skip check on internal data
@@ -280,10 +283,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		if (c == null)
 			throw new IllegalArgumentException(
 					"Control should be in the signature.");
-		if (!this.getRoots().contains(parent)
-				&& !this.getNodes().contains(parent))
-			throw new IllegalArgumentException(
-					"Parent sould be in the bigraph.");
+		assertAndSetOwner(parent,"Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
 			if (i < handles.size()) {
@@ -291,12 +291,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 			}
 			if (hs[i] == null)
 				hs[i] = new EditableEdge();
-			Owner o = hs[i].getOwner();
-			if (o == null)
-				hs[i].setOwner(this);
-			else if (o != this)
-				throw new IllegalArgumentException(
-						"Handles sould be in the bigraph or be idle edges.");
+			assertAndSetOwner(hs[i],"Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
 		// TODO skip check on internal data
@@ -368,6 +363,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(Handle handle) {
+		assertAndSetOwner(handle,"Handle");
 		return addInnerName(new EditableInnerName(), (EditableHandle) handle);
 	}
 
@@ -384,7 +380,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		return addInnerName(name, new EditableEdge(this));
 	}
 
-	/**
+	/**0
 	 * Add a new innername to the current bigraph.
 	 * 
 	 * @param name
@@ -394,6 +390,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(String name, Handle handle) {
+		assertAndSetOwner(handle,"Handle");
 		return addInnerName(new EditableInnerName(name),
 				(EditableHandle) handle);
 	}
@@ -410,12 +407,6 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 */
 	private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
 		assertOpen();
-		Set<? extends Edge> es = this.getEdges();
-		if (!this.getOuterNames().contains(h)
-				&& !(h instanceof Edge && (es.contains(h) || (h.getPoints()
-						.size() == 0))))
-			throw new IllegalArgumentException(
-					"Handles sould be in the bigraph or be idle edges.");
 		n.setHandle(h);
 		this.big.inners.add(n);
 		// TODO skip check on internal data
@@ -433,14 +424,10 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 */
 	public void relink(Point point, Handle handle) {
 		assertOpen();
+		assertAndSetOwner(handle,"Handle");
+		assertAndSetOwner(point,"Point");
 		EditablePoint p = (EditablePoint) point;
 		EditableHandle h = (EditableHandle) handle;
-		Owner o1 = p.getOwner();
-		Owner o2 = h.getOwner();
-		if (o1 == null || o1 != this || o2 == null || o2 != this) {
-			throw new IllegalArgumentException(
-					"Point and handle sould be in the bigraph.");
-		}
 		p.setHandle(h);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
@@ -458,14 +445,10 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 	 */
 	public Edge relink(Point p1, Point p2) {
 		assertOpen();
+		assertAndSetOwner(p1,"Point");
+		assertAndSetOwner(p2,"Point");
 		EditablePoint t1 = (EditablePoint) p1;
 		EditablePoint t2 = (EditablePoint) p2;
-		Owner o1 = t1.getOwner();
-		Owner o2 = t2.getOwner();
-		if (o1 == null || o1 != this || o2 == null || o2 != this) {
-			throw new IllegalArgumentException(
-					"Points sould be in the bigraph.");
-		}
 		EditableEdge e = new EditableEdge();
 		e.setOwner(this);
 		t1.setHandle(e);
@@ -489,11 +472,7 @@ final public class BigraphBuilder implements AbstBigraphBuilder {
 		EditablePoint[] ps = new EditablePoint[points.length];
 		for (int i = 0; i < points.length; i++) {
 			ps[i] = (EditablePoint) points[i];
-			Owner o = ps[i].getOwner();
-			if (o == null || o != this) {
-				throw new IllegalArgumentException(
-						"Points sould be in the bigraph.");
-			}
+			assertAndSetOwner(ps[i],"Point");
 		}
 		EditableEdge e = new EditableEdge();
 		e.setOwner(this);
