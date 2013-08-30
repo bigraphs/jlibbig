@@ -5,7 +5,7 @@ import java.util.*;
 import jlibbig.core.attachedProperties.*;
 
 @SuppressWarnings("unchecked")
-public class NodeCheaser {
+public class NodeChaser {
 
 	private static final Owner FAKE_OWNER = new Owner() {
 	};
