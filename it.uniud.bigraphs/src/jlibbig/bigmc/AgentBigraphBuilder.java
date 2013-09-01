@@ -292,7 +292,7 @@ public class AgentBigraphBuilder implements AbstractBigraphBuilder{
 
 	/**
 	 * Juxtapose AgentBigraph in input with the current AgentBigraphBuilder. <br />
-	 * It will then perform {@link AgentBigraphBuilder#merge()} on the resulting
+	 * It will then perform {@link BigraphBuilder#merge()} on the resulting
 	 * AgentBigraphBuilder.
 	 * 
 	 * @param graph
@@ -305,7 +305,7 @@ public class AgentBigraphBuilder implements AbstractBigraphBuilder{
 
 	/**
 	 * Juxtapose the current AgentBigraphBuilder with the AgentBigraph in input. <br />
-	 * It will then perform {@link AgentBigraphBuilder#merge()} on the resulting
+	 * It will then perform {@link BigraphBuilder#merge()} on the resulting
 	 * AgentBigraphBuilder.
 	 * 
 	 * @param graph

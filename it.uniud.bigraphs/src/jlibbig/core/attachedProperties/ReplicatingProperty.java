@@ -11,7 +11,6 @@ import jlibbig.core.*;
  * The class can be attached also to targets not implementing Replicable, but 
  * the automatic sharing behaviour will not be enabled (on these).
  * 
- * @see {@link ReplicatingProperty}
  * @param <V>
  */
 public class ReplicatingProperty<V> extends SimpleProperty<V> {

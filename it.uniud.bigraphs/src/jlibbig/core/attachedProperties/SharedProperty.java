@@ -10,7 +10,7 @@ import jlibbig.core.*;
  * targets not implementing Replicable, but the automatic sharing behaviour will
  * not be enabled (on these).
  * 
- * @see {@link ReplicatingProperty}
+ * @see ReplicatingProperty
  * @param <V>
  */
 public class SharedProperty<V> extends Property<V> {
