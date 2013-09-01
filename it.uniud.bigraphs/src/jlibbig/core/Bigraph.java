@@ -62,7 +62,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 					// c was already visited
 					// we have found a cycle (or diamond) in the place structure
 					return false;
-				} else if (c instanceof EditableNode) {
+				} else if (c.isNode()) {
 					EditableNode n = (EditableNode) c;
 					if (n.getControl().getArity() != n.getPorts().size()
 							|| !signature.contains(n.getControl())) {
@@ -80,7 +80,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 						ps.add(t);
 						seen_handles.add(h);
 					}
-				} else if (c instanceof EditableSite) {
+				} else if (c.isSite()) {
 					Site s = (Site) c;
 					unseen_sites.remove(s);
 					if (!this.sites.contains(s)) {
@@ -183,25 +183,25 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 			owner = big;
 		Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
 		// replicate outer names
-		for (EditableOuterName o : this.outers) {
-			EditableOuterName p = o.replicate();
-			big.outers.add(p);
-			p.setOwner(owner);
-			hnd_dic.put(o, p);
+		for (EditableOuterName o1 : this.outers) {
+			EditableOuterName o2 = o1.replicate();
+			big.outers.add(o2);
+			o2.setOwner(owner);
+			hnd_dic.put(o1, o2);
 		}
 		// replicate inner names
-		for (EditableInnerName i : this.inners) {
-			EditableInnerName j = i.replicate();
-			EditableHandle g = i.getHandle();
-			EditableHandle h = hnd_dic.get(g);
-			if (h == null) {
+		for (EditableInnerName i1 : this.inners) {
+			EditableInnerName i2 = i1.replicate();
+			EditableHandle h1 = i1.getHandle();
+			EditableHandle h2 = hnd_dic.get(h1);
+			if (h2 == null) {
 				// the bigraph is inconsistent if g is null
-				h = g.replicate();
-				h.setOwner(owner);
-				hnd_dic.put(g, h);
+				h2 = h1.replicate();
+				h2.setOwner(owner);
+				hnd_dic.put(h1, h2);
 			}
-			j.setHandle(h);
-			big.inners.add(j);
+			i2.setHandle(h2);
+			big.inners.add(i2);
 		}
 		// replicate place structure
 		// the queue is used for a breadth first visit
@@ -215,45 +215,45 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 			}
 		}
 		Queue<Pair> q = new LinkedList<>();
-		for (EditableRoot r : this.roots) {
-			EditableRoot s = r.replicate();
-			big.roots.add(s);
-			s.setOwner(owner);
-			for (EditableChild c : r.getEditableChildren()) {
-				q.add(new Pair(s, c));
+		for (EditableRoot r1 : this.roots) {
+			EditableRoot r2 = r1.replicate();
+			big.roots.add(r2);
+			r2.setOwner(owner);
+			for (EditableChild c : r1.getEditableChildren()) {
+				q.add(new Pair(r2, c));
 			}
 		}
 		EditableSite[] sites = new EditableSite[this.sites.size()];
 		while (!q.isEmpty()) {
-			Pair p = q.poll();
-			if (p.c instanceof EditableNode) {
-				EditableNode n = (EditableNode) p.c;
-				EditableNode m = n.replicate();
+			Pair t = q.poll();
+			if (t.c.isNode()) {
+				EditableNode n1 = (EditableNode) t.c;
+				EditableNode n2 = n1.replicate();
 				// set m's parent (which added adds m as its child)
-				m.setParent(p.p);
-				for (int i = n.getControl().getArity() - 1; 0 <= i; i--) {
-					EditablePort o = n.getPort(i);
-					EditableHandle g = o.getHandle();
+				n2.setParent(t.p);
+				for (int i = n1.getControl().getArity() - 1; 0 <= i; i--) {
+					EditablePort p1 = n1.getPort(i);
+					EditableHandle h1 = p1.getHandle();
 					// looks for an existing replica
-					EditableHandle h = hnd_dic.get(g);
-					if (h == null) {
+					EditableHandle h2 = hnd_dic.get(h1);
+					if (h2 == null) {
 						// the bigraph is inconsistent if g is null
-						h = g.replicate();
-						h.setOwner(owner);
-						hnd_dic.put(g, h);
+						h2 = h1.replicate();
+						h2.setOwner(owner);
+						hnd_dic.put(h1, h2);
 					}
-					m.getPort(i).setHandle(h);
+					n2.getPort(i).setHandle(h2);
 				}
 				// enqueue children for visit
-				for (EditableChild c : n.getEditableChildren()) {
-					q.add(new Pair(m, c));
+				for (EditableChild c : n1.getEditableChildren()) {
+					q.add(new Pair(n2, c));
 				}
 			} else {
 				// c instanceof EditableSite
-				EditableSite s = (EditableSite) p.c;
-				EditableSite t = s.replicate();
-				t.setParent(p.p);
-				sites[this.sites.indexOf(s)] = t;
+				EditableSite s1 = (EditableSite) t.c;
+				EditableSite s2 = s1.replicate();
+				s2.setParent(t.p);
+				sites[this.sites.indexOf(s1)] = s2;
 			}
 		}
 		for (int i = 0; i < sites.length; i++) {
@@ -334,7 +334,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 		Queue<EditableNode> q = new LinkedList<>();
 		for (Root r : this.roots) {
 			for (Child c : r.getChildren()) {
-				if (c instanceof EditableNode) {
+				if (c.isNode()) {
 					EditableNode n = (EditableNode) c;
 					q.add(n);
 				}
@@ -344,7 +344,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 			EditableNode p = q.poll();
 			s.add(p);
 			for (Child c : p.getChildren()) {
-				if (c instanceof EditableNode) {
+				if (c.isNode()) {
 					EditableNode n = (EditableNode) c;
 					q.add(n);
 				}

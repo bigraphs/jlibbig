@@ -17,7 +17,7 @@ public class SharedProperty<V> extends Property<V> {
 
 	protected final Property<V> property;
 
-	protected final ReplicateListener repListener = new ReplicateListener() {
+	protected final ReplicateListener listener = new ReplicateListener() {
 		public void onReplicate(Replicable original, Replicable copy) {
 			SharedProperty.this.onReplicate(original, copy);
 		}
@@ -80,14 +80,14 @@ public class SharedProperty<V> extends Property<V> {
 	protected void onAttach(PropertyTarget target) {
 		this.property.onAttach(target);
 		if (target instanceof Replicable)
-			((Replicable) target).registerListener(repListener);
+			((Replicable) target).registerListener(listener);
 	}
 
 	@Override
 	protected void onDetach(PropertyTarget target) {
 		this.property.onDetach(target);
 		if (target instanceof Replicable)
-			((Replicable) target).unregisterListener(repListener);
+			((Replicable) target).unregisterListener(listener);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class SharedProperty<V> extends Property<V> {
 	 */
 	protected void onReplicate(Replicable original, Replicable copy) {
 		((PropertyTarget) copy).attachProperty(SharedProperty.this);
-		copy.registerListener(repListener);
+		copy.registerListener(listener);
 	};
 
 }

@@ -13,7 +13,11 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 	final private boolean[] cloneParam;
 
 	public AgentRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-		super(redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
+		this(redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
+	}
+	
+	public AgentRewritingRule(Bigraph redex, Bigraph reactum, BigraphInstantiationMap eta) {
+		super(redex,reactum, eta);
 		
 		this.neededParam = new boolean[redex.sites.size()];
 		this.cloneParam = new boolean[this.eta.getPlaceDomain()];
@@ -108,7 +112,7 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 							ir.remove();
 						}
 					}
-					bb.outerCompose(match.redex, true);
+					bb.outerCompose(instantiateReactum(match), false);
 					bb.outerCompose(match.context, true);
 					return bb.makeBigraph(true);
 				} else {
