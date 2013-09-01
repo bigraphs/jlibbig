@@ -9,7 +9,7 @@ package jlibbig.core;
  * @see BigraphMatcher
  * @param <A> type of bigraph
  */
-public interface Match<A extends AbstBigraph> {
+public interface Match<A extends AbstractBigraph> {
 	/**
 	 * The match context.
 	 * @return the context

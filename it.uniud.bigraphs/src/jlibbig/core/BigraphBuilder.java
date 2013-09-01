@@ -12,7 +12,7 @@ import jlibbig.core.exceptions.*;
  * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object.
  * </p>
  */
-final public class BigraphBuilder implements AbstBigraphBuilder {
+final public class BigraphBuilder implements AbstractBigraphBuilder {
 	private final boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	private Bigraph big;

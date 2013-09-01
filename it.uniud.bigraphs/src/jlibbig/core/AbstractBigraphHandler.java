@@ -6,7 +6,7 @@ import java.util.*;
  * Interface implemented by every bigraph's class
  *
  */
-public interface AbstBigraphHandler extends Owner{
+public interface AbstractBigraphHandler extends Owner{
 		/**
 		 * Get the bigraph's signature
 		 * @return the bigraph's signature

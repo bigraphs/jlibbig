@@ -9,7 +9,7 @@ import jlibbig.core.*;
  * Class used to store immutable ground Bigraph (Agent).
  * For a mutable version, users can use {@link jlibbig.bigmc.AgentBigraphBuilder}
  */
-public class AgentBigraph implements AbstBigraph{
+public class AgentBigraph implements AbstractBigraph{
 	final Bigraph bigraph;
 	
 	/**

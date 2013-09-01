@@ -1196,7 +1196,8 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 						Bigraph ctx = new Bigraph(agent.signature);
 						Bigraph rdx = new Bigraph(agent.signature);
 						Bigraph prm = new Bigraph(agent.signature);
-
+						Map<Node,EditableNode> nEmb = new HashMap<>();
+						
 						// replicated sites lookup table
 						EditableSite ctx_sites_dic[] = new EditableSite[redex_roots
 								.size()];
@@ -1368,7 +1369,9 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								r2.setOwner(rdx);
 							} else { // isNode()
 								EditableNode n1 = (EditableNode) p1;
-								EditableNode n2 = node_img.get(n1).replicate();
+								EditableNode n0 = node_img.get(n1);
+								EditableNode n2 = n0.replicate();
+								nEmb.put(n0, n1);
 								p2 = n2;
 								n2.setParent(v.p);
 								// replicate links from node ports
@@ -1485,7 +1488,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								throw new RuntimeException(
 										"Inconsistent bigraph (prm)");
 						}
-						matchQueue.add(new BigraphMatch(ctx, rdx, prm));
+						matchQueue.add(new BigraphMatch(ctx, rdx, prm,nEmb));
 					} while (lnk_solver.nextSolution());
 				} while (this.matchQueue.isEmpty());
 			}

@@ -174,11 +174,11 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
-	 * Translate a bigraph ( {@link AbstBigraphHandler} ) to a string with BigMC's syntax (if the bigraph can be converted into a ReactionBigraph or an AgentBigraph).
+	 * Translate a bigraph ( {@link AbstractBigraphHandler} ) to a string with BigMC's syntax (if the bigraph can be converted into a ReactionBigraph or an AgentBigraph).
 	 * @param big the bigraph that will be converted into a string.
 	 * @return the resulting string
 	 */
-	public static String toString( AbstBigraphHandler big ){
+	public static String toString( AbstractBigraphHandler big ){
 		if( big.getRoots().size() == 0 )
 			throw new IllegalArgumentException("The place graph's outerface must be at least 1 (one root). Cannot be converted into a string with BigMC's syntax.");
 		for( Edge edge : big.getEdges() ){

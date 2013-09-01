@@ -13,7 +13,7 @@ import jlibbig.core.*;
  * presence of series of operations since {@link AgentBigraph} is immutable.
  *
  */
-public class AgentBigraphBuilder implements AbstBigraphBuilder{
+public class AgentBigraphBuilder implements AbstractBigraphBuilder{
 	BigraphBuilder bigraph; 
 	
 	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";
