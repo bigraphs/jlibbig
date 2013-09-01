@@ -8,8 +8,8 @@ public class AgentMatch extends BigraphMatch{
 	protected final Bigraph lambda;
 	protected Bigraph param;
 	
-	protected AgentMatch(Bigraph context, Bigraph redex, Bigraph lambda, List<Bigraph> params){
-		super(context,redex,null);
+	protected AgentMatch(Bigraph context, Bigraph redex, Bigraph lambda, List<Bigraph> params,Map<Node,EditableNode> nodesEmbedding){
+		super(context,redex,null, nodesEmbedding);
 		this.params = Collections.unmodifiableList(new  LinkedList<Bigraph>(params));
 		this.lambda = lambda;
 	}

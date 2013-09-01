@@ -1,8 +1,17 @@
 package jlibbig.core;
 
-public class BigraphMatch extends AbstMatch<Bigraph> {
+import java.util.*;
 
-	protected BigraphMatch(Bigraph context, Bigraph redex, Bigraph param) {
-		super(context, redex, param);
+public class BigraphMatch extends AbstractMatch<Bigraph>{
+
+	private WeakHashMap<Node,EditableNode> emb_nodes;
+	
+	protected BigraphMatch(Bigraph context, Bigraph redex, Bigraph param, Map<Node,EditableNode> nodesEmbedding) {
+		super(context,redex,param);
+		this.emb_nodes = new WeakHashMap<>(nodesEmbedding);
+	}
+	
+	protected EditableNode getImage(Node node){
+		return emb_nodes.get(node);
 	}
 }

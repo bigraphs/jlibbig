@@ -14,7 +14,7 @@ import jlibbig.core.exceptions.*;
  * version of bigraphs, users can use {@link BigraphBuilder}.
  * </p>
  */
-final public class Bigraph implements AbstBigraph{//, PropertyTarget {
+final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();

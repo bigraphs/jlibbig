@@ -1,15 +1,9 @@
 package jlibbig.core;
 
-/**
- * Provides a base implementation of {@link Match}.  
- * 
- * @see Matcher
- */
-public class AbstMatch<A extends AbstBigraph>  implements Match<A>{
+abstract public class AbstractMatch<A extends AbstractBigraph>  implements Match<A>{
 
 	protected final A context;
 	protected final A redex;
-	//protected final List<A> params;
 	protected final A param;
 	
 	/**
@@ -17,10 +11,9 @@ public class AbstMatch<A extends AbstBigraph>  implements Match<A>{
 	 * @param redex
 	 * @param param
 	 */
-	protected AbstMatch(A context, A redex, A param){
+	protected AbstractMatch(A context, A redex, A param){
 		this.context = context;
 		this.redex = redex;
-		//this.params = Collections.unmodifiableList(new  LinkedList<A>(params));
 		this.param = param;
 	}
 		

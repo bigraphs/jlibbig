@@ -16,7 +16,7 @@ import jlibbig.core.*;
  * presence of series of operations since {@link ReactionBigraph} is immutable.
  *
  */
-public class ReactionBigraphBuilder implements AbstBigraphBuilder{
+public class ReactionBigraphBuilder implements AbstractBigraphBuilder{
 	final BigraphBuilder rbig;
 	private final List<Integer> sites;
 	private final List<Integer> ro_sites;

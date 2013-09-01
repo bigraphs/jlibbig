@@ -6,9 +6,9 @@ import jlibbig.core.*;
 
 /**
  * Class used to store a bigMC's redex or reactum bigraph
- * @see AbstBigraph
+ * @see AbstractBigraph
  */
-public class ReactionBigraph implements AbstBigraph{
+public class ReactionBigraph implements AbstractBigraph{
 	final int[] sites;
 	private final List<Integer> ro_sites;
 	final Bigraph big;
@@ -79,7 +79,7 @@ public class ReactionBigraph implements AbstBigraph{
 	 * Get the signature of the bigraph
 	 * @return the signature of the bigraph
 	 * @see Signature
-	 * @see AbstBigraphHandler#getSignature()
+	 * @see AbstractBigraphHandler#getSignature()
 	 */
 	public Signature getSignature() {
 		return big.getSignature();

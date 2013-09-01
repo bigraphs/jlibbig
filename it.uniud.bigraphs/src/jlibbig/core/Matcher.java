@@ -6,7 +6,7 @@ package jlibbig.core;
  * @param <A> type of the bigraph
  * @param <R> type of the redex
  */
-public interface Matcher<A extends AbstBigraph, R extends AbstBigraph>  {
+public interface Matcher<A extends AbstractBigraph, R extends AbstractBigraph>  {
 	/**
 	 * Computes the matches of a redex into a bigraph of types
 	 * <code>R</code> and <code>A</code> respectively.

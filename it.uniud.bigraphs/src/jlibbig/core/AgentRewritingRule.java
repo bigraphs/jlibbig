@@ -7,47 +7,14 @@ import java.util.*;
 
 import jlibbig.core.exceptions.*;
 
-public class AgentRewritingRule implements RewritingRule<Bigraph> {
+public class AgentRewritingRule extends BigraphRewritingRule {
 
 	final private boolean[] neededParam;
 	final private boolean[] cloneParam;
 
-	final Bigraph redex;
-	final Bigraph reactum;
-	final BigraphInstantiationMap eta;
-
-	/**
-	 * @param redex
-	 * @param reactum
-	 * @param eta
-	 */
 	public AgentRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-
-		this.redex = redex;
-		this.reactum = reactum;
-		this.eta = new BigraphInstantiationMap(redex.sites.size(),eta);
-
-		if (reactum.getSignature() != redex.getSignature()) {
-			throw new IncompatibleSignatureException(reactum.getSignature(),
-					redex.getSignature(),
-					"Redex and reactum should have the same singature.");
-		}if (redex.sites.size() < this.eta.getPlaceCodomain()) {
-			throw new InvalidInstantiationRuleException(
-					"The instantiation rule does not match the redex inner interface.");
-		}
-		if (reactum.sites.size() != this.eta.getPlaceDomain()) {
-			throw new InvalidInstantiationRuleException(
-					"The instantiation rule does not match the reactum inner interface.");
-		}
-		if (redex.roots.size() != reactum.roots.size() || !redex.outers.containsAll(reactum.outers) || !reactum.outers.containsAll(redex.outers)){
-			throw new IncompatibleInterfacesException(redex,reactum,
-					"Redex and reactum should have the same outer interface.");
-		}
-		if (!redex.inners.containsAll(reactum.inners) || !reactum.inners.containsAll(redex.inners)){
-			throw new IncompatibleInterfacesException(redex,reactum,
-					"Redex and reactum should have the same outer interface.");
-		}
-
+		super(redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
+		
 		this.neededParam = new boolean[redex.sites.size()];
 		this.cloneParam = new boolean[this.eta.getPlaceDomain()];
 		int prms[] = new int[this.eta.getPlaceDomain()];
@@ -80,6 +47,7 @@ public class AgentRewritingRule implements RewritingRule<Bigraph> {
 		return this.eta;
 	}
 
+	@Override
 	public Iterable<Bigraph> apply(Bigraph agent) {
 		if (!agent.isGround()) {
 			throw new UnsupportedOperationException(

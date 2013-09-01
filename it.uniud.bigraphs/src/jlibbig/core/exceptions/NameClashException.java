@@ -1,4 +1,4 @@
-package jlibbig.core;
+package jlibbig.core.exceptions;
 
 import java.util.*;
 

@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * Describes a name identified entity and provides a some name generation methods.
  */
-abstract class AbstractNamed implements Named {
+public abstract class AbstractNamed implements Named {
 	private final String name;
 	
 	// internal state for name generation

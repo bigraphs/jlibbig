@@ -5,7 +5,7 @@ import jlibbig.core.exceptions.IncompatibleInterfacesException;
 import jlibbig.core.exceptions.IncompatibleSignatureException;
 import jlibbig.core.exceptions.InvalidInstantiationRuleException;
 
-public class RewritingRule implements jlibbig.core.RewritingRule<AbstBigraph> {
+public class RewritingRule implements jlibbig.core.RewritingRule<AbstractBigraph> {
 	final private boolean[] neededParams;
 	final private boolean[] cloneParams; 
 	
@@ -88,7 +88,7 @@ public class RewritingRule implements jlibbig.core.RewritingRule<AbstBigraph> {
 	}
 
 	@Override
-	public Iterable<AbstBigraph> apply(AbstBigraph to) {
+	public Iterable<AbstractBigraph> apply(AbstractBigraph to) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Not implemented yet.");
 	}
