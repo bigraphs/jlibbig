@@ -52,7 +52,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @param close
 	 *            disables the builder to perform any other operation.
-	 * @return
+	 * @return a bigraph.
 	 */
 	public Bigraph makeBigraph(boolean close) {
 		assertOpen();

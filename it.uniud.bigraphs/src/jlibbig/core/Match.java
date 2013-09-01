@@ -23,7 +23,7 @@ public interface Match<A extends AbstractBigraph> {
 	
 	
 	/** The parameters of the match.
-	 * @return
+	 * @return the parameters
 	 */
 	A getParam();
 }
