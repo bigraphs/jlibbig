@@ -173,7 +173,15 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 
 	// /////////////////////////////////////////////////////////////////////////
 
-	private void assertAndSetOwner(Owned owned, String obj){
+	private void assertOwner(Owned owned, String obj){
+		if(owned == null)
+			throw new IllegalArgumentException(obj + " can not be null.");			
+		Owner o = owned.getOwner();
+		if(o != this)
+			throw new IllegalArgumentException(obj + " should be owned by this structure.");
+	}
+	
+	private void assertOrSetOwner(Owned owned, String obj){
 		if(owned == null)
 			throw new IllegalArgumentException(obj + " can not be null.");			
 		Owner o = owned.getOwner();
@@ -208,7 +216,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public Site addSite(Parent parent) {
 		assertOpen();
-		assertAndSetOwner(parent,"Parent");
+		assertOwner(parent,"Parent");
 		EditableSite s = new EditableSite((EditableParent) parent);
 		this.big.sites.add(s);
 		// TODO skip check on internal data
@@ -248,7 +256,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		if (c == null)
 			throw new IllegalArgumentException(
 					"Control should be in the signature.");
-		assertAndSetOwner(parent,"Parent");
+		assertOwner(parent,"Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
 			if (i < handles.length) {
@@ -256,7 +264,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 			if (hs[i] == null)
 				hs[i] = new EditableEdge();
-			assertAndSetOwner(hs[i],"Handle");
+			assertOrSetOwner(hs[i],"Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
 		// TODO skip check on internal data
@@ -283,7 +291,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		if (c == null)
 			throw new IllegalArgumentException(
 					"Control should be in the signature.");
-		assertAndSetOwner(parent,"Parent");
+		assertOwner(parent,"Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
 			if (i < handles.size()) {
@@ -291,7 +299,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 			if (hs[i] == null)
 				hs[i] = new EditableEdge();
-			assertAndSetOwner(hs[i],"Handle");
+			assertOrSetOwner(hs[i],"Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
 		// TODO skip check on internal data
@@ -363,7 +371,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(Handle handle) {
-		assertAndSetOwner(handle,"Handle");
+		assertOrSetOwner(handle,"Handle");
 		return addInnerName(new EditableInnerName(), (EditableHandle) handle);
 	}
 
@@ -390,7 +398,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(String name, Handle handle) {
-		assertAndSetOwner(handle,"Handle");
+		assertOrSetOwner(handle,"Handle");
 		return addInnerName(new EditableInnerName(name),
 				(EditableHandle) handle);
 	}
@@ -424,8 +432,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public void relink(Point point, Handle handle) {
 		assertOpen();
-		assertAndSetOwner(handle,"Handle");
-		assertAndSetOwner(point,"Point");
+		assertOrSetOwner(handle,"Handle");
+		assertOrSetOwner(point,"Point");
 		EditablePoint p = (EditablePoint) point;
 		EditableHandle h = (EditableHandle) handle;
 		p.setHandle(h);
@@ -445,8 +453,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public Edge relink(Point p1, Point p2) {
 		assertOpen();
-		assertAndSetOwner(p1,"Point");
-		assertAndSetOwner(p2,"Point");
+		assertOrSetOwner(p1,"Point");
+		assertOrSetOwner(p2,"Point");
 		EditablePoint t1 = (EditablePoint) p1;
 		EditablePoint t2 = (EditablePoint) p2;
 		EditableEdge e = new EditableEdge();
@@ -472,7 +480,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		EditablePoint[] ps = new EditablePoint[points.length];
 		for (int i = 0; i < points.length; i++) {
 			ps[i] = (EditablePoint) points[i];
-			assertAndSetOwner(ps[i],"Point");
+			assertOrSetOwner(ps[i],"Point");
 		}
 		EditableEdge e = new EditableEdge();
 		e.setOwner(this);
