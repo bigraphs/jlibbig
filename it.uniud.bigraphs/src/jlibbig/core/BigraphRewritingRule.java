@@ -205,20 +205,21 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph> {
 
 			@Override
 			public Bigraph next() {
-				if (hasNext()) {
-					if (args == null) {
+				if(args == null || !args.hasNext()){
+					if(matches.hasNext()){
 						BigraphMatch match = matches.next();
 						big = Bigraph.compose(match.getContext(),
 								instantiateReactum(match), true);
 						args = eta.instantiate(match.getParam()).iterator();
 					}
-					if (args.hasNext()) {
-						Bigraph params = args.next();
-						if (args.hasNext())
-							return Bigraph.compose(big.clone(), params, true);
-						else
-							return Bigraph.compose(big, params, true);
-					}
+				}
+				
+				if((args != null) && (args.hasNext())){
+					Bigraph params = args.next();
+					if (args.hasNext())
+						return Bigraph.compose(big.clone(), params, true);
+					else
+						return Bigraph.compose(big, params, true);
 				}
 				return null;
 			}
