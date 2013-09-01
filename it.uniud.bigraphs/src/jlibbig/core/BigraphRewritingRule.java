@@ -15,12 +15,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph> {
 				eta));
 	}
 
-	/**
-	 * @param redex
-	 * @param reactum
-	 * @param eta
-	 */
-	protected BigraphRewritingRule(Bigraph redex, Bigraph reactum,
+	public BigraphRewritingRule(Bigraph redex, Bigraph reactum,
 			BigraphInstantiationMap eta) {
 		if (reactum.getSignature() != redex.getSignature()) {
 			throw new IncompatibleSignatureException(reactum.getSignature(),
