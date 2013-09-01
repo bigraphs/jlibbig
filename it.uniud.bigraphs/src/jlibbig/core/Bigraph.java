@@ -561,23 +561,34 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 		while (ir.hasNext()) { // |ir| == |is|
 			EditableSite s = is.next();
 			EditableParent p = s.getParent();
+			p.removeChild(s);
 			for (EditableChild c : ir.next().getEditableChildren()) {
 				c.setParent(p);
 			}
-			p.removeChild(s);
 		}
 		// iterate over inner and outer names of a and b respectively and glue
 		// them
+//		for (EditableOuterName o : b.outers) {
+//			for (EditableInnerName i : a.inners) {
+//				if (!i.equals(o))
+//					continue;
+//				EditableHandle h = i.getHandle();
+//				for (EditablePoint p : o.getEditablePoints()) {
+//					p.setHandle(h);
+//				}
+//				a.inners.remove(i);
+//				break;
+//			}
+//		}
+		Map<String, EditableHandle> a_inners = new HashMap<>();
+		for (EditableInnerName i : a.inners) {
+			a_inners.put(i.getName(), i.getHandle());
+			i.setHandle(null);
+		}
 		for (EditableOuterName o : b.outers) {
-			for (EditableInnerName i : a.inners) {
-				if (!i.equals(o))
-					continue;
-				EditableHandle h = i.getHandle();
-				for (EditablePoint p : o.getEditablePoints()) {
-					p.setHandle(h);
-				}
-				a.inners.remove(i);
-				break;
+			EditableHandle h = a_inners.get(o.getName());
+			for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+				p.setHandle(h);
 			}
 		}
 		// update inner interfaces
