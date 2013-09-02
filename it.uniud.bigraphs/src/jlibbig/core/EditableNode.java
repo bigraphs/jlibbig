@@ -94,13 +94,11 @@ class EditableNode implements Node, EditableParent, EditableChild{
 			return this.control;
 		}
 
-		public void setControl(Control value){
-			//TODO implement setControl; what about arity changes?
-			throw new UnsupportedOperationException("Not implemented yet.");
-			//this.control = value;
-		}
+//		public void setControl(Control value){
+//			throw new UnsupportedOperationException("Not implemented yet.");
+//			//this.control = value;
+//		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void setParent(EditableParent parent){
 			if(this.parent != null){

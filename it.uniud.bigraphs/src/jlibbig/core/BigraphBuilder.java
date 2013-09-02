@@ -70,21 +70,22 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		return b;
 	}
-	
-	public boolean isClosed(){
+
+	public boolean isClosed() {
 		return closed;
 	}
-	
-	private void assertOpen(){
-		if(this.closed)
-			throw new UnsupportedOperationException("The operation is not supported by a closed BigraphBuilder");
+
+	private void assertOpen() {
+		if (this.closed)
+			throw new UnsupportedOperationException(
+					"The operation is not supported by a closed BigraphBuilder");
 	}
+
 	/*
-	private void assertOpen(String operation){
-		if(this.closed)
-			throw new UnsupportedOperationException("The operation <" + operation +"> is not supported by a closed BigraphBuilder");
-	}
-	*/
+	 * private void assertOpen(String operation){ if(this.closed) throw new
+	 * UnsupportedOperationException("The operation <" + operation
+	 * +"> is not supported by a closed BigraphBuilder"); }
+	 */
 
 	@Override
 	public BigraphBuilder clone() {
@@ -94,7 +95,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		return bb;
 	}
 
-    @Override
+	@Override
 	public Signature getSignature() {
 		assertOpen();
 		return this.big.getSignature();
@@ -117,7 +118,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's roots
 	 */
-    @Override
+	@Override
 	public List<? extends Root> getRoots() {
 		assertOpen();
 		return this.big.getRoots();
@@ -128,7 +129,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's sites
 	 */
-    @Override
+	@Override
 	public List<? extends Site> getSites() {
 		assertOpen();
 		return this.big.getSites();
@@ -139,7 +140,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's outer names
 	 */
-    @Override
+	@Override
 	public Set<? extends OuterName> getOuterNames() {
 		assertOpen();
 		return this.big.getOuterNames();
@@ -150,7 +151,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's inner names
 	 */
-    @Override
+	@Override
 	public Set<? extends InnerName> getInnerNames() {
 		assertOpen();
 		return this.big.getInnerNames();
@@ -161,7 +162,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a set containing bigraph's nodes.
 	 */
-    @Override
+	@Override
 	public Set<? extends Node> getNodes() {
 		assertOpen();
 		return this.big.getNodes();
@@ -172,7 +173,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a set containing bigraph's edges.
 	 */
-    @Override
+	@Override
 	public Set<? extends Edge> getEdges() {
 		assertOpen();
 		return this.big.getEdges();
@@ -180,24 +181,26 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 
 	// /////////////////////////////////////////////////////////////////////////
 
-	private void assertOwner(Owned owned, String obj){
-		if(owned == null)
-			throw new IllegalArgumentException(obj + " can not be null.");			
+	private void assertOwner(Owned owned, String obj) {
+		if (owned == null)
+			throw new IllegalArgumentException(obj + " can not be null.");
 		Owner o = owned.getOwner();
-		if(o != this)
-			throw new IllegalArgumentException(obj + " should be owned by this structure.");
+		if (o != this)
+			throw new IllegalArgumentException(obj
+					+ " should be owned by this structure.");
 	}
-	
-	private void assertOrSetOwner(Owned owned, String obj){
-		if(owned == null)
-			throw new IllegalArgumentException(obj + " can not be null.");			
+
+	private void assertOrSetOwner(Owned owned, String obj) {
+		if (owned == null)
+			throw new IllegalArgumentException(obj + " can not be null.");
 		Owner o = owned.getOwner();
-		if(o == null)
+		if (o == null)
 			((EditableOwned) owned).setOwner(this);
-		else if(o != this)
-				throw new IllegalArgumentException(obj + " already owned by an other structure.");
+		else if (o != this)
+			throw new IllegalArgumentException(obj
+					+ " already owned by an other structure.");
 	}
-	
+
 	/**
 	 * Add a root to the current bigraph
 	 * 
@@ -223,7 +226,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public Site addSite(Parent parent) {
 		assertOpen();
-		assertOwner(parent,"Parent");
+		assertOwner(parent, "Parent");
 		EditableSite s = new EditableSite((EditableParent) parent);
 		this.big.sites.add(s);
 		// TODO skip check on internal data
@@ -263,7 +266,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		if (c == null)
 			throw new IllegalArgumentException(
 					"Control should be in the signature.");
-		assertOwner(parent,"Parent");
+		assertOwner(parent, "Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
 			if (i < handles.length) {
@@ -271,7 +274,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 			if (hs[i] == null)
 				hs[i] = new EditableEdge();
-			assertOrSetOwner(hs[i],"Handle");
+			assertOrSetOwner(hs[i], "Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
 		// TODO skip check on internal data
@@ -298,7 +301,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		if (c == null)
 			throw new IllegalArgumentException(
 					"Control should be in the signature.");
-		assertOwner(parent,"Parent");
+		assertOwner(parent, "Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
 			if (i < handles.size()) {
@@ -306,7 +309,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 			if (hs[i] == null)
 				hs[i] = new EditableEdge();
-			assertOrSetOwner(hs[i],"Handle");
+			assertOrSetOwner(hs[i], "Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
 		// TODO skip check on internal data
@@ -378,7 +381,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(Handle handle) {
-		assertOrSetOwner(handle,"Handle");
+		assertOrSetOwner(handle, "Handle");
 		return addInnerName(new EditableInnerName(), (EditableHandle) handle);
 	}
 
@@ -395,8 +398,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		return addInnerName(name, new EditableEdge(this));
 	}
 
-	/**0
-	 * Add a new innername to the current bigraph.
+	/**
+	 * 0 Add a new innername to the current bigraph.
 	 * 
 	 * @param name
 	 *            name of the new innername
@@ -405,7 +408,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @return the reference of the new innername
 	 */
 	public InnerName addInnerName(String name, Handle handle) {
-		assertOrSetOwner(handle,"Handle");
+		assertOrSetOwner(handle, "Handle");
 		return addInnerName(new EditableInnerName(name),
 				(EditableHandle) handle);
 	}
@@ -439,8 +442,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public void relink(Point point, Handle handle) {
 		assertOpen();
-		assertOrSetOwner(handle,"Handle");
-		assertOrSetOwner(point,"Point");
+		assertOrSetOwner(handle, "Handle");
+		assertOrSetOwner(point, "Point");
 		EditablePoint p = (EditablePoint) point;
 		EditableHandle h = (EditableHandle) handle;
 		p.setHandle(h);
@@ -460,8 +463,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public Edge relink(Point p1, Point p2) {
 		assertOpen();
-		assertOrSetOwner(p1,"Point");
-		assertOrSetOwner(p2,"Point");
+		assertOwner(p1, "Point");
+		assertOwner(p2, "Point");
 		EditablePoint t1 = (EditablePoint) p1;
 		EditablePoint t2 = (EditablePoint) p2;
 		EditableEdge e = new EditableEdge();
@@ -487,7 +490,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		EditablePoint[] ps = new EditablePoint[points.length];
 		for (int i = 0; i < points.length; i++) {
 			ps[i] = (EditablePoint) points[i];
-			assertOrSetOwner(ps[i],"Point");
+			assertOwner(ps[i], "Point");
 		}
 		EditableEdge e = new EditableEdge();
 		e.setOwner(this);
@@ -501,21 +504,168 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	}
 
 	/**
+	 * Set a new edge for an arbitrary number of points (innername or node's
+	 * port), linking them.
+	 * 
+	 * @param points
+	 *            series of points
+	 * @return the new edge connecting the points in input
+	 */
+	public Edge relink(Collection<? extends Point> points) {
+		return relink(points.toArray(new EditablePoint[points.size()]));
+	}
+
+	/**
 	 * disconnect a point from its current handle and connect it with a new
 	 * edge.
 	 * 
-	 * @param p
+	 * @param point
 	 *            the point that will be unlinked
 	 * @return the new edge
 	 */
-	public Edge unlink(Point p) {
-		return relink(p);
+	public Edge unlink(Point point) {
+		return relink(point);
+	}
+
+	public Edge closeOuterName(String name) {
+		EditableOuterName n1 = null;
+		Iterator<EditableOuterName> in = big.outers.iterator();
+		while ((n1 = in.next()) != null && !n1.getName().equals(name)) {
+		}
+		Edge e = null;
+		if (n1 != null) {
+			e = relink(n1.getEditablePoints());
+			big.outers.remove(n1);
+			n1.setOwner(null);
+		}
+		return e;
+	}
+
+	public Edge closeOuterName(OuterName name) {
+		assertOwner(name, "OuterName ");
+		EditableOuterName n1 = (EditableOuterName) name;
+		Edge e = relink(n1.getEditablePoints());
+		big.outers.remove(n1);
+		n1.setOwner(null);
+		return e;
+	}
+
+	public void closeInnerName(String name) {
+		EditableInnerName n1 = null;
+		Iterator<EditableInnerName> in = big.inners.iterator();
+		while ((n1 = in.next()) != null && !n1.getName().equals(name)) {
+		}
+		if (n1 != null) {
+			n1.setHandle(null);
+			big.inners.remove(n1);
+		}
+	}
+
+	public void closeInnerName(InnerName name) {
+		assertOwner(name, "InnerName ");
+		EditableInnerName n1 = (EditableInnerName) name;
+		n1.setHandle(null);
+		big.inners.remove(n1);
+	}
+
+	public void renameOuterName(String oldName, String newName) {
+		if (newName == null || oldName == null)
+			throw new IllegalArgumentException("Arguments can not be null");
+		EditableOuterName n1 = null, n2 = null;
+		Iterator<EditableOuterName> in = big.outers.iterator();
+		while (in.hasNext() && (n1 == null || n2 == null)) {
+			EditableOuterName n0 = in.next();
+			if (n1 == null && n0.getName().equals(oldName))
+				n1 = n0;
+			if (n2 == null && n0.getName().equals(newName))
+				n2 = n0;
+		}
+		if (n1 != null) {
+			if (n2 == null) {
+				if (!newName.equals(oldName))
+					n1.setName(newName);
+			} else
+				throw new NameClashException(oldName, newName);
+		} else {
+			throw new IllegalArgumentException("The '" + oldName
+					+ "' is not present.");
+		}
+	}
+
+	public void renameOuterName(OuterName oldName, String newName) {
+		if (newName == null || oldName == null)
+			throw new IllegalArgumentException("Arguments can not be null");
+		assertOwner(oldName, "OuterName ");
+		if (newName.equals(oldName.getName()))
+			return;
+		EditableOuterName n2 = null;
+		Iterator<EditableOuterName> in = big.outers.iterator();
+		while (in.hasNext()) {
+			EditableOuterName n0 = in.next();
+			if (n0.getName().equals(newName)){
+				n2 = n0;
+				break;
+			}
+		}
+		if (n2 == null) {
+			((EditableOuterName) oldName).setName(newName);
+		} else {
+			throw new IllegalArgumentException("Name '" + newName
+					+ "' already in use");
+		}
+	}
+
+	public void renameInnerName(String oldName, String newName) {
+		if (newName == null || oldName == null)
+			throw new IllegalArgumentException("Arguments can not be null");
+		EditableInnerName n1 = null, n2 = null;
+		Iterator<EditableInnerName> in = big.inners.iterator();
+		while (in.hasNext() && (n1 == null || n2 == null)) {
+			EditableInnerName n0 = in.next();
+			if (n1 == null && n0.getName().equals(oldName))
+				n1 = n0;
+			if (n2 == null && n0.getName().equals(newName))
+				n2 = n0;
+		}
+		if (n1 != null) {
+			if (n2 == null) {
+				if (!newName.equals(oldName))
+					n1.setName(newName);
+			} else
+				throw new IllegalArgumentException("Name '" + newName
+						+ "' already in use");
+		} else {
+			throw new IllegalArgumentException("The '" + oldName
+					+ "' is not present.");
+		}
+	}
+
+	public void renameInnerName(InnerName oldName, String newName) {
+		if (newName == null || oldName == null)
+			throw new IllegalArgumentException("Arguments can not be null");
+		assertOwner(oldName, "InnerName ");
+		if (newName.equals(oldName.getName()))
+			return;
+		EditableInnerName n2 = null;
+		Iterator<EditableInnerName> in = big.inners.iterator();
+		while (in.hasNext()) {
+			EditableInnerName n0 = in.next();
+			if (n0.getName().equals(newName)){
+				n2 = n0;
+				break;
+			}
+		}
+		if (n2 == null) {
+			((EditableInnerName) oldName).setName(newName);
+		} else {
+			throw new NameClashException(oldName.getName(), newName);
+		}
 	}
 
 	/**
 	 * Merge regions (roots of a place graph)
 	 */
-	public void merge() {
+	public Root merge() {
 		assertOpen();
 		EditableRoot r = new EditableRoot();
 		r.setOwner(this);
@@ -524,11 +674,67 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 				c.setParent(r);
 			}
 		}
-		big.roots.clear();
+		clearOwnedCollection(big.roots);// .clear();
 		big.roots.add(r);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
+		return r;
+	}
+	
+	public Root merge(int index, int... roots) {
+		assertOpen();
+		EditableRoot r = new EditableRoot();
+		r.setOwner(this);
+		EditableRoot[] rs = new EditableRoot[roots.length];
+		for(int i = 0; i < roots.length; i++){
+			rs[i] = big.roots.get(roots[i]);
+			Iterator<EditableChild> ir = rs[i].getEditableChildren().iterator();
+			while(ir.hasNext()){
+				ir.next().setParent(r);
+			}
+		}
+		for(int i = 0; i < rs.length; i++){
+			big.roots.remove(rs[i]);	
+			rs[i].setOwner(null);
+		}
+		big.roots.add(index,r);
+		// TODO skip check on internal data
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
+		return r;
+	}
+	
+	public void removeRoot(Root root) {
+		assertOwner(root,"Root ");
+		if(!root.getChildren().isEmpty())
+			throw new IllegalArgumentException("Unempty region.");
+		((EditableRoot) root).setOwner(null);
+		big.roots.remove(root);
+		// TODO skip check on internal data
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
+	}
+	
+	public void removeRoot(int index) {
+		if(index < 0 || index >= big.roots.size())
+			throw new IndexOutOfBoundsException("The argument does not refer to a root.");
+		removeRoot(big.roots.get(index));
+	}
+	
+	public void closeSite(Site site) {
+		assertOwner(site,"Site ");
+		((EditableSite) site).setParent(null);
+		big.sites.remove(site);
+		// TODO skip check on internal data
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
+	}
+	
+	public void closeSite(int index) {
+		if(index < 0 || index >= big.sites.size())
+			throw new IndexOutOfBoundsException("The argument does not refer to a site.");
+		closeSite(big.sites.get(index));
 	}
 
 	/**
@@ -541,8 +747,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			s.setParent(null);
 		for (EditablePoint i : big.inners)
 			i.setHandle(null);
-		big.sites.clear();
-		big.inners.clear();
+		clearChildCollection(big.sites);// .clear();
+		clearPointCollection(big.inners);// .clear();
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -729,8 +935,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 		}
 		// update inner interfaces
-		a.inners.clear();
-		a.sites.clear();
+		clearPointCollection(a.inners);// .clear();
+		clearChildCollection(a.sites);// ;.clear();
 		a.inners.addAll(b.inners);
 		a.sites.addAll(b.sites);
 		for (Edge e : es) {
@@ -803,8 +1009,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 		}
 		// updates inner interfaces
-		b.outers.clear();
-		b.roots.clear();
+		clearOwnedCollection(b.outers);// .clear();
+		clearOwnedCollection(b.roots);// .clear();
 		b.outers.addAll(a.outers);
 		b.roots.addAll(a.roots);
 		for (EditableOwned o : b.roots) {
@@ -1172,5 +1378,29 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 		}
 		return ns0;
+	}
+
+	private static void clearOwnedCollection(
+			Collection<? extends EditableOwned> col) {
+		for (EditableOwned i : col) {
+			i.setOwner(null);
+		}
+		col.clear();
+	}
+
+	private static void clearChildCollection(
+			Collection<? extends EditableChild> col) {
+		for (EditableChild i : col) {
+			i.setParent(null);
+		}
+		col.clear();
+	}
+
+	private static void clearPointCollection(
+			Collection<? extends EditablePoint> col) {
+		for (EditablePoint i : col) {
+			i.setHandle(null);
+		}
+		col.clear();
 	}
 }

@@ -38,7 +38,7 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 			lst = new PropertyListener<V>(){
                 @Override
 				public void onChange(Property<? extends V> property, V oldValue, V newValue){
-					set(newValue,true);
+					set(newValue,false);
 				}
 			};
 		}else{
@@ -92,21 +92,23 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 			this.prop = prop;
 			if(this.prop != null && registered)
 				this.prop.registerListener(lst);
-			if(cacheValue && registered){
+			if(cacheValue){
 				super.set(this.prop.get(),true);
 			}
 			tellChanged(this,oldValue,this.get());
-		}
+		}	
 	}
 
     @Override
 	public V get(){
-		if(prop == null)
-			return null;
-		else if(cacheValue)
+    	if(cacheValue)
 			return super.get();
-		else
-			return prop.get();
+		else{
+			if(prop == null)
+				return null;
+			else 
+				return prop.get();
+		}
 	}
 
     @Override

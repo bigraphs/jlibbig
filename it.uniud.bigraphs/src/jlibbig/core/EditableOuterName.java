@@ -2,19 +2,22 @@ package jlibbig.core;
 
 import java.util.*;
 
-
-class EditableOuterName extends EditableLinkFacet implements OuterName, EditableNamed, EditableHandle{
+class EditableOuterName extends EditableLinkFacet implements OuterName,
+		EditableNamed, EditableHandle {
 
 	private Set<EditablePoint> points = new HashSet<>();
-	private final Set<? extends Point> ro_points = Collections.unmodifiableSet(this.points);
+	private final Set<? extends Point> ro_points = Collections
+			.unmodifiableSet(this.points);
 	private Owner owner;
-	
-	EditableOuterName(String name){
+
+	EditableOuterName(String name) {
 		super(name);
 	}
-	
-	EditableOuterName(){super();}
-	
+
+	EditableOuterName() {
+		super();
+	}
+
 	@Override
 	public Set<? extends Point> getPoints() {
 		return this.ro_points;
@@ -27,23 +30,22 @@ class EditableOuterName extends EditableLinkFacet implements OuterName, Editable
 
 	@Override
 	public void linkPoint(EditablePoint point) {
-		if(point == null)
+		if (point == null)
 			return;
 		this.points.add(point);
-		if(this != point.getHandle()){
+		if (this != point.getHandle()) {
 			point.setHandle(this);
 		}
 	}
 
 	@Override
 	public void unlinkPoint(EditablePoint point) {
-		if(point == null)
+		if (point == null)
 			return;
 		this.points.remove(point);
-		if(this == point.getHandle())
+		if (this == point.getHandle())
 			point.setHandle(null);
 	}
-	
 
 	@Override
 	public EditableOuterName replicate() {
@@ -51,14 +53,14 @@ class EditableOuterName extends EditableLinkFacet implements OuterName, Editable
 		rep.tell(this, copy);
 		return copy;
 	}
-	
+
 	@Override
 	public Owner getOwner() {
 		return this.owner;
 	}
 
 	@Override
-	public void setOwner(Owner value){
+	public void setOwner(Owner value) {
 		this.owner = value;
 	}
 }

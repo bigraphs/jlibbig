@@ -40,88 +40,106 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 	}
 
 	boolean isConsistent(Owner owner) {
-		Set<Point> ps = new HashSet<>();
+		Set<Point> seen_points = new HashSet<>();
 		Set<Handle> seen_handles = new HashSet<>();
 		Set<Site> unseen_sites = new HashSet<>();
 		unseen_sites.addAll(this.sites);
 		Set<Child> seen_children = new HashSet<>();
 		Queue<Parent> q = new LinkedList<>();
 		for (EditableRoot r : this.roots) {
-			if (r.getOwner() != owner)
+			if (r.getOwner() != owner){
+				System.err.println("INCOSISTENCY: foreign root");
 				return false;
+			}
 			q.add(r);
 		}
 		while (!q.isEmpty()) {
 			Parent p = q.poll();
 			for (Child c : p.getChildren()) {
 				if (!p.equals(c.getParent())) {
-					// faux parent/child
+					System.err.println("INCOSISTENCY: parent/child mismatch");
 					return false;
 				}
 				if (!seen_children.add(c)) {
 					// c was already visited
-					// we have found a cycle (or diamond) in the place structure
+					// we have found a cycle in the place structure
+					System.err.println("INCOSISTENCY: cyclic place");
 					return false;
 				} else if (c.isNode()) {
 					EditableNode n = (EditableNode) c;
 					if (n.getControl().getArity() != n.getPorts().size()
 							|| !signature.contains(n.getControl())) {
+						System.err.println("INCOSISTENCY: control/arity");
 						return false;
 					}
 					q.add(n);
 					for (Point t : n.getPorts()) {
 						EditableHandle h = ((EditablePoint) t).getHandle();
-						if (h == null || h.getOwner() != owner)
+						if (h == null || h.getOwner() != owner){
 							// foreign or broken handle
+							System.err.println("INCOSISTENCY: broken or foreign handle");
 							return false;
-						if (!h.getPoints().contains(t))
+						}
+						if (!h.getPoints().contains(t)){
 							// broken link chain
+							System.err.println("INCOSISTENCY: handle/point mismatch");
 							return false;
-						ps.add(t);
+						}
+						seen_points.add(t);
 						seen_handles.add(h);
 					}
 				} else if (c.isSite()) {
 					Site s = (Site) c;
 					unseen_sites.remove(s);
 					if (!this.sites.contains(s)) {
+						System.err.println("INCOSISTENCY: foreign site");
 						// unknown site
 						return false;
 					}
 				} else {
+					System.err.println("INCOSISTENCY: neither a node nor a site");
 					// c is neither a site nor a node
 					return false;
 				}
 			}
 		}
 		for (EditableOuterName h : this.outers) {
-			if (h.getOwner() != owner)
-				return false;
+			if (h.getOwner() != owner){
+				System.err.println("INCOSISTENCY: foreign outer name");
+				return false;}
 			seen_handles.add(h);
 		}
 		// System.out.println(ps);
 		for (EditableInnerName n : this.inners) {
-			if (n.getOwner() != owner) // || n.getHandle() == null is implicit
+			if (n.getOwner() != owner){ // || n.getHandle() == null is implicit
+				System.err.println("INCOSISTENCY: foreign inner name");
 				return false;
+			}
 			seen_handles.add(n.getHandle());
-			ps.add(n);
+			seen_points.add(n);
 		}
-		// System.out.println(ps);
+		//System.out.println(this);
+		//System.out.println(seen_points);
 		for (Handle h : seen_handles) {
-			// System.out.println(h);
+			// System.out.println(h + ": " + h.getPoints());
 			for (Point p : h.getPoints()) {
-				// System.out.println(p + " " + p.getHandle() + " " + h);
-				if (!ps.remove(p))
+				// System.out.println(p + ", " + p.getHandle() + ", " + h);
+				if (!seen_points.remove(p)){
 					// foreign point
+					System.err.println("INCOSISTENCY: foreign point");
 					return false;
+				}
 			}
 		}
 		// System.out.println(ps);
-		if (ps.size() > 0) {
+		if (seen_points.size() > 0) {
 			// broken handle chain
+			System.err.println("INCOSISTENCY: handle chain broken");
 			return false;
 		}
 		if (unseen_sites.size() > 0) {
 			// these sites are unreachable from roots
+			System.err.println("INCOSISTENCY: unreachable site");
 			return false;
 		}
 		return true;
