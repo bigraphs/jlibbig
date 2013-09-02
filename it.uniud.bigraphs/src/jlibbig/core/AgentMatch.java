@@ -7,13 +7,13 @@ public class AgentMatch extends BigraphMatch{
 	protected final List<Bigraph> params;
 	protected final Bigraph lambda;
 	protected Bigraph param;
-	
-	protected AgentMatch(Bigraph context, Bigraph redex, Bigraph lambda, List<Bigraph> params,Map<Node,EditableNode> nodesEmbedding){
+
+	AgentMatch(Bigraph context, Bigraph redex, Bigraph lambda, List<Bigraph> params,Map<Node,EditableNode> nodesEmbedding){
 		super(context,redex,null, nodesEmbedding);
-		this.params = Collections.unmodifiableList(new  LinkedList<Bigraph>(params));
+		this.params = Collections.unmodifiableList(new  LinkedList<>(params));
 		this.lambda = lambda;
 	}
-		
+
 	/**
 	 * @see jlibbig.core.Match#getContext()
 	 */
@@ -44,14 +44,14 @@ public class AgentMatch extends BigraphMatch{
 		}
 		return this.param;
 	}
-	
+
 	public List<Bigraph> getParams() {
 		return this.params;
 	}
-	
+
 	public Bigraph getLinking() {
 		return this.lambda;
 	}
-	
-	
+
+
 }

@@ -1,35 +1,33 @@
 package jlibbig.core;
 
 import jlibbig.core.attachedProperties.DelegatedProperty;
-import jlibbig.core.attachedProperties.Property;
 import jlibbig.core.attachedProperties.PropertyContainer;
 
 class EditableSite implements EditableChild, Site{
     static final String PROPERTY_OWNER = "Owner";
-	
+
 	private EditableParent parent;
-	
-	private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<Owner>();
-	@SuppressWarnings("unchecked")
-	private final DelegatedProperty<Owner> owner =  new DelegatedProperty<Owner>(PROPERTY_OWNER,true,ownerSetter);
-			
+
+	private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<>();
+	private final DelegatedProperty<Owner> owner = new DelegatedProperty<Owner>(PROPERTY_OWNER,true,ownerSetter);
+
 	private final ReplicateListenerContainer rep  = new ReplicateListenerContainer();
 	private final PropertyContainer props = new PropertyContainer();
-	
+
 	EditableSite(){
 		props.attachProperty(this.owner);
 	}
-	
+
 	EditableSite(EditableParent parent){
 		props.attachProperty(this.owner);
 		this.setParent(parent);
 	}
-	
+
 	@Override
 	public EditableParent getParent() {
 		return parent;
 	}
-	
+
 	@Override
 	public Owner getOwner() {
 		return this.owner.get();
@@ -48,17 +46,17 @@ class EditableSite implements EditableChild, Site{
 		this.parent = parent;
 		if(this.parent != null){
 			this.parent.addChild(this);
-			this.ownerSetter.set((Property<Owner>) this.parent.getProperty(PROPERTY_OWNER));
+			this.ownerSetter.set(this.parent.<Owner>getProperty(PROPERTY_OWNER));
 		}
 	}
-	
+
 	@Override
 	public EditableSite replicate(){
 		EditableSite copy = new EditableSite();
 		rep.tell(this, copy);
 		return copy;
 	}
-	
+
 	@Override
 	public void registerListener(ReplicateListener listener) {
 		rep.registerListener(listener);
@@ -67,8 +65,8 @@ class EditableSite implements EditableChild, Site{
 	@Override
 	public boolean unregisterListener(ReplicateListener listener) {
 		return rep.unregisterListener(listener);
-	}	
-	
+	}
+
 	@Override
 	public boolean isParent() {
 		return false;
@@ -93,5 +91,5 @@ class EditableSite implements EditableChild, Site{
 	public boolean isNode() {
 		return false;
 	}
-	
+
 }

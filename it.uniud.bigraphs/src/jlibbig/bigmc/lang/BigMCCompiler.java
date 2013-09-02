@@ -28,9 +28,12 @@ public class BigMCCompiler implements Compiler<BigraphSystem>{
 	 * @return the generated system.
 	 * @see BigraphSystem
 	 */
+    @Override
 	public BigraphSystem parse(String str) throws CompilerException {
 		return parse(new StringReader( str ));
 	}
+
+    @Override
 	public BigraphSystem parse(Reader in) throws CompilerException {
 		try {
 			return parser.parse(in);

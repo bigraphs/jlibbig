@@ -94,6 +94,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		return bb;
 	}
 
+    @Override
 	public Signature getSignature() {
 		assertOpen();
 		return this.big.getSignature();
@@ -116,6 +117,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's roots
 	 */
+    @Override
 	public List<? extends Root> getRoots() {
 		assertOpen();
 		return this.big.getRoots();
@@ -126,6 +128,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's sites
 	 */
+    @Override
 	public List<? extends Site> getSites() {
 		assertOpen();
 		return this.big.getSites();
@@ -136,6 +139,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's outer names
 	 */
+    @Override
 	public Set<? extends OuterName> getOuterNames() {
 		assertOpen();
 		return this.big.getOuterNames();
@@ -146,6 +150,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a list carrying bigraph's inner names
 	 */
+    @Override
 	public Set<? extends InnerName> getInnerNames() {
 		assertOpen();
 		return this.big.getInnerNames();
@@ -156,6 +161,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a set containing bigraph's nodes.
 	 */
+    @Override
 	public Set<? extends Node> getNodes() {
 		assertOpen();
 		return this.big.getNodes();
@@ -166,6 +172,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * 
 	 * @return a set containing bigraph's edges.
 	 */
+    @Override
 	public Set<? extends Edge> getEdges() {
 		assertOpen();
 		return this.big.getEdges();
@@ -846,7 +853,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
-		if (out.inners.size() != 0 || out.sites.size() != in.roots.size()) {
+		if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
 			throw new IncompatibleInterfacesException(in, out);
 		}
 		Map<String, EditableOuterName> nmap = new HashMap<>();
@@ -897,7 +904,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
-		if (out.inners.size() != 0 || out.sites.size() != in.roots.size()) {
+		if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
 			throw new IncompatibleInterfacesException(in, out);
 		}
 		if (reuse)

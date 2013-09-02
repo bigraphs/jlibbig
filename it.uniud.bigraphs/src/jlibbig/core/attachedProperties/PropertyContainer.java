@@ -4,7 +4,7 @@ import java.util.*;
 
 public class PropertyContainer implements PropertyTarget{
 	private final Map<String,Property<?>> props = new HashMap<>();
-	
+
 	/* (non-Javadoc)
 	 * @see jlibbig.core.AttachedPropertyTarget#attachProperty(jlibbig.core.AttachedProperty)
 	 */
@@ -17,33 +17,36 @@ public class PropertyContainer implements PropertyTarget{
 		prop.onAttach(this);
 		return this.props.put(prop.getName(), prop);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see jlibbig.core.AttachedPropertyTarget#detachProperty(jlibbig.core.AttachedProperty)
 	 */
 	@Override
-	public Property<?> detachProperty(Property<?> prop) {
-		if(props.containsValue(prop))
-			prop.onDetach(this);
-		return props.remove(prop.getName());
+	public <V> Property<V> detachProperty(Property<V> prop) {
+        return detachProperty(prop.getName());
 	}
 
 	/* (non-Javadoc)
 	 * @see jlibbig.core.AttachedPropertyTarget#detachProperty(java.lang.String)
 	 */
 	@Override
-	public Property<?> detachProperty(String name) {
-		return detachProperty(props.get(name)); 
+	public <V> Property<V> detachProperty(String name) {
+        @SuppressWarnings("unchecked")
+        Property<V> prop = (Property<V>)props.remove(name);
+        if (prop != null)
+            prop.onDetach(this);
+        return prop;
 	}
 
 	/* (non-Javadoc)
 	 * @see jlibbig.core.AttachedPropertyTarget#getProperty(java.lang.String)
 	 */
 	@Override
-	public Property<?> getProperty(String name) {
-		return props.get(name);
+    @SuppressWarnings("unchecked")
+	public <V> Property<V> getProperty(String name) {
+		return (Property<V>)props.get(name);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see jlibbig.core.AttachedPropertyTarget#getPropertyNames(java.lang.String)
 	 */

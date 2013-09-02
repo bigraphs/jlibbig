@@ -23,6 +23,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	 * @see BigraphSystem
 	 * @return the resulting string
 	 */
+    @Override
 	public String toString( BigraphSystem brs ){
 		StringBuilder s = new StringBuilder();
 		
@@ -31,7 +32,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		s.append( ln );
 		
 		for( String str : brs.getOuterNames() )
-			s.append( "%name " + str + ";" + ln );
+			s.append("%name ").append(str).append(";").append( ln);
 		
 		s.append( ln );
 		
@@ -40,7 +41,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		s.append( ln );
 		
 		for( AgentBigraph big : brs.getBigraphs() )
-			s.append( toString( big ) + " ;" + ln );
+			s.append(toString( big )).append(" ;").append( ln);
 		
 		s.append( ln );
 		
@@ -59,8 +60,8 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		StringBuilder s = new StringBuilder();
 
 		for( Control ctrl : sig ){
-				s.append( (ctrl.isActive() ? "%active " : "%passive ")
-						+ ctrl.getName() + " : " + ctrl.getArity() +";" + ln );
+				s.append(ctrl.isActive() ? "%active " : "%passive ").
+					append(ctrl.getName()).append(" : ").append(ctrl.getArity()).append(";").append( ln);
 		}
 
 		return s.toString();
@@ -76,7 +77,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	public static String toString( Collection<RewritingRule> reaction_rules ){
 		StringBuilder s = new StringBuilder();
 		for( RewritingRule reaction : reaction_rules ){
-			s.append( toString( reaction ) + ";" + ln );
+			s.append(toString( reaction )).append(";").append( ln);
 		}
 		return s.toString();
 	}
@@ -105,7 +106,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() ){
-						s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() , big.getSitesIndices() ) + (childIt.hasNext() ? " | " : "") );
+						s.append(toString( childIt.next() , big.getOuterNames() , big.getSites() , big.getSitesIndices() )).append( childIt.hasNext() ? " | " : "");
 				}
 			}else s.append( "nil" );
 			s.append( it.hasNext() ? " || " : "" );
@@ -127,7 +128,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() ){
-						s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() , big.getSitesIndices() ) + (childIt.hasNext() ? " | " : "") );
+						s.append(toString( childIt.next() , big.getOuterNames() , big.getSites() , big.getSitesIndices() )).append( childIt.hasNext() ? " | " : "");
 				}
 			}else s.append( "nil" );
 			s.append( it.hasNext() ? " || " : "" );
@@ -147,7 +148,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		if( !childs.isEmpty() ){
 			Iterator<? extends Child> childIt = childs.iterator();
 			while( childIt.hasNext() ){
-					s.append( toString( childIt.next() , big.getOuterNames() ) + (childIt.hasNext() ? " | " : "") );
+					s.append(toString( childIt.next() , big.getOuterNames() )).append( childIt.hasNext() ? " | " : "");
 			}
 		}else s.append( "nil" );
 		
@@ -166,7 +167,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		if( !childs.isEmpty() ){
 			Iterator<? extends Child> childIt = childs.iterator();
 			while( childIt.hasNext() ){
-					s.append( toString( childIt.next() , big.getOuterNames() ) + (childIt.hasNext() ? " | " : "") );
+					s.append(toString( childIt.next() , big.getOuterNames() )).append( childIt.hasNext() ? " | " : "");
 			}
 		}else s.append( "nil" );
 		
@@ -179,7 +180,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	 * @return the resulting string
 	 */
 	public static String toString( AbstractBigraphHandler big ){
-		if( big.getRoots().size() == 0 )
+		if( big.getRoots().isEmpty() )
 			throw new IllegalArgumentException("The place graph's outerface must be at least 1 (one root). Cannot be converted into a string with BigMC's syntax.");
 		for( Edge edge : big.getEdges() ){
 			if( edge.getPoints().size() > 1 )
@@ -198,7 +199,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() ){
-						s.append( toString( childIt.next() , big.getOuterNames() ) + (childIt.hasNext() ? " | " : "") );
+						s.append(toString( childIt.next() , big.getOuterNames() )).append( childIt.hasNext() ? " | " : "");
 				}
 			}else s.append( "nil" );
 			
@@ -214,7 +215,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				if( !childs.isEmpty() ){
 					Iterator<? extends Child> childIt = childs.iterator();
 					while( childIt.hasNext() ){
-							s.append( toString( childIt.next() , big.getOuterNames() , big.getSites() , sitesindices ) + (childIt.hasNext() ? " | " : "") );
+							s.append(toString( childIt.next() , big.getOuterNames() , big.getSites() , sitesindices )).append( childIt.hasNext() ? " | " : "");
 					}
 				}else s.append( "nil" );
 				s.append( it.hasNext() ? " || " : "" );
@@ -237,7 +238,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		StringBuilder s = new StringBuilder();
 		
 		if( d instanceof Site ){
-			s.append( "$" + sitenum.get( sitelist.indexOf( d ) ) );
+			s.append("$").append( sitenum.get( sitelist.indexOf( d ) ));
 		}else{
 			s.append( ((Node) d).getControl().getName() );
 			
@@ -250,13 +251,13 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				if( outrnms.contains( handle ) ){
 					for( int i = 0; i < unlinked; ++i )
 						ns.append( " - , " );
-					ns.append( " " + ((OuterName) handle ).getName() + " , " );
+					ns.append(" ").append(((OuterName) handle ).getName()).append( " , ");
 				}else
 					++unlinked;
 			}
 			
 			if(ns.length() > 0 )	//note: if length > 0 --> at least 1 append has been done --> length > 3
-				s.append( "[" + ns.substring(0 , ns.length()-2 ) + "]" );
+				s.append("[").append(ns.substring(0 , ns.length()-2 )).append( "]");
 			
 			Set<? extends Child> childs = ((Node) d ).getChildren();
 			if(! childs.isEmpty() ){
@@ -265,7 +266,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() )
-					s.append( toString( childIt.next() , outrnms , sitelist , sitenum ) + (childIt.hasNext() ? " | " : "") );
+					s.append(toString( childIt.next() , outrnms , sitelist , sitenum )).append( childIt.hasNext() ? " | " : "");
 				
 				if( childs.size() > 1 ) s.append(" )");
 			}
@@ -299,13 +300,13 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				if( outerNames.contains( handle ) ){
 					for( int i = 0; i < unlinked; ++i )
 						ns.append( " - , " );
-					ns.append( " " + ((OuterName) handle ).getName() + " , " );
+					ns.append(" ").append(((OuterName) handle ).getName()).append( " , ");
 				}else
 					++unlinked;
 			}
 			
 			if(ns.length() > 0 )	//note: if length > 0 --> at least 1 append has been done --> length > 3
-				s.append( "[" + ns.substring(0 , ns.length()-2 ) + "]" );
+				s.append("[").append(ns.substring(0 , ns.length()-2 )).append( "]");
 			
 			Set<? extends Child> childs = ((Node) c ).getChildren();
 			if(! childs.isEmpty() ){
@@ -314,7 +315,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() )
-					s.append( toString( childIt.next() , outerNames ) + (childIt.hasNext() ? " | " : "") );
+					s.append(toString( childIt.next() , outerNames )).append( childIt.hasNext() ? " | " : "");
 				
 				if( childs.size() > 1 ) s.append(" )");
 			}

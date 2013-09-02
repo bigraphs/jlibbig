@@ -88,7 +88,7 @@ class InvMap<A,B> implements Map<A,B>{
 		if(_inv != null){
 			Set<A> set = _inv.get(arg0);
 			if(set == null){
-				set = new HashSet<A>();
+				set = new HashSet<>();
 				_inv.put(arg1, set);
 			}
 			set.add(arg0);
@@ -104,7 +104,7 @@ class InvMap<A,B> implements Map<A,B>{
 				B b = arg.get(a);
 				Set<A> set = _inv.get(b);
 				if(set == null){
-					set = new HashSet<A>();
+					set = new HashSet<>();
 					_inv.put(b, set);
 				}
 				set.add(a);

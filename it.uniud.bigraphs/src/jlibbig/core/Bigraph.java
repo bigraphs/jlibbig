@@ -256,9 +256,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 				sites[this.sites.indexOf(s1)] = s2;
 			}
 		}
-		for (int i = 0; i < sites.length; i++) {
-			big.sites.add(sites[i]);
-		}
+        big.sites.addAll(Arrays.asList(sites));
 		return big;
 	}
 

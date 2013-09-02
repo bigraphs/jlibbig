@@ -1,44 +1,50 @@
 package jlibbig.core.attachedProperties;
 
-@SuppressWarnings("unchecked")
 public class DelegatedProperty<V> extends ProtectedProperty<V> {
 
 	protected boolean cacheValue = false;
-	
+
 	protected Property<V> prop;
-	protected final PropertyListener<V> lst;
+	protected final PropertyListener<? super V> lst;
 	protected boolean registered = false;
-	
-	public DelegatedProperty(String name, boolean cacheValue, PropertySetter<V> setter, PropertyListener<V>... listeners) {
+
+    @SafeVarargs
+	public DelegatedProperty(String name, boolean cacheValue, PropertySetter<V> setter, PropertyListener<? super V>... listeners) {
 		this(name, null,cacheValue,setter,listeners);
-	}
-	
-	public DelegatedProperty(String name, Property<V> property, boolean cacheValue, PropertyListener<V>... listeners) {
+    }
+
+    @SafeVarargs
+	public DelegatedProperty(String name, Property<V> property, boolean cacheValue, PropertyListener<? super V>... listeners) {
 		this(name, property,cacheValue,null,listeners);
 	}
-	
-	public DelegatedProperty(String name, Property<V> property, PropertyListener<V>... listeners) {
+
+    @SafeVarargs
+	public DelegatedProperty(String name, Property<V> property, PropertyListener<? super V>... listeners) {
 		this(name, property,true,null,listeners);
 	}
-	
-	public DelegatedProperty(String name, Property<V> property, PropertySetter<V> setter, PropertyListener<V>... listeners) {
+
+    @SafeVarargs
+	public DelegatedProperty(String name, Property<V> property, PropertySetter<V> setter, PropertyListener<? super V>... listeners) {
 		this(name, property,true,setter,listeners);
 	}
-	
+
+    @SafeVarargs
 	public DelegatedProperty(String name, Property<V> property, boolean cacheValue, PropertySetter<V> setter,
-			PropertyListener<V>... listeners) {
+			PropertyListener<? super V>... listeners) {
 		super(name,null,listeners);
 		this.prop = property;
 		this.cacheValue = cacheValue;
 		if(cacheValue){
 			lst = new PropertyListener<V>(){
-				public void onChange(Property<V> property, V oldValue, V newValue){
+                @Override
+				public void onChange(Property<? extends V> property, V oldValue, V newValue){
 					set(newValue,true);
 				}
 			};
 		}else{
 			lst = new PropertyListener<V>(){
-				public void onChange(Property<V> property, V oldValue, V newValue){
+                @Override
+				public void onChange(Property<? extends V> property, V oldValue, V newValue){
 					tellChanged(DelegatedProperty.this,oldValue,newValue);
 				}
 			};
@@ -53,7 +59,8 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 			setter.target = this;
 	}
 
-	public void registerListener(PropertyListener<V> listener){
+    @Override
+	public void registerListener(PropertyListener<? super V> listener){
 		super.registerListener(listener);
 		if(!registered && prop != null){
 			prop.registerListener(lst);
@@ -63,9 +70,10 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 		}
 	}
 
-	public boolean unregisterListener(PropertyListener<V> listener){
+    @Override
+	public boolean unregisterListener(PropertyListener<? super V> listener){
 		boolean r = super.unregisterListener(listener);
-		if(registered && super.listeners.size() == 0){
+		if(registered && super.listeners.isEmpty()){
 			prop.unregisterListener(lst);
 			registered = false;
 		}
@@ -75,7 +83,7 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 	public Property<V> getProperty(){
 		return prop;
 	}
-	
+
 	protected void setProperty(Property<V> prop){
 		if(this.prop != prop){
 			V oldValue = this.get();
@@ -90,7 +98,8 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 			tellChanged(this,oldValue,this.get());
 		}
 	}
-	
+
+    @Override
 	public V get(){
 		if(prop == null)
 			return null;
@@ -99,7 +108,8 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 		else
 			return prop.get();
 	}
-	
+
+    @Override
 	protected void finalize() throws Throwable {
 	     try {
 	    	 if(prop != null && registered)
@@ -108,14 +118,14 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 	         super.finalize();
 	     }
 	 }
-	
+
 	public static class PropertySetter<V>{
 		private DelegatedProperty<V> target;
-		
+
 		public DelegatedProperty<V> getTarget(){
 			return target;
 		}
-		
+
 		public void set(Property<V> prop){
 			target.setProperty(prop);
 		}
