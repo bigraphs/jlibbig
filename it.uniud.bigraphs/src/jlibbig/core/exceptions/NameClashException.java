@@ -28,9 +28,7 @@ public class NameClashException extends RuntimeException {
 		super(message);
 		if (names.length > 0) {
 			Set<String> ns = new HashSet<>();
-			for (int i = 0; i < names.length; i++) {
-				ns.add(names[i]);
-			}
+            ns.addAll(Arrays.asList(names));
 			this.names = Collections.unmodifiableSet(ns);
 		} else {
 			this.names = null;

@@ -87,18 +87,19 @@ public class BigraphReactiveSystem{
 	 * @return a String representing the system.
 	 * @see Bigraph#toString()
 	 */
+    @Override
 	public String toString(){
 		String nl = System.getProperty("line.separator");
 		StringBuilder str = new StringBuilder();
 
-		str.append("REACTIONS:" + nl );
+		str.append("REACTIONS:").append(nl);
 		for( BigraphRewritingRule reac : reactions ){
-			str.append( reac.getRedex().toString() + nl + "-->" + nl + reac.getReactum().toString() + nl + nl );
+			str.append(reac.getRedex().toString()).append(nl).append("-->").append(nl).append(reac.getReactum().toString()).append(nl).append( nl);
 		}
 		
-		str.append("BIGRAPHS:" + nl );
+		str.append("BIGRAPHS:").append(nl);
 		for( Bigraph b : bigraphs ){
-			str.append( b.toString() + nl + nl );
+			str.append(b.toString()).append(nl).append( nl);
 		}
 		
 		return str.toString();

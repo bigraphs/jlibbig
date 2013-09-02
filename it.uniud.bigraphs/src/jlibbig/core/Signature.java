@@ -5,16 +5,16 @@ import java.util.*;
 /**
  * Bigraphs' signatures are immutable. To make a signature, users can use {@link SignatureBuilder}.
  */
-public class Signature implements Set<Control>{
+public class Signature implements Iterable<Control>{
 
 	final private Map<String,Control> ctrls = new HashMap<>();
 
 	final protected String USID;
-	
+
 	public Signature(Collection<Control > controls) {
 		this(null, controls);
 	}
-	
+
 	public Signature(String usid, Collection<Control > controls) {
 		for(Control  c : controls){
 			if(ctrls.put(c.getName(), c) != null){
@@ -23,11 +23,11 @@ public class Signature implements Set<Control>{
 		}
 		this.USID = (usid == null || usid.trim().length() == 0) ? UUID.randomUUID().toString() : usid;
 	}
-	
+
 	public Signature(Control... controls) {
 		this(null, controls);
 	}
-	
+
 	public Signature(String usid, Control... controls) {
 		for(Control  c : controls){
 			if(ctrls.put(c.getName(), c) != null){
@@ -79,82 +79,36 @@ public class Signature implements Set<Control>{
 	public Control getByName(String name){
 		return ctrls.get(name);
 	}
-	
+
 	public String getUSID(){
 		return this.USID.toString();
 	}
-		
+
 	@Override
 	public String toString() {
 		return USID + ":" + ctrls.values();
 	}
 
-	
-	@Override
-	public boolean add(Control  arg0) {
-		throw new UnsupportedOperationException("Signatures are read-only sets");
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends Control > arg0) {
-		throw new UnsupportedOperationException("Signatures are read-only sets");
-	}
-
-	@Override
-	public void clear() {
-		throw new UnsupportedOperationException("Signatures are read-only sets");
-	}
-
-	@Override
-	public boolean contains(Object arg0) {
+	public boolean contains(Control arg0) {
 		// very naive
 		return this.ctrls.containsValue(arg0);
 	}
 
-	@Override
 	public boolean containsAll(Collection<?> arg0) {
 		// very naive
 		return this.ctrls.values().containsAll(arg0);
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return this.ctrls.isEmpty();
 	}
 
 	@Override
 	public Iterator<Control> iterator() {
-		return this.ctrls.values().iterator();
+		return Collections.unmodifiableMap(this.ctrls).values().iterator();
 	}
 
-	@Override
-	public boolean remove(Object arg0) {
-		throw new UnsupportedOperationException("Signatures are read-only sets");
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> arg0) {
-		throw new UnsupportedOperationException("Signatures are read-only sets");
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> arg0) {
-		throw new UnsupportedOperationException("Signatures are read-only sets");
-	}
-
-	@Override
 	public int size() {
 		return this.ctrls.size();
 	}
-
-	@Override
-	public Object[] toArray() {
-		return this.ctrls.values().toArray();
-	}
-
-	@Override
-	public <T> T[] toArray(T[] arg0) {
-		return this.ctrls.values().toArray(arg0);
-	}
-
 }

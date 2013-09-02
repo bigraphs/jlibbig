@@ -20,7 +20,7 @@ public class ReactionBigraph implements AbstractBigraph{
 	 * 			ReactionBigraphBuilder used to build the new ReactionBigraph
 	 */
 	public ReactionBigraph( ReactionBigraphBuilder rbb ){
-		if( rbb.getRoots().size() == 0 )
+		if( rbb.getRoots().isEmpty() )
 			throw new IllegalArgumentException("This bigraph can't be converted to a BigMC's ReactionBigraph. The place graph's outerface must be at least 1 (one root).");
 		this.big = rbb.rbig.makeBigraph();
 		this.asRedex = true;
@@ -46,7 +46,7 @@ public class ReactionBigraph implements AbstractBigraph{
 	 * 			
 	 */
 	public ReactionBigraph( Bigraph big ){
-		if( big.getRoots().size() == 0 )
+		if( big.getRoots().isEmpty() )
 			throw new IllegalArgumentException("This bigraph can't be converted to a BigMC's ReactionBigraph. The place graph's outerface must be at least 1 (one root).");
 		for( Edge edge : big.getEdges() ){
 			if( edge.getPoints().size() > 1 )
@@ -81,6 +81,7 @@ public class ReactionBigraph implements AbstractBigraph{
 	 * @see Signature
 	 * @see AbstractBigraphHandler#getSignature()
 	 */
+    @Override
 	public Signature getSignature() {
 		return big.getSignature();
 	}

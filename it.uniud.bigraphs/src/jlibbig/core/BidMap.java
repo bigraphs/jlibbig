@@ -35,7 +35,7 @@ class BidMap<A,B> implements Map<A,B>{
 	 * @return the inverse bidirectional map.
 	 */
 	public BidMap<B,A> getInverse(){
-		return new BidMap<B,A>(_mapB,_mapA);
+		return new BidMap<>(_mapB,_mapA);
 	}
 	
 	@Override

@@ -18,15 +18,15 @@ public class SignatureBuilder {
 	public SignatureBuilder() {
 	}
 
-	/** 
+	/**
 	 * Creates a signature with the control present in the builder
 	 * @return a signature
 	 */
 	public Signature makeSignature() {
 		return new Signature(ctrls.values());
 	}
-	
-	/** 
+
+	/**
 	 * Creates a signature with the control present in the builder and the given
 	 * signature identifier.
 	 * @return a signature
@@ -34,7 +34,7 @@ public class SignatureBuilder {
 	public Signature makeSignature(String usid) {
 		return new Signature(usid, ctrls.values());
 	}
-	
+
 	/**
 	 * Make a control and add it to the signature
 	 * @param name name of the control
@@ -85,12 +85,12 @@ public class SignatureBuilder {
 	public void clear() {
 		ctrls.clear();
 	}
-	
-//	
+
+//
 //	private static class BGControl extends AbstNamed implements Control{
 //		private final boolean active;
 //		private final int arity;
-//				
+//
 //		BGControl(String name,boolean active, int arity){
 //			super(name);
 //			this.arity = arity;
@@ -118,7 +118,7 @@ public class SignatureBuilder {
 //				return false;
 //			return true;
 //		}
-//	
+//
 //		@Override
 //		public String toString() {
 //			return getName() + ":(" + arity + ((active) ? ",a)" : ",p)");
@@ -133,7 +133,7 @@ public class SignatureBuilder {
 //		public boolean isActive() {
 //			return active;
 //		}
-//		
+//
 //	}
 
 }

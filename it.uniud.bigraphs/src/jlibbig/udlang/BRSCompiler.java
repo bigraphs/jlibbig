@@ -35,9 +35,12 @@ public class BRSCompiler implements Compiler<BigraphReactiveSystem> {
 	 * @throws CompilerException 
 	 * @see BigraphReactiveSystem
 	 */
+    @Override
 	public BigraphReactiveSystem parse(String str) throws CompilerException {
 		return parse(new StringReader( str ));
 	}
+
+    @Override
 	public BigraphReactiveSystem parse(Reader in) throws CompilerException {
 		try {
 			return parser.parse(in);

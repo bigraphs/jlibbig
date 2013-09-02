@@ -155,9 +155,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 		for (int i = 0; i < ss.length; i++) {
 			if (ss[i] == null)
 				continue;
-			for (int j = 0; j < ss[i].length; j++) {
-				prm.sites.add(ss[i][j]);
-			}
+            prm.sites.addAll(Arrays.asList(ss[i]));
 		}
 
 		if (reuse) {

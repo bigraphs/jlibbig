@@ -1,17 +1,15 @@
 package jlibbig.core;
 
 import java.util.*;
-
 import jlibbig.core.attachedProperties.*;
 
 /**
  * Describes a node of a bigraph. <br />
  * Every node must have its control.
- *
  */
 class EditableNode implements Node, EditableParent, EditableChild{
 	    static final String PROPERTY_OWNER = "Owner";
-	    
+
 		private Control control;
 		private final List<EditablePort> ports;
 		private EditableParent parent;
@@ -19,14 +17,13 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		private final List<? extends Port> ro_ports;
 		private final Set<? extends Child> ro_chd;
 		private String name;
-		
-		private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<Owner>();
-		@SuppressWarnings("unchecked")
-		private final DelegatedProperty<Owner> owner =  new DelegatedProperty<Owner>(PROPERTY_OWNER,true,ownerSetter);
-				
+
+		private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<>();
+		private final DelegatedProperty<Owner> owner = new DelegatedProperty<Owner>(PROPERTY_OWNER,true,ownerSetter);
+
 		private final ReplicateListenerContainer rep  = new ReplicateListenerContainer();
 		private final PropertyContainer props = new PropertyContainer();
-				
+
 		EditableNode(Control control){
 			this.name = "N_" + AbstractNamed.generateName();
 			this.control = control;
@@ -41,12 +38,12 @@ class EditableNode implements Node, EditableParent, EditableChild{
 
 			props.attachProperty(this.owner);
 		}
-		
+
 		EditableNode(Control control,EditableParent parent){
 			this(control);
 			setParent(parent);
 		}
-		
+
 		EditableNode(Control control,EditableParent parent, List<? extends Handle> handles){
 			this(control);
 			setParent(parent);
@@ -54,7 +51,7 @@ class EditableNode implements Node, EditableParent, EditableChild{
 				this.ports.get(i).setHandle((EditableHandle) handles.get(i));
 			}
 		}
-		
+
 		EditableNode(Control control,EditableParent parent, EditableHandle... handles){
 			this(control);
 			setParent(parent);
@@ -62,7 +59,7 @@ class EditableNode implements Node, EditableParent, EditableChild{
 				this.ports.get(i).setHandle(handles[i]);
 			}
 		}
-		
+
 		@Override
 		public String toString() {
 			return this.name + ":" + this.control.getName();
@@ -82,7 +79,7 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		public List<? extends Port> getPorts(){
 			return this.ro_ports;
 		}
-		
+
 		public List<EditablePort> getPortsForEdit(){
 			return this.ports;
 		}
@@ -96,13 +93,13 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		public Control getControl(){
 			return this.control;
 		}
-		
+
 		public void setControl(Control value){
 			//TODO implement setControl; what about arity changes?
 			throw new UnsupportedOperationException("Not implemented yet.");
 			//this.control = value;
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public void setParent(EditableParent parent){
@@ -116,10 +113,10 @@ class EditableNode implements Node, EditableParent, EditableChild{
 			this.parent = parent;
 			if(this.parent != null){
 				this.parent.addChild(this);
-				this.ownerSetter.set((Property<Owner>) this.parent.getProperty(PROPERTY_OWNER));
+				this.ownerSetter.set(this.parent.<Owner>getProperty(PROPERTY_OWNER));
 			}
 		}
-		
+
 		@Override
 		public void addChild(EditableChild child) {
 			if(child == null)
@@ -138,16 +135,17 @@ class EditableNode implements Node, EditableParent, EditableChild{
 			if(this == child.getParent())
 				child.setParent(null);
 		}
-		
+
+        @Override
 		public Set<EditableChild> getEditableChildren(){
 			return this.children;
-		}	
-		
+		}
+
 		@Override
 		public EditableRoot getRoot() {
 			return this.parent.getRoot();
 		}
-		
+
 		@Override
 		public EditableNode replicate(){
 			EditableNode copy = new EditableNode(this.control);
@@ -163,8 +161,8 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		@Override
 		public boolean unregisterListener(ReplicateListener listener) {
 			return rep.unregisterListener(listener);
-		}	
-		
+		}
+
 		@Override
 		public Property<?> attachProperty(Property<?> prop) {
 			if(prop.getName().equals(PROPERTY_OWNER))
@@ -173,19 +171,19 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		}
 
 		@Override
-		public Property<?> detachProperty(Property<?> prop) {
+		public <V> Property<V> detachProperty(Property<V> prop) {
 			return this.detachProperty(prop.getName());
 		}
 
 		@Override
-		public Property<?> detachProperty(String name) {
+		public <V> Property<V> detachProperty(String name) {
 			if(name.equals(PROPERTY_OWNER))
 				throw new IllegalArgumentException("Property '"+PROPERTY_OWNER+"' can not be substituted");
 			return props.detachProperty(name);
 		}
-		
+
 		@Override
-		public Property<?> getProperty(String name) {
+		public <V> Property<V> getProperty(String name) {
 			return props.getProperty(name);
 		}
 
@@ -198,7 +196,7 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		public Owner getOwner() {
 			return this.owner.get();
 		}
-		
+
 		@Override
 		public boolean isParent() {
 			return true;
@@ -223,7 +221,7 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		public boolean isNode() {
 			return true;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 41;
@@ -235,20 +233,22 @@ class EditableNode implements Node, EditableParent, EditableChild{
 		public class EditablePort implements Port, EditablePoint{
 			private final int number;
 			private EditableHandle handle;
-			
+
 			private EditablePort(int number){
 				this.number = number;
 			}
-			
+
+            @Override
 			public EditableNode getNode(){
 				return EditableNode.this;
 			}
-			
+
 			@Override
 			public String toString() {
 				return number + "@" + EditableNode.this;
 			}
 
+            @Override
 			public int getNumber(){
 				return this.number;
 			}
@@ -257,7 +257,7 @@ class EditableNode implements Node, EditableParent, EditableChild{
 			public EditableHandle getHandle() {
 				return handle;
 			}
-			
+
 			@Override
 			public void setHandle(EditableHandle handle){
 				if(this.handle != null){
@@ -272,7 +272,7 @@ class EditableNode implements Node, EditableParent, EditableChild{
 					handle.linkPoint(this);
 				}
 			}
-			
+
 			@Override
 			public Owner getOwner() {
 				return (handle != null) ? handle.getOwner() : EditableNode.this.getOwner();

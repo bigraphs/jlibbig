@@ -17,7 +17,7 @@ public class foo {
 //				System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
 //			}
 		};
-		
+
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("a",true,0);
 		sb.put("b",true,1);
@@ -30,34 +30,34 @@ public class foo {
 		bbA.addInnerName("x7", o);
 		bbA.addInnerName("x", o);
 		bbA.addInnerName("x8", o);
-		
+
 		Bigraph bA = bbA.makeBigraph();
 
 		System.out.println("- A -------------------------");
 		System.out.println(bA);
-		
+
 		//build B
 		BigraphBuilder bbB = new BigraphBuilder(s);
 		Node m = bbB.addNode("c", bbB.addRoot());
-		
-		nc.chease(m);
-		
-		bbB.addSite(m); 
+
+		nc.chase(m);
+
+		bbB.addSite(m);
 		bbB.addInnerName("x", bbB.addOuterName("x7"));
 		bbB.relink(m.getPort(0), bbB.addOuterName("x"));
 		bbB.addInnerName("y", bbB.addOuterName("x8"));
-		
+
 		Bigraph bB = bbB.makeBigraph();
-		
+
 
 		System.out.println("- B --------------------------");
 		System.out.println(bB);
-		
+
 		System.out.println("-----------------------------");
-		
+
 		bbB.outerCompose(bA);
 		bbA.innerCompose(bB);
-		
+
 		System.out.println("Signature: " + s);
 		BigraphBuilder bb1 = new BigraphBuilder(s);
 		Root r = bb1.addRoot();
@@ -66,8 +66,8 @@ public class foo {
 		h = bb1.addInnerName("x",h).getHandle();
 		Node n = bb1.addNode("c", r, h);
 
-		nc.chease(n);
-		
+		nc.chase(n);
+
 		bb1.addSite(r);
 		//System.out.println(bb + "\n");
 		Bigraph b1 = bb1.makeBigraph();
@@ -77,21 +77,21 @@ public class foo {
 		printBB("outerCompose",bb1);
 		bb1.innerCompose(b1);
 		printBB("innerCompose",bb1);
-		
+
 		BigraphBuilder bb2 = new BigraphBuilder(s);
 		r = bb2.addRoot();
 		h = bb2.addOuterName("x");
 		n = bb2.addNode("b", r, h);
-		
-		nc.chease(n);
-		
+
+		nc.chase(n);
+
 		bb2.addOuterName("y");
 		bb2.addSite(n);
 		Bigraph b2 = bb2.makeBigraph();
-		
+
 		bb1.outerNest(b2);
 		printBB("outerNest",bb1);
-		
+
 		b1 = bb1.makeBigraph();
 		bb2.innerNest(b1);
 		printBB("innerNest",bb2);
@@ -99,7 +99,7 @@ public class foo {
 		bb2.ground();
 		printBB("ground",bb2);
 		b2 = bb2.makeBigraph();
-		
+
 		Long t0 = System.currentTimeMillis();
 		Long mc = 0L;
 		System.out.println("match test...");
@@ -123,7 +123,7 @@ public class foo {
 		}
 		Long t1 = System.currentTimeMillis();
 		System.out.println("done: #" + mc + " " + (t1 - t0) + "(ms)");
-		
+
 
 		RewritingRule<Bigraph> ar =  new BigraphRewritingRule(b2,b2);
 		t0 = System.currentTimeMillis();
@@ -135,11 +135,11 @@ public class foo {
 		t1 = System.currentTimeMillis();
 		System.out.println("done: #" + mc + " " + (t1 - t0) + "(ms)");
 	}
-	
+
 	private static void printT(){
 		System.out.println(System.currentTimeMillis());
 	}
-	
+
 	private static BigraphBuilder printBB(BigraphBuilder b){
 		return printBB("Builder",b);
 	}
@@ -147,7 +147,7 @@ public class foo {
 		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " <" + b.getSites().size() + "," + b.getInnerNames() + "> -> <" +b.getRoots().size() + "," + b.getOuterNames() + ">");
 		return b;
 	}
-	
+
 	private static Bigraph printBig(Bigraph b){
 		return printBig("Bigraph", b);
 	}
@@ -156,6 +156,6 @@ public class foo {
 		System.out.println(prefix + ": " + b.getNodes() + " " + b.getEdges() + " <" + b.getSites().size() + "," + b.getInnerNames() + "> -> <" +b.getRoots().size() + "," + b.getOuterNames() + ">");
 		return b;
 	}
-	
-	
+
+
 }

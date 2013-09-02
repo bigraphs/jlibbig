@@ -4,14 +4,13 @@ import java.lang.ref.*;
 import java.util.*;
 import jlibbig.core.attachedProperties.*;
 
-@SuppressWarnings("unchecked")
 public class NodeChaser {
 
 	private static final Owner FAKE_OWNER = new Owner() {
 	};
-	
+
 //	ReferenceQueue<Node> nodeQueue  = new ReferenceQueue<Node>();
-	
+
 	private final Map<Owner, WeakHashSet<Node>> index = new WeakHashMap<>();
 	private final Map<Node, PropertyListener<Owner>> ownerLsts = new WeakHashMap<>();
 	private final Map<Node, ReplicateListener> repLsts = new WeakHashMap<>();
@@ -23,12 +22,12 @@ public class NodeChaser {
 //			onNodeRemoved((Node) ref.get());
 //		} while (ref != null);
 //	}
-	
-	private final Owner getOwnerKey(Node node) {
+
+	private Owner getOwnerKey(Node node) {
 		return getOwnerKey(node.getOwner());
 	}
 
-	private final Owner getOwnerKey(Owner owner) {
+	private Owner getOwnerKey(Owner owner) {
 		if (owner == null)
 			owner = FAKE_OWNER;
 		return owner;
@@ -41,14 +40,14 @@ public class NodeChaser {
 	public Set<Node> getAll(Owner owner) {
 		WeakHashSet<Node> s = index.get(getOwnerKey(owner));
 		if (s == null)
-			return new HashSet<Node>();
+			return new HashSet<>();
 		else
 			return s.toSet();
 	}
 
 	public void releaseAll() {
 		for (Node node : ownerLsts.keySet()) {
-			((Property<Owner>) node.getProperty(EditableNode.PROPERTY_OWNER))
+			node.<Owner>getProperty(EditableNode.PROPERTY_OWNER)
 					.unregisterListener(ownerLsts.remove(node));
 			((EditableNode) node).unregisterListener(repLsts.remove(node));
 			// onNodeRemoved(node);
@@ -63,8 +62,7 @@ public class NodeChaser {
 		while (ir.hasNext()) {
 			Node node = ir.next();
 			if (node != null) {
-				((Property<Owner>) node
-						.getProperty(EditableNode.PROPERTY_OWNER))
+				node.<Owner>getProperty(EditableNode.PROPERTY_OWNER)
 						.unregisterListener(ownerLsts.remove(node));
 				((EditableNode) node).unregisterListener(repLsts.remove(node));
 				// onNodeRemoved(node);
@@ -73,22 +71,22 @@ public class NodeChaser {
 	}
 
 	public void release(Node node) {
-		if (isCheased(node)) {
-			((Property<Owner>) node.getProperty(EditableNode.PROPERTY_OWNER))
+		if (isChased(node)) {
+			node.<Owner>getProperty(EditableNode.PROPERTY_OWNER)
 					.unregisterListener(ownerLsts.remove(node));
 			((EditableNode) node).unregisterListener(repLsts.remove(node));
 		}
 	}
 
-	public boolean isCheased(Node node) {
+	public boolean isChased(Node node) {
 		return ownerLsts.containsKey(node);
 	}
 
-	public void chease(Node node) {
-		cheased((EditableNode) node);
+	public void chase(Node node) {
+		chased((EditableNode) node);
 	}
 
-	protected void cheased(EditableNode node) {
+	void chased(EditableNode node) {
 		WeakHashSet<Node> ns = index.get(getOwnerKey(node));
 		if (ns == null) {
 			ns = new WeakHashSet<>();
@@ -100,7 +98,7 @@ public class NodeChaser {
 
 		PropertyListener<Owner> ol = new PropertyListener<Owner>() {
 			@Override
-			public void onChange(Property<Owner> property, Owner oldValue,
+			public void onChange(Property<? extends Owner> property, Owner oldValue,
 					Owner newValue) {
 				WeakHashSet<Node> ns = index.get(getOwnerKey(oldValue));
 				if (ns != null)
@@ -114,27 +112,26 @@ public class NodeChaser {
 				onOwnerChanges(ref.get(),oldValue,newValue);
 			}
 		};
-		((Property<Owner>) node.getProperty(EditableNode.PROPERTY_OWNER))
-				.registerListener(ol);
+		node.<Owner>getProperty(EditableNode.PROPERTY_OWNER).registerListener(ol);
 		ownerLsts.put(node, ol);
 		ReplicateListener rl = new ReplicateListener() {
 			@Override
 			public void onReplicate(Replicable original, Replicable copy) {
-				cheased((EditableNode) copy);
+				chased((EditableNode) copy);
 				onReplicates((Node) original, (Node) copy);
 			}
 		};
 		repLsts.put(node, rl);
 		node.registerListener(rl);
-		
+
 		onNodeAdded(node);
 	}
-	
-	protected void onNodeAdded(Node node){}	
-	
+
+	protected void onNodeAdded(Node node){}
+
 	// protected void onNodeRemoved(Node node){}
-	
+
 	protected void onOwnerChanges(Node node, Owner oldValue,Owner newValue){};
-	
+
 	protected void onReplicates(Node original, Node copy){};
 }

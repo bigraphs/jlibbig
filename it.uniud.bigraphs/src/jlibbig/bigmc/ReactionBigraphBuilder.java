@@ -74,7 +74,7 @@ public class ReactionBigraphBuilder implements AbstractBigraphBuilder{
 	 * 			Sites' indices
 	 */
 	public ReactionBigraphBuilder( Bigraph big , int... sitesindices ){
-		if( big.getRoots().size() == 0 )
+		if( big.getRoots().isEmpty() )
 			throw new IllegalArgumentException("This bigraph can't be converted to a BigMC's ReactionBigraph. The place graph's outerface must be at least 1 (one root).");
 		for( Edge edge : big.getEdges() ){
 			if( edge.getPoints().size() > 1 )

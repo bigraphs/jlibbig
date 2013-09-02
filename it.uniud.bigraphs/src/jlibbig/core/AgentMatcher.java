@@ -1239,9 +1239,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								}
 							}
 						}
-						for (int i = 0; i < ctx_sites_dic.length; i++) {
-							ctx.sites.add(ctx_sites_dic[i]);
-						}
+                        ctx.sites.addAll(Arrays.asList(ctx_sites_dic));
 						// Replicates rdx
 						// //////////////////////////////////////////////
 						/*
@@ -1336,9 +1334,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								}
 							}
 						}
-						for (int i = 0; i < rdx_sites_dic.length; i++) {
-							rdx.sites.add(rdx_sites_dic[i]);
-						}
+                        rdx.sites.addAll(Arrays.asList(rdx_sites_dic));
 
 						// Replicates prms
 						// /////////////////////////////////////////////

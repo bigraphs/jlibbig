@@ -43,6 +43,7 @@ public class AgentBigraph implements AbstractBigraph{
 	/**
 	 * Clone the current AgentBigraph.
 	 */
+    @Override
 	public AgentBigraph clone(){
 		return new AgentBigraph( this.bigraph.clone() );
 	}
