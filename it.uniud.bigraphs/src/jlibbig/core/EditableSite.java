@@ -33,7 +33,6 @@ class EditableSite implements EditableChild, Site{
 		return this.owner.get();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void setParent(EditableParent parent){
 		if(this.parent != null){
