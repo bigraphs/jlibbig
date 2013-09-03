@@ -5,9 +5,9 @@ import java.util.*;
 class EditableOuterName extends EditableLinkFacet implements OuterName,
 		EditableNamed, EditableHandle {
 
-	private Set<EditablePoint> points = new HashSet<>();
-	private final Set<? extends Point> ro_points = Collections
-			.unmodifiableSet(this.points);
+	private Collection<EditablePoint> points = Collections.newSetFromMap(new IdentityHashMap<EditablePoint, Boolean>());
+	private final Collection<? extends Point> ro_points = Collections
+			.unmodifiableCollection(this.points);
 	private Owner owner;
 
 	EditableOuterName(String name) {
@@ -19,21 +19,21 @@ class EditableOuterName extends EditableLinkFacet implements OuterName,
 	}
 
 	@Override
-	public Set<? extends Point> getPoints() {
+	public Collection<? extends Point> getPoints() {
 		return this.ro_points;
 	}
 
 	@Override
-	public Set<EditablePoint> getEditablePoints() {
+	public Collection<EditablePoint> getEditablePoints() {
 		return this.points;
 	}
 
 	@Override
 	public void linkPoint(EditablePoint point) {
 		if (point == null)
-			return;
+			return; 
 		this.points.add(point);
-		if (this != point.getHandle()) {
+		if(this != point.getHandle()) {
 			point.setHandle(this);
 		}
 	}
@@ -42,8 +42,7 @@ class EditableOuterName extends EditableLinkFacet implements OuterName,
 	public void unlinkPoint(EditablePoint point) {
 		if (point == null)
 			return;
-		this.points.remove(point);
-		if (this == point.getHandle())
+		if(this.points.remove(point) && this == point.getHandle())
 			point.setHandle(null);
 	}
 

@@ -1,5 +1,5 @@
 package tests;
-
+import java.util.*;
 import jlibbig.core.*;
 import jlibbig.core.attachedProperties.SimpleProperty;
 
@@ -21,7 +21,7 @@ public class foo {
 //				System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
 //			}
 		};
-
+		
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("a",true,0);
 		sb.put("b",true,1);
@@ -66,7 +66,6 @@ public class foo {
 		BigraphBuilder bb1 = new BigraphBuilder(s);
 		Root r = bb1.addRoot();
 		Handle h = bb1.addOuterName("x");
-		bb1.addInnerName("x", h);
 		h = bb1.addInnerName("x",h).getHandle();
 		Node n = bb1.addNode("c", r, h);
 

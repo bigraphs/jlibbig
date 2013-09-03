@@ -257,14 +257,13 @@ class EditableNode implements Node, EditableParent, EditableChild{
 			}
 
 			@Override
-			public void setHandle(EditableHandle handle){
-				if(this.handle != null){
-					if(this.handle != handle){
-						EditableHandle h = this.handle;
-						this.handle = handle;
-						h.unlinkPoint(this);
-					}
-				}
+			public void setHandle(EditableHandle handle) {
+				if(this.handle == handle)
+					return;
+				EditableHandle old = this.handle;
+				this.handle = null;
+				if(old != null)
+					old.unlinkPoint(this);
 				this.handle = handle;
 				if(handle != null){
 					handle.linkPoint(this);

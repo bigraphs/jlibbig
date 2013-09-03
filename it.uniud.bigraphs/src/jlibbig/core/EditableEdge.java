@@ -9,9 +9,10 @@ import java.util.*;
  */
 class EditableEdge implements Edge, EditableHandle, ReplicableEx{
 	private String name;
-	
-	private Set<EditablePoint> points = new HashSet<>();
-	private final Set<? extends Point> ro_points = Collections.unmodifiableSet(this.points);
+
+	private Collection<EditablePoint> points = Collections.newSetFromMap(new IdentityHashMap<EditablePoint, Boolean>());
+	private final Collection<? extends Point> ro_points = Collections
+			.unmodifiableCollection(this.points);
 	private Owner owner;
 	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	
@@ -28,12 +29,12 @@ class EditableEdge implements Edge, EditableHandle, ReplicableEx{
 	}
 		
 	@Override
-	public Set<? extends Point> getPoints() {
+	public Collection<? extends Point> getPoints() {
 		return this.ro_points;
 	}
 
 	@Override
-	public Set<EditablePoint> getEditablePoints() {
+	public Collection<EditablePoint> getEditablePoints() {
 		return this.points;
 	}
 

@@ -135,12 +135,12 @@ public class ReactionBigraph implements AbstractBigraph{
 	}
 
 	@Override
-	public Set<? extends OuterName> getOuterNames() {
+	public Collection<? extends OuterName> getOuterNames() {
 		return big.getOuterNames();
 	}
 	
 	@Override
-	public Set<? extends InnerName> getInnerNames() {
+	public Collection<? extends InnerName> getInnerNames() {
 		return big.getInnerNames();
 	}
 

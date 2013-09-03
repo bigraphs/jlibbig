@@ -41,13 +41,13 @@ public interface AbstractBigraphHandler extends Owner{
 		 * Get bigraph's outer names.
 		 * @return a list carrying bigraph's outer names
 		 */
-		public abstract Set<? extends OuterName> getOuterNames();
+		public abstract Collection<? extends OuterName> getOuterNames();
 
 		/**
 		 * Get bigraph's inner names.
 		 * @return a list carrying bigraph's inner names
 		 */
-		public abstract Set<? extends InnerName> getInnerNames();
+		public abstract Collection<? extends InnerName> getInnerNames();
 
 		/**
 		 * Get bigraph's nodes.

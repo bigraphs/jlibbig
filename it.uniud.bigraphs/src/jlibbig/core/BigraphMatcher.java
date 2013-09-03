@@ -128,12 +128,12 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 			this.redex_handles = new HashSet<Handle>(
 					redex.getEdges(this.redex_nodes));
-			for (OuterName o : redex.outers) {
+			for (OuterName o : redex.outers.values()) {
 				this.redex_handles.add(o);
 			}
 
 			this.aliased_inners = new InvMap<>();
-			for (InnerName i : redex.inners) {
+			for (InnerName i : redex.inners.values()) {
 				aliased_inners.put(i, i.getHandle());
 			}
 
@@ -651,7 +651,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					// assignable to the edges of the redex)
 					Set<Edge> non_ctx_edges = new HashSet<>(agent_edges);
 					Set<Handle> ctx_handles = new HashSet<>();
-					for (Handle h : agent.outers) {
+					for (Handle h : agent.outers.values()) {
 						ctx_handles.add(h);
 					}
 
@@ -1207,9 +1207,9 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 						// Replicates ctx
 						// //////////////////////////////////////////////
 
-						for (EditableOuterName o1 : agent.outers) {
+						for (EditableOuterName o1 : agent.outers.values()) {
 							EditableOuterName o2 = o1.replicate();
-							ctx.outers.add(o2);
+							ctx.outers.put(o2.getName(),o2);
 							o2.setOwner(ctx);
 							ctx_hnd_dic.put(o1, o2);
 						}
@@ -1281,16 +1281,16 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 						 * agent (when possible)
 						 */
 						// replicate outers
-						for (EditableOuterName o1 : redex.outers) {
+						for (EditableOuterName o1 : redex.outers.values()) {
 							// replicate the handle
 							EditableOuterName o2 = o1.replicate();
-							rdx.outers.add(o2);
+							rdx.outers.put(o2.getName(),o2);
 							o2.setOwner(rdx);
 							rdx_hnd_dic.put(o1, o2);
 							// update ctx inner face
 							EditableInnerName i = new EditableInnerName(
 									o1.getName());
-							ctx.inners.add(i);
+							ctx.inners.put(i.getName(),i);
 							// follow o1 to the agent and then to the context:
 							Handle h1 = handle_img.get(o1);
 							EditableHandle h2 = ctx_hnd_dic.get(h1);
@@ -1303,7 +1303,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 							i.setHandle(h2);
 						}
 						// replicate inners
-						for (EditableInnerName i1 : redex.inners) {
+						for (EditableInnerName i1 : redex.inners.values()) {
 							EditableInnerName i2 = i1.replicate();
 							// set replicated handle for i2
 							EditableHandle h1 = i1.getHandle();
@@ -1316,7 +1316,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								rdx_hnd_dic.put(h1, h2);
 							}
 							i2.setHandle(h2);
-							rdx.inners.add(i2);
+							rdx.inners.put(i2.getName(),i2);
 						}
 						for (EditableRoot r0 : redex.roots) {
 							qp.add(new VState<EditableParent>(null, r0));
@@ -1376,12 +1376,12 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 						Queue<VState<EditableChild>> qe = new LinkedList<>();
 						// replicate inners
-						for (EditableInnerName i : redex.inners) {
+						for (EditableInnerName i : redex.inners.values()) {
 							EditableOuterName o = new EditableOuterName(
 									i.getName());
 							prm_ion_dic.put(i, o);
 							o.setOwner(prm);
-							prm.outers.add(o);
+							prm.outers.put(o.getName(),o);
 						}
 						for (Site s : redex_sites) {
 							EditableRoot r = new EditableRoot();

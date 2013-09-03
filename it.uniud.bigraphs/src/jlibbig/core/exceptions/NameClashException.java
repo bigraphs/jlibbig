@@ -7,11 +7,11 @@ public class NameClashException extends RuntimeException {
 
 	private final Set<String> names;
 
-	public NameClashException(Set<String> names){
-		this(null, names);
+	public NameClashException(Collection<String> collection){
+		this(null, collection);
 	} 
 	
-	public NameClashException(String message, Set<String> names) {
+	public NameClashException(String message, Collection<String> names) {
 		super(message);
 		if (!names.isEmpty()) {
 			Set<String> ns = new HashSet<>();

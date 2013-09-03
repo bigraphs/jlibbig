@@ -134,12 +134,12 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			
 			this.redex_handles = new HashSet<Handle>(
 					redex.getEdges(this.redex_nodes));
-			for (OuterName o : redex.outers) {
+			for (OuterName o : redex.outers.values()) {
 				this.redex_handles.add(o);
 			}
 
 			this.aliased_inners = new InvMap<>();
-			for (InnerName i : redex.inners) {
+			for (InnerName i : redex.inners.values()) {
 				aliased_inners.put(i, i.getHandle());
 			}
 
@@ -619,7 +619,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 					// assignable to the edges of the redex)
 					Set<Edge> non_ctx_edges = new HashSet<>(agent_edges);
 					Set<Handle> ctx_handles = new HashSet<>();
-					for (Handle h : agent.outers) {
+					for (Handle h : agent.outers.values()) {
 						ctx_handles.add(h);
 					}
 
@@ -1175,9 +1175,9 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						// Replicates ctx
 						// //////////////////////////////////////////////
 
-						for (EditableOuterName o1 : agent.outers) {
+						for (EditableOuterName o1 : agent.outers.values()) {
 							EditableOuterName o2 = o1.replicate();
-							ctx.outers.add(o2);
+							ctx.outers.put(o2.getName(),o2);
 							o2.setOwner(ctx);
 							ctx_hnd_dic.put(o1, o2);
 						}
@@ -1247,16 +1247,16 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						 * agent (when possible)
 						 */
 						// replicate outers
-						for (EditableOuterName o1 : redex.outers) {
+						for (EditableOuterName o1 : redex.outers.values()) {
 							// replicate the handle
 							EditableOuterName o2 = o1.replicate();
-							rdx.outers.add(o2);
+							rdx.outers.put(o2.getName(),o2);
 							o2.setOwner(rdx);
 							rdx_hnd_dic.put(o1, o2);
 							// update ctx inner face
 							EditableInnerName i = new EditableInnerName(
 									o1.getName());
-							ctx.inners.add(i);
+							ctx.inners.put(i.getName(),i);
 							// follow o1 to the agent and then to the context:
 							Handle h1 = handle_img.get(o1);
 							EditableHandle h2 = ctx_hnd_dic.get(h1);
@@ -1269,7 +1269,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 							i.setHandle(h2);
 						}
 						// replicate inners
-						for (EditableInnerName i1 : redex.inners) {
+						for (EditableInnerName i1 : redex.inners.values()) {
 							EditableInnerName i2 = i1.replicate();
 							// set replicated handle for i2
 							EditableHandle h1 = i1.getHandle();
@@ -1282,7 +1282,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								rdx_hnd_dic.put(h1, h2);
 							}
 							i2.setHandle(h2);
-							rdx.inners.add(i2);
+							rdx.inners.put(i2.getName(),i2);
 						}
 						for (EditableRoot r0 : redex.roots) {
 							q.add(new VState(null, r0));
@@ -1338,9 +1338,9 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 						// Replicates prms
 						// /////////////////////////////////////////////
-						Bigraph lambda = Bigraph.makeId(redex.signature, rss, redex.inners);
+						Bigraph lambda = Bigraph.makeId(redex.signature, rss, redex.inners.values());
 						// unused inner names
-						Set<? extends LinkFacet> lambda_inners = new HashSet<>(lambda.inners);
+						Collection<String> lambda_inners = new HashSet<>(lambda.inners.keySet());
 						// translates cross-parameter edges to lambda's inner names.
 						Map<Handle,EditableInnerName> prm_crx_dic = new HashMap<>();
 						for (int i = 0; i < rss; i++) {
@@ -1392,7 +1392,7 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 													h2 = prm_ion_dic.get(i1);
 													if(h2 == null){
 														EditableOuterName i2 = new EditableOuterName(i1.getName());
-														prm.outers.add(i2);
+														prm.outers.put(i2.getName(),i2);
 														i2.setOwner(prm);
 														h2 = i2;
 														prm_ion_dic.put(i1, i2);
@@ -1411,12 +1411,12 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 												if(il == null){
 													il = new EditableInnerName("X("+h1+")");
 													prm_crx_dic.put(h1,il);
-													lambda.inners.add(il);
+													lambda.inners.put(il.getName(),il);
 													il.setHandle(new EditableEdge(lambda));
 												}
 												EditableOuterName ol = new EditableOuterName(il.getName());
 												ol.setOwner(prm);
-												prm.outers.add(ol);
+												prm.outers.put(ol.getName(),ol);
 												h2 = ol;
 												prm_hnd_dic.put(h1,h2);
 											}
@@ -1434,7 +1434,8 @@ public final class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								prms.add(null);
 							}
 						}
-						lambda.inners.removeAll(lambda_inners);
+						for(String n : lambda_inners)
+							lambda.inners.remove(n);
 						if (DEBUG_CONSISTENCY_CHECK) {
 							if (!ctx.isConsistent()) {
 								throw new RuntimeException(

@@ -104,8 +104,8 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 								!cloneParam[i]);
 					}
 					Bigraph lambda = match.getLinking();
-					Set<? extends LinkFacet> ons = bb.getOuterNames();
-					Iterator<EditableInnerName> ir = lambda.inners.iterator();
+					Collection<? extends LinkFacet> ons = bb.getOuterNames();
+					Iterator<EditableInnerName> ir = lambda.inners.values().iterator();
 					while(ir.hasNext()){
 						EditableInnerName i = ir.next();
 						if(!ons.contains(i)){

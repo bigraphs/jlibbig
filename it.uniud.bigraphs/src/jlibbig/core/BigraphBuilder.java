@@ -141,7 +141,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @return a list carrying bigraph's outer names
 	 */
 	@Override
-	public Set<? extends OuterName> getOuterNames() {
+	public Collection<? extends OuterName> getOuterNames() {
 		assertOpen();
 		return this.big.getOuterNames();
 	}
@@ -152,7 +152,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @return a list carrying bigraph's inner names
 	 */
 	@Override
-	public Set<? extends InnerName> getInnerNames() {
+	public Collection<? extends InnerName> getInnerNames() {
 		assertOpen();
 		return this.big.getInnerNames();
 	}
@@ -350,8 +350,11 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	private OuterName addOuterName(EditableOuterName n) {
 		assertOpen();
+		if(big.outers.containsKey(n.getName())){
+			throw new IllegalArgumentException("Name '"+ n.getName() + "' already present.");
+		}
 		n.setOwner(this);
-		this.big.outers.add(n);
+		this.big.outers.put(n.getName(),n);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -425,8 +428,11 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
 		assertOpen();
+		if(big.inners.containsKey(n.getName())){
+			throw new IllegalArgumentException("Name already present.");
+		}
 		n.setHandle(h);
-		this.big.inners.add(n);
+		this.big.inners.put(n.getName(),n);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -528,21 +534,22 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	}
 
 	public Edge closeOuterName(String name) {
-		EditableOuterName n1 = null;
-		Iterator<EditableOuterName> in = big.outers.iterator();
-		while ((n1 = in.next()) != null && !n1.getName().equals(name)) {
-		}
-		Edge e = null;
+		EditableOuterName n1 = big.outers.get(name);
 		if (n1 != null) {
-			e = relink(n1.getEditablePoints());
+			Edge e = relink(n1.getEditablePoints());
 			big.outers.remove(n1);
 			n1.setOwner(null);
+			return e;
+		}else{
+			throw new IllegalArgumentException("Name '" + name + "' not present.");
 		}
-		return e;
 	}
 
 	public Edge closeOuterName(OuterName name) {
 		assertOwner(name, "OuterName ");
+		if(!big.outers.containsKey(name.getName())){
+			throw new IllegalArgumentException("Name '" + name.getName() + "' not present.");
+		}
 		EditableOuterName n1 = (EditableOuterName) name;
 		Edge e = relink(n1.getEditablePoints());
 		big.outers.remove(n1);
@@ -551,18 +558,20 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	}
 
 	public void closeInnerName(String name) {
-		EditableInnerName n1 = null;
-		Iterator<EditableInnerName> in = big.inners.iterator();
-		while ((n1 = in.next()) != null && !n1.getName().equals(name)) {
-		}
+		EditableInnerName n1 = big.inners.get(name);
 		if (n1 != null) {
 			n1.setHandle(null);
 			big.inners.remove(n1);
+		}else{
+			throw new IllegalArgumentException("Name '" + name + "' not present.");
 		}
 	}
 
 	public void closeInnerName(InnerName name) {
 		assertOwner(name, "InnerName ");
+		if(!big.inners.containsKey(name.getName())){
+			throw new IllegalArgumentException("Name '" + name.getName() + "' not present.");
+		}
 		EditableInnerName n1 = (EditableInnerName) name;
 		n1.setHandle(null);
 		big.inners.remove(n1);
@@ -571,23 +580,17 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	public void renameOuterName(String oldName, String newName) {
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
-		EditableOuterName n1 = null, n2 = null;
-		Iterator<EditableOuterName> in = big.outers.iterator();
-		while (in.hasNext() && (n1 == null || n2 == null)) {
-			EditableOuterName n0 = in.next();
-			if (n1 == null && n0.getName().equals(oldName))
-				n1 = n0;
-			if (n2 == null && n0.getName().equals(newName))
-				n2 = n0;
-		}
+		EditableOuterName n1 = big.outers.get(oldName);
 		if (n1 != null) {
+			EditableOuterName n2 = big.outers.get(newName);
 			if (n2 == null) {
 				if (!newName.equals(oldName))
 					n1.setName(newName);
 			} else
-				throw new NameClashException(oldName, newName);
+				throw new IllegalArgumentException("Name '" + newName
+						+ "' is present already.");
 		} else {
-			throw new IllegalArgumentException("The '" + oldName
+			throw new IllegalArgumentException("Name '" + oldName
 					+ "' is not present.");
 		}
 	}
@@ -598,15 +601,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		assertOwner(oldName, "OuterName ");
 		if (newName.equals(oldName.getName()))
 			return;
-		EditableOuterName n2 = null;
-		Iterator<EditableOuterName> in = big.outers.iterator();
-		while (in.hasNext()) {
-			EditableOuterName n0 = in.next();
-			if (n0.getName().equals(newName)){
-				n2 = n0;
-				break;
-			}
-		}
+		EditableOuterName n2 = big.outers.get(newName);
 		if (n2 == null) {
 			((EditableOuterName) oldName).setName(newName);
 		} else {
@@ -618,16 +613,9 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	public void renameInnerName(String oldName, String newName) {
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
-		EditableInnerName n1 = null, n2 = null;
-		Iterator<EditableInnerName> in = big.inners.iterator();
-		while (in.hasNext() && (n1 == null || n2 == null)) {
-			EditableInnerName n0 = in.next();
-			if (n1 == null && n0.getName().equals(oldName))
-				n1 = n0;
-			if (n2 == null && n0.getName().equals(newName))
-				n2 = n0;
-		}
+		EditableInnerName n1 = big.inners.get(oldName);
 		if (n1 != null) {
+			EditableInnerName n2 = big.inners.get(newName);
 			if (n2 == null) {
 				if (!newName.equals(oldName))
 					n1.setName(newName);
@@ -635,7 +623,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 				throw new IllegalArgumentException("Name '" + newName
 						+ "' already in use");
 		} else {
-			throw new IllegalArgumentException("The '" + oldName
+			throw new IllegalArgumentException("Name '" + oldName
 					+ "' is not present.");
 		}
 	}
@@ -646,19 +634,12 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		assertOwner(oldName, "InnerName ");
 		if (newName.equals(oldName.getName()))
 			return;
-		EditableInnerName n2 = null;
-		Iterator<EditableInnerName> in = big.inners.iterator();
-		while (in.hasNext()) {
-			EditableInnerName n0 = in.next();
-			if (n0.getName().equals(newName)){
-				n2 = n0;
-				break;
-			}
-		}
+		EditableInnerName n2 = big.inners.get(newName);
 		if (n2 == null) {
 			((EditableInnerName) oldName).setName(newName);
 		} else {
-			throw new NameClashException(oldName.getName(), newName);
+			throw new IllegalArgumentException("Name '" + newName
+					+ "' is present already.");
 		}
 	}
 
@@ -743,12 +724,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public void ground() {
 		assertOpen();
-		for (EditableChild s : big.sites)
-			s.setParent(null);
-		for (EditablePoint i : big.inners)
-			i.setHandle(null);
 		clearChildCollection(big.sites);// .clear();
-		clearPointCollection(big.inners);// .clear();
+		clearInnerMap(big.inners);// .clear();
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -786,19 +763,19 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
-		if (!Collections.disjoint(left.inners, right.inners)
-				|| !Collections.disjoint(left.outers, right.outers)) {
+		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
+				|| !Collections.disjoint(left.outers.keySet(), right.outers.keySet())) {
 			throw new IncompatibleInterfacesException(left, right,
-					new NameClashException(intersectNames(left.inners,
-							right.inners,
-							intersectNames(left.outers, right.outers))));
+					new NameClashException(intersectNames(left.inners.values(),
+							right.inners.values(),
+							intersectNames(left.outers.values(), right.outers.values()))));
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = right;
 		for (EditableOwned o : l.roots) {
 			o.setOwner(this);
 		}
-		for (EditableOwned o : l.outers) {
+		for (EditableOwned o : l.outers.values()) {
 			o.setOwner(this);
 		}
 		for (Edge e : l.getEdges()) {
@@ -806,8 +783,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		r.roots.addAll(l.roots);
 		r.sites.addAll(l.sites);
-		r.outers.addAll(l.outers);
-		r.inners.addAll(l.inners);
+		r.outers.putAll(l.outers);
+		r.inners.putAll(l.inners);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -845,19 +822,19 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
-		if (!Collections.disjoint(left.inners, right.inners)
-				|| !Collections.disjoint(left.outers, right.outers)) {
+		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
+				|| !Collections.disjoint(left.outers.keySet(), right.outers.keySet())) {
 			throw new IncompatibleInterfacesException(left, right,
-					new NameClashException(intersectNames(left.inners,
-							right.inners,
-							intersectNames(left.outers, right.outers))));
+					new NameClashException(intersectNames(left.inners.values(),
+							right.inners.values(),
+							intersectNames(left.outers.values(), right.outers.values()))));
 		}
 		Bigraph l = left;
 		Bigraph r = (reuse) ? right : right.clone();
 		for (EditableOwned o : r.roots) {
 			o.setOwner(this);
 		}
-		for (EditableOwned o : r.outers) {
+		for (EditableOwned o : r.outers.values()) {
 			o.setOwner(this);
 		}
 		for (Edge e : r.getEdges()) {
@@ -865,8 +842,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
-		l.outers.addAll(r.outers);
-		l.inners.addAll(r.inners);
+		l.outers.putAll(r.outers);
+		l.inners.putAll(r.inners);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -900,7 +877,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
-		if (!out.inners.equals(in.outers)
+		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
 			throw new IncompatibleInterfacesException(in, out,
 					"The outer face of the first graph must be equal to inner face of the second");
@@ -924,20 +901,20 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		// iterate over inner and outer names of a and b respectively and glue
 		// them
 		Map<String, EditableHandle> a_inners = new HashMap<>();
-		for (EditableInnerName i : a.inners) {
+		for (EditableInnerName i : a.inners.values()) {
 			a_inners.put(i.getName(), i.getHandle());
 			i.setHandle(null);
 		}
-		for (EditableOuterName o : b.outers) {
+		for (EditableOuterName o : b.outers.values()) {
 			EditableHandle h = a_inners.get(o.getName());
 			for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
 				p.setHandle(h);
 			}
 		}
 		// update inner interfaces
-		clearPointCollection(a.inners);// .clear();
+		clearInnerMap(a.inners);// .clear();
 		clearChildCollection(a.sites);// ;.clear();
-		a.inners.addAll(b.inners);
+		a.inners.putAll(b.inners);
 		a.sites.addAll(b.sites);
 		for (Edge e : es) {
 			((EditableEdge) e).setOwner(this);
@@ -963,7 +940,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @param graph
 	 *            the "outer" bigraph
 	 * @param reuse
-	 *            flag. If true, the bigraph in input won't be copied.
+	 *            flag. If true, the bigraph in input will not be copied.
 	 */
 	public void outerCompose(Bigraph graph, boolean reuse) {
 		assertOpen();
@@ -975,7 +952,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
-		if (!out.inners.equals(in.outers)
+		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
 			throw new IncompatibleInterfacesException(in, out,
 					"The outer face of the first graph must be equal to inner face of the second");
@@ -997,26 +974,27 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		// iterates over inner and outer names of a and b respectively and glues
 		// them
-		Map<String, EditableHandle> a_inners = new HashMap<>();
-		for (EditableInnerName i : a.inners) {
-			a_inners.put(i.getName(), i.getHandle());
+		Map<String,EditableHandle> a_inners = new HashMap<>(a.inners.size());
+		for(EditableInnerName i : a.inners.values()){
+			EditableHandle h = i.getHandle();
+			a_inners.put(i.getName(), h);
 			i.setHandle(null);
 		}
-		for (EditableOuterName o : b.outers) {
+		for (EditableOuterName o : b.outers.values()) {
 			EditableHandle h = a_inners.get(o.getName());
 			for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
 				p.setHandle(h);
 			}
 		}
 		// updates inner interfaces
-		clearOwnedCollection(b.outers);// .clear();
+		clearOuterMap(b.outers);// .clear();
 		clearOwnedCollection(b.roots);// .clear();
-		b.outers.addAll(a.outers);
+		b.outers.putAll(a.outers);
 		b.roots.addAll(a.roots);
 		for (EditableOwned o : b.roots) {
 			o.setOwner(this);
 		}
-		for (EditableOwned o : b.outers) {
+		for (EditableOwned o : b.outers.values()) {
 			o.setOwner(this);
 		}
 		for (Edge e : es) {
@@ -1063,10 +1041,10 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleInterfacesException(in, out);
 		}
 		Map<String, EditableOuterName> nmap = new HashMap<>();
-		for (EditableOuterName o : out.outers) {
+		for (EditableOuterName o : out.outers.values()) {
 			nmap.put(o.getName(), o);
 		}
-		for (EditableOuterName o : in.outers) {
+		for (EditableOuterName o : in.outers.values()) {
 			EditableOuterName p = nmap.get(o.getName());
 			if (p == null) {
 				p = (EditableOuterName) this.addOuterName(o.getName());
@@ -1116,19 +1094,19 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		if (reuse)
 			out = out.clone();
 		Map<String, EditableOuterName> nmap = new HashMap<>();
-		for (EditableOuterName o : out.outers) {
+		for (EditableOuterName o : out.outers.values()) {
 			nmap.put(o.getName(), o);
 		}
-		for (EditableOuterName o : in.outers) {
+		for (EditableOuterName o : in.outers.values()) {
 			EditableOuterName p = nmap.get(o.getName());
 			if (p == null) {
 				p = new EditableOuterName(o.getName());
 				p.setOwner(out);
-				out.outers.add(p);
+				out.outers.put(p.getName(),p);
 			}
 			EditableInnerName i = new EditableInnerName(p.getName());
 			i.setHandle(p);
-			out.inners.add(i);
+			out.inners.put(i.getName(),i);
 		}
 		// System.out.println(in.toString() + in.isConsistent(this));
 		// System.out.println(out.toString() + out.isConsistent());
@@ -1173,21 +1151,21 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
-		if (!Collections.disjoint(left.inners, right.inners)) {
+		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())) {
 			throw new IncompatibleInterfacesException(left, right,
-					new NameClashException(intersectNames(left.inners,
-							right.inners)));
+					new NameClashException(intersectNames(left.inners.values(),
+							right.inners.values())));
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = right;
 		for (EditableOwned o : l.roots) {
 			o.setOwner(this);
 		}
-		List<EditableOuterName> os = new LinkedList<>();
+		Map<String,EditableOuterName> os = new HashMap<>();
 		// merge outers
-		for (EditableOuterName o : l.outers) {
+		for (EditableOuterName o : l.outers.values()) {
 			EditableOuterName q = null;
-			for (EditableOuterName p : r.outers) {
+			for (EditableOuterName p : r.outers.values()) {
 				if (p.getName().equals(o.getName())) {
 					q = p;
 					break;
@@ -1195,7 +1173,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 			if (q == null) {
 				// o is not part of r.outerface
-				os.add(o);
+				os.put(o.getName(),o);
 				o.setOwner(this);
 			} else {
 				// this name apperas also in r, merge points
@@ -1209,8 +1187,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		r.roots.addAll(l.roots);
 		r.sites.addAll(l.sites);
-		r.outers.addAll(os);
-		r.inners.addAll(l.inners);
+		r.outers.putAll(os);
+		r.inners.putAll(l.inners);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -1254,21 +1232,21 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
-		if (!Collections.disjoint(left.inners, right.inners)) {
+		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())) {
 			throw new IncompatibleInterfacesException(left, right,
-					new NameClashException(intersectNames(left.inners,
-							right.inners)));
+					new NameClashException(intersectNames(left.inners.values(),
+							right.inners.values())));
 		}
 		Bigraph l = left;
 		Bigraph r = (reuse) ? right : right.clone();
 		for (EditableOwned o : r.roots) {
 			o.setOwner(this);
 		}
-		List<EditableOuterName> os = new LinkedList<>();
+		Map<String,EditableOuterName> os = new HashMap<>();
 		// merge outers
-		for (EditableOuterName o : r.outers) {
+		for (EditableOuterName o : r.outers.values()) {
 			EditableOuterName q = null;
-			for (EditableOuterName p : l.outers) {
+			for (EditableOuterName p : l.outers.values()) {
 				if (p.getName().equals(o.getName())) {
 					q = p;
 					break;
@@ -1276,7 +1254,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			}
 			if (q == null) {
 				// o is not part of r.outerface
-				os.add(o);
+				os.put(o.getName(),o);
 				o.setOwner(this);
 			} else {
 				// this name apperas also in r, merge points
@@ -1290,8 +1268,8 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
-		l.outers.addAll(os);
-		l.inners.addAll(r.inners);
+		l.outers.putAll(os);
+		l.inners.putAll(r.inners);
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
@@ -1359,14 +1337,16 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		merge();
 	}
 
-	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
-			Set<? extends LinkFacet> arg1) {
+	private static Collection<String> intersectNames(
+			Collection<? extends LinkFacet> arg0,
+			Collection<? extends LinkFacet> arg1) {
 		return intersectNames(arg0, arg1, new HashSet<String>());
 	}
 
-	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
-			Set<? extends LinkFacet> arg1, Set<String> ns0) {
-		Set<String> ns1 = new HashSet<>();
+	private static Collection<String> intersectNames(
+			Collection<? extends LinkFacet> arg0,
+			Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
+		Collection<String> ns1 = new HashSet<>();
 		for (LinkFacet l : arg0) {
 			ns1.add(l.getName());
 		}
@@ -1395,12 +1375,22 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		col.clear();
 	}
-
-	private static void clearPointCollection(
-			Collection<? extends EditablePoint> col) {
-		for (EditablePoint i : col) {
-			i.setHandle(null);
+	
+	private static void clearOuterMap(
+			Map<String,EditableOuterName> map) {
+		Iterator<EditableOuterName> ir = map.values().iterator();
+		while(ir.hasNext()){
+			ir.next().setOwner(null);
 		}
-		col.clear();
+		map.clear();
+	}
+	
+	private static void clearInnerMap(
+			Map<String,EditableInnerName> map) {
+		Iterator<EditableInnerName> ir = map.values().iterator();
+		while(ir.hasNext()){
+			ir.next().setHandle(null);
+		}
+		map.clear();
 	}
 }
