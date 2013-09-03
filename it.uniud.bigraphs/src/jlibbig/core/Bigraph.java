@@ -14,22 +14,18 @@ import jlibbig.core.exceptions.*;
  * version of bigraphs, users can use {@link BigraphBuilder}.
  * </p>
  */
-final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
+final public class Bigraph implements AbstractBigraph {// , PropertyTarget {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
 	final List<EditableSite> sites = new ArrayList<>();
-	final Set<EditableOuterName> outers = new HashSet<>();
-	final Set<EditableInnerName> inners = new HashSet<>();
+	final Map<String, EditableOuterName> outers = new IdentityHashMap<>();
+	final Map<String, EditableInnerName> inners = new IdentityHashMap<>();
 
 	private final List<? extends Root> ro_roots = Collections
-			.unmodifiableList(this.roots);
+			.unmodifiableList(roots);
 	private final List<? extends Site> ro_sites = Collections
-			.unmodifiableList(this.sites);
-	private final Set<? extends OuterName> ro_outers = Collections
-			.unmodifiableSet(this.outers);
-	private final Set<? extends InnerName> ro_inners = Collections
-			.unmodifiableSet(this.inners);
+			.unmodifiableList(sites);
 
 	Bigraph(Signature sig) {
 		this.signature = sig;
@@ -47,7 +43,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 		Set<Child> seen_children = new HashSet<>();
 		Queue<Parent> q = new LinkedList<>();
 		for (EditableRoot r : this.roots) {
-			if (r.getOwner() != owner){
+			if (r.getOwner() != owner) {
 				System.err.println("INCOSISTENCY: foreign root");
 				return false;
 			}
@@ -75,14 +71,16 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 					q.add(n);
 					for (Point t : n.getPorts()) {
 						EditableHandle h = ((EditablePoint) t).getHandle();
-						if (h == null || h.getOwner() != owner){
+						if (h == null || h.getOwner() != owner) {
 							// foreign or broken handle
-							System.err.println("INCOSISTENCY: broken or foreign handle");
+							System.err
+									.println("INCOSISTENCY: broken or foreign handle");
 							return false;
 						}
-						if (!h.getPoints().contains(t)){
+						if (!h.getPoints().contains(t)) {
 							// broken link chain
-							System.err.println("INCOSISTENCY: handle/point mismatch");
+							System.err
+									.println("INCOSISTENCY: handle/point mismatch");
 							return false;
 						}
 						seen_points.add(t);
@@ -97,34 +95,36 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 						return false;
 					}
 				} else {
-					System.err.println("INCOSISTENCY: neither a node nor a site");
+					System.err
+							.println("INCOSISTENCY: neither a node nor a site");
 					// c is neither a site nor a node
 					return false;
 				}
 			}
 		}
-		for (EditableOuterName h : this.outers) {
-			if (h.getOwner() != owner){
+		for (EditableOuterName h : this.outers.values()) {
+			if (h.getOwner() != owner) {
 				System.err.println("INCOSISTENCY: foreign outer name");
-				return false;}
+				return false;
+			}
 			seen_handles.add(h);
 		}
-		// System.out.println(ps);
-		for (EditableInnerName n : this.inners) {
-			if (n.getOwner() != owner){ // || n.getHandle() == null is implicit
+		//System.out.println(seen_points);
+		for (EditableInnerName n : this.inners.values()) {
+			if (n.getOwner() != owner) {
 				System.err.println("INCOSISTENCY: foreign inner name");
 				return false;
 			}
 			seen_handles.add(n.getHandle());
 			seen_points.add(n);
 		}
-		//System.out.println(this);
-		//System.out.println(seen_points);
+		// System.out.println(this);
+		// System.out.println(seen_points);
 		for (Handle h : seen_handles) {
 			// System.out.println(h + ": " + h.getPoints());
 			for (Point p : h.getPoints()) {
 				// System.out.println(p + ", " + p.getHandle() + ", " + h);
-				if (!seen_points.remove(p)){
+				if (!seen_points.remove(p)) {
 					// foreign point
 					System.err.println("INCOSISTENCY: foreign point");
 					return false;
@@ -160,7 +160,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 		for (EditableOwned o : this.roots) {
 			o.setOwner(owner);
 		}
-		for (EditableOwned o : this.outers) {
+		for (EditableOwned o : this.outers.values()) {
 			o.setOwner(owner);
 		}
 		for (Edge e : this.getEdges()) {
@@ -201,14 +201,14 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 			owner = big;
 		Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
 		// replicate outer names
-		for (EditableOuterName o1 : this.outers) {
+		for (EditableOuterName o1 : this.outers.values()) {
 			EditableOuterName o2 = o1.replicate();
-			big.outers.add(o2);
+			big.outers.put(o2.getName(), o2);
 			o2.setOwner(owner);
 			hnd_dic.put(o1, o2);
 		}
 		// replicate inner names
-		for (EditableInnerName i1 : this.inners) {
+		for (EditableInnerName i1 : this.inners.values()) {
 			EditableInnerName i2 = i1.replicate();
 			EditableHandle h1 = i1.getHandle();
 			EditableHandle h2 = hnd_dic.get(h1);
@@ -219,7 +219,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 				hnd_dic.put(h1, h2);
 			}
 			i2.setHandle(h2);
-			big.inners.add(i2);
+			big.inners.put(i2.getName(), i2);
 		}
 		// replicate place structure
 		// the queue is used for a breadth first visit
@@ -274,7 +274,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 				sites[this.sites.indexOf(s1)] = s2;
 			}
 		}
-        big.sites.addAll(Arrays.asList(sites));
+		big.sites.addAll(Arrays.asList(sites));
 		return big;
 	}
 
@@ -325,8 +325,8 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 	 * @see jlibbig.core.AbstBigraph#getOuterNames()
 	 */
 	@Override
-	public Set<? extends OuterName> getOuterNames() {
-		return this.ro_outers;
+	public Collection<? extends OuterName> getOuterNames() {
+		return this.outers.values();
 	}
 
 	/*
@@ -335,8 +335,8 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 	 * @see jlibbig.core.AbstBigraph#getInnerNames()
 	 */
 	@Override
-	public Set<? extends InnerName> getInnerNames() {
-		return this.ro_inners;
+	public Collection<? extends InnerName> getInnerNames() {
+		return this.inners.values();
 	}
 
 	/*
@@ -390,7 +390,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 				}
 			}
 		}
-		for (InnerName n : this.inners) {
+		for (InnerName n : this.inners.values()) {
 			Handle h = n.getHandle();
 			if (h instanceof Edge) {
 				s.add((Edge) h);
@@ -412,21 +412,21 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 				b.append(", ");
 		}
 		b.append("} :: <").append(this.sites.size()).append(",{");
-		Iterator<EditableInnerName> ii = this.inners.iterator();
+		Iterator<EditableInnerName> ii = this.inners.values().iterator();
 		while (ii.hasNext()) {
 			b.append(ii.next().toString());
 			if (ii.hasNext())
 				b.append(", ");
 		}
 		b.append("}> -> <").append(this.roots.size()).append(",{");
-		Iterator<EditableOuterName> io = this.outers.iterator();
+		Iterator<EditableOuterName> io = this.outers.values().iterator();
 		while (io.hasNext()) {
 			b.append(io.next().toString());
 			if (io.hasNext())
 				b.append(", ");
 		}
 		b.append("}>");
-		for (Handle h : this.outers) {
+		for (Handle h : this.outers.values()) {
 			b.append(nl).append(h);
 			b.append(":o <- {");
 			Iterator<? extends Point> ip = h.getPoints().iterator();
@@ -517,19 +517,22 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);
 		}
-		if (!Collections.disjoint(left.inners, right.inners)
-				|| !Collections.disjoint(left.outers, right.outers)) {
+		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
+				|| !Collections.disjoint(left.outers.keySet(),
+						right.outers.keySet())) {
 			throw new IncompatibleInterfacesException(left, right,
-					new NameClashException(intersectNames(left.inners,
-							right.inners,
-							intersectNames(left.outers, right.outers))));
+					new NameClashException(intersectNames(
+							left.inners.values(),
+							right.inners.values(),
+							intersectNames(left.outers.values(),
+									right.outers.values()))));
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = (reuse) ? right : right.clone();
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
-		l.outers.addAll(r.outers);
-		l.inners.addAll(r.inners);
+		l.outers.putAll(r.outers);
+		l.inners.putAll(r.inners);
 		return l;
 	}
 
@@ -564,7 +567,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
-		if (!out.inners.equals(in.outers)
+		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
 			throw new IncompatibleInterfacesException(in, out,
 					"The outer face of the first graph must be equal to inner face of the second");
@@ -584,24 +587,24 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 		}
 		// iterate over inner and outer names of a and b respectively and glue
 		// them
-//		for (EditableOuterName o : b.outers) {
-//			for (EditableInnerName i : a.inners) {
-//				if (!i.equals(o))
-//					continue;
-//				EditableHandle h = i.getHandle();
-//				for (EditablePoint p : o.getEditablePoints()) {
-//					p.setHandle(h);
-//				}
-//				a.inners.remove(i);
-//				break;
-//			}
-//		}
+		// for (EditableOuterName o : b.outers) {
+		// for (EditableInnerName i : a.inners) {
+		// if (!i.equals(o))
+		// continue;
+		// EditableHandle h = i.getHandle();
+		// for (EditablePoint p : o.getEditablePoints()) {
+		// p.setHandle(h);
+		// }
+		// a.inners.remove(i);
+		// break;
+		// }
+		// }
 		Map<String, EditableHandle> a_inners = new HashMap<>();
-		for (EditableInnerName i : a.inners) {
+		for (EditableInnerName i : a.inners.values()) {
 			a_inners.put(i.getName(), i.getHandle());
 			i.setHandle(null);
 		}
-		for (EditableOuterName o : b.outers) {
+		for (EditableOuterName o : b.outers.values()) {
 			EditableHandle h = a_inners.get(o.getName());
 			for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
 				p.setHandle(h);
@@ -610,7 +613,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 		// update inner interfaces
 		a.inners.clear();
 		a.sites.clear();
-		a.inners.addAll(b.inners);
+		a.inners.putAll(b.inners);
 		a.sites.addAll(b.sites);
 		return a;
 	}
@@ -662,7 +665,7 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 	 * @return the resulting identity bigraph.
 	 */
 	public static Bigraph makeId(Signature signature, int width,
-			Set<? extends LinkFacet> names) {
+			Iterable<? extends LinkFacet> names) {
 		BigraphBuilder bb = new BigraphBuilder(signature);
 		for (int i = 0; i < width; i++) {
 			bb.addSite(bb.addRoot());
@@ -676,14 +679,16 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 
 	// TODO factory methods
 
-	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
-			Set<? extends LinkFacet> arg1) {
+	private static Collection<String> intersectNames(
+			Collection<? extends LinkFacet> arg0,
+			Collection<? extends LinkFacet> arg1) {
 		return intersectNames(arg0, arg1, new HashSet<String>());
 	}
 
-	private static Set<String> intersectNames(Set<? extends LinkFacet> arg0,
-			Set<? extends LinkFacet> arg1, Set<String> ns0) {
-		Set<String> ns1 = new HashSet<>();
+	private static Collection<String> intersectNames(
+			Collection<? extends LinkFacet> arg0,
+			Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
+		Collection<String> ns1 = new HashSet<>();
 		for (LinkFacet l : arg0) {
 			ns1.add(l.getName());
 		}
@@ -698,33 +703,23 @@ final public class Bigraph implements AbstractBigraph{//, PropertyTarget {
 	}
 
 	/*
-	//ATTACHED PROPERTIES 
-	
-	private final PropertyContainer props = new PropertyContainer();
-	
-	@Override
-	public Property<?> attachProperty(Property<?> prop) {
-		return props.attachProperty(prop);
-	}
-
-	@Override
-	public Property<?> detachProperty(Property<?> prop) {
-		return this.detachProperty(prop.getName());
-	}
-
-	@Override
-	public Property<?> detachProperty(String name) {
-		return props.detachProperty(name);
-	}
-	
-	@Override
-	public Property<?> getProperty(String name) {
-		return props.getProperty(name);
-	}
-
-	@Override
-	public Set<String> getPropertyNames() {
-		return props.getPropertyNames();
-	}
-	*/
+	 * //ATTACHED PROPERTIES
+	 * 
+	 * private final PropertyContainer props = new PropertyContainer();
+	 * 
+	 * @Override public Property<?> attachProperty(Property<?> prop) { return
+	 * props.attachProperty(prop); }
+	 * 
+	 * @Override public Property<?> detachProperty(Property<?> prop) { return
+	 * this.detachProperty(prop.getName()); }
+	 * 
+	 * @Override public Property<?> detachProperty(String name) { return
+	 * props.detachProperty(name); }
+	 * 
+	 * @Override public Property<?> getProperty(String name) { return
+	 * props.getProperty(name); }
+	 * 
+	 * @Override public Set<String> getPropertyNames() { return
+	 * props.getPropertyNames(); }
+	 */
 }

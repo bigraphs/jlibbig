@@ -35,13 +35,13 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph> {
 					"The instantiation rule does not match the reactum inner interface.");
 		}
 		if (redex.roots.size() != reactum.roots.size()
-				|| !redex.outers.containsAll(reactum.outers)
-				|| !reactum.outers.containsAll(redex.outers)) {
+				|| !redex.outers.keySet().containsAll(reactum.outers.keySet())
+				|| !reactum.outers.keySet().containsAll(redex.outers.keySet())) {
 			throw new IncompatibleInterfacesException(redex, reactum,
 					"Redex and reactum should have the same outer interface.");
 		}
-		if (!redex.inners.containsAll(reactum.inners)
-				|| !reactum.inners.containsAll(redex.inners)) {
+		if (!redex.inners.keySet().containsAll(reactum.inners.keySet())
+				|| !reactum.inners.keySet().containsAll(redex.inners.keySet())) {
 			throw new IncompatibleInterfacesException(redex, reactum,
 					"Redex and reactum should have the same outer interface.");
 		}
@@ -73,14 +73,14 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph> {
 		Owner owner = big;
 		Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
 		// replicate outer names
-		for (EditableOuterName o1 : reactum.outers) {
+		for (EditableOuterName o1 : reactum.outers.values()) {
 			EditableOuterName o2 = o1.replicate();
-			big.outers.add(o2);
+			big.outers.put(o2.getName(),o2);
 			o2.setOwner( owner);
 			hnd_dic.put(o1, o2);
 		}
 		// replicate inner names
-		for (EditableInnerName i1 : reactum.inners) {
+		for (EditableInnerName i1 : reactum.inners.values()) {
 			EditableInnerName i2 = i1.replicate();
 			EditableHandle h1 = i1.getHandle();
 			EditableHandle h2 = hnd_dic.get(h1);
@@ -91,7 +91,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph> {
 				hnd_dic.put(h1, h2);
 			}
 			i2.setHandle(h2);
-			big.inners.add(i2);
+			big.inners.put(i2.getName(),i2);
 		}
 		// replicate place structure
 		// the queue is used for a breadth first visit

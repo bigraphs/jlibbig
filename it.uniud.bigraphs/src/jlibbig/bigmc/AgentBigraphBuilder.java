@@ -2,6 +2,7 @@ package jlibbig.bigmc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -104,12 +105,12 @@ public class AgentBigraphBuilder implements AbstractBigraphBuilder{
 	}
 
 	@Override
-	public Set<? extends OuterName> getOuterNames() {
+	public Collection<? extends OuterName> getOuterNames() {
 		return this.bigraph.getOuterNames();
 	}
 
 	@Override
-	public Set<? extends InnerName> getInnerNames() {
+	public Collection<? extends InnerName> getInnerNames() {
 		return this.bigraph.getInnerNames();
 	}
 

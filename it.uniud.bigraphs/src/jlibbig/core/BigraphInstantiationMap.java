@@ -68,14 +68,14 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 		Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
 
 		// replicates outers
-		for (EditableOuterName o1 : parameters.outers) {
+		for (EditableOuterName o1 : parameters.outers.values()) {
 			EditableOuterName o2 = (reuse) ? o1 : o1.replicate();
-			prm.outers.add(o2);
+			prm.outers.put(o2.getName(),o2);
 			o2.setOwner(prm);
 			hnd_dic.put(o1, o2);
 		}
 		// replicates inners
-		for (EditableInnerName i1 : parameters.inners) {
+		for (EditableInnerName i1 : parameters.inners.values()) {
 			EditableInnerName i2 = (reuse) ? i1 : i1.replicate();
 			EditableHandle h1 = i1.getHandle();
 			EditableHandle h2 = hnd_dic.get(h1);
@@ -85,7 +85,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 				hnd_dic.put(h1, h2);
 			}
 			i2.setHandle(h2);
-			prm.inners.add(i2);
+			prm.inners.put(i2.getName(),i2);
 		}
 		// descends and replicate the place graph (@see Bigraph.clone except for
 		// multiplicity)

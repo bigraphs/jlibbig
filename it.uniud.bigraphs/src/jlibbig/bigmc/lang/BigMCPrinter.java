@@ -229,12 +229,12 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	/**
 	 * Auxiliary procedure, used by toString( ReactionBigraph ) 
 	 * @param d control or site handler
-	 * @param outrnms set of outernames
+	 * @param collection set of outernames
 	 * @param sitenum sites' enumeration, used to retrieve the right number of the site
 	 * @see ReactionBigraph
 	 * @return the resulting string
 	 */
-	private static String toString( Child d , Set<? extends OuterName> outrnms , List<? extends Site> sitelist , List<Integer> sitenum ){
+	private static String toString( Child d , Collection<? extends OuterName> collection , List<? extends Site> sitelist , List<Integer> sitenum ){
 		StringBuilder s = new StringBuilder();
 		
 		if( d instanceof Site ){
@@ -248,7 +248,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			Iterator<? extends Port> portIt = ((Node) d).getPorts().iterator();
 			while( portIt.hasNext() ){
 				Handle handle = portIt.next().getHandle();
-				if( outrnms.contains( handle ) ){
+				if( collection.contains( handle ) ){
 					for( int i = 0; i < unlinked; ++i )
 						ns.append( " - , " );
 					ns.append(" ").append(((OuterName) handle ).getName()).append( " , ");
@@ -266,7 +266,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() )
-					s.append(toString( childIt.next() , outrnms , sitelist , sitenum )).append( childIt.hasNext() ? " | " : "");
+					s.append(toString( childIt.next() , collection , sitelist , sitenum )).append( childIt.hasNext() ? " | " : "");
 				
 				if( childs.size() > 1 ) s.append(" )");
 			}
@@ -278,12 +278,12 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	/**
 	 * Auxiliary procedure, used by toString( AgentBigraph ) 
 	 * @param c control or site handler
-	 * @param outerNames set of outernames
+	 * @param collection set of outernames
 	 * @param sites list of sites
 	 * @see Bigraph
 	 * @return the resulting string
 	 */
-	private static String toString( Child c , Set<? extends OuterName> outerNames ){
+	private static String toString( Child c , Collection<? extends OuterName> collection ){
 		StringBuilder s = new StringBuilder();
 		
 		if( c instanceof Site ){
@@ -297,7 +297,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			Iterator<? extends Port> portIt = ((Node) c).getPorts().iterator();
 			while( portIt.hasNext() ){
 				Handle handle = portIt.next().getHandle();
-				if( outerNames.contains( handle ) ){
+				if( collection.contains( handle ) ){
 					for( int i = 0; i < unlinked; ++i )
 						ns.append( " - , " );
 					ns.append(" ").append(((OuterName) handle ).getName()).append( " , ");
@@ -315,7 +315,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 				
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() )
-					s.append(toString( childIt.next() , outerNames )).append( childIt.hasNext() ? " | " : "");
+					s.append(toString( childIt.next() , collection )).append( childIt.hasNext() ? " | " : "");
 				
 				if( childs.size() > 1 ) s.append(" )");
 			}

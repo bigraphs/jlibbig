@@ -1,6 +1,6 @@
 package jlibbig.core;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Handle: outername or edge
@@ -10,5 +10,5 @@ public interface Handle extends Owned{
 	/**
 	 * Get a set of handle's points (innernames or ports).
 	 */
-	Set<? extends Point> getPoints();
+	Collection<? extends Point> getPoints();
 }

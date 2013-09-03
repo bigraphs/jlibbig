@@ -2,6 +2,7 @@ package jlibbig.bigmc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -147,12 +148,12 @@ public class ReactionBigraphBuilder implements AbstractBigraphBuilder{
 	}
 
 	@Override
-	public Set<? extends OuterName> getOuterNames() {
+	public Collection<? extends OuterName> getOuterNames() {
 		return this.rbig.getOuterNames();
 	}
 
 	@Override
-	public Set<? extends InnerName> getInnerNames() {
+	public Collection<? extends InnerName> getInnerNames() {
 		return this.rbig.getInnerNames();
 	}
 

@@ -11,7 +11,7 @@ interface EditableHandle extends Handle, ReplicableEx, Owned, EditableOwned{
 	 * Get the set of control's ports and innernames of an handle
 	 * @return set of points
 	 */
-	public abstract Set<EditablePoint> getEditablePoints();
+	public abstract Collection<EditablePoint> getEditablePoints();
 	/**
 	 * Add an innername or port to this handle.
 	 * @param point innername or port that will be added
