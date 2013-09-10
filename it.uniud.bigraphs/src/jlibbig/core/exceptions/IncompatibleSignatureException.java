@@ -2,31 +2,45 @@ package jlibbig.core.exceptions;
 
 import java.util.*;
 
-import jlibbig.core.Signature;
+import jlibbig.core.abstractions.Signature;
+import jlibbig.core.abstractions.Control;
 
 public class IncompatibleSignatureException extends RuntimeException {
 
 	private static final long serialVersionUID = -2623617487911027928L;
 
-	private final List<Signature> sigs;
+	List<Signature<? extends Control>> sigs;
 
-	public IncompatibleSignatureException(Signature s1, Signature s2,
-			String message) {
+	public IncompatibleSignatureException(
+			Collection<? extends Signature<? extends Control>> signatures) {
+		super();
+		List<Signature<? extends Control>> sigs = new ArrayList<>(signatures);
+		this.sigs = Collections.unmodifiableList(sigs);
+	}
+
+	public IncompatibleSignatureException(String message,
+			Collection<? extends Signature<? extends Control>> signatures) {
 		super(message);
-		List<Signature> sigs = new ArrayList<>(2);
-		sigs.add(s1);
-		sigs.add(s2);
+		List<Signature<? extends Control>> sigs = new ArrayList<>(signatures);
 		this.sigs = Collections.unmodifiableList(sigs);
 	}
 
-	public IncompatibleSignatureException(Signature s1, Signature s2) {
-		List<Signature> sigs = new ArrayList<>(2);
-		sigs.add(s1);
-		sigs.add(s2);
+	@SafeVarargs
+	public IncompatibleSignatureException(
+			Signature<? extends Control>... signatures) {
+		List<Signature<? extends Control>> sigs = Arrays.asList(signatures);
 		this.sigs = Collections.unmodifiableList(sigs);
 	}
 
-	public List<Signature> getClashingSignatures() {
+	@SafeVarargs
+	public IncompatibleSignatureException(String message,
+			Signature<? extends Control>... signatures) {
+		super(message);
+		List<Signature<? extends Control>> sigs = Arrays.asList(signatures);
+		this.sigs = Collections.unmodifiableList(sigs);
+	}
+
+	public List<Signature<? extends Control>> getClashingSignatures() {
 		return this.sigs;
 	}
 

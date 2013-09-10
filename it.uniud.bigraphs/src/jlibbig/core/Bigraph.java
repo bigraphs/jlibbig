@@ -515,14 +515,14 @@ final public class Bigraph implements
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
 		if (!left.signature.equals(right.signature)) {
-			throw new IncompatibleSignatureException(left.signature,
-					right.signature);
+			throw new IncompatibleSignatureException(left.getSignature(),
+					right.getSignature());
 		}
 		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
 				|| !Collections.disjoint(left.outers.keySet(),
 						right.outers.keySet())) {
-			throw new IncompatibleInterfacesException(left, right,
-					new NameClashException(intersectNames(
+			throw new IncompatibleInterfaceException(new NameClashException(
+					intersectNames(
 							left.inners.values(),
 							right.inners.values(),
 							intersectNames(left.outers.values(),
@@ -565,12 +565,12 @@ final public class Bigraph implements
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
 		if (!out.signature.equals(in.signature)) {
-			throw new IncompatibleSignatureException(out.signature,
-					in.signature);
+			throw new IncompatibleSignatureException(out.getSignature(),
+					in.getSignature());
 		}
 		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
-			throw new IncompatibleInterfacesException(in, out,
+			throw new IncompatibleInterfaceException(
 					"The outer face of the first graph must be equal to inner face of the second");
 		}
 		Bigraph a = (reuse) ? out : out.clone();

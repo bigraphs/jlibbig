@@ -21,9 +21,9 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	public BigraphRewritingRule(Bigraph redex, Bigraph reactum,
 			BigraphInstantiationMap eta) {
 		if (reactum.getSignature() != redex.getSignature()) {
-			throw new IncompatibleSignatureException(reactum.getSignature(),
-					redex.getSignature(),
-					"Redex and reactum should have the same singature.");
+			throw new IncompatibleSignatureException(
+					"Redex and reactum should have the same singature.",reactum.getSignature(),
+					redex.getSignature());
 		}
 		if (redex.sites.size() < eta.getPlaceCodomain()) {
 			throw new InvalidInstantiationRuleException(
@@ -40,12 +40,12 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 		if (redex.roots.size() != reactum.roots.size()
 				|| !redex.outers.keySet().containsAll(reactum.outers.keySet())
 				|| !reactum.outers.keySet().containsAll(redex.outers.keySet())) {
-			throw new IncompatibleInterfacesException(redex, reactum,
+			throw new IncompatibleInterfaceException(
 					"Redex and reactum should have the same outer interface.");
 		}
 		if (!redex.inners.keySet().containsAll(reactum.inners.keySet())
 				|| !reactum.inners.keySet().containsAll(redex.inners.keySet())) {
-			throw new IncompatibleInterfacesException(redex, reactum,
+			throw new IncompatibleInterfaceException(
 					"Redex and reactum should have the same outer interface.");
 		}
 		this.redex = redex;
