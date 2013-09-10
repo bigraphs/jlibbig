@@ -7,7 +7,8 @@ import jlibbig.core.abstractions.Owner;
 class EditableOuterName extends EditableLinkFacet implements OuterName,
 		EditableNamed, EditableHandle {
 
-	private Collection<EditablePoint> points = Collections.newSetFromMap(new IdentityHashMap<EditablePoint, Boolean>());
+	private Collection<EditablePoint> points = Collections
+			.newSetFromMap(new IdentityHashMap<EditablePoint, Boolean>());
 	private final Collection<? extends Point> ro_points = Collections
 			.unmodifiableCollection(this.points);
 	private Owner owner;
@@ -33,9 +34,9 @@ class EditableOuterName extends EditableLinkFacet implements OuterName,
 	@Override
 	public void linkPoint(EditablePoint point) {
 		if (point == null)
-			return; 
+			return;
 		this.points.add(point);
-		if(this != point.getHandle()) {
+		if (this != point.getHandle()) {
 			point.setHandle(this);
 		}
 	}
@@ -44,7 +45,7 @@ class EditableOuterName extends EditableLinkFacet implements OuterName,
 	public void unlinkPoint(EditablePoint point) {
 		if (point == null)
 			return;
-		if(this.points.remove(point) && this == point.getHandle())
+		if (this.points.remove(point) && this == point.getHandle())
 			point.setHandle(null);
 	}
 
@@ -64,7 +65,7 @@ class EditableOuterName extends EditableLinkFacet implements OuterName,
 	public void setOwner(Owner value) {
 		this.owner = value;
 	}
-	
+
 	@Override
 	public EditableOuterName getEditable() {
 		return this;

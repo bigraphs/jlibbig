@@ -3,41 +3,47 @@ package jlibbig.core;
 import java.util.*;
 
 /**
- * Bidirectional Map: two sets with a bijective function from one set to the other.
- *
- * @param <A> Type of the first set
- * @param <B> Type of the second set
+ * Bidirectional Map: two sets with a bijective function from one set to the
+ * other.
+ * 
+ * @param <A>
+ *            Type of the first set
+ * @param <B>
+ *            Type of the second set
  */
-class BidMap<A,B> implements Map<A,B>{
+class BidMap<A, B> implements Map<A, B> {
 
-	private Map<A,B> _mapA = new HashMap<>();
-	private Map<B,A> _mapB = new HashMap<>();
-	
-	protected BidMap(){}
-	
-	protected BidMap(Map<? extends A,? extends B> map){
+	private Map<A, B> _mapA = new HashMap<>();
+	private Map<B, A> _mapB = new HashMap<>();
+
+	protected BidMap() {
+	}
+
+	protected BidMap(Map<? extends A, ? extends B> map) {
 		_mapA.putAll(map);
-		for(A a : map.keySet()){
+		for (A a : map.keySet()) {
 			B b = map.get(a);
-			if(_mapB.containsKey(b))
-				throw new IllegalArgumentException("The given map is not bidirectional");
+			if (_mapB.containsKey(b))
+				throw new IllegalArgumentException(
+						"The given map is not bidirectional");
 			_mapB.put(b, a);
 		}
 	}
-	
-	private BidMap(Map<A,B> mapA, Map<B,A> mapB){
+
+	private BidMap(Map<A, B> mapA, Map<B, A> mapB) {
 		_mapA = mapA;
 		_mapB = mapB;
 	}
-	
+
 	/**
 	 * Retrieve the bidirectional map from the second set to the first.
+	 * 
 	 * @return the inverse bidirectional map.
 	 */
-	public BidMap<B,A> getInverse(){
-		return new BidMap<>(_mapB,_mapA);
+	public BidMap<B, A> getInverse() {
+		return new BidMap<>(_mapB, _mapA);
 	}
-	
+
 	@Override
 	public void clear() {
 		this._mapA.clear();
@@ -63,7 +69,7 @@ class BidMap<A,B> implements Map<A,B>{
 	public B get(Object key) {
 		return _mapA.get(key);
 	}
-	
+
 	public A getKey(Object value) {
 		return _mapB.get(value);
 	}
@@ -82,8 +88,9 @@ class BidMap<A,B> implements Map<A,B>{
 	public B put(A key, B value) {
 		B b = _mapA.get(key);
 		A a = _mapB.get(value);
-		if(a != null && a != key)
-			throw new IllegalArgumentException("This insertion violates bidirectionality");
+		if (a != null && a != key)
+			throw new IllegalArgumentException(
+					"This insertion violates bidirectionality");
 		_mapA.put(key, value);
 		_mapB.put(value, key);
 		return b;
@@ -91,13 +98,14 @@ class BidMap<A,B> implements Map<A,B>{
 
 	@Override
 	public void putAll(Map<? extends A, ? extends B> map) {
-		Map<A,B> mapA = new HashMap<>();
-		Map<B,A> mapB = new HashMap<>();
+		Map<A, B> mapA = new HashMap<>();
+		Map<B, A> mapB = new HashMap<>();
 		mapA.putAll(map);
-		for(A a : map.keySet()){
+		for (A a : map.keySet()) {
 			B b = map.get(a);
-			if(mapB.containsKey(b))
-				throw new IllegalArgumentException("The given map is not bidirectional");
+			if (mapB.containsKey(b))
+				throw new IllegalArgumentException(
+						"The given map is not bidirectional");
 			mapB.put(b, a);
 		}
 		_mapA.putAll(mapA);
@@ -120,5 +128,5 @@ class BidMap<A,B> implements Map<A,B>{
 	public Collection<B> values() {
 		return _mapB.keySet();
 	}
-	
+
 }

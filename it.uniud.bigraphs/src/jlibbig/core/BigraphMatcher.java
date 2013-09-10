@@ -28,12 +28,12 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 	private final NodeEquivalence eq;
 
-	public BigraphMatcher(){
+	public BigraphMatcher() {
 		this(StandardNodeEquivalence.DEFAULT);
 	}
 
-	public BigraphMatcher(NodeEquivalence eq){
-		if(eq == null)
+	public BigraphMatcher(NodeEquivalence eq) {
+		if (eq == null)
 			throw new IllegalArgumentException("Euivalence can not be null.");
 		this.eq = eq;
 	}
@@ -52,8 +52,9 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		return match(agent, redex, eq);
 	}
 
-	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex, NodeEquivalence eq) {
-		if(eq == null)
+	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex,
+			NodeEquivalence eq) {
+		if (eq == null)
 			throw new IllegalArgumentException("Euivalence can not be null.");
 		if (OPTIMIZE_FOR_GROUND && agent.isGround())
 			return AgentMatcher.DEFAULT.match(agent, redex);
@@ -282,8 +283,8 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 				// 3 // M_ij <= M_fg if f = prnt(i) and g = prnt(j)
 				// ////////////////
-                addConstraint3(agent_nodes);
-                addConstraint3(agent_sites);
+				addConstraint3(agent_nodes);
+				addConstraint3(agent_sites);
 				// /////////////////////////////////////////////////////////////////
 
 				// 4 // M_ij = 0 if j is a root and i is not in an active
@@ -362,8 +363,8 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 				// 6 // n sum(j not root) M_ij + sum(j root) M_ij <= n if i in
 				// nodes
-                addConstraint6(agent_nodes, rrs);
-                addConstraint6(agent_sites, rrs);
+				addConstraint6(agent_nodes, rrs);
+				addConstraint6(agent_sites, rrs);
 				// /////////////////////////////////////////////////////////////////
 
 				// 7 // |chld(f)| M_fg <= sum(i chld(f), j in chld(g)) M_ij if
@@ -391,8 +392,10 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				// sites) if g in roots
 				for (PlaceEntity f : matrix.keySet()) {
 					for (Root g : redex_roots) {
-						Collection<? extends Child> cf = ((Parent) f).getChildren();
-						Collection<? extends Child> cg = new HashSet<>(g.getChildren());
+						Collection<? extends Child> cf = ((Parent) f)
+								.getChildren();
+						Collection<? extends Child> cg = new HashSet<>(
+								g.getChildren());
 						cg.removeAll(redex_sites);
 						vars = new IntegerVariable[cf.size() * cg.size()];
 						k = 0;
@@ -493,30 +496,32 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 			}
 
-            private void addConstraint3(Collection<? extends Child> agent_children) {
+			private void addConstraint3(
+					Collection<? extends Child> agent_children) {
 				for (Child i : agent_children) {
 					Map<PlaceEntity, IntegerVariable> row = matrix.get(i);
-                    addConstraint3Sub(i, row, redex_nodes);
-                    addConstraint3Sub(i, row, redex_sites);
+					addConstraint3Sub(i, row, redex_nodes);
+					addConstraint3Sub(i, row, redex_sites);
 				}
-            }
+			}
 
-            private void addConstraint3Sub(Child i,
-                    Map<PlaceEntity, IntegerVariable> row,
-                    Collection<? extends Child> redex_children) {
-                for (Child j : redex_children) {
-                    Parent f = i.getParent();
-                    Parent g = j.getParent();
-                    model.addConstraint(Choco.leq(row.get(j), matrix.get(f)
-                            .get(g)));
-					}
-            }
+			private void addConstraint3Sub(Child i,
+					Map<PlaceEntity, IntegerVariable> row,
+					Collection<? extends Child> redex_children) {
+				for (Child j : redex_children) {
+					Parent f = i.getParent();
+					Parent g = j.getParent();
+					model.addConstraint(Choco.leq(row.get(j), matrix.get(f)
+							.get(g)));
+				}
+			}
 
-            private void addConstraint6(Collection<? extends Child> agent_children, int rrs) {
+			private void addConstraint6(
+					Collection<? extends Child> agent_children, int rrs) {
 				for (Child i : agent_children) {
 					Map<PlaceEntity, IntegerVariable> row = matrix.get(i);
-					IntegerVariable[] vars = new IntegerVariable[redex_nodes.size()
-							+ redex_sites.size()];
+					IntegerVariable[] vars = new IntegerVariable[redex_nodes
+							.size() + redex_sites.size()];
 					int k = 0;
 					for (PlaceEntity j : redex_nodes) {
 						vars[k++] = row.get(j);
@@ -535,7 +540,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					model.addConstraint(Choco.geq(rrs,
 							Choco.sum(c, Choco.sum(vars))));
 				}
-            }
+			}
 
 			@Override
 			public boolean hasNext() {
@@ -1067,7 +1072,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					System.out.println(lnk_pts.keySet());
 					for (Point p : prm_points.keySet()) {
 						Map<InnerName, IntegerVariable> pr = lnk_pts.get(p);
-						if(pr == null){
+						if (pr == null) {
 							System.err.println(p);
 						}
 						IntegerVariable[] vars = new IntegerVariable[pr.size()];
@@ -1172,7 +1177,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 						Bigraph ctx = new Bigraph(agent.signature);
 						Bigraph rdx = new Bigraph(agent.signature);
 						Bigraph prm = new Bigraph(agent.signature);
-						Map<Node,EditableNode> nEmb = new HashMap<>();
+						Map<Node, EditableNode> nEmb = new HashMap<>();
 
 						// replicated sites lookup table
 						EditableSite ctx_sites_dic[] = new EditableSite[redex_roots
@@ -1216,7 +1221,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 						for (EditableOuterName o1 : agent.outers.values()) {
 							EditableOuterName o2 = o1.replicate();
-							ctx.outers.put(o2.getName(),o2);
+							ctx.outers.put(o2.getName(), o2);
 							o2.setOwner(ctx);
 							ctx_hnd_dic.put(o1, o2);
 						}
@@ -1269,18 +1274,16 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								for (EditableChild c : p1.getEditableChildren()) {
 									if (node_img.containsValue(c))
 										continue;
-									qp.add(new VState<>(p2,
-											(EditableParent) c));
+									qp.add(new VState<>(p2, (EditableParent) c));
 								}
 							} else {
 								// enqueues children to be replicated
 								for (EditableChild c : p1.getEditableChildren()) {
-									qp.add(new VState<>(p2,
-											(EditableParent) c));
+									qp.add(new VState<>(p2, (EditableParent) c));
 								}
 							}
 						}
-                        ctx.sites.addAll(Arrays.asList(ctx_sites_dic));
+						ctx.sites.addAll(Arrays.asList(ctx_sites_dic));
 						// Replicates rdx
 						// //////////////////////////////////////////////
 						/*
@@ -1291,13 +1294,13 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 						for (EditableOuterName o1 : redex.outers.values()) {
 							// replicate the handle
 							EditableOuterName o2 = o1.replicate();
-							rdx.outers.put(o2.getName(),o2);
+							rdx.outers.put(o2.getName(), o2);
 							o2.setOwner(rdx);
 							rdx_hnd_dic.put(o1, o2);
 							// update ctx inner face
 							EditableInnerName i = new EditableInnerName(
 									o1.getName());
-							ctx.inners.put(i.getName(),i);
+							ctx.inners.put(i.getName(), i);
 							// follow o1 to the agent and then to the context:
 							Handle h1 = handle_img.get(o1);
 							EditableHandle h2 = ctx_hnd_dic.get(h1);
@@ -1323,7 +1326,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								rdx_hnd_dic.put(h1, h2);
 							}
 							i2.setHandle(h2);
-							rdx.inners.put(i2.getName(),i2);
+							rdx.inners.put(i2.getName(), i2);
 						}
 						for (EditableRoot r0 : redex.roots) {
 							qp.add(new VState<EditableParent>(null, r0));
@@ -1371,12 +1374,11 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 									s2.setParent(p2);
 									rdx_sites_dic[redex_sites.indexOf(s1)] = s2;
 								} else {
-									qp.add(new VState<>(p2,
-											(EditableParent) c));
+									qp.add(new VState<>(p2, (EditableParent) c));
 								}
 							}
 						}
-                        rdx.sites.addAll(Arrays.asList(rdx_sites_dic));
+						rdx.sites.addAll(Arrays.asList(rdx_sites_dic));
 
 						// Replicates prms
 						// /////////////////////////////////////////////
@@ -1388,7 +1390,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 									i.getName());
 							prm_ion_dic.put(i, o);
 							o.setOwner(prm);
-							prm.outers.put(o.getName(),o);
+							prm.outers.put(o.getName(), o);
 						}
 						for (Site s : redex_sites) {
 							EditableRoot r = new EditableRoot();
@@ -1446,7 +1448,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								prm_sites_dic[agent_sites.indexOf(s1)] = s2;
 							}
 						}
-                        prm.sites.addAll(Arrays.asList(prm_sites_dic));
+						prm.sites.addAll(Arrays.asList(prm_sites_dic));
 						if (DEBUG_CONSISTENCY_CHECK) {
 							if (!ctx.isConsistent())
 								throw new RuntimeException(
@@ -1458,7 +1460,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								throw new RuntimeException(
 										"Inconsistent bigraph (prm)");
 						}
-						//matchQueue.add(new BigraphMatch(ctx, rdx, prm,nEmb));
+						// matchQueue.add(new BigraphMatch(ctx, rdx, prm,nEmb));
 					} while (lnk_solver.nextSolution());
 				} while (this.matchQueue.isEmpty());
 			}

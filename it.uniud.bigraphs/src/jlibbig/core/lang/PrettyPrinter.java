@@ -1,5 +1,5 @@
 package jlibbig.core.lang;
 
-public interface PrettyPrinter<T>  {
-	public String toString( T system );
+public interface PrettyPrinter<T> {
+	public String toString(T system);
 }

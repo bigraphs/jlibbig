@@ -14,7 +14,8 @@ import jlibbig.core.exceptions.*;
  * version of bigraphs, users can use {@link BigraphBuilder}.
  * </p>
  */
-final public class Bigraph implements jlibbig.core.abstractions.Bigraph<Control> {// , PropertyTarget {
+final public class Bigraph implements
+		jlibbig.core.abstractions.Bigraph<Control> {// , PropertyTarget {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
@@ -109,7 +110,7 @@ final public class Bigraph implements jlibbig.core.abstractions.Bigraph<Control>
 			}
 			seen_handles.add(h);
 		}
-		//System.out.println(seen_points);
+		// System.out.println(seen_points);
 		for (EditableInnerName n : this.inners.values()) {
 			if (n.getOwner() != owner) {
 				System.err.println("INCOSISTENCY: foreign inner name");
@@ -580,8 +581,9 @@ final public class Bigraph implements jlibbig.core.abstractions.Bigraph<Control>
 		while (ir.hasNext()) { // |ir| == |is|
 			EditableSite s = is.next();
 			EditableParent p = s.getParent();
-			p.removeChild(s); 
-			for (EditableChild c : new ArrayList<>(ir.next().getEditableChildren())) {
+			p.removeChild(s);
+			for (EditableChild c : new ArrayList<>(ir.next()
+					.getEditableChildren())) {
 				c.setParent(p);
 			}
 		}

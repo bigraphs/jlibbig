@@ -2,41 +2,42 @@ package jlibbig.core;
 
 import java.util.*;
 
-
 /**
  * Inverse map. From a Map&#60;A,B&#62;, compute Map&#60;B,Set&#60;A&#62;&#62; .
- * @param <A> keys' type
- * @param <B> values' type
+ * 
+ * @param <A>
+ *            keys' type
+ * @param <B>
+ *            values' type
  */
-class InvMap<A,B> implements Map<A,B>{
-	
-	// map 
-	private Map<A,B> _map = new HashMap<>();
-	// reverse map 
-	private Map<B,Set<A>> _inv = null;
-	
-	protected InvMap(){}
-	
-	protected InvMap(Map<? extends A,? extends B> map){
+class InvMap<A, B> implements Map<A, B> {
+
+	// map
+	private Map<A, B> _map = new HashMap<>();
+	// reverse map
+	private Map<B, Set<A>> _inv = null;
+
+	protected InvMap() {
+	}
+
+	protected InvMap(Map<? extends A, ? extends B> map) {
 		_map.putAll(map);
 	}
-	
+
 	/**
 	 * Compute the inverse map.
 	 */
-	private void computeInv(){
-		if(_inv==null)
+	private void computeInv() {
+		if (_inv == null)
 			_inv = new HashMap<>();
-		for(B b : _map.values()){
+		for (B b : _map.values()) {
 			_inv.put(b, new HashSet<A>());
 		}
-		for(A a : _map.keySet()){
+		for (A a : _map.keySet()) {
 			_inv.get(_map.get(a)).add(a);
-		}	
+		}
 	}
-	
-	
-	
+
 	@Override
 	public String toString() {
 		return _map.toString();
@@ -45,7 +46,8 @@ class InvMap<A,B> implements Map<A,B>{
 	@Override
 	public void clear() {
 		_map.clear();
-		if(_inv!=null) _inv.clear();
+		if (_inv != null)
+			_inv.clear();
 	}
 
 	@Override
@@ -55,8 +57,8 @@ class InvMap<A,B> implements Map<A,B>{
 
 	@Override
 	public boolean containsValue(Object arg) {
-		if(_inv==null)
-			computeInv(); 
+		if (_inv == null)
+			computeInv();
 		return _inv.containsKey(arg);
 	}
 
@@ -69,13 +71,13 @@ class InvMap<A,B> implements Map<A,B>{
 	public B get(Object arg) {
 		return _map.get(arg);
 	}
-	
+
 	public Set<A> getKeys(B arg) {
-		if(_inv==null)
-			computeInv(); 
+		if (_inv == null)
+			computeInv();
 		return _inv.get(arg);
 	}
-	
+
 	public B getValue(A arg) {
 		return _map.get(arg);
 	}
@@ -92,9 +94,9 @@ class InvMap<A,B> implements Map<A,B>{
 
 	@Override
 	public B put(A arg0, B arg1) {
-		if(_inv != null){
+		if (_inv != null) {
 			Set<A> set = _inv.get(arg0);
-			if(set == null){
+			if (set == null) {
 				set = new HashSet<>();
 				_inv.put(arg1, set);
 			}
@@ -106,11 +108,11 @@ class InvMap<A,B> implements Map<A,B>{
 	@Override
 	public void putAll(Map<? extends A, ? extends B> arg) {
 		_map.putAll(arg);
-		if(_inv != null){
-			for(A a : arg.keySet()){
+		if (_inv != null) {
+			for (A a : arg.keySet()) {
 				B b = arg.get(a);
 				Set<A> set = _inv.get(b);
-				if(set == null){
+				if (set == null) {
 					set = new HashSet<>();
 					_inv.put(b, set);
 				}
@@ -122,10 +124,10 @@ class InvMap<A,B> implements Map<A,B>{
 	@Override
 	public B remove(Object arg) {
 		B b = _map.remove(arg);
-		if(b != null && _inv != null){
+		if (b != null && _inv != null) {
 			Set<A> set = _inv.get(arg);
 			set.remove(arg);
-			if(set.isEmpty())
+			if (set.isEmpty())
 				_inv.remove(b);
 		}
 		return b;

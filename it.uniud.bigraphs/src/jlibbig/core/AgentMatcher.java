@@ -913,7 +913,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 					System.out.println('\n');
 
 					System.out.printf("%" + f_cell_width[0] + "s|", "F_VARS");
-					c=1;
+					c = 1;
 					for (Handle h : agent_handles) {
 						String s = h.toString();
 						f_cell_width[c] = s.length();

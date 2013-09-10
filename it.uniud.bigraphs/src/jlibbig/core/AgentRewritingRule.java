@@ -11,26 +11,31 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 
 	final private boolean[] neededParam;
 	final private boolean[] cloneParam;
-	
+
 	private AgentMatcher matcher;
 
 	public AgentRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-		this(AgentMatcher.DEFAULT,redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
+		this(AgentMatcher.DEFAULT, redex, reactum, new BigraphInstantiationMap(
+				redex.sites.size(), eta));
 	}
-	
-	public AgentRewritingRule(AgentMatcher matcher, Bigraph redex, Bigraph reactum, int... eta) {
-		this(matcher, redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
+
+	public AgentRewritingRule(AgentMatcher matcher, Bigraph redex,
+			Bigraph reactum, int... eta) {
+		this(matcher, redex, reactum, new BigraphInstantiationMap(
+				redex.sites.size(), eta));
 	}
-	
-	public AgentRewritingRule(Bigraph redex, Bigraph reactum, BigraphInstantiationMap eta) {
-		this(AgentMatcher.DEFAULT, redex,reactum,eta);
+
+	public AgentRewritingRule(Bigraph redex, Bigraph reactum,
+			BigraphInstantiationMap eta) {
+		this(AgentMatcher.DEFAULT, redex, reactum, eta);
 	}
-	
-	public AgentRewritingRule(AgentMatcher matcher,Bigraph redex, Bigraph reactum, BigraphInstantiationMap eta) {
-		super(redex,reactum, eta);
-		
+
+	public AgentRewritingRule(AgentMatcher matcher, Bigraph redex,
+			Bigraph reactum, BigraphInstantiationMap eta) {
+		super(redex, reactum, eta);
+
 		this.matcher = (matcher == null) ? AgentMatcher.DEFAULT : matcher;
-		
+
 		this.neededParam = new boolean[redex.sites.size()];
 		this.cloneParam = new boolean[this.eta.getPlaceDomain()];
 		int prms[] = new int[this.eta.getPlaceDomain()];
@@ -116,13 +121,13 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 								!cloneParam[i]);
 					}
 					Bigraph lambda = match.getParamWiring();
-					for(EditableInnerName n : lambda.inners.values()){
-						if(!bb.containsOuterName(n.getName())){
+					for (EditableInnerName n : lambda.inners.values()) {
+						if (!bb.containsOuterName(n.getName())) {
 							lambda.inners.remove(n.getName());
 							n.setHandle(null);
 						}
 					}
-					bb.outerCompose(lambda,true);
+					bb.outerCompose(lambda, true);
 					Bigraph inreact = instantiateReactum(match);
 					bb.outerCompose(inreact, true);
 					bb.outerCompose(match.getContext(), true);

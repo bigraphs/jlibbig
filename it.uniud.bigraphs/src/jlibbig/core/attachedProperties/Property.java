@@ -6,9 +6,11 @@ public abstract class Property<V> {
 
 	public abstract void registerListener(PropertyListener<? super V> listener);
 
-	public abstract boolean isListenerRegistered(PropertyListener<? super V> listener);
+	public abstract boolean isListenerRegistered(
+			PropertyListener<? super V> listener);
 
-	public abstract boolean unregisterListener(PropertyListener<? super V> listener);
+	public abstract boolean unregisterListener(
+			PropertyListener<? super V> listener);
 
 	public abstract V get();
 
@@ -16,7 +18,9 @@ public abstract class Property<V> {
 
 	public abstract String getName();
 
-	protected void onAttach(PropertyTarget target){};
+	protected void onAttach(PropertyTarget target) {
+	};
 
-	protected void onDetach(PropertyTarget target){};
+	protected void onDetach(PropertyTarget target) {
+	};
 }

@@ -21,8 +21,8 @@ public class BRSCompiler implements Compiler<BigraphReactiveSystem> {
 
 	private static final BRSParser parser = new BRSParser();
 	private static final BRSCompiler instance = new BRSCompiler();
-	
-	public static BRSCompiler getInstance(){
+
+	public static BRSCompiler getInstance() {
 		return instance;
 	}
 
@@ -32,15 +32,15 @@ public class BRSCompiler implements Compiler<BigraphReactiveSystem> {
 	 * @param str
 	 *            the compiler will parse this string.
 	 * @return the generated system.
-	 * @throws CompilerException 
+	 * @throws CompilerException
 	 * @see BigraphReactiveSystem
 	 */
-    @Override
+	@Override
 	public BigraphReactiveSystem parse(String str) throws CompilerException {
-		return parse(new StringReader( str ));
+		return parse(new StringReader(str));
 	}
 
-    @Override
+	@Override
 	public BigraphReactiveSystem parse(Reader in) throws CompilerException {
 		try {
 			return parser.parse(in);
@@ -48,16 +48,19 @@ public class BRSCompiler implements Compiler<BigraphReactiveSystem> {
 			throw new CompilerException(e);
 		}
 	}
-	
-	public BigraphReactiveSystem parse(String str , Signature s) throws CompilerException {
-		return parse(new StringReader( str ) , s);
+
+	public BigraphReactiveSystem parse(String str, Signature s)
+			throws CompilerException {
+		return parse(new StringReader(str), s);
 	}
-	public BigraphReactiveSystem parse(Reader in , Signature s) throws CompilerException {
+
+	public BigraphReactiveSystem parse(Reader in, Signature s)
+			throws CompilerException {
 		try {
-			return parser.parse(in , s);
+			return parser.parse(in, s);
 		} catch (IOException | Exception e) {
 			throw new CompilerException(e);
 		}
 	}
-	
+
 }

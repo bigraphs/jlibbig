@@ -3,25 +3,28 @@ package jlibbig.core.abstractions;
 import java.util.*;
 
 /**
- * Bigraphs' signatures are immutable. To make a signature, users can use {@link SignatureBuilder}.
+ * Bigraphs' signatures are immutable. To make a signature, users can use
+ * {@link SignatureBuilder}.
  */
-public class Signature<C extends Control> implements Iterable<C>{
+public class Signature<C extends Control> implements Iterable<C> {
 
-	final private Map<String,C> ctrls = new HashMap<>();
+	final private Map<String, C> ctrls = new HashMap<>();
 
 	final protected String USID;
-	
+
 	public Signature(Collection<? extends C> controls) {
 		this(null, controls);
 	}
 
 	public Signature(String usid, Collection<? extends C> controls) {
-		for(C  c : controls){
-			if(ctrls.put(c.getName(), c) != null){
-				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
+		for (C c : controls) {
+			if (ctrls.put(c.getName(), c) != null) {
+				throw new IllegalArgumentException(
+						"Controls must be uniquely named within the same signature");
 			}
 		}
-		this.USID = (usid == null || usid.trim().length() == 0) ? UUID.randomUUID().toString() : usid;
+		this.USID = (usid == null || usid.trim().length() == 0) ? UUID
+				.randomUUID().toString() : usid;
 	}
 
 	@SafeVarargs
@@ -31,18 +34,21 @@ public class Signature<C extends Control> implements Iterable<C>{
 
 	@SafeVarargs
 	public Signature(String usid, C... controls) {
-		for(C  c : controls){
-			if(ctrls.put(c.getName(), c) != null){
-				throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
+		for (C c : controls) {
+			if (ctrls.put(c.getName(), c) != null) {
+				throw new IllegalArgumentException(
+						"Controls must be uniquely named within the same signature");
 			}
 		}
-		this.USID = (usid == null || usid.trim().length() == 0) ? UUID.randomUUID().toString() : usid;
+		this.USID = (usid == null || usid.trim().length() == 0) ? UUID
+				.randomUUID().toString() : usid;
 	}
 
-	
-	protected void add(C control){
-		if(ctrls.containsKey(control.getName()) && !ctrls.containsValue(control)){
-			throw new IllegalArgumentException("Controls must be uniquely named within the same signature");
+	protected void add(C control) {
+		if (ctrls.containsKey(control.getName())
+				&& !ctrls.containsValue(control)) {
+			throw new IllegalArgumentException(
+					"Controls must be uniquely named within the same signature");
 		}
 		ctrls.put(control.getName(), control);
 	}
@@ -68,8 +74,8 @@ public class Signature<C extends Control> implements Iterable<C>{
 		Signature<C> other = (Signature<C>) obj;
 		if (!USID.equals(other.USID))
 			return false;
-		for(Control c : ctrls.values()){
-			if(!c.equals(other.getByName(c.getName())))
+		for (Control c : ctrls.values()) {
+			if (!c.equals(other.getByName(c.getName())))
 				return false;
 		}
 		if (!ctrls.equals(other.ctrls))
@@ -79,14 +85,16 @@ public class Signature<C extends Control> implements Iterable<C>{
 
 	/**
 	 * Get a control (if present), specifying its name.
-	 * @param name name of the control
+	 * 
+	 * @param name
+	 *            name of the control
 	 * @return the retrieved control
 	 */
-	public C getByName(String name){
+	public C getByName(String name) {
 		return ctrls.get(name);
 	}
 
-	public String getUSID(){
+	public String getUSID() {
 		return this.USID.toString();
 	}
 

@@ -11,14 +11,14 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 	final private int dom;
 	final private int cod;
 
-	//final private boolean[] reusable;
+	// final private boolean[] reusable;
 	final private int[] multiplicity;
 
 	public BigraphInstantiationMap(int codomain, int... map) {
 		dom = map.length;
 		cod = codomain--;
 		this.map = new int[dom];
-		//reusable = new boolean[dom];
+		// reusable = new boolean[dom];
 		multiplicity = new int[cod];
 
 		for (int i = 0; i < map.length; i++) {
@@ -27,7 +27,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 			}
 			int j = map[i];
 			this.map[i] = j;
-			//reusable[i] = (0 == mulParam[j]++);
+			// reusable[i] = (0 == mulParam[j]++);
 			multiplicity[j]++;
 		}
 	}
@@ -71,7 +71,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 		// replicates outers
 		for (EditableOuterName o1 : parameters.outers.values()) {
 			EditableOuterName o2 = (reuse) ? o1 : o1.replicate();
-			prm.outers.put(o2.getName(),o2);
+			prm.outers.put(o2.getName(), o2);
 			o2.setOwner(prm);
 			hnd_dic.put(o1, o2);
 		}
@@ -86,7 +86,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 				hnd_dic.put(h1, h2);
 			}
 			i2.setHandle(h2);
-			prm.inners.put(i2.getName(),i2);
+			prm.inners.put(i2.getName(), i2);
 		}
 		// descends and replicate the place graph (@see Bigraph.clone except for
 		// multiplicity)
@@ -156,7 +156,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 		for (int i = 0; i < ss.length; i++) {
 			if (ss[i] == null)
 				continue;
-            prm.sites.addAll(Arrays.asList(ss[i]));
+			prm.sites.addAll(Arrays.asList(ss[i]));
 		}
 
 		if (reuse) {

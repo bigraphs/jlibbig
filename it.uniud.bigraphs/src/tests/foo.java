@@ -116,7 +116,7 @@ public class foo {
 		Long t1 = System.currentTimeMillis();
 		System.out.println("done: " + mc + " matches in " + (t1 - t0) + " ms");
 
-		RewritingRule<Bigraph,Bigraph> ar = new AgentRewritingRule(b2, b2);
+		RewritingRule<Bigraph, Bigraph> ar = new AgentRewritingRule(b2, b2);
 		System.out.println("ground rewrite test...");
 		t0 = System.currentTimeMillis();
 		mc = 0;
@@ -187,17 +187,18 @@ public class foo {
 
 		Bigraph bigReactum = printBig(redex.makeBigraph());
 
-
 		System.out.println("match test...");
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
-		for(Match<Bigraph> m : new AgentMatcher().match(rete.makeBigraph(), bigRedex)){
+		for (Match<Bigraph> m : new AgentMatcher().match(rete.makeBigraph(),
+				bigRedex)) {
 			mc++;
 		}
 		Long t1 = System.currentTimeMillis();
 		System.out.println("done: " + mc + " matches in " + (t1 - t0) + " ms");
 
-		RewritingRule<Bigraph,Bigraph> ar = new AgentRewritingRule(bigRedex, bigReactum,0);
+		RewritingRule<Bigraph, Bigraph> ar = new AgentRewritingRule(bigRedex,
+				bigReactum, 0);
 		System.out.println("ground rewrite test...");
 		t0 = System.currentTimeMillis();
 		mc = 0;
@@ -205,7 +206,7 @@ public class foo {
 			mc++;
 		}
 		t1 = System.currentTimeMillis();
-		System.out.println("done: " + mc + " rewrites in " + (t1 - t0) + " ms");		
+		System.out.println("done: " + mc + " rewrites in " + (t1 - t0) + " ms");
 	}
 
 	private static void test3() {
@@ -216,7 +217,7 @@ public class foo {
 		Handle h;
 		Parent p;
 		Node n;
-		
+
 		BigraphBuilder bbA = new BigraphBuilder(s);
 		p = bbA.addRoot();
 		n = bbA.addNode("a", p);
@@ -224,24 +225,24 @@ public class foo {
 		bbA.addRoot();
 		bbA.addOuterName("v");
 		bbA.addOuterName("w");
-		
 
 		BigraphBuilder bbR = new BigraphBuilder(s);
 		h = bbR.addOuterName("x");
 		p = bbR.addRoot();
-		bbR.addNode("a",p,h);
+		bbR.addNode("a", p, h);
 		bbR.addSite(p);
 		bbR.addRoot();
-		bbR.addInnerName("y",h);
-		bbR.addInnerName("z",bbR.addOuterName("z"));
-		
+		bbR.addInnerName("y", h);
+		bbR.addInnerName("z", bbR.addOuterName("z"));
+
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
-		for (Match<Bigraph> t : new AgentMatcher().match(bbA.makeBigraph(true), bbR.makeBigraph(true))) {
+		for (Match<Bigraph> t : new AgentMatcher().match(bbA.makeBigraph(true),
+				bbR.makeBigraph(true))) {
 			mc++;
 		}
 		Long t1 = System.currentTimeMillis();
-		System.out.println(mc + " matches in " + (t1 - t0) + " ms");	
+		System.out.println(mc + " matches in " + (t1 - t0) + " ms");
 	}
 
 	private static void printT() {

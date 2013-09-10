@@ -8,11 +8,11 @@ import jlibbig.core.abstractions.InstantiationRule;
 public class InstantiationMap implements InstantiationRule<AgentBigraph> {
 
 	private final BigraphInstantiationMap eta;
-	
-	InstantiationMap(int codomain, int... map){
-		eta = new BigraphInstantiationMap(codomain,map);
+
+	InstantiationMap(int codomain, int... map) {
+		eta = new BigraphInstantiationMap(codomain, map);
 	}
-	
+
 	public int getPlaceDomain() {
 		return eta.getPlaceDomain();
 	}
@@ -20,19 +20,21 @@ public class InstantiationMap implements InstantiationRule<AgentBigraph> {
 	public int getPlaceCodomain() {
 		return eta.getPlaceCodomain();
 	}
-	
+
 	public int getPlaceInstance(int arg) {
 		return eta.getPlaceInstance(arg);
 	}
 
-	
 	@Override
-	public Iterable<? extends AgentBigraph> instantiate(final AgentBigraph parameters) {
-		return new Iterable<AgentBigraph>(){
-			private final Iterable<Bigraph> able = eta.instantiate(parameters.bigraph);
+	public Iterable<? extends AgentBigraph> instantiate(
+			final AgentBigraph parameters) {
+		return new Iterable<AgentBigraph>() {
+			private final Iterable<Bigraph> able = eta
+					.instantiate(parameters.bigraph);
+
 			@Override
 			public Iterator<AgentBigraph> iterator() {
-				return new Iterator<AgentBigraph>(){
+				return new Iterator<AgentBigraph>() {
 					final Iterator<Bigraph> tor = able.iterator();
 
 					@Override
@@ -42,22 +44,22 @@ public class InstantiationMap implements InstantiationRule<AgentBigraph> {
 
 					@Override
 					public AgentBigraph next() {
-						if(hasNext()){
+						if (hasNext()) {
 							return new AgentBigraph(tor.next());
-						}else{
+						} else {
 							return null;
 						}
 					}
 
 					@Override
 					public void remove() {
-						tor.remove();						
+						tor.remove();
 					}
-					
+
 				};
 			}
-			
+
 		};
 	}
-	
+
 }

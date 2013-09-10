@@ -38,15 +38,14 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 		// throw new IllegalArgumentException(
 		// "Components of a matching should have the same signature.");
 	}
-	
+
 	public EditableNode getImage(Node node) {
 		return emb_nodes.get(node);
 	}
 
-
 	@Override
-	public Bigraph getRedex(){
-		if(super.redex == null){
+	public Bigraph getRedex() {
+		if (super.redex == null) {
 			BigraphBuilder bb = new BigraphBuilder(this.rdxImage);
 			bb.leftJuxtapose(this.rdxLeftId);
 			bb.rightJuxtapose(this.rdxRightId);
@@ -55,7 +54,7 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 		}
 		return super.redex;
 	}
-	
+
 	public Bigraph getRedexImage() {
 		return this.rdxImage;
 	}
