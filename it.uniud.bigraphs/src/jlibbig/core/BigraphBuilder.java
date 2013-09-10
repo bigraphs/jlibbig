@@ -753,8 +753,8 @@ final public class BigraphBuilder implements
 		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
 				|| !Collections.disjoint(left.outers.keySet(),
 						right.outers.keySet())) {
-			throw new IncompatibleInterfaceException(
-					new NameClashException(intersectNames(
+			throw new IncompatibleInterfaceException(new NameClashException(
+					intersectNames(
 							left.inners.values(),
 							right.inners.values(),
 							intersectNames(left.outers.values(),
@@ -813,8 +813,8 @@ final public class BigraphBuilder implements
 		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
 				|| !Collections.disjoint(left.outers.keySet(),
 						right.outers.keySet())) {
-			throw new IncompatibleInterfaceException(
-					new NameClashException(intersectNames(
+			throw new IncompatibleInterfaceException(new NameClashException(
+					intersectNames(
 							left.inners.values(),
 							right.inners.values(),
 							intersectNames(left.outers.values(),
@@ -941,6 +941,8 @@ final public class BigraphBuilder implements
 		}
 		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
+			// System.err.println(out.inners.keySet() + " " + in.outers.keySet()
+			//		+ " " + out.sites.size() + " " + in.roots.size());
 			throw new IncompatibleInterfaceException(
 					"The outer face of the first graph must be equal to inner face of the second");
 		}

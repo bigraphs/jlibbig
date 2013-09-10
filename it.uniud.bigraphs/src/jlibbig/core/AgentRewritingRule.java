@@ -127,6 +127,7 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 					}
 					bb.outerCompose(lambda, true);
 					Bigraph inreact = instantiateReactum(match);
+					inreact = Bigraph.juxtapose(inreact, match.getRedexLinkId());
 					bb.outerCompose(inreact, true);
 					bb.outerCompose(match.getContext(), true);
 					return bb.makeBigraph(true);

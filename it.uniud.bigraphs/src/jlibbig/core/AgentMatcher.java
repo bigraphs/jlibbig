@@ -1001,8 +1001,24 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						this.p = p;
 						this.b = b;
 					}
+
+					// @Override
+					// public String toString() {
+					// return "[p=" +this.p + ", c=" + this.c + ", i=" + this.i
+					// + "]";
+					// }
 				}
-				Queue<VState> q = new LinkedList<>();
+				Queue<VState> q = new LinkedList<VState>();
+				// {
+				// private static final long serialVersionUID = 1L;
+				//
+				// @Override
+				// public boolean add(VState value){
+				// System.out.println("ENQUEUE:");
+				// System.out.println(value);
+				// return super.add(value);
+				// }
+				// };
 
 				for (EditableOuterName o1 : agent.outers.values()) {
 					EditableOuterName o2 = o1.replicate();
@@ -1012,13 +1028,14 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				for (EditableOuterName o0 : redex.outers.values()) {
 					// replicate the handle
-					EditableOuterName o2 = new EditableOuterName(o0.getName());
-					rdx.outers.put(o2.getName(), o2);
+					String name = o0.getName();
+					EditableOuterName o2 = new EditableOuterName(name);
+					rdx.outers.put(name, o2);
 					o2.setOwner(rdx);
 					rdx_hnd_dic.put(o0, o2);
 					// update ctx inner face
-					EditableInnerName i1 = new EditableInnerName(o0.getName());
-					ctx.inners.put(i1.getName(), i1);
+					EditableInnerName i1 = new EditableInnerName(name);
+					ctx.inners.put(name, i1);
 					// find the handle for i1
 					EditableHandle h1 = handle_img.get(o0);
 					if (h1 == null) {
@@ -1112,7 +1129,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 							}
 						}
 						// enqueue children, if necessary
-						Collection<Child> cs = new HashSet<>(p1.getChildren());
+						Collection<Child> rcs = new HashSet<>(p1.getChildren());
 						Map<PlaceEntity, IntegerVariable> p_row = p_vars
 								.get(p1);
 						Iterator<Root> ir = unseen_rdx_roots.iterator();
@@ -1129,29 +1146,27 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								EditableRoot r2 = new EditableRoot();
 								r2.setOwner(rdx);
 								rdx_roots_dic[k] = r2;
-								Iterator<Child> ic = cs.iterator();
-								while (ic.hasNext()) {
-									Child c1 = ic.next();
-									Map<PlaceEntity, IntegerVariable> c_row = p_vars
-											.get(c1);
-									for (Child c0 : r0.getChildren()) {
-										if (solver.getVar(c_row.get(c0))
+								for (Child c0 : r0.getChildren()) {
+									Iterator<Child> ic = rcs.iterator();
+									boolean notMatched = true;
+									while (ic.hasNext()) {
+										Child c1 = ic.next();
+										if (solver.getVar(
+												p_vars.get(c1).get(c0))
 												.getVal() == 1) {
+											notMatched = false;
 											q.add(new VState(rdx, r2, c1, c0));
 											ic.remove();
-											if (c0.isNode()) {
-												// unseen_agt_nodes.remove(c1);
-												break;
-											}
-										} else if (c0.isSite()) {
-											// closed site
-											q.add(new VState(rdx, r2, null, c0));
 										}
+									}
+									if (notMatched && c0.isSite()) {
+										// closed site
+										q.add(new VState(rdx, r2, null, c0));
 									}
 								}
 							}
 						}
-						for (Child c1 : cs) {
+						for (Child c1 : rcs) {
 							q.add(new VState(ctx, p2, c1));
 						}
 					} else if (v.b == rdx) {
@@ -1174,24 +1189,23 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								}
 								n2.getPort(i).setHandle(h2);
 							}
-							Collection<Child> cs = new HashSet<>(
-									n0.getChildren());
-							for (Child c1 : n1.getChildren()) {
-								Map<PlaceEntity, IntegerVariable> p_row = p_vars
-										.get(c1);
-								Iterator<Child> ic = cs.iterator();
+							Collection<Child> cs1 = new HashSet<>(
+									n1.getChildren());
+							for (Child c0 : n0.getChildren()) {
+								Iterator<Child> ic = cs1.iterator();
+								boolean notMatched = true;
 								while (ic.hasNext()) {
-									Child c0 = ic.next();
-									if (solver.getVar(p_row.get(c0)).getVal() == 1) {
+									Child c1 = ic.next();
+									if (solver.getVar(p_vars.get(c1).get(c0))
+											.getVal() == 1) {
+										notMatched = false;
 										q.add(new VState(rdx, n2, c1, c0));
 										ic.remove();
-										if (c0.isNode()) {
-											// unseen_agt_nodes.remove(c1);
-											break;
-										}
-									} else if (c0.isSite()) {
-										q.add(new VState(rdx, n2, null, c0));
 									}
+								}
+								if (notMatched && c0.isSite()) {
+									// closed site
+									q.add(new VState(rdx, n2, null, c0));
 								}
 							}
 						} else {
@@ -1259,6 +1273,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 											EditableInnerName i4 = new EditableInnerName();
 											i4.setHandle(h4);
 											String name = i4.getName();
+											ctx.inners.put(name, i4);
 											// add it also to id
 											EditableOuterName o5 = new EditableOuterName(
 													name);
@@ -1326,7 +1341,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 							p2.setHandle(h2);
 						}
 						for (Child c1 : n1.getChildren()) {
-							q.add(new VState(ctx, n2, c1));
+							q.add(new VState(v.b, n2, c1));
 						}
 					}
 				}
