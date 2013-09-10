@@ -1,8 +1,10 @@
-package jlibbig.core;
+package jlibbig.core.abstractions;
 
 import java.util.Set;
 
-public interface ReactiveSystem<B extends AbstractBigraph> {
+import jlibbig.core.Signature;
+
+public interface ReactiveSystem<B extends Bigraph<?>> {
 	public abstract Signature getSignature();
 	public abstract Set<? extends ReactionRule<? extends B>> getRules();
 	public abstract Set<? extends B> getBigraphs();

@@ -1,5 +1,7 @@
 package jlibbig.core;
 
+import jlibbig.core.abstractions.AbstractNamed;
+
 abstract class EditableLinkFacet implements LinkFacet, EditableNamed, ReplicableEx{
 	
 	protected String name;

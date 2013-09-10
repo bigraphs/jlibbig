@@ -34,7 +34,14 @@ class InvMap<A,B> implements Map<A,B>{
 			_inv.get(_map.get(a)).add(a);
 		}	
 	}
-			
+	
+	
+	
+	@Override
+	public String toString() {
+		return _map.toString();
+	}
+
 	@Override
 	public void clear() {
 		_map.clear();

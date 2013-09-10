@@ -1,11 +1,15 @@
 package jlibbig.core;
 
-import java.util.Set;
+import java.util.Collection;
 
-public interface Parent extends PlaceEntity{
+public interface Parent extends PlaceEntity, jlibbig.core.abstractions.Parent {
 	/**
 	 * Get the set of children
+	 * 
 	 * @return the set of children of this parent
 	 */
-	Set<? extends Child> getChildren();
+	@Override
+	public abstract Collection<? extends Child> getChildren();
+
+	public abstract EditableParent getEditable();
 }

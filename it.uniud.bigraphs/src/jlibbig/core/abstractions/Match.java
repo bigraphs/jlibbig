@@ -1,4 +1,4 @@
-package jlibbig.core;
+package jlibbig.core.abstractions;
 
 /**
  * Represents a match of a redex in a bigraph.
@@ -9,7 +9,7 @@ package jlibbig.core;
  * @see BigraphMatcher
  * @param <A> type of bigraph
  */
-public interface Match<A extends AbstractBigraph> {
+public interface Match<A extends Bigraph<?>> {
 	/**
 	 * The match context.
 	 * @return the context

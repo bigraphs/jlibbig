@@ -8,20 +8,14 @@ import java.util.*;
  * 
  * @see Signature
  */
-public class SignatureBuilder {
-
+public class SignatureBuilder extends jlibbig.core.abstractions.SignatureBuilder<Control>{
 	private Map<String, Control> ctrls = new HashMap<>();
-
-	/**
-	 * Creates an empty builder.
-	 */
-	public SignatureBuilder() {
-	}
-
+		
 	/**
 	 * Creates a signature with the control present in the builder
 	 * @return a signature
 	 */
+	@Override
 	public Signature makeSignature() {
 		return new Signature(ctrls.values());
 	}
@@ -35,6 +29,7 @@ public class SignatureBuilder {
 		return new Signature(usid, ctrls.values());
 	}
 
+
 	/**
 	 * Make a control and add it to the signature
 	 * @param name name of the control
@@ -42,14 +37,20 @@ public class SignatureBuilder {
 	 * @param arity number of ports
 	 */
 	public void put(String name, boolean active, int arity) {
-		ctrls.put(name, new Control(name,active,arity));
+		ctrls.put(name,new Control(name,active,arity));
 	}
-
+	
+	@Override
+	public void put(Control control) {
+		ctrls.put(control.getName(), control);
+	}
+	
 	/**
 	 * Check if a name is already used by a signature's control
 	 * @param name control's name that will be checked
 	 * @return boolean value
 	 */
+	@Override
 	public boolean contains(String name) {
 		return ctrls.containsKey(name);
 	}
@@ -59,6 +60,7 @@ public class SignatureBuilder {
 	 * @param name control's name
 	 * @return the corresponding control
 	 */
+	@Override
 	public Control  get(String name) {
 		return ctrls.get(name);
 	}
@@ -67,7 +69,8 @@ public class SignatureBuilder {
 	 * Get a collection of all controls in the signature
 	 * @return collection of signature's controls
 	 */
-	public Collection<Control > getAll() {
+	@Override
+	public Collection<Control> getAll() {
 		return Collections.unmodifiableCollection(ctrls.values());
 	}
 
@@ -85,55 +88,4 @@ public class SignatureBuilder {
 	public void clear() {
 		ctrls.clear();
 	}
-
-//
-//	private static class BGControl extends AbstNamed implements Control{
-//		private final boolean active;
-//		private final int arity;
-//
-//		BGControl(String name,boolean active, int arity){
-//			super(name);
-//			this.arity = arity;
-//			this.active = active;
-//		}
-//
-//		@Override
-//		public int hashCode() {
-//			final int prime = 31;
-//			int result = super.hashCode();
-//			result = prime * result + arity;
-//			return result;
-//		}
-//
-//		@Override
-//		public boolean equals(Object obj) {
-//			if (this == obj)
-//				return true;
-//			if (!super.equals(obj))
-//				return false;
-//			if (getClass() != obj.getClass())
-//				return false;
-//			BGControl other = (BGControl) obj;
-//			if (arity != other.arity || super.getName() != other.getName())
-//				return false;
-//			return true;
-//		}
-//
-//		@Override
-//		public String toString() {
-//			return getName() + ":(" + arity + ((active) ? ",a)" : ",p)");
-//		}
-//
-//		@Override
-//		public int getArity() {
-//			return arity;
-//		}
-//
-//		@Override
-//		public boolean isActive() {
-//			return active;
-//		}
-//
-//	}
-
 }

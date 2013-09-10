@@ -6,9 +6,9 @@ import jlibbig.core.*;
 
 /**
  * Class used to store a bigMC's redex or reactum bigraph
- * @see AbstractBigraph
+ * @see Bigraph
  */
-public class ReactionBigraph implements AbstractBigraph{
+public class ReactionBigraph implements jlibbig.core.abstractions.Bigraph<Control>{
 	final int[] sites;
 	private final List<Integer> ro_sites;
 	final Bigraph big;
@@ -79,7 +79,7 @@ public class ReactionBigraph implements AbstractBigraph{
 	 * Get the signature of the bigraph
 	 * @return the signature of the bigraph
 	 * @see Signature
-	 * @see AbstractBigraphHandler#getSignature()
+	 * @see BigraphHandler#getSignature()
 	 */
     @Override
 	public Signature getSignature() {
@@ -145,12 +145,12 @@ public class ReactionBigraph implements AbstractBigraph{
 	}
 
 	@Override
-	public Set<? extends Node> getNodes() {
+	public Collection<? extends Node> getNodes() {
 		return big.getNodes();
 	}
 
 	@Override
-	public Set<? extends Edge> getEdges() {
+	public Collection<? extends Edge> getEdges() {
 		return big.getEdges();
 	}
 	

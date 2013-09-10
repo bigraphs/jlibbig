@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import jlibbig.core.*;
 
@@ -17,7 +16,7 @@ import jlibbig.core.*;
  * presence of series of operations since {@link ReactionBigraph} is immutable.
  *
  */
-public class ReactionBigraphBuilder implements AbstractBigraphBuilder{
+public class ReactionBigraphBuilder implements jlibbig.core.abstractions.BigraphBuilder<Control>{
 	final BigraphBuilder rbig;
 	private final List<Integer> sites;
 	private final List<Integer> ro_sites;
@@ -158,12 +157,12 @@ public class ReactionBigraphBuilder implements AbstractBigraphBuilder{
 	}
 
 	@Override
-	public Set<? extends Node> getNodes() {
+	public Collection<? extends Node> getNodes() {
 		return this.rbig.getNodes();
 	}
 
 	@Override
-	public Set<? extends Edge> getEdges() {
+	public Collection<? extends Edge> getEdges() {
 		return this.rbig.getEdges();
 	}
 

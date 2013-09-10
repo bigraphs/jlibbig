@@ -4,7 +4,9 @@ import java.util.*;
 
 import jlibbig.bigmc.*;
 import jlibbig.bigmc.RewritingRule;
-import jlibbig.core.*;
+import jlibbig.core.Control;
+import jlibbig.core.Signature;
+import jlibbig.core.abstractions.*;
 import jlibbig.core.lang.*;
 
 /**
@@ -102,7 +104,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		Iterator<? extends Root> it = big.getRoots().iterator();
 		while( it.hasNext() ){
 			
-			Set<? extends Child> childs = it.next().getChildren();
+			Collection<? extends Child> childs = it.next().getChildren();
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() ){
@@ -124,7 +126,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 		Iterator<? extends Root> it = big.getRoots().iterator();
 		while( it.hasNext() ){
 			
-			Set<? extends Child> childs = it.next().getChildren();
+			Collection<? extends Child> childs = it.next().getChildren();
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() ){
@@ -144,7 +146,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	public static String toString( AgentBigraph big ){
 		StringBuilder s = new StringBuilder();
 		
-		Set<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
+		Collection<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
 		if( !childs.isEmpty() ){
 			Iterator<? extends Child> childIt = childs.iterator();
 			while( childIt.hasNext() ){
@@ -163,7 +165,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	public static String toString( AgentBigraphBuilder big ){
 		StringBuilder s = new StringBuilder();
 		
-		Set<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
+		Collection<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
 		if( !childs.isEmpty() ){
 			Iterator<? extends Child> childIt = childs.iterator();
 			while( childIt.hasNext() ){
@@ -175,11 +177,11 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 	}
 	
 	/**
-	 * Translate a bigraph ( {@link AbstractBigraphHandler} ) to a string with BigMC's syntax (if the bigraph can be converted into a ReactionBigraph or an AgentBigraph).
+	 * Translate a bigraph ( {@link BigraphHandler} ) to a string with BigMC's syntax (if the bigraph can be converted into a ReactionBigraph or an AgentBigraph).
 	 * @param big the bigraph that will be converted into a string.
 	 * @return the resulting string
 	 */
-	public static String toString( AbstractBigraphHandler big ){
+	public static String toString( BigraphHandler<Control> big ){
 		if( big.getRoots().isEmpty() )
 			throw new IllegalArgumentException("The place graph's outerface must be at least 1 (one root). Cannot be converted into a string with BigMC's syntax.");
 		for( Edge edge : big.getEdges() ){
@@ -195,7 +197,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			if( big.getRoots().size() != 1 )
 				throw new IllegalArgumentException("Bigraph isn't an Agent - The place graph's outerface must be 1 (exactly one root). Cannot be converted into a string with BigMC's syntax.");
 			
-			Set<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
+			Collection<? extends Child> childs = big.getRoots().get( 0 ).getChildren();
 			if( !childs.isEmpty() ){
 				Iterator<? extends Child> childIt = childs.iterator();
 				while( childIt.hasNext() ){
@@ -211,7 +213,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			
 			Iterator<? extends Root> it = big.getRoots().iterator();
 			while( it.hasNext() ){	
-				Set<? extends Child> childs = it.next().getChildren();
+				Collection<? extends Child> childs = it.next().getChildren();
 				if( !childs.isEmpty() ){
 					Iterator<? extends Child> childIt = childs.iterator();
 					while( childIt.hasNext() ){
@@ -259,7 +261,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			if(ns.length() > 0 )	//note: if length > 0 --> at least 1 append has been done --> length > 3
 				s.append("[").append(ns.substring(0 , ns.length()-2 )).append( "]");
 			
-			Set<? extends Child> childs = ((Node) d ).getChildren();
+			Collection<? extends Child> childs = ((Node) d ).getChildren();
 			if(! childs.isEmpty() ){
 				s.append(".");
 				if( childs.size() > 1 ) s.append("( ");
@@ -308,7 +310,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem>{
 			if(ns.length() > 0 )	//note: if length > 0 --> at least 1 append has been done --> length > 3
 				s.append("[").append(ns.substring(0 , ns.length()-2 )).append( "]");
 			
-			Set<? extends Child> childs = ((Node) c ).getChildren();
+			Collection<? extends Child> childs = ((Node) c ).getChildren();
 			if(! childs.isEmpty() ){
 				s.append(".");
 				if( childs.size() > 1 ) s.append("( ");
