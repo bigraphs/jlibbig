@@ -2,6 +2,8 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.abstractions.Owned;
+import jlibbig.core.abstractions.Owner;
 import jlibbig.core.exceptions.*;
 
 /**
@@ -12,20 +14,32 @@ import jlibbig.core.exceptions.*;
  * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object.
  * </p>
  */
-final public class BigraphBuilder implements AbstractBigraphBuilder {
+final public class BigraphBuilder implements jlibbig.core.abstractions.BigraphBuilder<Control> {
 	private final boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	private Bigraph big;
 	private boolean closed = false;
 
+	/** 
+	 * Initially the builder describes an empty bigraph for the given signature.
+	 * @param sig the signature to be used.
+	 */
 	public BigraphBuilder(Signature sig) {
 		this.big = Bigraph.makeEmpty(sig);
 	}
 
+	/** 
+	 * Create a builder from the given bigraph.
+	 * @param big the bigraph describing the starting state
+	 */
 	public BigraphBuilder(Bigraph big) {
 		this(big, false);
 	}
 
+	/**
+	 * @param big the bigraph describing the starting state.
+	 * @param reuse whatever the argument can be reused as it is or should be cloned.
+	 */
 	BigraphBuilder(Bigraph big, boolean reuse) {
 		if (!big.isConsistent())
 			throw new IllegalArgumentException("Inconsistent bigraph.");
@@ -56,9 +70,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 */
 	public Bigraph makeBigraph(boolean close) {
 		assertOpen();
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		Bigraph b;
 		if (close) {
 			b = big.setOwner(big);
@@ -146,6 +158,11 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		return this.big.getOuterNames();
 	}
 
+	public boolean containsOuterName(String name){
+		assertOpen();
+		return this.big.outers.containsKey(name);
+	}
+	
 	/**
 	 * Get bigraph's inner names.
 	 * 
@@ -157,13 +174,18 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		return this.big.getInnerNames();
 	}
 
+	public boolean containsInnerName(String name){
+		assertOpen();
+		return this.big.inners.containsKey(name);
+	}
+	
 	/**
 	 * Get bigraph's nodes.
 	 * 
 	 * @return a set containing bigraph's nodes.
 	 */
 	@Override
-	public Set<? extends Node> getNodes() {
+	public Collection<? extends Node> getNodes() {
 		assertOpen();
 		return this.big.getNodes();
 	}
@@ -174,31 +196,9 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 	 * @return a set containing bigraph's edges.
 	 */
 	@Override
-	public Set<? extends Edge> getEdges() {
+	public Collection<? extends Edge> getEdges() {
 		assertOpen();
 		return this.big.getEdges();
-	}
-
-	// /////////////////////////////////////////////////////////////////////////
-
-	private void assertOwner(Owned owned, String obj) {
-		if (owned == null)
-			throw new IllegalArgumentException(obj + " can not be null.");
-		Owner o = owned.getOwner();
-		if (o != this)
-			throw new IllegalArgumentException(obj
-					+ " should be owned by this structure.");
-	}
-
-	private void assertOrSetOwner(Owned owned, String obj) {
-		if (owned == null)
-			throw new IllegalArgumentException(obj + " can not be null.");
-		Owner o = owned.getOwner();
-		if (o == null)
-			((EditableOwned) owned).setOwner(this);
-		else if (o != this)
-			throw new IllegalArgumentException(obj
-					+ " already owned by an other structure.");
 	}
 
 	/**
@@ -211,9 +211,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		EditableRoot r = new EditableRoot();
 		r.setOwner(this);
 		this.big.roots.add(r);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return r;
 	}
 
@@ -229,9 +227,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		assertOwner(parent, "Parent");
 		EditableSite s = new EditableSite((EditableParent) parent);
 		this.big.sites.add(s);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return s;
 	}
 
@@ -277,9 +273,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			assertOrSetOwner(hs[i], "Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return n;
 	}
 
@@ -312,9 +306,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			assertOrSetOwner(hs[i], "Handle");
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return n;
 	}
 
@@ -355,9 +347,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		n.setOwner(this);
 		this.big.outers.put(n.getName(),n);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return n;
 	}
 
@@ -433,9 +423,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		n.setHandle(h);
 		this.big.inners.put(n.getName(),n);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return n;
 	}
 
@@ -453,9 +441,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		EditablePoint p = (EditablePoint) point;
 		EditableHandle h = (EditableHandle) handle;
 		p.setHandle(h);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -477,9 +463,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		e.setOwner(this);
 		t1.setHandle(e);
 		t2.setHandle(e);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return e;
 	}
 
@@ -503,9 +487,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		for (int i = 0; i < points.length; i++) {
 			ps[i].setHandle(e);
 		}
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return e;
 	}
 
@@ -657,9 +639,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		clearOwnedCollection(big.roots);// .clear();
 		big.roots.add(r);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return r;
 	}
 	
@@ -680,9 +660,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			rs[i].setOwner(null);
 		}
 		big.roots.add(index,r);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 		return r;
 	}
 	
@@ -692,9 +670,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 			throw new IllegalArgumentException("Unempty region.");
 		((EditableRoot) root).setOwner(null);
 		big.roots.remove(root);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 	
 	public void removeRoot(int index) {
@@ -707,9 +683,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		assertOwner(site,"Site ");
 		((EditableSite) site).setParent(null);
 		big.sites.remove(site);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 	
 	public void closeSite(int index) {
@@ -726,9 +700,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		assertOpen();
 		clearChildCollection(big.sites);// .clear();
 		clearInnerMap(big.inners);// .clear();
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -785,9 +757,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		r.sites.addAll(l.sites);
 		r.outers.putAll(l.outers);
 		r.inners.putAll(l.inners);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -844,9 +814,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		l.sites.addAll(r.sites);
 		l.outers.putAll(r.outers);
 		l.inners.putAll(r.inners);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -884,7 +852,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		Bigraph a = out;
 		Bigraph b = (reuse) ? in : in.clone();
-		Set<? extends Edge> es = b.getEdges();
+		Collection<? extends Edge> es = b.getEdges();
 		// iterate over sites and roots of a and b respectively and glue them
 		// iterate over sites and roots of a and b respectively and glue them
 		Iterator<EditableRoot> ir = b.roots.iterator();
@@ -919,9 +887,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		for (Edge e : es) {
 			((EditableEdge) e).setOwner(this);
 		}
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -959,7 +925,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		}
 		Bigraph a = (reuse) ? out : out.clone();
 		Bigraph b = in; // this BB
-		Set<? extends Edge> es = a.getEdges();
+		Collection<? extends Edge> es = a.getEdges();
 		// iterates over sites and roots of a and b respectively and glues them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
@@ -1000,9 +966,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		for (Edge e : es) {
 			((EditableEdge) e).setOwner(this);
 		}
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -1189,9 +1153,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		r.sites.addAll(l.sites);
 		r.outers.putAll(os);
 		r.inners.putAll(l.inners);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -1270,9 +1232,7 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		l.sites.addAll(r.sites);
 		l.outers.putAll(os);
 		l.inners.putAll(r.inners);
-		// TODO skip check on internal data
-		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
-			throw new RuntimeException("Inconsistent bigraph.");
+		assertConsistency();
 	}
 
 	/**
@@ -1337,6 +1297,35 @@ final public class BigraphBuilder implements AbstractBigraphBuilder {
 		merge();
 	}
 
+
+	// /////////////////////////////////////////////////////////////////////////
+
+	private final void assertConsistency() {
+		// TODO skip check on internal data
+		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
+			throw new RuntimeException("Inconsistent bigraph.");
+	}
+	
+	private void assertOwner(Owned owned, String obj) {
+		if (owned == null)
+			throw new IllegalArgumentException(obj + " can not be null.");
+		Owner o = owned.getOwner();
+		if (o != this)
+			throw new IllegalArgumentException(obj
+					+ " should be owned by this structure.");
+	}
+
+	private void assertOrSetOwner(Owned owned, String obj) {
+		if (owned == null)
+			throw new IllegalArgumentException(obj + " can not be null.");
+		Owner o = owned.getOwner();
+		if (o == null)
+			((EditableOwned) owned).setOwner(this);
+		else if (o != this)
+			throw new IllegalArgumentException(obj
+					+ " already owned by an other structure.");
+	}
+	
 	private static Collection<String> intersectNames(
 			Collection<? extends LinkFacet> arg0,
 			Collection<? extends LinkFacet> arg1) {

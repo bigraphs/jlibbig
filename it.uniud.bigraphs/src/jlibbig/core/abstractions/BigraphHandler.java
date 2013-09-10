@@ -1,4 +1,4 @@
-package jlibbig.core;
+package jlibbig.core.abstractions;
 
 import java.util.*;
 
@@ -6,12 +6,12 @@ import java.util.*;
  * Interface implemented by every bigraph's class
  *
  */
-public interface AbstractBigraphHandler extends Owner{
+public interface BigraphHandler<C extends Control> extends Owner{
 		/**
 		 * Get the bigraph's signature
 		 * @return the bigraph's signature
 		 */
-		public abstract Signature getSignature();
+		public abstract Signature<C> getSignature();
 		
 		/**
 		 * check if the bigraph is empty (has no roots, sites, inner and outer names)
@@ -53,11 +53,11 @@ public interface AbstractBigraphHandler extends Owner{
 		 * Get bigraph's nodes.
 		 * @return a set containing bigraph's nodes.
 		 */
-		public abstract Set<? extends Node> getNodes();
+		public abstract Collection<? extends Node> getNodes();
 
 		/**
 		 * Get bigraph's edges.
 		 * @return a set containing bigraph's edges.
 		 */
-		public abstract Set<? extends Edge> getEdges();
+		public abstract Collection<? extends Edge> getEdges();
 }

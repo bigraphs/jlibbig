@@ -6,16 +6,17 @@ public class AgentMatch extends BigraphMatch{
 
 	protected final List<Bigraph> params;
 	protected final Bigraph lambda;
-	protected Bigraph param;
+	protected final Bigraph id;
 
-	AgentMatch(Bigraph context, Bigraph redex, Bigraph lambda, List<Bigraph> params,Map<Node,EditableNode> nodesEmbedding){
-		super(context,redex,null, nodesEmbedding);
-		this.params = Collections.unmodifiableList(new  LinkedList<>(params));
-		this.lambda = lambda;
+	AgentMatch(Bigraph context, Bigraph redexImage, Bigraph redexLinkId, Bigraph paramWiring, Bigraph[] params,Map<Node,EditableNode> nodesEmbedding){
+		super(context,redexImage,null, null, redexLinkId, null, nodesEmbedding);
+		this.params = Collections.unmodifiableList(Arrays.asList(params));
+		this.lambda = paramWiring;
+		this.id = redexLinkId;
 	}
 
 	/**
-	 * @see jlibbig.core.Match#getContext()
+	 * @see jlibbig.core.abstractions.Match#getContext()
 	 */
 	@Override
 	public Bigraph getContext() {
@@ -23,35 +24,27 @@ public class AgentMatch extends BigraphMatch{
 	}
 
 	/**
-	 * @see jlibbig.core.Match#getRedex()
-	 */
-	@Override
-	public Bigraph getRedex() {
-		return this.redex;
-	}
-	/**
-	 * @see jlibbig.core.Match#getParam()
+	 * @see jlibbig.core.abstractions.Match#getParam()
 	 */
 	@Override
 	public Bigraph getParam() {
-		if(this.param == null){
+		if(param == null){
 			BigraphBuilder bb = new BigraphBuilder(this.context.signature);
 			for(Bigraph prm : this.params){
 				bb.rightParallelProduct(prm);
 			}
 			bb.outerCompose(lambda);
-			this.param = bb.makeBigraph();
+			param = bb.makeBigraph();
 		}
-		return this.param;
+		return param;
 	}
 
 	public List<Bigraph> getParams() {
 		return this.params;
 	}
-
-	public Bigraph getLinking() {
+		
+	public Bigraph getParamWiring() {
 		return this.lambda;
 	}
-
 
 }

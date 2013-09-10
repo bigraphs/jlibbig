@@ -1,8 +1,6 @@
 package jlibbig.bigmc;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import jlibbig.core.*;
 
@@ -10,7 +8,7 @@ import jlibbig.core.*;
  * Class used to store immutable ground Bigraph (Agent).
  * For a mutable version, users can use {@link jlibbig.bigmc.AgentBigraphBuilder}
  */
-public class AgentBigraph implements AbstractBigraph{
+public class AgentBigraph implements jlibbig.core.abstractions.Bigraph<Control>{
 	final Bigraph bigraph;
 	
 	/**
@@ -85,12 +83,12 @@ public class AgentBigraph implements AbstractBigraph{
 	}
 
 	@Override
-	public Set<? extends Node> getNodes() {
+	public Collection<? extends Node> getNodes() {
 		return bigraph.getNodes();
 	}
 
 	@Override
-	public Set<? extends Edge> getEdges() {
+	public Collection<? extends Edge> getEdges() {
 		return bigraph.getEdges();
 	}
 	

@@ -3,6 +3,7 @@ package jlibbig.core;
 import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
+import jlibbig.core.abstractions.Matcher;
 
 import choco.Choco;
 import choco.cp.model.CPModel;
@@ -14,6 +15,7 @@ import choco.kernel.model.variables.integer.IntegerVariable;
 /**
  * Implements a matcher for bigraphs.
  * 
+ * @deprecated BUGGY...very buggy!
  * @see Matcher
  */
 public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
@@ -22,6 +24,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
 	private final static boolean DEBUG_PRINT_QUEUE_REFILL = DEBUG;
 	private final static boolean DEBUG_CONSISTENCY_CHECK = DEBUG || true;
+	private final static boolean OPTIMIZE_FOR_GROUND = true;
 
 	private final NodeEquivalence eq;
 
@@ -41,7 +44,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	public final static BigraphMatcher DEFAULT = new BigraphMatcher();
 
 	/**
-	 * @see jlibbig.core.Matcher#match(jlibbig.core.AbstBigraph,
+	 * @see jlibbig.core.abstractions.Matcher#match(jlibbig.core.AbstBigraph,
 	 *      jlibbig.core.AbstBigraph)
 	 */
 	@Override
@@ -52,8 +55,8 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex, NodeEquivalence eq) {
 		if(eq == null)
 			throw new IllegalArgumentException("Euivalence can not be null.");
-		if (agent.isGround())
-			return AgentMatcher.DEFAULT.match(agent, redex, eq);
+		if (OPTIMIZE_FOR_GROUND && agent.isGround())
+			return AgentMatcher.DEFAULT.match(agent, redex);
 		else
 			return new MatchIterable(agent, redex, eq);
 	}
@@ -81,14 +84,14 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		// computed on the fly)
 		final List<? extends Root> agent_roots;
 		final List<? extends Site> agent_sites;
-		final Set<? extends Node> agent_nodes;
-		final Set<? extends Edge> agent_edges;
+		final Collection<? extends Node> agent_nodes;
+		final Collection<? extends Edge> agent_edges;
 
 		final List<? extends Root> redex_roots;
 		final List<? extends Site> redex_sites;
-		final Set<? extends Node> redex_nodes;
+		final Collection<? extends Node> redex_nodes;
 
-		final Set<Handle> redex_handles;
+		final Collection<Handle> redex_handles;
 
 		// relates redex handles and inner names and describes aliasied names
 		final InvMap<InnerName, Handle> aliased_inners;
@@ -368,8 +371,8 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				// in nodes
 				for (Parent f : agent_roots) {
 					for (Parent g : redex_nodes) {
-						Set<? extends Child> cf = f.getChildren();
-						Set<? extends Child> cg = g.getChildren();
+						Collection<? extends Child> cf = f.getChildren();
+						Collection<? extends Child> cg = g.getChildren();
 						vars = new IntegerVariable[cf.size() * cg.size()];
 						k = 0;
 						for (PlaceEntity i : cf) {
@@ -388,8 +391,8 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 				// sites) if g in roots
 				for (PlaceEntity f : matrix.keySet()) {
 					for (Root g : redex_roots) {
-						Set<? extends Child> cf = ((Parent) f).getChildren();
-						Set<? extends Child> cg = new HashSet<>(g.getChildren());
+						Collection<? extends Child> cf = ((Parent) f).getChildren();
+						Collection<? extends Child> cg = new HashSet<>(g.getChildren());
 						cg.removeAll(redex_sites);
 						vars = new IntegerVariable[cf.size() * cg.size()];
 						k = 0;
@@ -821,8 +824,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					// <Redex,Agent>
 					Map<Handle, Map<Handle, IntegerVariable>> lnk_hnd = new HashMap<>();
 					// a boolean variable for each assignable pair of points and
-					// inner
-					// names
+					// inner names
 					Map<Point, Map<InnerName, IntegerVariable>> lnk_pts = new HashMap<>();
 
 					// variables activating phantom edges
@@ -1061,8 +1063,13 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					}
 
 					// every port is assigned to at most one inner name
+					System.out.println(prm_points.keySet());
+					System.out.println(lnk_pts.keySet());
 					for (Point p : prm_points.keySet()) {
 						Map<InnerName, IntegerVariable> pr = lnk_pts.get(p);
+						if(pr == null){
+							System.err.println(p);
+						}
 						IntegerVariable[] vars = new IntegerVariable[pr.size()];
 						int k = 0;
 						for (IntegerVariable var : pr.values()) {
@@ -1451,7 +1458,7 @@ public final class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								throw new RuntimeException(
 										"Inconsistent bigraph (prm)");
 						}
-						matchQueue.add(new BigraphMatch(ctx, rdx, prm,nEmb));
+						//matchQueue.add(new BigraphMatch(ctx, rdx, prm,nEmb));
 					} while (lnk_solver.nextSolution());
 				} while (this.matchQueue.isEmpty());
 			}

@@ -11,13 +11,25 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 
 	final private boolean[] neededParam;
 	final private boolean[] cloneParam;
+	
+	private AgentMatcher matcher;
 
 	public AgentRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-		this(redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
+		this(AgentMatcher.DEFAULT,redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
+	}
+	
+	public AgentRewritingRule(AgentMatcher matcher, Bigraph redex, Bigraph reactum, int... eta) {
+		this(matcher, redex,reactum, new BigraphInstantiationMap(redex.sites.size(),eta));
 	}
 	
 	public AgentRewritingRule(Bigraph redex, Bigraph reactum, BigraphInstantiationMap eta) {
+		this(AgentMatcher.DEFAULT, redex,reactum,eta);
+	}
+	
+	public AgentRewritingRule(AgentMatcher matcher,Bigraph redex, Bigraph reactum, BigraphInstantiationMap eta) {
 		super(redex,reactum, eta);
+		
+		this.matcher = (matcher == null) ? AgentMatcher.DEFAULT : matcher;
 		
 		this.neededParam = new boolean[redex.sites.size()];
 		this.cloneParam = new boolean[this.eta.getPlaceDomain()];
@@ -69,7 +81,7 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 
 		private final Bigraph target;
 
-		private Iterable<AgentMatch> mAble;
+		private Iterable<? extends AgentMatch> mAble;
 
 		RewriteIterable(Bigraph target) {
 			this.target = target;
@@ -78,13 +90,13 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 		@Override
 		public Iterator<Bigraph> iterator() {
 			if (mAble == null)
-				mAble = AgentMatcher.DEFAULT.match(target, redex, null, neededParam);
+				mAble = matcher.match(target, redex, neededParam);
 			return new RewriteIterator();
 		}
 
 		private class RewriteIterator implements Iterator<Bigraph> {
 
-			Iterator<AgentMatch> matches;
+			Iterator<? extends AgentMatch> matches;
 
 			@Override
 			public boolean hasNext() {
@@ -99,21 +111,21 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 					AgentMatch match = matches.next();
 					BigraphBuilder bb = new BigraphBuilder(redex.getSignature());
 					for (int i = eta.getPlaceDomain() - 1; 0 <= i; i--) {
-						bb.leftParallelProduct(
+						bb.leftJuxtapose(
 								match.params.get(eta.getPlaceInstance(i)),
 								!cloneParam[i]);
 					}
-					Bigraph lambda = match.getLinking();
-					Collection<? extends LinkFacet> ons = bb.getOuterNames();
-					Iterator<EditableInnerName> ir = lambda.inners.values().iterator();
-					while(ir.hasNext()){
-						EditableInnerName i = ir.next();
-						if(!ons.contains(i)){
-							ir.remove();
+					Bigraph lambda = match.getParamWiring();
+					for(EditableInnerName n : lambda.inners.values()){
+						if(!bb.containsOuterName(n.getName())){
+							lambda.inners.remove(n.getName());
+							n.setHandle(null);
 						}
 					}
-					bb.outerCompose(instantiateReactum(match), false);
-					bb.outerCompose(match.context, true);
+					bb.outerCompose(lambda,true);
+					Bigraph inreact = instantiateReactum(match);
+					bb.outerCompose(inreact, true);
+					bb.outerCompose(match.getContext(), true);
 					return bb.makeBigraph(true);
 				} else {
 					return null;

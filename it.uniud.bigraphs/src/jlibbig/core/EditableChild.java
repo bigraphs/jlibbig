@@ -1,5 +1,7 @@
 package jlibbig.core;
 
+import jlibbig.core.abstractions.Owned;
+
 interface EditableChild extends Child, ReplicableEx, Owned {
 	void setParent(EditableParent parent);
 	@Override

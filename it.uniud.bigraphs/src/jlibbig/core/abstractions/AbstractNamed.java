@@ -1,4 +1,4 @@
-package jlibbig.core;
+package jlibbig.core.abstractions;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -119,7 +119,6 @@ public abstract class AbstractNamed implements Named {
 	/** Generates a name using the shared internal state of the class.
 	 * This method is not thread safe, use {@link generateName()}}.
 	 * @return a name
-	 * @deprecated
 	 */
 	private static String unsafeGenerateName(){
 		/*

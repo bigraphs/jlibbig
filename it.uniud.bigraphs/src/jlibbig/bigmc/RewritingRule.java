@@ -1,17 +1,18 @@
 package jlibbig.bigmc;
 
 import jlibbig.core.*;
+import jlibbig.core.abstractions.InstantiationRule;
 import jlibbig.core.exceptions.IncompatibleInterfacesException;
 import jlibbig.core.exceptions.IncompatibleSignatureException;
 import jlibbig.core.exceptions.InvalidInstantiationRuleException;
 
-public class RewritingRule implements jlibbig.core.RewritingRule<AbstractBigraph> {
+public class RewritingRule implements jlibbig.core.abstractions.RewritingRule<AgentBigraph,ReactionBigraph> {
 	final private boolean[] neededParams;
 	final private boolean[] cloneParams; 
 	
 	final ReactionBigraph redex;
 	final ReactionBigraph reactum;
-	final BigraphInstantiationMap eta;
+	final InstantiationRule<AgentBigraph> eta;
 	
 	public RewritingRule( ReactionBigraph redex , ReactionBigraph reactum ){
 		if( !redex.isRedex() )
@@ -31,7 +32,7 @@ public class RewritingRule implements jlibbig.core.RewritingRule<AbstractBigraph
 				throw new RuntimeException( "No site indexed as $" + reactum.sites[ i ] + " in the redex." );
 		}
 		
-		BigraphInstantiationMap eta = new BigraphInstantiationMap( redex.getSites().size(), re_eta );
+		InstantiationMap eta = new InstantiationMap( redex.getSites().size(), re_eta );
 		
 		if (redex.getSites().size() != eta.getPlaceCodomain()) {
 			throw new InvalidInstantiationRuleException("The instantiation rule does not match the redex inner interface.");
@@ -83,12 +84,12 @@ public class RewritingRule implements jlibbig.core.RewritingRule<AbstractBigraph
 	}
 
 	@Override
-	public InstantiationRule<Bigraph> getInstantiationRule() {
+	public InstantiationRule<AgentBigraph> getInstantiationRule() {
 		return this.eta;
 	}
 
 	@Override
-	public Iterable<AbstractBigraph> apply(AbstractBigraph to) {
+	public Iterable<AgentBigraph> apply(AgentBigraph to) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Not implemented yet.");
 	}

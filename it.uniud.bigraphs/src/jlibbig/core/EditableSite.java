@@ -1,5 +1,6 @@
 package jlibbig.core;
 
+import jlibbig.core.abstractions.Owner;
 import jlibbig.core.attachedProperties.DelegatedProperty;
 import jlibbig.core.attachedProperties.PropertyContainer;
 
@@ -64,6 +65,11 @@ class EditableSite implements EditableChild, Site{
 	@Override
 	public boolean unregisterListener(ReplicateListener listener) {
 		return rep.unregisterListener(listener);
+	}
+	
+	@Override
+	public EditableSite getEditable(){
+		return this;
 	}
 
 	@Override

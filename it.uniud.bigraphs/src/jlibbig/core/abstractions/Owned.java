@@ -1,4 +1,4 @@
-package jlibbig.core;
+package jlibbig.core.abstractions;
 
 public interface Owned {
 	/**

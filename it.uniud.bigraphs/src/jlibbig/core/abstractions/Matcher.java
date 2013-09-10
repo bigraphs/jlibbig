@@ -1,4 +1,5 @@
-package jlibbig.core;
+package jlibbig.core.abstractions;
+
 
 /**
  * Describes a Matcher for bigraphs.
@@ -6,7 +7,7 @@ package jlibbig.core;
  * @param <A> type of the bigraph
  * @param <R> type of the redex
  */
-public interface Matcher<A extends AbstractBigraph, R extends AbstractBigraph>  {
+public interface Matcher<A extends Bigraph<?>, R extends Bigraph<?>>  {
 	/**
 	 * Computes the matches of a redex into a bigraph of types
 	 * <code>R</code> and <code>A</code> respectively.
@@ -15,5 +16,5 @@ public interface Matcher<A extends AbstractBigraph, R extends AbstractBigraph>  
 	 * @param redex the bigraph to look up for.
 	 * @return an Iterable yielding every possible match.
 	 */
-	Iterable<? extends Match<A>> match(A agent, R redex);
+	Iterable<? extends Match<? extends A>> match(A agent, R redex);
 }

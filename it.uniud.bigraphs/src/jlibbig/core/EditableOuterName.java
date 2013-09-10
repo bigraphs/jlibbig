@@ -2,6 +2,8 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.abstractions.Owner;
+
 class EditableOuterName extends EditableLinkFacet implements OuterName,
 		EditableNamed, EditableHandle {
 
@@ -61,5 +63,40 @@ class EditableOuterName extends EditableLinkFacet implements OuterName,
 	@Override
 	public void setOwner(Owner value) {
 		this.owner = value;
+	}
+	
+	@Override
+	public EditableOuterName getEditable() {
+		return this;
+	}
+
+	@Override
+	public boolean isHandle() {
+		return true;
+	}
+
+	@Override
+	public boolean isPoint() {
+		return false;
+	}
+
+	@Override
+	public boolean isPort() {
+		return false;
+	}
+
+	@Override
+	public boolean isInnerName() {
+		return false;
+	}
+
+	@Override
+	public boolean isOuterName() {
+		return true;
+	}
+
+	@Override
+	public boolean isEdge() {
+		return false;
 	}
 }

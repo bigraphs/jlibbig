@@ -3,9 +3,12 @@ package jlibbig.core;
 import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
+import jlibbig.core.abstractions.InstantiationRule;
+import jlibbig.core.abstractions.Owner;
+import jlibbig.core.abstractions.RewritingRule;
 import jlibbig.core.exceptions.*;
 
-public class BigraphRewritingRule implements RewritingRule<Bigraph> {
+public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 	final Bigraph redex;
 	final Bigraph reactum;
 	final BigraphInstantiationMap eta;
@@ -208,8 +211,12 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph> {
 				if(args == null || !args.hasNext()){
 					if(matches.hasNext()){
 						BigraphMatch match = matches.next();
-						big = Bigraph.compose(match.getContext(),
-								instantiateReactum(match), true);
+						BigraphBuilder bb = new BigraphBuilder(instantiateReactum(match),true);
+						bb.leftJuxtapose(match.getRedexLeftId(),true);
+						bb.rightJuxtapose(match.getRedexRightId(), true);
+						bb.leftJuxtapose(match.rdxLinkId,true);
+						bb.outerCompose(match.getContext(),true);						
+						big = bb.makeBigraph(true);
 						args = eta.instantiate(match.getParam()).iterator();
 					}
 				}

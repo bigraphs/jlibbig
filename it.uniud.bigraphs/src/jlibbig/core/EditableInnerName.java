@@ -1,5 +1,7 @@
 package jlibbig.core;
 
+import jlibbig.core.abstractions.Owner;
+
 class EditableInnerName extends EditableLinkFacet implements InnerName, EditableNamed, EditablePoint{
 
 	private EditableHandle handle;
@@ -48,5 +50,40 @@ class EditableInnerName extends EditableLinkFacet implements InnerName, Editable
 		EditableInnerName copy = new EditableInnerName(this.getName());
 		rep.tell(this, copy);
 		return copy;
+	}
+	
+	@Override
+	public EditableInnerName getEditable() {
+		return this;
+	}
+
+	@Override
+	public boolean isHandle() {
+		return false;
+	}
+
+	@Override
+	public boolean isPoint() {
+		return true;
+	}
+
+	@Override
+	public boolean isPort() {
+		return false;
+	}
+
+	@Override
+	public boolean isInnerName() {
+		return true;
+	}
+
+	@Override
+	public boolean isOuterName() {
+		return false;
+	}
+
+	@Override
+	public boolean isEdge() {
+		return false;
 	}
 }

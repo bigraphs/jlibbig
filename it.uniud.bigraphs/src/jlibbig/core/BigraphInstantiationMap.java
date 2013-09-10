@@ -3,6 +3,7 @@ package jlibbig.core;
 import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
+import jlibbig.core.abstractions.InstantiationRule;
 import jlibbig.core.exceptions.*;
 
 public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {

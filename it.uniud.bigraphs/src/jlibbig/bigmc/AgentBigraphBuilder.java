@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import jlibbig.core.*;
 
@@ -14,7 +13,7 @@ import jlibbig.core.*;
  * presence of series of operations since {@link AgentBigraph} is immutable.
  *
  */
-public class AgentBigraphBuilder implements AbstractBigraphBuilder{
+public class AgentBigraphBuilder implements jlibbig.core.abstractions.BigraphBuilder<Control>{
 	BigraphBuilder bigraph; 
 	
 	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";
@@ -115,12 +114,12 @@ public class AgentBigraphBuilder implements AbstractBigraphBuilder{
 	}
 
 	@Override
-	public Set<? extends Node> getNodes() {
+	public Collection<? extends Node> getNodes() {
 		return this.bigraph.getNodes();
 	}
 
 	@Override
-	public Set<? extends Edge> getEdges() {
+	public Collection<? extends Edge> getEdges() {
 		return this.bigraph.getEdges();
 	}
 

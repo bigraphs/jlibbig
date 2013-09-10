@@ -3,7 +3,7 @@ package jlibbig.core;
 import java.util.*;
 
 import jlibbig.core.EditableNode.EditablePort;
-//import jlibbig.core.attachedProperties.*;
+import jlibbig.core.abstractions.Owner;
 import jlibbig.core.exceptions.*;
 
 /**
@@ -14,7 +14,7 @@ import jlibbig.core.exceptions.*;
  * version of bigraphs, users can use {@link BigraphBuilder}.
  * </p>
  */
-final public class Bigraph implements AbstractBigraph {// , PropertyTarget {
+final public class Bigraph implements jlibbig.core.abstractions.Bigraph<Control> {// , PropertyTarget {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
@@ -345,7 +345,7 @@ final public class Bigraph implements AbstractBigraph {// , PropertyTarget {
 	 * @see jlibbig.core.AbstBigraph#getNodes()
 	 */
 	@Override
-	public Set<? extends Node> getNodes() {
+	public Collection<? extends Node> getNodes() {
 		Set<EditableNode> s = new HashSet<>();
 		Queue<EditableNode> q = new LinkedList<>();
 		for (Root r : this.roots) {
@@ -375,12 +375,12 @@ final public class Bigraph implements AbstractBigraph {// , PropertyTarget {
 	 * @see jlibbig.core.AbstBigraph#getEdges()
 	 */
 	@Override
-	public Set<? extends Edge> getEdges() {
+	public Collection<? extends Edge> getEdges() {
 		return getEdges(this.getNodes());
 	}
 
 	// avoid visit the place graph to compute the set of nodes
-	Set<? extends Edge> getEdges(Set<? extends Node> nodes) {
+	Collection<? extends Edge> getEdges(Iterable<? extends Node> nodes) {
 		Set<Edge> s = new HashSet<>();
 		for (Node n : nodes) {
 			for (Port p : n.getPorts()) {
@@ -404,7 +404,7 @@ final public class Bigraph implements AbstractBigraph {// , PropertyTarget {
 		String nl = System.getProperty("line.separator");
 		StringBuilder b = new StringBuilder();
 		b.append(signature.getUSID());
-		b.append("#{");
+		b.append(" {");
 		Iterator<Control> is = this.signature.iterator();
 		while (is.hasNext()) {
 			b.append(is.next().toString());
@@ -580,8 +580,8 @@ final public class Bigraph implements AbstractBigraph {// , PropertyTarget {
 		while (ir.hasNext()) { // |ir| == |is|
 			EditableSite s = is.next();
 			EditableParent p = s.getParent();
-			p.removeChild(s);
-			for (EditableChild c : ir.next().getEditableChildren()) {
+			p.removeChild(s); 
+			for (EditableChild c : new ArrayList<>(ir.next().getEditableChildren())) {
 				c.setParent(p);
 			}
 		}

@@ -2,6 +2,7 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.abstractions.Owner;
 import jlibbig.core.attachedProperties.*;
 
 class EditableRoot implements EditableParent, Root, EditableOwned{
@@ -9,7 +10,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned{
 	static final String PROPERTY_OWNER = "Owner";
 
 	private Set<EditableChild> children = new HashSet<>();
-	private final Set<? extends Child> ro_chd;
+	private final Set<? extends Child> ro_chd = Collections.unmodifiableSet(this.children);
 
 	private final ProtectedProperty.ValueSetter<Owner> ownerSetter = new ProtectedProperty.ValueSetter<>();
 	private final ProtectedProperty<Owner> owner = new ProtectedProperty<Owner>(PROPERTY_OWNER,null,ownerSetter);
@@ -18,12 +19,17 @@ class EditableRoot implements EditableParent, Root, EditableOwned{
 	private final PropertyContainer props = new PropertyContainer();
 
 	EditableRoot(){
-		ro_chd = Collections.unmodifiableSet(this.children);
+		this(null);
+	}
+	
+	EditableRoot(Owner owner){
 		props.attachProperty(this.owner);
+		if(owner != null)
+			ownerSetter.set(owner);
 	}
 
 	@Override
-	public Set<? extends Child> getChildren() {
+	public Collection<? extends Child> getChildren() {
 		return this.ro_chd;
 	}
 
@@ -112,6 +118,11 @@ class EditableRoot implements EditableParent, Root, EditableOwned{
 		this.ownerSetter.set(value);
 	}
 
+	@Override
+	public EditableRoot getEditable(){
+		return this;
+	}
+	
 	@Override
 	public boolean isParent() {
 		return true;

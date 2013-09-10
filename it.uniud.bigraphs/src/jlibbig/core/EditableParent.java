@@ -2,6 +2,7 @@ package jlibbig.core;
 
 import java.util.*;
 
+import jlibbig.core.abstractions.Owned;
 import jlibbig.core.attachedProperties.PropertyTarget;
 
 /**
@@ -14,7 +15,7 @@ interface EditableParent extends Parent, ReplicableEx, Owned, PropertyTarget {
 	 * Get the set of children. This set and every object inside it can be modified.
 	 * @return the set of parent's children
 	 */
-	public abstract Set<EditableChild> getEditableChildren();
+	public abstract Collection<EditableChild> getEditableChildren();
 	/**
 	 * Add a child to this parent.
 	 * @param child the child that will be added

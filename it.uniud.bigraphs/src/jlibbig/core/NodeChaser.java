@@ -2,6 +2,8 @@ package jlibbig.core;
 
 import java.lang.ref.*;
 import java.util.*;
+
+import jlibbig.core.abstractions.Owner;
 import jlibbig.core.attachedProperties.*;
 
 public class NodeChaser {

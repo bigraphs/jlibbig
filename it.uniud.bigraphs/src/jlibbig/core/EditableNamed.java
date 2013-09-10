@@ -1,5 +1,7 @@
 package jlibbig.core;
 
+import jlibbig.core.abstractions.Named;
+
 /**
  * Describes an entity with a name. <br />
  * e.g.: Controls, outer/innernames

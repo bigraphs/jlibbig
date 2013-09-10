@@ -1,30 +1,23 @@
 package jlibbig.core;
 
+import jlibbig.core.abstractions.AbstractNamed;
+
+
 /**
  * Describes a control. Each node of a bigraph have its control.
  */
-public class Control extends AbstractNamed implements Named {
+
+public final class Control extends jlibbig.core.abstractions.Control {
 
 	private final boolean active;
-	private final int arity;
 
 	public Control(boolean active, int arity) {
 		this("C_" + AbstractNamed.generateName(), active, arity);
 	}
 
 	public Control(String name, boolean active, int arity) {
-		super(name);
-		this.arity = arity;
+		super(name,arity);
 		this.active = active;
-	}
-
-	/**
-	 * Get control's arity. This correspond to the number of ports of a node.
-	 * 
-	 * @return control's arity.
-	 */
-	public final int getArity() {
-		return arity;
 	}
 
 	/**
@@ -40,7 +33,7 @@ public class Control extends AbstractNamed implements Named {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + arity;
+		result = prime * result + getArity();
 		return result;
 	}
 
@@ -53,13 +46,14 @@ public class Control extends AbstractNamed implements Named {
 		if (getClass() != obj.getClass())
 			return false;
 		Control other = (Control) obj;
-		if (arity != other.arity || super.getName() != other.getName())
+		if (getArity() != other.getArity() || super.getName() != other.getName())
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return getName() + ":(" + arity + ((active) ? ",a)" : ",p)");
+		return getName() + ":(" + getArity() + ((active) ? ",a)" : ",p)");
 	}
+
 }
