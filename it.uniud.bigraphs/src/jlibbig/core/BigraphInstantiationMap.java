@@ -59,7 +59,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 
 	Iterable<Bigraph> instantiate(Bigraph parameters, boolean reuse) {
 		if (parameters.roots.size() != this.dom) {
-			throw new IncompatibleInterfaceException(parameters);
+			throw new IncompatibleInterfaceException();
 		}
 		List<Bigraph> l = new LinkedList<>();
 		Bigraph prm = new Bigraph(parameters.signature);

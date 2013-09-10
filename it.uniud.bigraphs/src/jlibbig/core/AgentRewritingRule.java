@@ -75,9 +75,7 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 					"Agent should be a bigraph with empty inner interface i.e. ground.");
 		}
 		if (!agent.signature.equals(redex.signature)) {
-			throw new IncompatibleSignatureException(agent.signature,
-					redex.signature,
-					"Agent and redex should have the same singature.");
+			throw new IncompatibleSignatureException("Agent and redex should have the same singature.",agent.getSignature(),redex.getSignature());
 		}
 		return new RewriteIterable(agent);
 	}

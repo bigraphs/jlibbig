@@ -82,9 +82,8 @@ public class BigraphSystem {
 	public void addBigraph(AgentBigraph b) {
 		if (signature != b.getSignature())
 			throw new IncompatibleSignatureException(
-					signature,
-					b.getSignature(),
-					"Can't add a Bigraph to a BigraphSystem. Its Signature must be equal to the BigraphSystem's signature");
+					"Can't add a Bigraph to a BigraphSystem. Its Signature must be equal to the BigraphSystem's signature",
+					signature, b.getSignature());
 		bigraphs.add(b);
 	}
 
@@ -105,9 +104,8 @@ public class BigraphSystem {
 		if (signature != redex.getSignature()
 				|| signature != reactum.getSignature())
 			throw new IncompatibleSignatureException(
-					signature,
-					redex.getSignature(),
-					"Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature");
+					"Can't add a Reaction to a BigraphSystem. Both ( redex and reactum ) Signatures must be equal to the BigraphSystem's signature",
+					signature, redex.getSignature());
 		reactionRules.add(new RewritingRule(redex, reactum));
 	}
 
@@ -121,9 +119,8 @@ public class BigraphSystem {
 	public void addReaction(RewritingRule rule) {
 		if (signature != rule.getSignature())
 			throw new IncompatibleSignatureException(
-					signature,
-					rule.getSignature(),
-					"Can't add a Reaction<ReactionBigraph> to a BigraphSystem. Reaction's signature must be equal to the BigraphSystem's signature");
+					"Can't add a Reaction<ReactionBigraph> to a BigraphSystem. Reaction's signature must be equal to the BigraphSystem's signature",
+					signature, rule.getSignature());
 		reactionRules.add(rule);
 	}
 

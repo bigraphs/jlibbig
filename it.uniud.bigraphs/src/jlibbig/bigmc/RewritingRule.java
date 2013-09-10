@@ -2,7 +2,7 @@ package jlibbig.bigmc;
 
 import jlibbig.core.*;
 import jlibbig.core.abstractions.InstantiationRule;
-import jlibbig.core.exceptions.IncompatibleInterfacesException;
+import jlibbig.core.exceptions.IncompatibleInterfaceException;
 import jlibbig.core.exceptions.IncompatibleSignatureException;
 import jlibbig.core.exceptions.InvalidInstantiationRuleException;
 
@@ -20,13 +20,13 @@ public class RewritingRule implements
 			throw new IllegalArgumentException(
 					"The first ReactionBigraph can't be used as a redex: two sites with the same index.");
 		if (reactum.getSignature() != redex.getSignature()) {
-			throw new IncompatibleSignatureException(reactum.getSignature(),
-					redex.getSignature(),
-					"Redex and reactum should have the same singature.");
+			throw new IncompatibleSignatureException(
+					"Redex and reactum should have the same singature.",
+					reactum.getSignature(), redex.getSignature());
 		}
 
 		if (redex.getRoots().size() != reactum.getRoots().size())
-			throw new IncompatibleInterfacesException(redex, reactum,
+			throw new IncompatibleInterfaceException(
 					"Redex and Reactum must have the same number of roots.");
 
 		int[] re_eta = new int[reactum.getSitesIndices().size()];

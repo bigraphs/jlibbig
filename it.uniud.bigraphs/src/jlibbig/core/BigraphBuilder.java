@@ -747,13 +747,13 @@ final public class BigraphBuilder implements
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
 		if (!left.signature.equals(right.signature)) {
-			throw new IncompatibleSignatureException(left.signature,
-					right.signature);
+			throw new IncompatibleSignatureException(left.getSignature(),
+					right.getSignature());
 		}
 		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
 				|| !Collections.disjoint(left.outers.keySet(),
 						right.outers.keySet())) {
-			throw new IncompatibleInterfacesException(left, right,
+			throw new IncompatibleInterfaceException(
 					new NameClashException(intersectNames(
 							left.inners.values(),
 							right.inners.values(),
@@ -813,7 +813,7 @@ final public class BigraphBuilder implements
 		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
 				|| !Collections.disjoint(left.outers.keySet(),
 						right.outers.keySet())) {
-			throw new IncompatibleInterfacesException(left, right,
+			throw new IncompatibleInterfaceException(
 					new NameClashException(intersectNames(
 							left.inners.values(),
 							right.inners.values(),
@@ -868,7 +868,7 @@ final public class BigraphBuilder implements
 		}
 		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
-			throw new IncompatibleInterfacesException(in, out,
+			throw new IncompatibleInterfaceException(
 					"The outer face of the first graph must be equal to inner face of the second");
 		}
 		Bigraph a = out;
@@ -941,7 +941,7 @@ final public class BigraphBuilder implements
 		}
 		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
-			throw new IncompatibleInterfacesException(in, out,
+			throw new IncompatibleInterfaceException(
 					"The outer face of the first graph must be equal to inner face of the second");
 		}
 		Bigraph a = (reuse) ? out : out.clone();
@@ -1023,7 +1023,7 @@ final public class BigraphBuilder implements
 					in.signature);
 		}
 		if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
-			throw new IncompatibleInterfacesException(in, out);
+			throw new IncompatibleInterfaceException();
 		}
 		Map<String, EditableOuterName> nmap = new HashMap<>();
 		for (EditableOuterName o : out.outers.values()) {
@@ -1074,7 +1074,7 @@ final public class BigraphBuilder implements
 					in.signature);
 		}
 		if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
-			throw new IncompatibleInterfacesException(in, out);
+			throw new IncompatibleInterfaceException();
 		}
 		if (reuse)
 			out = out.clone();
@@ -1137,7 +1137,7 @@ final public class BigraphBuilder implements
 					right.signature);
 		}
 		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())) {
-			throw new IncompatibleInterfacesException(left, right,
+			throw new IncompatibleInterfaceException(
 					new NameClashException(intersectNames(left.inners.values(),
 							right.inners.values())));
 		}
@@ -1216,7 +1216,7 @@ final public class BigraphBuilder implements
 					right.signature);
 		}
 		if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())) {
-			throw new IncompatibleInterfacesException(left, right,
+			throw new IncompatibleInterfaceException(
 					new NameClashException(intersectNames(left.inners.values(),
 							right.inners.values())));
 		}
