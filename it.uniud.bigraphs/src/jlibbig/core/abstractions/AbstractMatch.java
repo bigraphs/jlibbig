@@ -1,23 +1,22 @@
 package jlibbig.core.abstractions;
 
-
-abstract public class AbstractMatch<A extends Bigraph<?>>  implements Match<A>{
+abstract public class AbstractMatch<A extends Bigraph<?>> implements Match<A> {
 
 	protected A context;
 	protected A redex;
 	protected A param;
-	
+
 	/**
 	 * @param context
 	 * @param redex
 	 * @param param
 	 */
-	protected AbstractMatch(A context, A redex, A param){
+	protected AbstractMatch(A context, A redex, A param) {
 		this.context = context;
 		this.redex = redex;
 		this.param = param;
 	}
-		
+
 	/**
 	 * @see jlibbig.core.abstractions.Match#getContext()
 	 */
@@ -41,5 +40,5 @@ abstract public class AbstractMatch<A extends Bigraph<?>>  implements Match<A>{
 	public A getParam() {
 		return this.param;
 	}
-	
+
 }

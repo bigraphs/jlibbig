@@ -2,7 +2,6 @@ package jlibbig.core;
 
 import jlibbig.core.abstractions.AbstractNamed;
 
-
 /**
  * Describes a control. Each node of a bigraph have its control.
  */
@@ -16,7 +15,7 @@ public final class Control extends jlibbig.core.abstractions.Control {
 	}
 
 	public Control(String name, boolean active, int arity) {
-		super(name,arity);
+		super(name, arity);
 		this.active = active;
 	}
 
@@ -46,7 +45,8 @@ public final class Control extends jlibbig.core.abstractions.Control {
 		if (getClass() != obj.getClass())
 			return false;
 		Control other = (Control) obj;
-		if (getArity() != other.getArity() || super.getName() != other.getName())
+		if (getArity() != other.getArity()
+				|| super.getName() != other.getName())
 			return false;
 		return true;
 	}

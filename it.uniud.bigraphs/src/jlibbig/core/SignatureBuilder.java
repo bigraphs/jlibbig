@@ -8,11 +8,13 @@ import java.util.*;
  * 
  * @see Signature
  */
-public class SignatureBuilder extends jlibbig.core.abstractions.SignatureBuilder<Control>{
+public class SignatureBuilder extends
+		jlibbig.core.abstractions.SignatureBuilder<Control> {
 	private Map<String, Control> ctrls = new HashMap<>();
-		
+
 	/**
 	 * Creates a signature with the control present in the builder
+	 * 
 	 * @return a signature
 	 */
 	@Override
@@ -23,31 +25,37 @@ public class SignatureBuilder extends jlibbig.core.abstractions.SignatureBuilder
 	/**
 	 * Creates a signature with the control present in the builder and the given
 	 * signature identifier.
+	 * 
 	 * @return a signature
 	 */
 	public Signature makeSignature(String usid) {
 		return new Signature(usid, ctrls.values());
 	}
 
-
 	/**
 	 * Make a control and add it to the signature
-	 * @param name name of the control
-	 * @param active control's activity
-	 * @param arity number of ports
+	 * 
+	 * @param name
+	 *            name of the control
+	 * @param active
+	 *            control's activity
+	 * @param arity
+	 *            number of ports
 	 */
 	public void put(String name, boolean active, int arity) {
-		ctrls.put(name,new Control(name,active,arity));
+		ctrls.put(name, new Control(name, active, arity));
 	}
-	
+
 	@Override
 	public void put(Control control) {
 		ctrls.put(control.getName(), control);
 	}
-	
+
 	/**
 	 * Check if a name is already used by a signature's control
-	 * @param name control's name that will be checked
+	 * 
+	 * @param name
+	 *            control's name that will be checked
 	 * @return boolean value
 	 */
 	@Override
@@ -57,16 +65,19 @@ public class SignatureBuilder extends jlibbig.core.abstractions.SignatureBuilder
 
 	/**
 	 * Get the control corresponding to the name in input
-	 * @param name control's name
+	 * 
+	 * @param name
+	 *            control's name
 	 * @return the corresponding control
 	 */
 	@Override
-	public Control  get(String name) {
+	public Control get(String name) {
 		return ctrls.get(name);
 	}
 
 	/**
 	 * Get a collection of all controls in the signature
+	 * 
 	 * @return collection of signature's controls
 	 */
 	@Override
@@ -76,7 +87,9 @@ public class SignatureBuilder extends jlibbig.core.abstractions.SignatureBuilder
 
 	/**
 	 * Remove a control from the signature.
-	 * @param name control's name
+	 * 
+	 * @param name
+	 *            control's name
 	 */
 	public void remove(String name) {
 		ctrls.remove(name);

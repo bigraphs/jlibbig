@@ -8,11 +8,11 @@ import jlibbig.core.abstractions.Owner;
 import jlibbig.core.abstractions.RewritingRule;
 import jlibbig.core.exceptions.*;
 
-public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
+public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	final Bigraph redex;
 	final Bigraph reactum;
 	final BigraphInstantiationMap eta;
-		
+
 	public BigraphRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
 		this(redex, reactum, new BigraphInstantiationMap(redex.sites.size(),
 				eta));
@@ -51,26 +51,32 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 		this.redex = redex;
 		this.reactum = reactum;
 		this.eta = eta;
-		
+
 	}
-	
+
 	/**
 	 * This method is called diring the instantiation of rule's reactum. Inherit
 	 * this method to customize instantiation of Nodes e.g. attaching properties
 	 * taken from nodes in the redex image determined by the given match.
 	 * 
-	 * @param original The original node from the reactum.
-	 * @param instance The replica to be used.
-	 * @param match The match referred by the instantiation.
+	 * @param original
+	 *            The original node from the reactum.
+	 * @param instance
+	 *            The replica to be used.
+	 * @param match
+	 *            The match referred by the instantiation.
 	 */
-	protected void instantiateReactumNode(Node original, Node instance, BigraphMatch match){}
+	protected void instantiateReactumNode(Node original, Node instance,
+			BigraphMatch match) {
+	}
 
 	/**
 	 * Instantiates rule's reactum with respect to the given match.
+	 * 
 	 * @param match
 	 * @return
 	 */
-	protected final Bigraph instantiateReactum(BigraphMatch match){
+	protected final Bigraph instantiateReactum(BigraphMatch match) {
 		Bigraph reactum = getReactum();
 		Bigraph big = new Bigraph(reactum.signature);
 		Owner owner = big;
@@ -78,8 +84,8 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 		// replicate outer names
 		for (EditableOuterName o1 : reactum.outers.values()) {
 			EditableOuterName o2 = o1.replicate();
-			big.outers.put(o2.getName(),o2);
-			o2.setOwner( owner);
+			big.outers.put(o2.getName(), o2);
+			o2.setOwner(owner);
 			hnd_dic.put(o1, o2);
 		}
 		// replicate inner names
@@ -90,11 +96,11 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 			if (h2 == null) {
 				// the bigraph is inconsistent if g is null
 				h2 = h1.replicate();
-				h2.setOwner( owner);
+				h2.setOwner(owner);
 				hnd_dic.put(h1, h2);
 			}
 			i2.setHandle(h2);
-			big.inners.put(i2.getName(),i2);
+			big.inners.put(i2.getName(), i2);
 		}
 		// replicate place structure
 		// the queue is used for a breadth first visit
@@ -111,7 +117,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 		for (EditableRoot r1 : reactum.roots) {
 			EditableRoot r2 = r1.replicate();
 			big.roots.add(r2);
-			r2.setOwner( owner);
+			r2.setOwner(owner);
 			for (EditableChild c : r1.getEditableChildren()) {
 				q.add(new Pair(r2, c));
 			}
@@ -122,7 +128,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 			if (t.c instanceof EditableNode) {
 				EditableNode n1 = (EditableNode) t.c;
 				EditableNode n2 = n1.replicate();
-				instantiateReactumNode(n1,n2,match);
+				instantiateReactumNode(n1, n2, match);
 				// set m's parent (which added adds m as its child)
 				n2.setParent(t.p);
 				for (int i = n1.getControl().getArity() - 1; 0 <= i; i--) {
@@ -133,7 +139,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 					if (h2 == null) {
 						// the bigraph is inconsistent if g is null
 						h2 = h1.replicate();
-						h2.setOwner( owner);
+						h2.setOwner(owner);
 						hnd_dic.put(h1, h2);
 					}
 					n2.getPort(i).setHandle(h2);
@@ -155,7 +161,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 		}
 		return big;
 	}
-	
+
 	@Override
 	public Bigraph getRedex() {
 		return this.redex;
@@ -208,20 +214,21 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph,Bigraph> {
 
 			@Override
 			public Bigraph next() {
-				if(args == null || !args.hasNext()){
-					if(matches.hasNext()){
+				if (args == null || !args.hasNext()) {
+					if (matches.hasNext()) {
 						BigraphMatch match = matches.next();
-						BigraphBuilder bb = new BigraphBuilder(instantiateReactum(match),true);
-						bb.leftJuxtapose(match.getRedexLeftId(),true);
+						BigraphBuilder bb = new BigraphBuilder(
+								instantiateReactum(match), true);
+						bb.leftJuxtapose(match.getRedexLeftId(), true);
 						bb.rightJuxtapose(match.getRedexRightId(), true);
-						bb.leftJuxtapose(match.rdxLinkId,true);
-						bb.outerCompose(match.getContext(),true);						
+						bb.leftJuxtapose(match.rdxLinkId, true);
+						bb.outerCompose(match.getContext(), true);
 						big = bb.makeBigraph(true);
 						args = eta.instantiate(match.getParam()).iterator();
 					}
 				}
-				
-				if((args != null) && (args.hasNext())){
+
+				if ((args != null) && (args.hasNext())) {
 					Bigraph params = args.next();
 					if (args.hasNext())
 						return Bigraph.compose(big.clone(), params, true);

@@ -9,7 +9,7 @@ import jlibbig.core.*;
  * are registered to the wrapped property. The class can be attached also to
  * targets not implementing Replicable, but the automatic sharing behaviour will
  * not be enabled (on these).
- *
+ * 
  * @see ReplicatingProperty
  * @param <V>
  */
@@ -18,7 +18,7 @@ public class SharedProperty<V> extends Property<V> {
 	protected final Property<V> property;
 
 	protected final ReplicateListener listener = new ReplicateListener() {
-        @Override
+		@Override
 		public void onReplicate(Replicable original, Replicable copy) {
 			SharedProperty.this.onReplicate(original, copy);
 		}
@@ -97,7 +97,7 @@ public class SharedProperty<V> extends Property<V> {
 	 * its replications. Inherit this method to intercept replications and
 	 * filter automatic registration of ReplicateListeners
 	 * {@link SharedProperty.listener} and attachment of this property.
-	 *
+	 * 
 	 * @param original
 	 * @param copy
 	 */

@@ -7,10 +7,10 @@ public class NameClashException extends RuntimeException {
 
 	private final Set<String> names;
 
-	public NameClashException(Collection<String> collection){
+	public NameClashException(Collection<String> collection) {
 		this(null, collection);
-	} 
-	
+	}
+
 	public NameClashException(String message, Collection<String> names) {
 		super(message);
 		if (!names.isEmpty()) {
@@ -23,12 +23,12 @@ public class NameClashException extends RuntimeException {
 			this.names = null;
 		}
 	}
-	
+
 	public NameClashException(String message, String... names) {
 		super(message);
 		if (names.length > 0) {
 			Set<String> ns = new HashSet<>();
-            ns.addAll(Arrays.asList(names));
+			ns.addAll(Arrays.asList(names));
 			this.names = Collections.unmodifiableSet(ns);
 		} else {
 			this.names = null;

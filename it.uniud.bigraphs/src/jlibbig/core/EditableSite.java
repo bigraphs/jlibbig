@@ -4,22 +4,23 @@ import jlibbig.core.abstractions.Owner;
 import jlibbig.core.attachedProperties.DelegatedProperty;
 import jlibbig.core.attachedProperties.PropertyContainer;
 
-class EditableSite implements EditableChild, Site{
-    static final String PROPERTY_OWNER = "Owner";
+class EditableSite implements EditableChild, Site {
+	static final String PROPERTY_OWNER = "Owner";
 
 	private EditableParent parent;
 
 	private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<>();
-	private final DelegatedProperty<Owner> owner = new DelegatedProperty<Owner>(PROPERTY_OWNER,true,ownerSetter);
+	private final DelegatedProperty<Owner> owner = new DelegatedProperty<Owner>(
+			PROPERTY_OWNER, true, ownerSetter);
 
-	private final ReplicateListenerContainer rep  = new ReplicateListenerContainer();
+	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	private final PropertyContainer props = new PropertyContainer();
 
-	EditableSite(){
+	EditableSite() {
 		props.attachProperty(this.owner);
 	}
 
-	EditableSite(EditableParent parent){
+	EditableSite(EditableParent parent) {
 		props.attachProperty(this.owner);
 		this.setParent(parent);
 	}
@@ -35,23 +36,24 @@ class EditableSite implements EditableChild, Site{
 	}
 
 	@Override
-	public void setParent(EditableParent parent){
-		if(this.parent != null){
-			if(this.parent != parent){
+	public void setParent(EditableParent parent) {
+		if (this.parent != null) {
+			if (this.parent != parent) {
 				EditableParent p = this.parent;
 				this.parent = parent;
 				p.removeChild(this);
 			}
 		}
 		this.parent = parent;
-		if(this.parent != null){
+		if (this.parent != null) {
 			this.parent.addChild(this);
-			this.ownerSetter.set(this.parent.<Owner>getProperty(PROPERTY_OWNER));
+			this.ownerSetter.set(this.parent
+					.<Owner> getProperty(PROPERTY_OWNER));
 		}
 	}
 
 	@Override
-	public EditableSite replicate(){
+	public EditableSite replicate() {
 		EditableSite copy = new EditableSite();
 		rep.tell(this, copy);
 		return copy;
@@ -66,9 +68,9 @@ class EditableSite implements EditableChild, Site{
 	public boolean unregisterListener(ReplicateListener listener) {
 		return rep.unregisterListener(listener);
 	}
-	
+
 	@Override
-	public EditableSite getEditable(){
+	public EditableSite getEditable() {
 		return this;
 	}
 

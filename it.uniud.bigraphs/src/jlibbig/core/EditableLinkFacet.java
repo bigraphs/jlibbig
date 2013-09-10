@@ -2,11 +2,12 @@ package jlibbig.core;
 
 import jlibbig.core.abstractions.AbstractNamed;
 
-abstract class EditableLinkFacet implements LinkFacet, EditableNamed, ReplicableEx{
-	
+abstract class EditableLinkFacet implements LinkFacet, EditableNamed,
+		ReplicableEx {
+
 	protected String name;
 	protected final ReplicateListenerContainer rep = new ReplicateListenerContainer();
-	
+
 	protected EditableLinkFacet() {
 		this("X_" + AbstractNamed.generateName());
 	}
@@ -14,19 +15,19 @@ abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable
 	protected EditableLinkFacet(String name) {
 		setName(name);
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("Name can not be empty.");
 		this.name = name;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public void registerListener(ReplicateListener listener) {
 		rep.registerListener(listener);
@@ -62,9 +63,9 @@ abstract class EditableLinkFacet implements LinkFacet, EditableNamed, Replicable
 		}
 		return name.equals(other.name);
 	}
-	
-//	@Override
-//	public int compareTo(String arg0) {
-//		return this.name.compareTo(arg0);
-//	}
+
+	// @Override
+	// public int compareTo(String arg0) {
+	// return this.name.compareTo(arg0);
+	// }
 }

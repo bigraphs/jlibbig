@@ -203,9 +203,9 @@ class EditableNode implements Node, EditableParent, EditableChild {
 	public Owner getOwner() {
 		return this.owner.get();
 	}
-	
+
 	@Override
-	public EditableNode getEditable(){
+	public EditableNode getEditable() {
 		return this;
 	}
 

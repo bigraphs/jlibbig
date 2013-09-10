@@ -11,19 +11,19 @@ public class NodeChaser {
 	private static final Owner FAKE_OWNER = new Owner() {
 	};
 
-//	ReferenceQueue<Node> nodeQueue  = new ReferenceQueue<Node>();
+	// ReferenceQueue<Node> nodeQueue = new ReferenceQueue<Node>();
 
 	private final Map<Owner, WeakHashSet<Node>> index = new WeakHashMap<>();
 	private final Map<Node, PropertyListener<Owner>> ownerLsts = new WeakHashMap<>();
 	private final Map<Node, ReplicateListener> repLsts = new WeakHashMap<>();
 
-//	private final void processQueue() {
-//		Reference<? extends Node> ref = null;
-//		do {
-//			ref = this.nodeQueue.poll();
-//			onNodeRemoved((Node) ref.get());
-//		} while (ref != null);
-//	}
+	// private final void processQueue() {
+	// Reference<? extends Node> ref = null;
+	// do {
+	// ref = this.nodeQueue.poll();
+	// onNodeRemoved((Node) ref.get());
+	// } while (ref != null);
+	// }
 
 	private Owner getOwnerKey(Node node) {
 		return getOwnerKey(node.getOwner());
@@ -49,7 +49,7 @@ public class NodeChaser {
 
 	public void releaseAll() {
 		for (Node node : ownerLsts.keySet()) {
-			node.<Owner>getProperty(EditableNode.PROPERTY_OWNER)
+			node.<Owner> getProperty(EditableNode.PROPERTY_OWNER)
 					.unregisterListener(ownerLsts.remove(node));
 			((EditableNode) node).unregisterListener(repLsts.remove(node));
 			// onNodeRemoved(node);
@@ -64,7 +64,7 @@ public class NodeChaser {
 		while (ir.hasNext()) {
 			Node node = ir.next();
 			if (node != null) {
-				node.<Owner>getProperty(EditableNode.PROPERTY_OWNER)
+				node.<Owner> getProperty(EditableNode.PROPERTY_OWNER)
 						.unregisterListener(ownerLsts.remove(node));
 				((EditableNode) node).unregisterListener(repLsts.remove(node));
 				// onNodeRemoved(node);
@@ -74,7 +74,7 @@ public class NodeChaser {
 
 	public void release(Node node) {
 		if (isChased(node)) {
-			node.<Owner>getProperty(EditableNode.PROPERTY_OWNER)
+			node.<Owner> getProperty(EditableNode.PROPERTY_OWNER)
 					.unregisterListener(ownerLsts.remove(node));
 			((EditableNode) node).unregisterListener(repLsts.remove(node));
 		}
@@ -96,12 +96,12 @@ public class NodeChaser {
 		}
 		ns.add(node);
 		// avoid strong references
-		final WeakReference<EditableNode> ref = new WeakReference<>(node); //,nodeQueue);
+		final WeakReference<EditableNode> ref = new WeakReference<>(node); // ,nodeQueue);
 
 		PropertyListener<Owner> ol = new PropertyListener<Owner>() {
 			@Override
-			public void onChange(Property<? extends Owner> property, Owner oldValue,
-					Owner newValue) {
+			public void onChange(Property<? extends Owner> property,
+					Owner oldValue, Owner newValue) {
 				WeakHashSet<Node> ns = index.get(getOwnerKey(oldValue));
 				if (ns != null)
 					ns.remove(ref.get());
@@ -111,10 +111,11 @@ public class NodeChaser {
 					index.put(getOwnerKey(newValue), ns);
 				}
 				ns.add(ref.get());
-				onOwnerChanges(ref.get(),oldValue,newValue);
+				onOwnerChanges(ref.get(), oldValue, newValue);
 			}
 		};
-		node.<Owner>getProperty(EditableNode.PROPERTY_OWNER).registerListener(ol);
+		node.<Owner> getProperty(EditableNode.PROPERTY_OWNER).registerListener(
+				ol);
 		ownerLsts.put(node, ol);
 		ReplicateListener rl = new ReplicateListener() {
 			@Override
@@ -129,11 +130,14 @@ public class NodeChaser {
 		onNodeAdded(node);
 	}
 
-	protected void onNodeAdded(Node node){}
+	protected void onNodeAdded(Node node) {
+	}
 
 	// protected void onNodeRemoved(Node node){}
 
-	protected void onOwnerChanges(Node node, Owner oldValue,Owner newValue){};
+	protected void onOwnerChanges(Node node, Owner oldValue, Owner newValue) {
+	};
 
-	protected void onReplicates(Node original, Node copy){};
+	protected void onReplicates(Node original, Node copy) {
+	};
 }

@@ -2,14 +2,17 @@ package jlibbig.core;
 
 import java.util.*;
 
-public class AgentMatch extends BigraphMatch{
+public class AgentMatch extends BigraphMatch {
 
 	protected final List<Bigraph> params;
 	protected final Bigraph lambda;
 	protected final Bigraph id;
 
-	AgentMatch(Bigraph context, Bigraph redexImage, Bigraph redexLinkId, Bigraph paramWiring, Bigraph[] params,Map<Node,EditableNode> nodesEmbedding){
-		super(context,redexImage,null, null, redexLinkId, null, nodesEmbedding);
+	AgentMatch(Bigraph context, Bigraph redexImage, Bigraph redexLinkId,
+			Bigraph paramWiring, Bigraph[] params,
+			Map<Node, EditableNode> nodesEmbedding) {
+		super(context, redexImage, null, null, redexLinkId, null,
+				nodesEmbedding);
 		this.params = Collections.unmodifiableList(Arrays.asList(params));
 		this.lambda = paramWiring;
 		this.id = redexLinkId;
@@ -28,9 +31,9 @@ public class AgentMatch extends BigraphMatch{
 	 */
 	@Override
 	public Bigraph getParam() {
-		if(param == null){
+		if (param == null) {
 			BigraphBuilder bb = new BigraphBuilder(this.context.signature);
-			for(Bigraph prm : this.params){
+			for (Bigraph prm : this.params) {
 				bb.rightParallelProduct(prm);
 			}
 			bb.outerCompose(lambda);
@@ -42,7 +45,7 @@ public class AgentMatch extends BigraphMatch{
 	public List<Bigraph> getParams() {
 		return this.params;
 	}
-		
+
 	public Bigraph getParamWiring() {
 		return this.lambda;
 	}

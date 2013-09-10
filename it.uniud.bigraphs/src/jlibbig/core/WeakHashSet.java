@@ -10,7 +10,7 @@ class WeakHashSet<V> implements Set<V> {
 
 	protected static final long serialVersionUID = 7157522610134013359L;
 
-	protected final WeakHashMap<V,Boolean> map = new WeakHashMap<>();
+	protected final WeakHashMap<V, Boolean> map = new WeakHashMap<>();
 
 	public Set<V> toSet() {
 		return map.keySet();
@@ -26,7 +26,7 @@ class WeakHashSet<V> implements Set<V> {
 		boolean res = false;
 		for (V item : arg0) {
 			res |= add(item);
-        }
+		}
 		return res;
 	}
 
