@@ -9,7 +9,7 @@ import jlibbig.core.attachedProperties.SimpleProperty;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test1();
+		test2();
 	}
 
 	private static void test1() {
@@ -129,64 +129,74 @@ public class foo {
 
 	private static void test2() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router", true, 2);
-		sb.put("lan", true, 1);
-		sb.put("ip", false, 1);
+		sb.put("router",true,2);
+		sb.put("lan",true,1);
+		sb.put("ip",false,1);
 		sb.put("host", true, 1);
-		Signature s = sb.makeSignature("lan");
+		Signature s = sb.makeSignature("MySig");
+		
 		// RETE:
 		BigraphBuilder rete = new BigraphBuilder(s);
 		Root r0 = rete.addRoot();
 		OuterName on = rete.addOuterName("r_to_lan");
 		OuterName r_ip = rete.addOuterName("r_ip");
-		rete.addNode("router", r0, on, r_ip).attachProperty(
-				new SimpleProperty<Integer>("net_addr", 2000));
-		Node lan = rete.addNode("lan", r0, on);
-
-		rete.addNode("ip", lan, r_ip).attachProperty(
-				new SimpleProperty<Integer>("ip_addr", 1));
-
-		for (int i = 2; i < 256; ++i)
-			rete.addNode("ip", lan).attachProperty(
-					new SimpleProperty<Integer>("ip_addr", i));
+		rete.addNode( "router" , r0 , on , r_ip ).attachProperty( new SimpleProperty<Integer>("net_addr" , 2000 ) );
+		Node lan = rete.addNode( "lan" , r0 , on );
+		
+		rete.addNode("ip" , lan , r_ip ).attachProperty( new SimpleProperty<Integer>("ip_addr" , 1 ) );
+		
+		for(int i = 0 ; i<10 ; ++i )
+			rete.addNode("ip", lan ).attachProperty( new SimpleProperty<Integer>("ip_addr" , i ) );
 		BigraphBuilder tap = new BigraphBuilder(s);
-		tap.addSite(tap.addRoot());
+		tap.addSite( tap.addRoot() );
 		tap.addInnerName("r_to_lan");
 		tap.addInnerName("r_ip");
-		rete.outerCompose(tap.makeBigraph());
-		// fine rete
-
+		rete.outerCompose( tap.makeBigraph() );
+		//fine rete
+		
 		BigraphBuilder redex = new BigraphBuilder(s);
 		Root rr0 = redex.addRoot();
-		OuterName rron = redex.addOuterName("r_to_lan");
-		redex.addNode("router", rr0, rron, redex.addInnerName("r_ip")
-				.getHandle());
+		OuterName rron = redex.addOuterName( "r_to_lan" );
+		redex.addNode("router" , rr0 ,  rron , redex.addInnerName("r_ip").getHandle() );
 		Root rr1 = redex.addRoot();
-		Node rlan = redex.addNode("lan", rr1, rron);
-		redex.addSite(rlan);
-		Node ip = redex.addNode("ip", rlan);
-
+		Node rlan = redex.addNode( "lan", rr1 , rron );
+		redex.addSite( rlan );
+		Node ip = redex.addNode( "ip" , rlan );
+		
 		BigraphBuilder rtap = new BigraphBuilder(s);
-		rtap.addSite(rtap.addRoot());
-		rtap.addSite(rtap.addRoot());
-		rtap.addInnerName("r_to_lan");
-
-		redex.outerCompose(rtap.makeBigraph());
+		rtap.addSite( rtap.addRoot() );
+		rtap.addSite( rtap.addRoot() );
+		rtap.addInnerName("r_to_lan" );
+		
+		redex.outerCompose( rtap.makeBigraph() );
 		redex.merge();
-
-		Bigraph bigRedex = printBig(redex.makeBigraph());
-
-		OuterName hostip = redex.addOuterName("host_ip");
-		redex.addNode("host", redex.getRoots().get(0), hostip).attachProperty(
-				new SimpleProperty<String>("id", "net200"));
-		redex.relink(ip.getPort(0), hostip);
+		
+		Bigraph bigRedex = printBig( redex.makeBigraph());
+		
+		OuterName hostip = redex.addOuterName( "host_ip" );
+		redex.addNode( "host" , redex.getRoots().get(0) , hostip ).attachProperty( new SimpleProperty<String>( "id" , "net200" ) );
+		redex.relink( ip.getPort(0) , hostip );
 		BigraphBuilder rrtap = new BigraphBuilder(s);
-		rrtap.addSite(rrtap.addRoot());
-		rrtap.addInnerName("host_ip");
-		redex.outerCompose(rrtap.makeBigraph());
-
-		Bigraph bigReactum = printBig(redex.makeBigraph());
-
+		rrtap.addSite( rrtap.addRoot() );
+		rrtap.addInnerName("host_ip" );
+		redex.outerCompose( rrtap.makeBigraph() );
+		
+		Bigraph bigReactum = printBig( redex.makeBigraph() );
+				
+		AgentRewritingRule arr = new AgentRewritingRule( bigRedex , bigReactum , 0 );
+		int i = 0;
+		Bigraph k = rete.makeBigraph();
+		
+		System.out.println("################################ " + i);
+		Iterator<Bigraph> j = arr.apply( k ).iterator();
+		while(j.hasNext()){
+			k = j.next();
+			i++;
+			System.out.println("################################ " + i);
+			j = arr.apply(k).iterator();
+			i++;
+		}
+		
 		System.out.println("match test...");
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
