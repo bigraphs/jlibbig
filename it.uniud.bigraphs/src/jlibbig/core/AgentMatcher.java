@@ -673,6 +673,19 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						}
 					}
 				}
+				// 9 // 
+				{
+					for (Handle hr : redex_edges) {
+						Map<Handle, IntegerVariable> f_row = f_vars.get(hr);
+						for (Handle ha : agent_handles) {
+							IntegerVariable vf = f_row.get(ha);
+							for (Point p : ha.getPoints()) {
+								model.addConstraint(Choco.leq(e_vars.get(p)
+										.get(ha),vf));
+							}
+						}
+					}
+				}
 
 				// INTERPLAY CONSTRAINTS //////////////////////////////////////
 				{
@@ -1102,6 +1115,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				while (!q.isEmpty()) {
 					VState v = q.poll();
 					if (v.b == ctx) {
+						// the entity visited belongs to the context
 						EditableParent p1 = (EditableParent) v.c;
 						EditableParent p2 = p1.replicate();
 						if (p1.isRoot()) {
@@ -1170,6 +1184,8 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 							q.add(new VState(ctx, p2, c1));
 						}
 					} else if (v.b == rdx) {
+						// the entity visited is the image of something in the
+						// redex
 						if (v.i.isNode()) {
 							EditableNode n0 = (EditableNode) v.i;
 							EditableNode n1 = (EditableNode) v.c;
@@ -1231,6 +1247,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 							}
 						}
 					} else {
+						// the entity (node) visited belongs to some parameter
 						EditableNode n1 = (EditableNode) v.c;
 						EditableNode n2 = n1.replicate();
 						n2.setParent(v.p);
@@ -1249,6 +1266,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 							Map<LinkEntity, IntegerVariable> row = e_vars
 									.get(p1);
 							EditableHandle h1 = p1.getHandle();
+
 							if (solver.getVar(row.get(h1)).getVal() == 1) {
 								/*
 								 * this port bypasses the redex. Checks if the
@@ -1323,16 +1341,16 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 												.getName());
 										h2 = hnd_dic.get(h3);
 										if (h2 == null) {
-											EditableInnerName i3 = new EditableInnerName(
-													h3);
+											EditableInnerName i3 = new EditableInnerName();
 											String name = i3.getName();
+											i3.setHandle(h3);
 											lmb.inners.put(name, i3);
 											EditableOuterName o2 = new EditableOuterName(
 													name);
 											o2.setOwner(v.b);
 											v.b.outers.put(name, o2);
 											h2 = o2;
-											hnd_dic.put(h3, h2);
+											hnd_dic.put(h3, o2);
 										}
 										break;
 									}
