@@ -8,18 +8,17 @@ import java.util.*;
  * 
  * @see Signature
  */
-public class SignatureBuilder extends
-		jlibbig.core.abstractions.SignatureBuilder<Control> {
-	private Map<String, Control> ctrls = new HashMap<>();
+public class SignatureBuilder<C extends Control> {
+
+	private Map<String, C> ctrls = new HashMap<>();
 
 	/**
 	 * Creates a signature with the control present in the builder
 	 * 
 	 * @return a signature
 	 */
-	@Override
-	public Signature makeSignature() {
-		return new Signature(ctrls.values());
+	public Signature<C> makeSignature() {
+		return new Signature<C>(ctrls.values());
 	}
 
 	/**
@@ -28,26 +27,11 @@ public class SignatureBuilder extends
 	 * 
 	 * @return a signature
 	 */
-	public Signature makeSignature(String usid) {
-		return new Signature(usid, ctrls.values());
+	public Signature<C> makeSignature(String usid) {
+		return new Signature<C>(usid, ctrls.values());
 	}
 
-	/**
-	 * Make a control and add it to the signature
-	 * 
-	 * @param name
-	 *            name of the control
-	 * @param active
-	 *            control's activity
-	 * @param arity
-	 *            number of ports
-	 */
-	public void put(String name, boolean active, int arity) {
-		ctrls.put(name, new Control(name, active, arity));
-	}
-
-	@Override
-	public void put(Control control) {
+	public void put(C control) {
 		ctrls.put(control.getName(), control);
 	}
 
@@ -58,7 +42,6 @@ public class SignatureBuilder extends
 	 *            control's name that will be checked
 	 * @return boolean value
 	 */
-	@Override
 	public boolean contains(String name) {
 		return ctrls.containsKey(name);
 	}
@@ -70,8 +53,7 @@ public class SignatureBuilder extends
 	 *            control's name
 	 * @return the corresponding control
 	 */
-	@Override
-	public Control get(String name) {
+	public C get(String name) {
 		return ctrls.get(name);
 	}
 
@@ -80,8 +62,7 @@ public class SignatureBuilder extends
 	 * 
 	 * @return collection of signature's controls
 	 */
-	@Override
-	public Collection<Control> getAll() {
+	public Collection<C> getAll() {
 		return Collections.unmodifiableCollection(ctrls.values());
 	}
 

@@ -2,9 +2,20 @@ package tests;
 
 import java.util.*;
 import jlibbig.core.*;
-import jlibbig.core.abstractions.Match;
-import jlibbig.core.abstractions.RewritingRule;
 import jlibbig.core.attachedProperties.SimpleProperty;
+import jlibbig.core.std.AgentMatch;
+import jlibbig.core.std.AgentMatcher;
+import jlibbig.core.std.AgentRewritingRule;
+import jlibbig.core.std.Bigraph;
+import jlibbig.core.std.BigraphBuilder;
+import jlibbig.core.std.Handle;
+import jlibbig.core.std.Node;
+import jlibbig.core.std.NodeChaser;
+import jlibbig.core.std.OuterName;
+import jlibbig.core.std.Parent;
+import jlibbig.core.std.Root;
+import jlibbig.core.std.Signature;
+import jlibbig.core.std.SignatureBuilder;
 
 @SuppressWarnings("unused")
 public class foo {

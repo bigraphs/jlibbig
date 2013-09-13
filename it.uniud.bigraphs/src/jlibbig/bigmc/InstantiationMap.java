@@ -3,7 +3,8 @@ package jlibbig.bigmc;
 import java.util.*;
 
 import jlibbig.core.*;
-import jlibbig.core.abstractions.InstantiationRule;
+import jlibbig.core.std.Bigraph;
+import jlibbig.core.std.BigraphInstantiationMap;
 
 public class InstantiationMap implements InstantiationRule<AgentBigraph> {
 

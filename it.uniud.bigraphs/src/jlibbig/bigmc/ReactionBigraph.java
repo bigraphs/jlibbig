@@ -3,6 +3,15 @@ package jlibbig.bigmc;
 import java.util.*;
 
 import jlibbig.core.*;
+import jlibbig.core.std.Bigraph;
+import jlibbig.core.std.Control;
+import jlibbig.core.std.Edge;
+import jlibbig.core.std.InnerName;
+import jlibbig.core.std.Node;
+import jlibbig.core.std.OuterName;
+import jlibbig.core.std.Root;
+import jlibbig.core.std.Signature;
+import jlibbig.core.std.Site;
 
 /**
  * Class used to store a bigMC's redex or reactum bigraph
@@ -10,7 +19,7 @@ import jlibbig.core.*;
  * @see Bigraph
  */
 public class ReactionBigraph implements
-		jlibbig.core.abstractions.Bigraph<Control> {
+		jlibbig.core.Bigraph<Control> {
 	final int[] sites;
 	private final List<Integer> ro_sites;
 	final Bigraph big;

@@ -2,12 +2,19 @@ package jlibbig.bigmc.lang;
 
 import java.util.*;
 
+import jlibbig.core.BigraphHandler;
+import jlibbig.core.Child;
+import jlibbig.core.Edge;
+import jlibbig.core.Handle;
+import jlibbig.core.OuterName;
+import jlibbig.core.Root;
+import jlibbig.core.Site;
+import jlibbig.core.Node;
+import jlibbig.core.Port;
+import jlibbig.core.lang.PrettyPrinter;
+import jlibbig.core.std.Control;
+import jlibbig.core.std.Signature;
 import jlibbig.bigmc.*;
-import jlibbig.bigmc.RewritingRule;
-import jlibbig.core.Control;
-import jlibbig.core.Signature;
-import jlibbig.core.abstractions.*;
-import jlibbig.core.lang.*;
 
 /**
  * BigMC's syntax pretty printer. Convert into Strings all the bigraphs or
@@ -16,7 +23,7 @@ import jlibbig.core.lang.*;
  * @see <a href="http://bigraph.org/bigmc/">bigraph.org/bigmc</a>
  * 
  */
-public class BigMCPrinter implements PrettyPrinter<BigraphSystem> {
+public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	public BigMCPrinter() {
 	}
 
@@ -27,11 +34,11 @@ public class BigMCPrinter implements PrettyPrinter<BigraphSystem> {
 	 * 
 	 * @param brs
 	 *            the system that will be converted into a string.
-	 * @see BigraphSystem
+	 * @see BigraphRewritingSystem
 	 * @return the resulting string
 	 */
 	@Override
-	public String toString(BigraphSystem brs) {
+	public String toString(BigraphRewritingSystem brs) {
 		StringBuilder s = new StringBuilder();
 
 		s.append(toString(brs.getSignature()));

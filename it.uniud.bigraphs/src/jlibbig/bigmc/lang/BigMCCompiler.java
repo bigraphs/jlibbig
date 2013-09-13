@@ -6,20 +6,20 @@ import java.io.StringReader;
 
 import beaver.Parser.Exception;
 import jlibbig.bigmc.*;
-import jlibbig.core.Signature;
 import jlibbig.core.lang.Compiler;
 import jlibbig.core.lang.CompilerException;
+import jlibbig.core.std.Signature;
 
 /**
  * This class is used to parse strings in bigMC syntax and generate a system
  * (sets of bigraphs and reactions with the same signature) from them.
  * 
  * @see Compiler
- * @see BigraphSystem
+ * @see BigraphRewritingSystem
  * @see <a href="http://bigraph.org/bigmc/">bigraph.org/bigmc</a>
  * 
  */
-public class BigMCCompiler implements Compiler<BigraphSystem> {
+public class BigMCCompiler implements Compiler<BigraphRewritingSystem> {
 	public BigMCCompiler() {
 	}
 
@@ -31,15 +31,15 @@ public class BigMCCompiler implements Compiler<BigraphSystem> {
 	 * @param str
 	 *            the compiler will parse this string.
 	 * @return the generated system.
-	 * @see BigraphSystem
+	 * @see BigraphRewritingSystem
 	 */
 	@Override
-	public BigraphSystem parse(String str) throws CompilerException {
+	public BigraphRewritingSystem parse(String str) throws CompilerException {
 		return parse(new StringReader(str));
 	}
 
 	@Override
-	public BigraphSystem parse(Reader in) throws CompilerException {
+	public BigraphRewritingSystem parse(Reader in) throws CompilerException {
 		try {
 			return parser.parse(in);
 		} catch (IOException | Exception e) {
@@ -47,12 +47,12 @@ public class BigMCCompiler implements Compiler<BigraphSystem> {
 		}
 	}
 
-	public BigraphSystem parse(String str, Signature s)
+	public BigraphRewritingSystem parse(String str, Signature s)
 			throws CompilerException {
 		return parse(new StringReader(str), s);
 	}
 
-	public BigraphSystem parse(Reader in, Signature s) throws CompilerException {
+	public BigraphRewritingSystem parse(Reader in, Signature s) throws CompilerException {
 		try {
 			return parser.parse(in, s);
 		} catch (IOException | Exception e) {

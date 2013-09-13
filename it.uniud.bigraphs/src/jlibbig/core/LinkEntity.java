@@ -1,8 +1,8 @@
 package jlibbig.core;
 
-import jlibbig.core.abstractions.Owned;
+import jlibbig.core.Owned;
 
-public interface LinkEntity extends Owned, jlibbig.core.abstractions.LinkEntity {
+public interface LinkEntity extends Owned {
 	/**
 	 * Checks if a entity is a handle.
 	 * 

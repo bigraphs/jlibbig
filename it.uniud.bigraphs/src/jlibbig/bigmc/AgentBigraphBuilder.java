@@ -6,7 +6,19 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import jlibbig.core.*;
+import jlibbig.core.std.Bigraph;
+import jlibbig.core.std.BigraphBuilder;
+import jlibbig.core.std.Control;
+import jlibbig.core.std.Edge;
+import jlibbig.core.std.Handle;
+import jlibbig.core.std.InnerName;
+import jlibbig.core.std.Node;
+import jlibbig.core.std.OuterName;
+import jlibbig.core.std.Parent;
+import jlibbig.core.std.Port;
+import jlibbig.core.std.Root;
+import jlibbig.core.std.Signature;
+import jlibbig.core.std.Site;
 
 /**
  * The class is meant as a helper for agent (ground bigraph) construction and
@@ -15,7 +27,7 @@ import jlibbig.core.*;
  * 
  */
 public class AgentBigraphBuilder implements
-		jlibbig.core.abstractions.BigraphBuilder<Control> {
+		jlibbig.core.BigraphBuilder<Control> {
 	BigraphBuilder bigraph;
 
 	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";
