@@ -1,13 +1,14 @@
 package jlibbig.bigmc;
 
 import jlibbig.core.*;
-import jlibbig.core.abstractions.InstantiationRule;
 import jlibbig.core.exceptions.IncompatibleInterfaceException;
 import jlibbig.core.exceptions.IncompatibleSignatureException;
 import jlibbig.core.exceptions.InvalidInstantiationRuleException;
+import jlibbig.core.std.Bigraph;
+import jlibbig.core.std.Signature;
 
 public class RewritingRule implements
-		jlibbig.core.abstractions.RewritingRule<AgentBigraph, ReactionBigraph> {
+		jlibbig.core.RewritingRule<AgentBigraph, ReactionBigraph> {
 	final private boolean[] neededParams;
 	final private boolean[] cloneParams;
 

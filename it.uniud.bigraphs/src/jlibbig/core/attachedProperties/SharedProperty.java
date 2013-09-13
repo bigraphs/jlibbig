@@ -1,10 +1,9 @@
 package jlibbig.core.attachedProperties;
 
-import jlibbig.core.*;
 
 /**
  * A class for properties to be shared between targets implementing
- * {@link jlibbig.core.Replicable}. The class automatically attach itself to new
+ * {@link jlibbig.core.attachedProperties.Replicable}. The class automatically attach itself to new
  * replicas thus rendering the wrapped property shared between these. Listeners
  * are registered to the wrapped property. The class can be attached also to
  * targets not implementing Replicable, but the automatic sharing behaviour will

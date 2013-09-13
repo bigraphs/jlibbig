@@ -1,11 +1,10 @@
 package jlibbig.core.attachedProperties;
 
 import java.util.*;
-import jlibbig.core.*;
 
 /**
  * A class for properties attached to targets implementing
- * {@link jlibbig.core.Replicable}. The class automatically attach a copy of
+ * {@link jlibbig.core.attachedProperties.Replicable}. The class automatically attach a copy of
  * itself to new replicas thus. Listeners are registered also for this new copy.
  * Therefore, functionality provided is similar to {@link SharedProperty}, but
  * results in a copy-on-write behaviour across the replicas. The class can be

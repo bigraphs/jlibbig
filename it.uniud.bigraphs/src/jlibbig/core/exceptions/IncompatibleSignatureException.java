@@ -2,8 +2,8 @@ package jlibbig.core.exceptions;
 
 import java.util.*;
 
-import jlibbig.core.abstractions.Signature;
-import jlibbig.core.abstractions.Control;
+import jlibbig.core.Control;
+import jlibbig.core.Signature;
 
 public class IncompatibleSignatureException extends RuntimeException {
 

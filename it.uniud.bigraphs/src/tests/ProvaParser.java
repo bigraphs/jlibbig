@@ -9,7 +9,7 @@ public class ProvaParser {
 		// System.out.println(System.getProperty("user.dir"));
 		String file = (args.length > 0) ? args[0] : "src/tests/ProvaParser.txt";
 
-		BigraphReactiveSystem brs = (new BRSCompiler()).parse(new FileReader(
+		BigraphRewritingSystem brs = (new BRSCompiler()).parse(new FileReader(
 				file));
 		System.out.println(brs.toString());
 	}

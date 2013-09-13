@@ -1,7 +1,6 @@
 package jlibbig.core;
 
-public interface LinkFacet extends LinkEntity,
-		jlibbig.core.abstractions.LinkFacet {
+import jlibbig.core.Named;
 
-	public abstract EditableLinkFacet getEditable();
+public interface LinkFacet extends Named, LinkEntity {
 }

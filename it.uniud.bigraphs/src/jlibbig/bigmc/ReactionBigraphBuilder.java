@@ -9,7 +9,19 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import jlibbig.core.*;
+import jlibbig.core.std.Bigraph;
+import jlibbig.core.std.BigraphBuilder;
+import jlibbig.core.std.Control;
+import jlibbig.core.std.Edge;
+import jlibbig.core.std.Handle;
+import jlibbig.core.std.InnerName;
+import jlibbig.core.std.Node;
+import jlibbig.core.std.OuterName;
+import jlibbig.core.std.Parent;
+import jlibbig.core.std.Port;
+import jlibbig.core.std.Root;
+import jlibbig.core.std.Signature;
+import jlibbig.core.std.Site;
 
 /**
  * The class is meant as a helper for bigmc's reaction bigraph construction and
@@ -18,7 +30,7 @@ import jlibbig.core.*;
  * 
  */
 public class ReactionBigraphBuilder implements
-		jlibbig.core.abstractions.BigraphBuilder<Control> {
+		jlibbig.core.BigraphBuilder<Control> {
 	final BigraphBuilder rbig;
 	private final List<Integer> sites;
 	private final List<Integer> ro_sites;
@@ -122,10 +134,10 @@ public class ReactionBigraphBuilder implements
 	}
 
 	/**
-	 * Make a {@link jlibbig.core.Bigraph} from the current
+	 * Make a {@link jlibbig.core.std.Bigraph} from the current
 	 * ReactionBigraphBuilder.
 	 * 
-	 * @return The generated {@link jlibbig.core.Bigraph}
+	 * @return The generated {@link jlibbig.core.std.Bigraph}
 	 */
 	public Bigraph makeBigraph() {
 		this.sortSites();
