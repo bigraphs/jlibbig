@@ -1,4 +1,0 @@
-/**
- * 
- */
-package jlibbig.core.util;
