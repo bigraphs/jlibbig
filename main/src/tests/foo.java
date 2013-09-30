@@ -8,10 +8,64 @@ import it.uniud.mads.jlibbig.core.std.*;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test4();
+		test5();
 	}
+	
+	private static void test6(){
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put("router",true,2);
+		sb.put("lan",true,1);
+		sb.put("ip",false,1);
+		sb.put("host", true, 1);
+		Signature s = sb.makeSignature("MySig");
+		
+		//BIGRAFO
+		BigraphBuilder bb = new BigraphBuilder(s);
+		bb.addNode("lan" , bb.addNode("router", bb.addRoot() ));
+		bb.addNode("host", bb.addNode("ip" , bb.addRoot() ));
+		
+		//REDEX E REACTUM (STESSO BIGRAFO)
+		BigraphBuilder redex = new BigraphBuilder(s);
+		redex.addSite( redex.addNode("router", redex.addRoot() ));
+		redex.addSite( redex.addNode("ip" , redex.addRoot() ));
+		
+		AgentRewritingRule arr = new AgentRewritingRule( redex.makeBigraph(), redex.makeBigraph(), 0 , 1);
+		System.out.println( arr.apply(bb.makeBigraph()).iterator().next().toString());
+		
+	}
+	
+	private static void test5(){
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put("router",true,2);
+		sb.put("lan",true,1);
+		sb.put("ip",false,1);
+		sb.put("host", true, 1);
+		Signature s = sb.makeSignature("MySig");
+		
+		//BIGRAFO
+		BigraphBuilder bb = new BigraphBuilder(s);
+		bb.addNode("ip" , bb.addNode("lan", bb.addRoot() ));
+		
+		//REDEX E REACTUM
+		BigraphBuilder redex = new BigraphBuilder(s);
+		redex.addSite( redex.addNode("lan" , redex.addRoot()));
+		
+		BigraphBuilder reactum = new BigraphBuilder(s);
+		reactum.addNode("lan", reactum.addRoot());
+		
+		AgentRewritingRule arr = new AgentRewritingRule( redex.makeBigraph(true) , reactum.makeBigraph(true) );
+		
+		Bigraph b = bb.makeBigraph(true);
 
-	private static void test4(){
+		int i=1;
+		while( ( b = arr.apply( b ).iterator().next()) != null ){
+			System.out.println("-----------------------------------------------");
+			System.out.println("riscrittura #"+ i++ +":");
+			System.out.println( b );
+		}
+	}
+	private static void test4(){		
+		
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("router",true,2);
 		sb.put("lan",true,1);
@@ -70,6 +124,15 @@ public class foo {
 		AgentRewritingRule arr = new AgentRewritingRule( bigRedex , bigReactum , 0 );
 		
 		Bigraph k = rete.makeBigraph();
+		
+
+		for(AgentMatch m : AgentMatcher.DEFAULT.match(k, bigRedex)){
+			for(Node n : bigRedex.getNodes()){
+				if(m.getImage(n) == null){
+					System.out.println("################################# ARGH!!!!!!!!!!!!!");
+				}
+			}
+		}
 		
 		int i=1;
 		while( ( k = arr.apply( k ).iterator().next()) != null ){

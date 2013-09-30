@@ -125,9 +125,20 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 							n.setHandle(null);
 						}
 					}
+					for(int i = eta.getPlaceCodomain() - eta.getPlaceDomain();i > 0;i--){
+						lambda.roots.remove(0);
+						lambda.sites.remove(0);
+					}
+					for(int i = eta.getPlaceDomain() - eta.getPlaceCodomain();i > 0;i--){
+						EditableRoot r = new EditableRoot();
+						r.setOwner(lambda);
+						EditableSite s = new EditableSite(r);
+						lambda.roots.add(r);
+						lambda.sites.add(s);
+					}
 					bb.outerCompose(lambda, true);
 					Bigraph inreact = instantiateReactum(match);
-					inreact = Bigraph.juxtapose(inreact, match.getRedexLinkId());
+					inreact = Bigraph.juxtapose(inreact, match.getRedexId());
 					bb.outerCompose(inreact, true);
 					bb.outerCompose(match.getContext(), true);
 					return bb.makeBigraph(true);

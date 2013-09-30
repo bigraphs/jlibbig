@@ -1,21 +1,17 @@
 package it.uniud.mads.jlibbig.core.std;
 
-import java.util.*;
-
 import it.uniud.mads.jlibbig.core.AbstractMatch;
+import it.uniud.mads.jlibbig.core.util.BidMap;
 
 public class BigraphMatch extends AbstractMatch<Bigraph> {
 
 	protected Bigraph rdxImage;
-	protected Bigraph rdxLeftId;
-	protected Bigraph rdxRightId;
-	protected Bigraph rdxLinkId;
+	protected Bigraph rdxId;
 
-	private Map<Node, EditableNode> emb_nodes;
+	private BidMap<Node, EditableNode> emb_nodes;
 
 	protected BigraphMatch(Bigraph context, Bigraph redexImage,
-			Bigraph redexLeftId, Bigraph redexRightId, Bigraph redexLinkId,
-			Bigraph param, Map<Node, EditableNode> nodesEmbedding) {
+			Bigraph redexId, Bigraph param, BidMap<Node, EditableNode> nodeEmbedding) {
 		super(context, null, param);
 		// if(context == null)
 		// throw new IllegalArgumentException("Context can not be null.");
@@ -23,13 +19,9 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 		// throw new IllegalArgumentException("RedexImage can not be null.");
 		Signature sig = context.signature;
 		this.rdxImage = redexImage;
-		this.rdxLeftId = (redexLeftId != null) ? redexLeftId : Bigraph
+		this.rdxId = (redexId != null) ? redexId : Bigraph
 				.makeEmpty(sig);
-		this.rdxRightId = (redexRightId != null) ? redexRightId : Bigraph
-				.makeEmpty(sig);
-		this.rdxLinkId = (redexLinkId != null) ? redexLinkId : Bigraph
-				.makeEmpty(sig);
-		this.emb_nodes = nodesEmbedding;// new HashMap<>(nodesEmbedding);
+		this.emb_nodes = nodeEmbedding;// new HashMap<>(nodesEmbedding);
 
 		// if (!redexImage.signature.equals(sig)
 		// || !redexLeftId.signature.equals(sig)
@@ -42,15 +34,15 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 	public EditableNode getImage(Node node) {
 		return emb_nodes.get(node);
 	}
+	
+	public EditableNode getPreImage(Node node) {
+		return (EditableNode) emb_nodes.getKey(node);
+	}
 
 	@Override
 	public Bigraph getRedex() {
 		if (super.redex == null) {
-			BigraphBuilder bb = new BigraphBuilder(this.rdxImage);
-			bb.leftJuxtapose(this.rdxLeftId);
-			bb.rightJuxtapose(this.rdxRightId);
-			bb.leftJuxtapose(this.rdxLinkId);
-			super.redex = bb.makeBigraph(true);
+			super.redex = Bigraph.juxtapose(this.rdxImage, this.rdxId);
 		}
 		return super.redex;
 	}
@@ -59,15 +51,7 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 		return this.rdxImage;
 	}
 
-	public Bigraph getRedexLeftId() {
-		return this.rdxLeftId;
-	}
-
-	public Bigraph getRedexRightId() {
-		return this.rdxRightId;
-	}
-
-	public Bigraph getRedexLinkId() {
-		return this.rdxLinkId;
+	public Bigraph getRedexId() {
+		return this.rdxId;
 	}
 }
