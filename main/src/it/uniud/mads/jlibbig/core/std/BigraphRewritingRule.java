@@ -219,9 +219,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 						BigraphMatch match = matches.next();
 						BigraphBuilder bb = new BigraphBuilder(
 								instantiateReactum(match), true);
-						bb.leftJuxtapose(match.getRedexLeftId(), true);
-						bb.rightJuxtapose(match.getRedexRightId(), true);
-						bb.leftJuxtapose(match.rdxLinkId, true);
+						bb.leftJuxtapose(match.getRedexId(), true);
 						bb.outerCompose(match.getContext(), true);
 						big = bb.makeBigraph(true);
 						args = eta.instantiate(match.getParam()).iterator();

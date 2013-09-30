@@ -4,6 +4,7 @@ import java.util.*;
 
 import it.uniud.mads.jlibbig.core.Matcher;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
+import it.uniud.mads.jlibbig.core.util.BidMap;
 
 import choco.Choco;
 import choco.cp.model.CPModel;
@@ -53,8 +54,10 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 		final Collection<? extends Node> agent_nodes;
 		final Collection<Port> agent_ports;
 		final Collection<? extends Edge> agent_edges;
-		final List<Handle> agent_handles; // simplifies some constraints for
-											// f_vars
+		/* Handles are not ordered, but the use of a list 
+		 * simplifies some constraints for f_vars
+		 */
+		final List<Handle> agent_handles;
 
 		final List<? extends Root> redex_roots;
 		final List<? extends Site> redex_sites;
@@ -783,8 +786,13 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			public AgentMatch next() {
 				AgentMatch res = nextMatch;
 				if (mayHaveNext) {
-					fetchSolution(nextMatch == null);
-				} else if (nextMatch != null) {
+					if(nextMatch == null) {
+						fetchSolution(true);
+						res = nextMatch;
+					}else{
+						fetchSolution(false);
+					}
+				} else {
 					nextMatch = null;
 				}
 				return res;
@@ -835,7 +843,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						p_cell_width[c] = s.length();
 						System.out.printf("%-" + p_cell_width[c++] + "s|", s);
 					}
-					for (int k = 0; k < redex_sites.size(); k++) {
+					for (int k = 0; k < redex_sites.size(); k++,c++) {
 						String s = "S_" + k;
 						p_cell_width[c] = s.length();
 						System.out.printf("%-" + p_cell_width[c] + "s|", s);
@@ -975,7 +983,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				Bigraph lmb = Bigraph.makeId(redex.signature, rss);
 				Bigraph id = Bigraph.makeEmpty(redex.signature);
 				// an injective map from redex's nodes to rdx's ones
-				Map<Node, EditableNode> nEmb = new HashMap<>(rns);
+				BidMap<Node, EditableNode> nEmb = new BidMap<>(rns);
 
 				// replicated sites
 				EditableSite ctx_sites_dic[] = new EditableSite[rrs];
@@ -1205,7 +1213,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 							EditableNode n0 = (EditableNode) v.i;
 							EditableNode n1 = (EditableNode) v.c;
 							EditableNode n2 = n1.replicate();
-							nEmb.put(n1, n0);
+							nEmb.put(n0, n1);
 							n2.setParent(v.p);
 							// replicate links from node ports
 							for (int i = n0.getControl().getArity() - 1; -1 < i; i--) {
@@ -1396,13 +1404,14 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						throw new RuntimeException("Inconsistent bigraph (id)");
 					}
 					for (int i = 0; i < rss; i++) {
+						System.out.println("--------------" + i);
+						System.out.println(prms[i]);
 						if (neededParam[i] && !prms[i].isConsistent()) {
 							throw new RuntimeException(
 									"Inconsistent bigraph (prm " + i + ")");
 						}
 					}
 				}
-
 				this.nextMatch = new AgentMatch(ctx, rdx, id, lmb, prms, nEmb);
 			}
 		}

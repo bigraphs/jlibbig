@@ -1,5 +1,7 @@
 package it.uniud.mads.jlibbig.core.std;
 
+import it.uniud.mads.jlibbig.core.util.BidMap;
+
 import java.util.*;
 
 public class AgentMatch extends BigraphMatch {
@@ -8,14 +10,14 @@ public class AgentMatch extends BigraphMatch {
 	protected final Bigraph lambda;
 	protected final Bigraph id;
 
-	AgentMatch(Bigraph context, Bigraph redexImage, Bigraph redexLinkId,
+	AgentMatch(Bigraph context, Bigraph redexImage, Bigraph redexId,
 			Bigraph paramWiring, Bigraph[] params,
-			Map<Node, EditableNode> nodesEmbedding) {
-		super(context, redexImage, null, null, redexLinkId, null,
-				nodesEmbedding);
+			BidMap<Node, EditableNode> nodeEmbedding) {
+		super(context, redexImage, redexId, null,
+				nodeEmbedding);
 		this.params = Collections.unmodifiableList(Arrays.asList(params));
 		this.lambda = paramWiring;
-		this.id = redexLinkId;
+		this.id = redexId;
 	}
 
 	/**

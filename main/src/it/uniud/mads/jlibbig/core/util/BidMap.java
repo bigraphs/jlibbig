@@ -13,13 +13,21 @@ import java.util.*;
  */
 public class BidMap<A, B> implements Map<A, B> {
 
-	private Map<A, B> _mapA = new HashMap<>();
-	private Map<B, A> _mapB = new HashMap<>();
+	private Map<A, B> _mapA;
+	private Map<B, A> _mapB;
 
 	public BidMap() {
+		_mapA = new HashMap<>();
+		_mapB = new HashMap<>();
+	}
+	
+	public BidMap(int size) {
+		_mapA = new HashMap<>(size);
+		_mapB = new HashMap<>(size);
 	}
 
 	public BidMap(Map<? extends A, ? extends B> map) {
+		this(map.size());
 		_mapA.putAll(map);
 		for (A a : map.keySet()) {
 			B b = map.get(a);

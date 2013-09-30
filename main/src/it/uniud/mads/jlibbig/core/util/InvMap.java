@@ -19,7 +19,7 @@ public class InvMap<A, B> implements Map<A, B> {
 
 	public InvMap() {
 	}
-
+	
 	public InvMap(Map<? extends A, ? extends B> map) {
 		_map.putAll(map);
 	}

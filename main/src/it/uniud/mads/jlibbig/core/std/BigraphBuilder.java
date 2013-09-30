@@ -222,6 +222,15 @@ final public class BigraphBuilder implements
 		assertConsistency();
 		return r;
 	}
+	
+	public Root addRoot(int index) {
+		assertOpen();
+		EditableRoot r = new EditableRoot();
+		r.setOwner(this);
+		this.big.roots.add(index,r);
+		assertConsistency();
+		return r;
+	}
 
 	/**
 	 * Add a site to the current bigraph
@@ -771,8 +780,8 @@ final public class BigraphBuilder implements
 		for (Edge e : l.getEdges()) {
 			((EditableEdge) e).setOwner(this);
 		}
-		r.roots.addAll(l.roots);
-		r.sites.addAll(l.sites);
+		r.roots.addAll(0,l.roots);
+		r.sites.addAll(0,l.sites);
 		r.outers.putAll(l.outers);
 		r.inners.putAll(l.inners);
 		assertConsistency();
