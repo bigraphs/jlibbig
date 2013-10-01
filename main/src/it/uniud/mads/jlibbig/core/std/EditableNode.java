@@ -26,7 +26,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			PROPERTY_OWNER, true, ownerSetter);
 
 	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
-	private final PropertyContainer props = new PropertyContainer();
+	private final PropertyContainer props = new PropertyContainer(this);
 
 	EditableNode(Control control) {
 		this.name = "N_" + AbstractNamed.generateName();
