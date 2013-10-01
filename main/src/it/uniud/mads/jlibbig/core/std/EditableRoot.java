@@ -18,7 +18,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 			PROPERTY_OWNER, null, ownerSetter);
 
 	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
-	private final PropertyContainer props = new PropertyContainer();
+	private final PropertyContainer props = new PropertyContainer(this);
 
 	EditableRoot() {
 		this(null);

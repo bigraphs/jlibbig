@@ -4,214 +4,227 @@ import java.util.*;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 import it.uniud.mads.jlibbig.core.std.*;
+import it.uniud.mads.jlibbig.core.Owner;
 
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test5();
+		test1();
 	}
-	
-	private static void test6(){
+
+	private static void test6() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router",true,2);
-		sb.put("lan",true,1);
-		sb.put("ip",false,1);
+		sb.put("router", true, 2);
+		sb.put("lan", true, 1);
+		sb.put("ip", false, 1);
 		sb.put("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
-		
-		//BIGRAFO
+
+		// BIGRAFO
 		BigraphBuilder bb = new BigraphBuilder(s);
-		bb.addNode("lan" , bb.addNode("router", bb.addRoot() ));
-		bb.addNode("host", bb.addNode("ip" , bb.addRoot() ));
-		
-		//REDEX E REACTUM (STESSO BIGRAFO)
+		bb.addNode("lan", bb.addNode("router", bb.addRoot()));
+		bb.addNode("host", bb.addNode("ip", bb.addRoot()));
+
+		// REDEX E REACTUM (STESSO BIGRAFO)
 		BigraphBuilder redex = new BigraphBuilder(s);
-		redex.addSite( redex.addNode("router", redex.addRoot() ));
-		redex.addSite( redex.addNode("ip" , redex.addRoot() ));
-		
-		AgentRewritingRule arr = new AgentRewritingRule( redex.makeBigraph(), redex.makeBigraph(), 0 , 1);
-		System.out.println( arr.apply(bb.makeBigraph()).iterator().next().toString());
-		
+		redex.addSite(redex.addNode("router", redex.addRoot()));
+		redex.addSite(redex.addNode("ip", redex.addRoot()));
+
+		AgentRewritingRule arr = new AgentRewritingRule(redex.makeBigraph(),
+				redex.makeBigraph(), 0, 1);
+		System.out.println(arr.apply(bb.makeBigraph()).iterator().next()
+				.toString());
+
 	}
-	
-	private static void test5(){
+
+	private static void test5() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router",true,2);
-		sb.put("lan",true,1);
-		sb.put("ip",false,1);
+		sb.put("router", true, 2);
+		sb.put("lan", true, 1);
+		sb.put("ip", false, 1);
 		sb.put("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
-		
-		//BIGRAFO
+
+		// BIGRAFO
 		BigraphBuilder bb = new BigraphBuilder(s);
-		bb.addNode("ip" , bb.addNode("lan", bb.addRoot() ));
-		
-		//REDEX E REACTUM
+		bb.addNode("ip", bb.addNode("lan", bb.addRoot()));
+
+		// REDEX E REACTUM
 		BigraphBuilder redex = new BigraphBuilder(s);
-		redex.addSite( redex.addNode("lan" , redex.addRoot()));
-		
+		redex.addSite(redex.addNode("lan", redex.addRoot()));
+
 		BigraphBuilder reactum = new BigraphBuilder(s);
 		reactum.addNode("lan", reactum.addRoot());
-		
-		AgentRewritingRule arr = new AgentRewritingRule( redex.makeBigraph(true) , reactum.makeBigraph(true) );
-		
+
+		AgentRewritingRule arr = new AgentRewritingRule(
+				redex.makeBigraph(true), reactum.makeBigraph(true));
+
 		Bigraph b = bb.makeBigraph(true);
 
-		int i=1;
-		while( ( b = arr.apply( b ).iterator().next()) != null ){
-			System.out.println("-----------------------------------------------");
-			System.out.println("riscrittura #"+ i++ +":");
-			System.out.println( b );
+		int i = 1;
+		while ((b = arr.apply(b).iterator().next()) != null) {
+			System.out
+					.println("-----------------------------------------------");
+			System.out.println("riscrittura #" + i++ + ":");
+			System.out.println(b);
 		}
 	}
-	private static void test4(){		
-		
+
+	private static void test4() {
+
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router",true,2);
-		sb.put("lan",true,1);
-		sb.put("ip",false,1);
+		sb.put("router", true, 2);
+		sb.put("lan", true, 1);
+		sb.put("ip", false, 1);
 		sb.put("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
-		
+
 		BigraphBuilder rete = new BigraphBuilder(s);
 		Root r0 = rete.addRoot();
 		OuterName on = rete.addOuterName("r_to_lan");
 		OuterName r_ip = rete.addOuterName("r_ip");
-		rete.addNode( "router" , r0 , on , r_ip );
-		Node lan = rete.addNode( "lan" , r0 , on );
-		
-		rete.addNode("ip" , lan , r_ip );
+		rete.addNode("router", r0, on, r_ip);
+		Node lan = rete.addNode("lan", r0, on);
 
-		rete.addNode("ip", lan );
-		rete.addNode("ip", lan );
-		
+		rete.addNode("ip", lan, r_ip);
+
+		rete.addNode("ip", lan);
+		rete.addNode("ip", lan);
+
 		BigraphBuilder tap = new BigraphBuilder(s);
-		tap.addSite( tap.addRoot() );
+		tap.addSite(tap.addRoot());
 		tap.addInnerName("r_to_lan");
 		tap.addInnerName("r_ip");
-		rete.outerCompose( tap.makeBigraph() );
-		//fine rete
-		
+		rete.outerCompose(tap.makeBigraph());
+		// fine rete
+
 		BigraphBuilder redex = new BigraphBuilder(s);
 		Root rr0 = redex.addRoot();
-		OuterName rron = redex.addOuterName( "r_to_lan" );
-		redex.addNode("router" , rr0 ,  rron , redex.addInnerName("r_ip").getHandle() );
+		OuterName rron = redex.addOuterName("r_to_lan");
+		redex.addNode("router", rr0, rron, redex.addInnerName("r_ip")
+				.getHandle());
 		Root rr1 = redex.addRoot();
-		Node rlan = redex.addNode( "lan", rr1 , rron );
-		redex.addSite( rlan );
-		Node ip = redex.addNode( "ip" , rlan );
-		
-		BigraphBuilder rtap = new BigraphBuilder(s);
-		rtap.addSite( rtap.addRoot() );
-		rtap.addSite( rtap.addRoot() );
-		rtap.addInnerName("r_to_lan" );
-		
-		redex.outerCompose( rtap.makeBigraph() );
-		redex.merge();
-		
-		Bigraph bigRedex = redex.makeBigraph();
-		
-		OuterName hostip = redex.addOuterName( "host_ip" );
-		redex.addNode( "host" , redex.getRoots().get(0) , hostip );
-		redex.relink( ip.getPort(0) , hostip );
-		BigraphBuilder rrtap = new BigraphBuilder(s);
-		rrtap.addSite( rrtap.addRoot() );
-		rrtap.addInnerName("host_ip" );
-		redex.outerCompose( rrtap.makeBigraph() );
-		
-		Bigraph bigReactum = redex.makeBigraph();
-				
-		AgentRewritingRule arr = new AgentRewritingRule( bigRedex , bigReactum , 0 );
-		
-		Bigraph k = rete.makeBigraph();
-		
+		Node rlan = redex.addNode("lan", rr1, rron);
+		redex.addSite(rlan);
+		Node ip = redex.addNode("ip", rlan);
 
-		for(AgentMatch m : AgentMatcher.DEFAULT.match(k, bigRedex)){
-			for(Node n : bigRedex.getNodes()){
-				if(m.getImage(n) == null){
-					System.out.println("################################# ARGH!!!!!!!!!!!!!");
+		BigraphBuilder rtap = new BigraphBuilder(s);
+		rtap.addSite(rtap.addRoot());
+		rtap.addSite(rtap.addRoot());
+		rtap.addInnerName("r_to_lan");
+
+		redex.outerCompose(rtap.makeBigraph());
+		redex.merge();
+
+		Bigraph bigRedex = redex.makeBigraph();
+
+		OuterName hostip = redex.addOuterName("host_ip");
+		redex.addNode("host", redex.getRoots().get(0), hostip);
+		redex.relink(ip.getPort(0), hostip);
+		BigraphBuilder rrtap = new BigraphBuilder(s);
+		rrtap.addSite(rrtap.addRoot());
+		rrtap.addInnerName("host_ip");
+		redex.outerCompose(rrtap.makeBigraph());
+
+		Bigraph bigReactum = redex.makeBigraph();
+
+		AgentRewritingRule arr = new AgentRewritingRule(bigRedex, bigReactum, 0);
+
+		Bigraph k = rete.makeBigraph();
+
+		for (AgentMatch m : AgentMatcher.DEFAULT.match(k, bigRedex)) {
+			for (Node n : bigRedex.getNodes()) {
+				if (m.getImage(n) == null) {
+					System.out
+							.println("################################# ARGH!!!!!!!!!!!!!");
 				}
 			}
 		}
-		
-		int i=1;
-		while( ( k = arr.apply( k ).iterator().next()) != null ){
-			System.out.println("-----------------------------------------------");
-			System.out.println("riscrittura #"+ i++ +":");
-			System.out.println( k );
+
+		int i = 1;
+		while ((k = arr.apply(k).iterator().next()) != null) {
+			System.out
+					.println("-----------------------------------------------");
+			System.out.println("riscrittura #" + i++ + ":");
+			System.out.println(k);
 		}
 	}
-		
+
 	private static void test3() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router",true,2);
-		sb.put("lan",true,1);
-		sb.put("ip",false,1);
+		sb.put("router", true, 2);
+		sb.put("lan", true, 1);
+		sb.put("ip", false, 1);
 		sb.put("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
-		
+
 		// RETE:
 		BigraphBuilder rete = new BigraphBuilder(s);
 		Root r0 = rete.addRoot();
 		OuterName on = rete.addOuterName("r_to_lan");
 		OuterName r_ip = rete.addOuterName("r_ip");
-		rete.addNode( "router" , r0 , on , r_ip ).attachProperty( new SimpleProperty<Integer>("net_addr" , 2000 ) );
-		Node lan = rete.addNode( "lan" , r0 , on );
-		
-		rete.addNode("ip" , lan , r_ip ).attachProperty( new SimpleProperty<Integer>("ip_addr" , 1 ) );
-		
-		for(int i = 0 ; i<10 ; ++i )
-			rete.addNode("ip", lan ).attachProperty( new SimpleProperty<Integer>("ip_addr" , i ) );
+		rete.addNode("router", r0, on, r_ip).attachProperty(
+				new SimpleProperty<Integer>("net_addr", 2000));
+		Node lan = rete.addNode("lan", r0, on);
+
+		rete.addNode("ip", lan, r_ip).attachProperty(
+				new SimpleProperty<Integer>("ip_addr", 1));
+
+		for (int i = 0; i < 10; ++i)
+			rete.addNode("ip", lan).attachProperty(
+					new SimpleProperty<Integer>("ip_addr", i));
 		BigraphBuilder tap = new BigraphBuilder(s);
-		tap.addSite( tap.addRoot() );
+		tap.addSite(tap.addRoot());
 		tap.addInnerName("r_to_lan");
 		tap.addInnerName("r_ip");
-		rete.outerCompose( tap.makeBigraph() );
-		//fine rete
-		
+		rete.outerCompose(tap.makeBigraph());
+		// fine rete
+
 		BigraphBuilder redex = new BigraphBuilder(s);
 		Root rr0 = redex.addRoot();
-		OuterName rron = redex.addOuterName( "r_to_lan" );
-		redex.addNode("router" , rr0 ,  rron , redex.addInnerName("r_ip").getHandle() );
+		OuterName rron = redex.addOuterName("r_to_lan");
+		redex.addNode("router", rr0, rron, redex.addInnerName("r_ip")
+				.getHandle());
 		Root rr1 = redex.addRoot();
-		Node rlan = redex.addNode( "lan", rr1 , rron );
-		redex.addSite( rlan );
-		Node ip = redex.addNode( "ip" , rlan );
-		
+		Node rlan = redex.addNode("lan", rr1, rron);
+		redex.addSite(rlan);
+		Node ip = redex.addNode("ip", rlan);
+
 		BigraphBuilder rtap = new BigraphBuilder(s);
-		rtap.addSite( rtap.addRoot() );
-		rtap.addSite( rtap.addRoot() );
-		rtap.addInnerName("r_to_lan" );
-		
-		redex.outerCompose( rtap.makeBigraph() );
+		rtap.addSite(rtap.addRoot());
+		rtap.addSite(rtap.addRoot());
+		rtap.addInnerName("r_to_lan");
+
+		redex.outerCompose(rtap.makeBigraph());
 		redex.merge();
-		
-		Bigraph bigRedex = printBig( redex.makeBigraph());
-		
-		OuterName hostip = redex.addOuterName( "host_ip" );
-		redex.addNode( "host" , redex.getRoots().get(0) , hostip ).attachProperty( new SimpleProperty<String>( "id" , "net200" ) );
-		redex.relink( ip.getPort(0) , hostip );
+
+		Bigraph bigRedex = printBig(redex.makeBigraph());
+
+		OuterName hostip = redex.addOuterName("host_ip");
+		redex.addNode("host", redex.getRoots().get(0), hostip).attachProperty(
+				new SimpleProperty<String>("id", "net200"));
+		redex.relink(ip.getPort(0), hostip);
 		BigraphBuilder rrtap = new BigraphBuilder(s);
-		rrtap.addSite( rrtap.addRoot() );
-		rrtap.addInnerName("host_ip" );
-		redex.outerCompose( rrtap.makeBigraph() );
-		
-		Bigraph bigReactum = printBig( redex.makeBigraph() );
-				
-		AgentRewritingRule arr = new AgentRewritingRule( bigRedex , bigReactum , 0 );
+		rrtap.addSite(rrtap.addRoot());
+		rrtap.addInnerName("host_ip");
+		redex.outerCompose(rrtap.makeBigraph());
+
+		Bigraph bigReactum = printBig(redex.makeBigraph());
+
+		AgentRewritingRule arr = new AgentRewritingRule(bigRedex, bigReactum, 0);
 		int i = 0;
 		Bigraph k = rete.makeBigraph();
-		
+
 		System.out.println("################################ " + i);
-		Iterator<Bigraph> j = arr.apply( k ).iterator();
-		while(j.hasNext()){
+		Iterator<Bigraph> j = arr.apply(k).iterator();
+		while (j.hasNext()) {
 			k = j.next();
 			i++;
 			System.out.println("################################ " + i);
 			j = arr.apply(k).iterator();
 			i++;
 		}
-		
+
 		System.out.println("match test...");
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
@@ -222,8 +235,7 @@ public class foo {
 		Long t1 = System.currentTimeMillis();
 		System.out.println("done: " + mc + " matches in " + (t1 - t0) + " ms");
 
-		AgentRewritingRule ar = new AgentRewritingRule(bigRedex,
-				bigReactum, 0);
+		AgentRewritingRule ar = new AgentRewritingRule(bigRedex, bigReactum, 0);
 		System.out.println("ground rewrite test...");
 		t0 = System.currentTimeMillis();
 		mc = 0;
@@ -270,20 +282,21 @@ public class foo {
 		System.out.println(mc + " matches in " + (t1 - t0) + " ms");
 	}
 
-
 	private static void test1() {
 		NodeChaser nc = new NodeChaser() {
-			// protected void onNodeAdded(Node node){
-			// System.out.println("- CHEASING " + node + ".");
-			// }
-			// protected void onReplicates(Node original, Node copy){
-			// System.out.println("- REPLICATION DETECTED FOR " + original +
-			// " => " + copy + ".");
-			// }
-			// protected void onOwnerChanges(Node node,Owner oldValue,Owner
-			// newValue){
-			// System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
-			// }
+			protected void onNodeAdded(Node node) {
+				System.out.println("- CHEASING " + node + ".");
+			}
+
+			protected void onReplicates(Node original, Node copy) {
+				System.out.println("- REPLICATION DETECTED FOR " + original
+						+ " => " + copy + ".");
+			}
+
+			protected void onOwnerChanges(Node node, Owner oldValue,
+					Owner newValue) {
+				System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
+			}
 		};
 
 		SignatureBuilder sb = new SignatureBuilder();
@@ -385,7 +398,7 @@ public class foo {
 		t1 = System.currentTimeMillis();
 		System.out.println("done: " + mc + " rewrites in " + (t1 - t0) + " ms");
 	}
-	
+
 	private static void printT() {
 		System.out.println(System.currentTimeMillis());
 	}

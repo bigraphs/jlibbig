@@ -86,10 +86,10 @@ public class NodeChaser {
 	}
 
 	public void chase(Node node) {
-		chased((EditableNode) node);
+		chase((EditableNode) node);
 	}
 
-	void chased(EditableNode node) {
+	void chase(EditableNode node) {
 		WeakHashSet<Node> ns = index.get(getOwnerKey(node));
 		if (ns == null) {
 			ns = new WeakHashSet<>();
@@ -121,7 +121,7 @@ public class NodeChaser {
 		ReplicateListener rl = new ReplicateListener() {
 			@Override
 			public void onReplicate(Replicable original, Replicable copy) {
-				chased((EditableNode) copy);
+				chase((EditableNode) copy);
 				onReplicates((Node) original, (Node) copy);
 			}
 		};

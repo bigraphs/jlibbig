@@ -70,5 +70,6 @@ public class ReplicatingProperty<V> extends SimpleProperty<V> {
 	protected void onReplicate(Replicable original, Replicable copy) {
 		((PropertyTarget) copy).attachProperty(new ReplicatingProperty<>(this
 				.getName(), this.get(), this.isReadOnly(), super.listeners));
+		//copy.registerListener(repListener);
 	};
 }

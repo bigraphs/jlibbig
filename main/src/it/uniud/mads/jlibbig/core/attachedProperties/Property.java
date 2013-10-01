@@ -22,5 +22,12 @@ public abstract class Property<V> {
 	};
 
 	protected void onDetach(PropertyTarget target) {
+	}
+
+	@Override
+	public String toString() {
+		return "Property '" + getName() + "'=" + get();
 	};
+	
+	
 }
