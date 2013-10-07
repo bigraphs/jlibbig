@@ -8,10 +8,10 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 	protected Bigraph rdxImage;
 	protected Bigraph rdxId;
 
-	private BidMap<Node, EditableNode> emb_nodes;
+	private BidMap<Node, Node> emb_nodes;
 
 	protected BigraphMatch(Bigraph context, Bigraph redexImage,
-			Bigraph redexId, Bigraph param, BidMap<Node, EditableNode> nodeEmbedding) {
+			Bigraph redexId, Bigraph param, BidMap<Node, Node> nodeEmbedding) {
 		super(context, null, param);
 		// if(context == null)
 		// throw new IllegalArgumentException("Context can not be null.");
@@ -31,12 +31,12 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 		// "Components of a matching should have the same signature.");
 	}
 
-	public EditableNode getImage(Node node) {
+	public Node getImage(Node node) {
 		return emb_nodes.get(node);
 	}
 	
-	public EditableNode getPreImage(Node node) {
-		return (EditableNode) emb_nodes.getKey(node);
+	public Node getPreImage(Node node) {
+		return emb_nodes.getKey(node);
 	}
 
 	@Override
@@ -53,5 +53,15 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 
 	public Bigraph getRedexId() {
 		return this.rdxId;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BigraphMatch:\ncontext = ").append(context)
+				.append("\nredexImage = ").append(rdxImage)
+				.append("\nredexId = ").append(rdxId)
+				.append("\nparam = ").append(param);
+		return builder.toString();
 	}
 }
