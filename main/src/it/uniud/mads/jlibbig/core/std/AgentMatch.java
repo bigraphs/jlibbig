@@ -8,16 +8,13 @@ public class AgentMatch extends BigraphMatch {
 
 	protected final List<Bigraph> params;
 	protected final Bigraph lambda;
-	protected final Bigraph id;
 
 	AgentMatch(Bigraph context, Bigraph redexImage, Bigraph redexId,
 			Bigraph paramWiring, Bigraph[] params,
-			BidMap<Node, EditableNode> nodeEmbedding) {
-		super(context, redexImage, redexId, null,
-				nodeEmbedding);
+			BidMap<Node, Node> nodeEmbedding) {
+		super(context, redexImage, redexId, null, nodeEmbedding);
 		this.params = Collections.unmodifiableList(Arrays.asList(params));
 		this.lambda = paramWiring;
-		this.id = redexId;
 	}
 
 	/**
@@ -51,5 +48,21 @@ public class AgentMatch extends BigraphMatch {
 	public Bigraph getParamWiring() {
 		return this.lambda;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("AgentMatch:\ncontext = ").append(super.context)
+				.append("\nredexImage = ").append(super.rdxImage)
+				.append("\nredexId = ").append(super.rdxId)
+				.append("\nparamWiring = ").append(lambda);
+		int i = 0;
+		for(Bigraph prm : params){
+			builder.append("\nparam[").append(i).append("] = ").append(params.get(i));
+		}		
+		return builder.toString();
+	}
+	
+	
 
 }

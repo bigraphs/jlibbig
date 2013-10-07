@@ -9,9 +9,114 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test1();
+		test8();
+	}
+	
+	private static void test11(){
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put("lan",true,1);
+		sb.put("ip",false,1);
+
+		Signature s = sb.makeSignature("MySig");
+		
+		//BIGRAFO
+		BigraphBuilder bb = new BigraphBuilder(s);
+		Root r = bb.addRoot();
+		Node lan = bb.addNode( "lan" , r );
+		bb.addNode( "ip" , r , lan.getPort(0).getHandle() );
+		
+		//MATCH
+		BigraphBuilder redex = new BigraphBuilder(s);
+		Root rr = redex.addRoot();
+		Node rlan = redex.addNode( "lan" , rr , redex.addOuterName("a") );
+		Node rip = redex.addNode( "ip" , rr , redex.addOuterName("b"));
+		
+		for(AgentMatch m : AgentMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
+			System.out.println(m);
+		}
+	}
+	
+	private static void test10(){
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put("lan",true,1);
+		sb.put("ip",false,1);
+
+		Signature s = sb.makeSignature("MySig");
+		
+		//BIGRAFO
+		BigraphBuilder bb = new BigraphBuilder(s);
+		Root r = bb.addRoot();
+		Node lan = bb.addNode( "lan" , r );
+		bb.addNode( "ip" , r , lan.getPort(0).getHandle() );
+		
+		//MATCH
+		BigraphBuilder m = new BigraphBuilder(s);
+		Root rr = m.addRoot();
+		Node rlan = m.addNode( "lan" , rr );
+		m.addSite( rr );
+		m.addInnerName( "a" , rlan.getPort(0).getHandle() );
+
+		for(Bigraph b :(new AgentRewritingRule( m.makeBigraph(), m.makeBigraph() , 0)).apply( bb.makeBigraph())){
+			System.out.println(b);
+		}
+	}
+	
+	private static void test9(){
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put( "if" , true , 1 );
+		Signature signature = sb.makeSignature();
+		
+		//BIGRAFO
+		BigraphBuilder bb = new BigraphBuilder(signature);
+		Root r0 = bb.addRoot();
+		OuterName a = bb.addOuterName("a");
+		Node bif1 = bb.addNode( "if" , r0 ,a );
+		Node bif2 = bb.addNode("if" , r0 , a);
+		
+		//REDEX
+		BigraphBuilder redex = new BigraphBuilder(signature);
+		redex.addSite( redex.addNode( "if" , redex.addRoot() , redex.addOuterName("a") ) );
+				
+		for(AgentMatch m : AgentMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
+			System.out.println(m);
+		}
 	}
 
+	private static void test8(){
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put( "dominio" , true , 0);
+		sb.put( "router" , true , 0);
+		sb.put( "host" , true , 0 );
+		sb.put( "if" , true , 1 );
+		sb.put( "ip" , true , 1 );
+		Signature signature = sb.makeSignature();
+		
+		//BIGRAFO
+		BigraphBuilder bb = new BigraphBuilder(signature);
+		Node bdominio = bb.addNode("dominio" , bb.addRoot() );
+		Node brouter = bb.addNode( "router" , bdominio );
+		Node bif0 = bb.addNode( "if" , brouter );
+		Node bif1 = bb.addNode( "if" , brouter );
+		Node bipr = bb.addNode("ip" , bif0 );
+		Node bhost = bb.addNode("host", bdominio);
+		Node bifhost = bb.addNode("if" , bhost , bif0.getPort(0).getHandle());
+		Node biphost = bb.addNode("ip" , bifhost , bipr.getPort(0).getHandle());
+		
+		//REDEX
+		BigraphBuilder redex = new BigraphBuilder(signature);
+		Node dominio = redex.addNode("dominio" , redex.addRoot() );
+		Node router = redex.addNode( "router" , dominio );
+		redex.addSite( router );
+		Node if0 = redex.addNode( "if" , router );
+		Node ip = redex.addNode( "ip" , if0 , redex.addOuterName("a") );
+		redex.addSite( dominio );
+		redex.addInnerName("b" , if0.getPort(0).getHandle() );
+		
+		for(AgentMatch m : AgentMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
+			System.out.println(m);
+		}
+	}
+	
 	private static void test6() {
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put("router", true, 2);

@@ -41,4 +41,13 @@ abstract public class AbstractMatch<A extends Bigraph<?>> implements Match<A> {
 		return this.param;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Match:\ncontext = ").append(context)
+				.append("\nredex = ").append(redex)
+				.append("\nparam = ").append(param);
+		return builder.toString();
+	}
+	
 }

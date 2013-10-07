@@ -9,6 +9,10 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
 
 public class AgentRewritingRule extends BigraphRewritingRule {
 
+	private final static boolean DEBUG = true;
+	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
+	private final static boolean DEBUG_PRINT_RESULT = DEBUG;
+
 	final private boolean[] neededParam;
 	final private boolean[] cloneParam;
 
@@ -75,7 +79,9 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 					"Agent should be a bigraph with empty inner interface i.e. ground.");
 		}
 		if (!agent.signature.equals(redex.signature)) {
-			throw new IncompatibleSignatureException("Agent and redex should have the same singature.",agent.getSignature(),redex.getSignature());
+			throw new IncompatibleSignatureException(
+					"Agent and redex should have the same singature.",
+					agent.getSignature(), redex.getSignature());
 		}
 		return new RewriteIterable(agent);
 	}
@@ -99,52 +105,58 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 
 		private class RewriteIterator implements Iterator<Bigraph> {
 
-			Iterator<? extends AgentMatch> matches;
+			Iterator<? extends AgentMatch> mTor;
 
 			@Override
 			public boolean hasNext() {
-				if (matches == null)
-					matches = mAble.iterator();
-				return matches.hasNext();
+				if (mTor == null)
+					mTor = mAble.iterator();
+				return mTor.hasNext();
 			}
 
 			@Override
 			public Bigraph next() {
-				if (hasNext()) {
-					AgentMatch match = matches.next();
-					BigraphBuilder bb = new BigraphBuilder(redex.getSignature());
-					for (int i = eta.getPlaceDomain() - 1; 0 <= i; i--) {
-						bb.leftJuxtapose(
-								match.params.get(eta.getPlaceInstance(i)),
-								!cloneParam[i]);
-					}
-					Bigraph lambda = match.getParamWiring();
-					for (EditableInnerName n : lambda.inners.values()) {
-						if (!bb.containsOuterName(n.getName())) {
-							lambda.inners.remove(n.getName());
-							n.setHandle(null);
-						}
-					}
-					for(int i = eta.getPlaceCodomain() - eta.getPlaceDomain();i > 0;i--){
-						lambda.roots.remove(0);
-						lambda.sites.remove(0);
-					}
-					for(int i = eta.getPlaceDomain() - eta.getPlaceCodomain();i > 0;i--){
-						EditableRoot r = new EditableRoot();
-						r.setOwner(lambda);
-						EditableSite s = new EditableSite(r);
-						lambda.roots.add(r);
-						lambda.sites.add(s);
-					}
-					bb.outerCompose(lambda, true);
-					Bigraph inreact = instantiateReactum(match);
-					inreact = Bigraph.juxtapose(inreact, match.getRedexId());
-					bb.outerCompose(inreact, true);
-					bb.outerCompose(match.getContext(), true);
-					return bb.makeBigraph(true);
-				} else {
-					return null;
+				if (!hasNext()) {
+					throw new NoSuchElementException();
 				}
+				Bigraph result = null;
+				AgentMatch match = mTor.next();
+
+				if (DEBUG_PRINT_MATCH)
+					System.out.println(match);
+
+				BigraphBuilder bb = new BigraphBuilder(redex.getSignature());
+				for (int i = eta.getPlaceDomain() - 1; 0 <= i; i--) {
+					bb.leftJuxtapose(match.params.get(eta.getPlaceInstance(i)),
+							!cloneParam[i]);
+				}
+				Bigraph lambda = match.getParamWiring();
+				for (EditableInnerName n : lambda.inners.values()) {
+					if (!bb.containsOuterName(n.getName())) {
+						lambda.inners.remove(n.getName());
+						n.setHandle(null);
+					}
+				}
+				for (int i = eta.getPlaceCodomain() - eta.getPlaceDomain(); i > 0; i--) {
+					lambda.roots.remove(0);
+					lambda.sites.remove(0);
+				}
+				for (int i = eta.getPlaceDomain() - eta.getPlaceCodomain(); i > 0; i--) {
+					EditableRoot r = new EditableRoot();
+					r.setOwner(lambda);
+					EditableSite s = new EditableSite(r);
+					lambda.roots.add(r);
+					lambda.sites.add(s);
+				}
+				bb.outerCompose(lambda, true);
+				Bigraph inreact = instantiateReactum(match);
+				inreact = Bigraph.juxtapose(inreact, match.getRedexId());
+				bb.outerCompose(inreact, true);
+				bb.outerCompose(match.getContext(), true);
+				result = bb.makeBigraph(true);
+				if (DEBUG_PRINT_RESULT)
+					System.out.println(result);
+				return result;
 			}
 
 			@Override

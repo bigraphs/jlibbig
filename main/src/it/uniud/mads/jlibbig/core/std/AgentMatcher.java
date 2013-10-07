@@ -54,8 +54,9 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 		final Collection<? extends Node> agent_nodes;
 		final Collection<Port> agent_ports;
 		final Collection<? extends Edge> agent_edges;
-		/* Handles are not ordered, but the use of a list 
-		 * simplifies some constraints for f_vars
+		/*
+		 * Handles are not ordered, but the use of a list simplifies some
+		 * constraints for f_vars
 		 */
 		final List<Handle> agent_handles;
 
@@ -68,7 +69,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 		final boolean[] neededParam;
 
-		final int ars, ans, ahs, rrs, rns, rss, rhs;
+		final int ars, ans, ahs, rrs, rns, rss, rhs, rps, rprs, rins;//, reps;
 
 		private MatchIterable(Bigraph agent, Bigraph redex,
 				boolean[] neededParams) {
@@ -112,11 +113,23 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			rss = redex_sites.size();
 			rhs = redex_handles.size();
 
+			int k1 = 0;
 			this.redex_points = new HashSet<>(rns);
 			for (Node n : redex_nodes) {
-				redex_points.addAll(n.getPorts());
+				Collection<? extends Port> ps = n.getPorts();
+				redex_points.addAll(ps);
+				for (Point p : ps) {
+					if (p.getHandle().isEdge())
+						k1++;
+				}
 			}
-			redex_points.addAll(redex.getInnerNames());
+			rprs = redex_points.size(); // only ports
+			{
+				Collection<? extends InnerName> ps = redex.getInnerNames();
+				redex_points.addAll(ps);
+			}
+			rps = redex_points.size();
+			rins = rps - rprs;
 
 			this.neededParam = new boolean[rss];
 			for (int i = 0; i < this.neededParam.length; i++) {
@@ -132,33 +145,50 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 		private class MatchIterator implements Iterator<AgentMatch> {
 
 			private boolean mayHaveNext = true;
+			private boolean firstRun = true;
 
 			private AgentMatch nextMatch = null;
 
-			final CPModel model;
-			final CPSolver solver;
-			// variables for the place embedding problem
-			final Map<PlaceEntity, Map<PlaceEntity, IntegerVariable>> p_vars;
-			// variables for the multiflux problem desrcibing the link embedding
-			final Map<LinkEntity, Map<LinkEntity, IntegerVariable>> e_vars;
-			// variables for flux separation implicitly describing the handles
-			// embedding
-			final Map<Handle, Map<Handle, IntegerVariable>> f_vars;
+			final private CPModel model;
+			final private CPSolver solver;
+			/*
+			 * variables for the place embedding problem the following variables
+			 * are indexed over pairs where the first entity is from the agent
+			 * and the second from the redex
+			 */
+			final Map<PlaceEntity, Map<PlaceEntity, IntegerVariable>> p_vars = new IdentityHashMap<>(
+					ars + ans);
+			/*
+			 * variables for the multiflux problem desrcibing the link embedding
+			 * these are indexed by redex handles and then by agent handles
+			 */
+			final Map<LinkEntity, Map<LinkEntity, IntegerVariable>> e_vars = new IdentityHashMap<>(
+					ahs * rhs + agent_ports.size() * (1 + redex_points.size()));
+			/*
+			 * variables for flux separation implicitly describing the handles
+			 * embedding these are indexed from the source to target of the flux
+			 */
+			final Map<Handle, Map<Handle, IntegerVariable>> f_vars = new IdentityHashMap<>(
+					rhs);
 
 			MatchIterator() {
-
-				// MODEL
-				// ///////////////////////////////////////////////////////////
 				this.model = new CPModel();
 
-				// the following variables are indexed over pairs where the
-				// first entity is from the agent and the second from the redex
-				p_vars = new IdentityHashMap<>(ars + ans);
-				// these are indexed by redex handles and then by agent handles
-				f_vars = new IdentityHashMap<>(rhs);
-				// these are indexed from the source to target of the flux
-				e_vars = new IdentityHashMap<>(ahs * rhs + agent_ports.size()
-						* (1 + redex_points.size()));
+				solver = instantiateModel();
+
+				if (DEBUG) {
+					System.out.println("- MODEL CREATED ---------------------");
+					System.out.println("- AGENT -----------------------------");
+					System.out.println(agent);
+					System.out.println("- REDEX -----------------------------");
+					System.out.println(redex);
+					System.out.println("-------------------------------------");
+				}
+			}
+
+			private CPSolver instantiateModel() {
+				// MODEL
+				// ///////////////////////////////////////////////////////////
 
 				// int ki = 0, kj = 0, kk = 0;
 				// IntegerExpressionVariable[] vars1, vars2;
@@ -274,6 +304,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				// PLACE CONSTRAINTS //////////////////////////////////////////
 
 				// 2 // M_ij = 0 if nodes are different in the sense of this.eq
+				// TODO merge with interplay constraints
 				{
 					for (Node i : agent_nodes) {
 						Map<PlaceEntity, IntegerVariable> row = p_vars.get(i);
@@ -539,20 +570,18 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				// 2 // sink constraints
 				{
-					IntegerVariable[] vars1 = new IntegerVariable[rhs];
 					for (Handle ha : agent_handles) {
 						Collection<? extends Point> ps = ha.getPoints();
-						IntegerVariable[] vars2 = new IntegerVariable[ps.size()];
+						IntegerVariable[] vars1 = new IntegerVariable[rhs + ps.size()];
 						int k = 0;
 						for (Point p : ps) {
-							vars2[k++] = e_vars.get(p).get(ha);
+							vars1[k++] = e_vars.get(p).get(ha);
 						}
-						k = 0;
 						for (Handle hr : redex_handles) {
 							vars1[k++] = e_vars.get(hr).get(ha);
 						}
 						model.addConstraint(Choco.eq(ps.size(),
-								Choco.sum(Choco.sum(vars1), Choco.sum(vars2))));
+								Choco.sum(vars1)));
 					}
 				}
 
@@ -629,8 +658,11 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 									vars[k++] = ve;
 									model.addConstraint(Choco.leq(ve, vf));
 								}
-								model.addConstraint(Choco.geq(1,
-										Choco.sum(e_vars.get(pa).get(ha), vf)));
+								// // constraint 10
+								if (hr.isEdge()) {
+									model.addConstraint(Choco.geq(1, Choco.sum(
+											e_vars.get(pa).get(ha), vf)));
+								}
 							}
 							if (!ps.isEmpty() || !ha.getPoints().isEmpty())
 								model.addConstraint(Choco.leq(vf,
@@ -640,6 +672,10 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				// 7 // flux separation
 				{
+					/*
+					 * Redex handles can be matched to at most one handle of the
+					 * redex
+					 */
 					IntegerVariable[] vars = new IntegerVariable[ahs];
 					for (Handle hr : redex_handles) {
 						Map<Handle, IntegerVariable> f_row = f_vars.get(hr);
@@ -650,12 +686,16 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 				// 8 // handles type
 				{
+					/*
+					 * Redex handles can not be matched to agent outers.
+					 */
 					ListIterator<Handle> ir1 = redex_handles.listIterator(0);
 					while (ir1.hasNext()) {
 						Handle hr1 = ir1.next();
 						Map<Handle, IntegerVariable> f_row1 = f_vars.get(hr1);
 						if (hr1.isEdge()) {
 							for (Handle ha : agent_handles) {
+								// edges belongs to edges
 								if (ha.isOuterName())
 									model.addConstraint(Choco.eq(0,
 											f_row1.get(ha)));
@@ -680,49 +720,55 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				// 9 // embeddings are injective w.r.t edges
 				{
-					IntegerVariable[] vars = new IntegerVariable[rhs];
+					IntegerVariable[] vars = new IntegerVariable[redex_edges
+							.size()];
 					for (Handle ha : agent_handles) {
 						int k = 0;
-						for (Handle hr : redex_handles) {
+						for (Handle hr : redex_edges) {
 							vars[k++] = f_vars.get(hr).get(ha);
-
 						}
 						model.addConstraint(Choco.geq(1, Choco.sum(vars)));
 					}
 				}
-				// 10 // points of handles matched to redex edges can bypass it
-				//! merged with constraint // 6 //
-//				{
-//					for (Handle hr : redex_edges) {
-//						Map<Handle, IntegerVariable> f_row = f_vars.get(hr);
-//						for (Handle ha : agent_handles) {
-//							IntegerVariable vf = f_row.get(ha);
-//							for (Point p : ha.getPoints()) {
-//								model.addConstraint(Choco.geq(1,
-//										Choco.sum(e_vars.get(p).get(ha), vf)));
-//							}
-//						}
-//					}
-//				}
+				// 10 // points of handles mapped to redex edges can not bypass
+				// it
+				// ! merged with constraint 6 //
+				// {
+				// for (Handle hr : redex_edges) {
+				// Map<Handle, IntegerVariable> f_row = f_vars.get(hr);
+				// for (Handle ha : agent_handles) {
+				// IntegerVariable vf = f_row.get(ha);
+				// for (Point p : ha.getPoints()) {
+				// model.addConstraint(Choco.geq(1,
+				// Choco.sum(e_vars.get(p).get(ha), vf)));
+				// }
+				// }
+				// }
+				// }
 
 				// INTERPLAY CONSTRAINTS //////////////////////////////////////
 				{
+					// bound nodes and their ports
 					for (Node ni : agent_nodes) {
 						Map<PlaceEntity, IntegerVariable> p_row = p_vars
 								.get(ni);
 						for (Node nj : redex_nodes) {
 							IntegerVariable m = p_row.get(nj);
 							boolean comp = areMatchable(agent, ni, redex, nj);
+							// ! Place constraint 2 //
+							// if (!comp) {
+							// model.addConstraint(Choco.eq(0, m));
+							// }
 							for (int i = ni.getControl().getArity() - 1; 0 <= i; i--) {
 								Map<LinkEntity, IntegerVariable> e_row = e_vars
 										.get(ni.getPort(i));
 								for (int j = nj.getControl().getArity() - 1; 0 <= j; j--) {
 									if (comp && i == j) {
+										/* ni <-> nj iff ni[k] <-> nj[k] */
 										model.addConstraint(Choco.eq(m,
 												e_row.get(nj.getPort(j))));
 									} else {
-										// this is not necessarily an interplay
-										// constraint
+										/* ni[f] <!> nj[g] if ni<!>nj || f != g */
 										model.addConstraint(Choco.eq(0,
 												e_row.get(nj.getPort(j))));
 									}
@@ -733,68 +779,80 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				}
 				{
 					for (Node ni : agent_nodes) {
+						// sum over ni anchestors and redex roots
 						Collection<Parent> ancs = agent_ancestors.get(ni);
-						IntegerVariable[] vars1 = new IntegerVariable[ancs
-								.size() * rrs];
-						int k = 0;
+//						IntegerVariable[] vars1 = new IntegerVariable[ancs
+//								.size() * rrs];
+						IntegerVariable[] vars2 = new IntegerVariable[(1 + ancs
+								.size()) * rss];
+//						int k1 = 0;
+						int k2 = 0;
 						for (Parent f : ancs) {
 							Map<PlaceEntity, IntegerVariable> row = p_vars
 									.get(f);
-							for (Root g : redex_roots) {
-								vars1[k++] = row.get(g);
+//							for (Root g : redex_roots) {
+//								vars1[k1++] = row.get(g);
+//							}
+							for (Site g : redex_sites) {
+								vars2[k2++] = row.get(g);
 							}
 						}
+						{
+							Map<PlaceEntity, IntegerVariable> row = p_vars
+									.get(ni);
+							for (Site g : redex_sites) {
+								vars2[k2++] = row.get(g);
+							}
+						}
+//						IntegerExpressionVariable sum1 = Choco.sum(vars1);
+						IntegerExpressionVariable sum2 = Choco.sum(vars2);
+
 						for (Port pi : ni.getPorts()) {
 							Map<LinkEntity, IntegerVariable> row = e_vars
 									.get(pi);
-							IntegerVariable[] vars2 = new IntegerVariable[redex_points
-									.size()];
-							k = 0;
-							for (Point pj : redex_points) {
-								vars2[k++] = row.get(pj);
+							// all the redex points
+							//IntegerVariable[] vars3 = new IntegerVariable[rprs];
+							IntegerVariable[] vars4 = new IntegerVariable[rins];
+							//int k3 = 0;
+							int k4 = 0;
+							for (Point in : redex.getInnerNames()) {
+								IntegerVariable var = row.get(in);
+								vars4[k4++] = var;
 							}
-							model.addConstraint(Choco.leq(Choco.sum(vars2),
-									Choco.sum(vars1)));
+							/*
+							 * a port can match an inner name in the redex if
+							 * its node is in the params.
+							 */
+							model.addConstraint(Choco.leq(Choco.sum(vars4),
+									sum2));
+
 						}
 					}
 				}
 				// END OF CONSTRAINTS /////////////////////////////////////////
 
-				this.solver = new CPSolver();
+				CPSolver solver = new CPSolver();
 				solver.read(model);
 				solver.generateSearchStrategy();
 
-				if (DEBUG) {
-					System.out.println("- MODEL CREATED ---------------------");
-					System.out.println("- AGENT -----------------------------");
-					System.out.println(agent);
-					System.out.println("- REDEX -----------------------------");
-					System.out.println(redex);
-					System.out.println("-------------------------------------");
-				}
+				return solver;
 			}
 
 			@Override
 			public boolean hasNext() {
 				if (mayHaveNext && nextMatch == null) {
-					fetchSolution(true);
+					fetchSolution();
 				}
 				return mayHaveNext && nextMatch != null;
 			}
 
 			@Override
 			public AgentMatch next() {
-				AgentMatch res = nextMatch;
-				if (mayHaveNext) {
-					if(nextMatch == null) {
-						fetchSolution(true);
-						res = nextMatch;
-					}else{
-						fetchSolution(false);
-					}
-				} else {
-					nextMatch = null;
+				if (!hasNext()) {
+					throw new NoSuchElementException();
 				}
+				AgentMatch res = nextMatch;
+				nextMatch = null;
 				return res;
 			}
 
@@ -803,12 +861,14 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				throw new UnsupportedOperationException("");
 			}
 
-			private void cleanup() {
+			private void noMoreSolutions() {
 				this.mayHaveNext = false;
 				this.solver.clear();
 			}
 
-			private void fetchSolution(boolean first) {
+			private void fetchSolution() {
+				boolean first = firstRun;
+				firstRun = false;
 				if (DEBUG_PRINT_SOLUTION_FETCH)
 					System.out.println("fetch solution has been invoked...");
 				// look for a solution for the CSP
@@ -817,7 +877,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 					if (DEBUG_PRINT_SOLUTION_FETCH)
 						System.out
 								.println("...but no more solutions where found.");
-					cleanup();
+					noMoreSolutions();
 					return;
 				}
 				if (DEBUG_PRINT_CSP_SOLUTIONS) {
@@ -843,7 +903,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						p_cell_width[c] = s.length();
 						System.out.printf("%-" + p_cell_width[c++] + "s|", s);
 					}
-					for (int k = 0; k < redex_sites.size(); k++,c++) {
+					for (int k = 0; k < redex_sites.size(); k++, c++) {
 						String s = "S_" + k;
 						p_cell_width[c] = s.length();
 						System.out.printf("%-" + p_cell_width[c] + "s|", s);
@@ -983,7 +1043,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				Bigraph lmb = Bigraph.makeId(redex.signature, rss);
 				Bigraph id = Bigraph.makeEmpty(redex.signature);
 				// an injective map from redex's nodes to rdx's ones
-				BidMap<Node, EditableNode> nEmb = new BidMap<>(rns);
+				BidMap<Node, Node> nEmb = new BidMap<>(rns);
 
 				// replicated sites
 				EditableSite ctx_sites_dic[] = new EditableSite[rrs];
@@ -1404,8 +1464,6 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						throw new RuntimeException("Inconsistent bigraph (id)");
 					}
 					for (int i = 0; i < rss; i++) {
-						System.out.println("--------------" + i);
-						System.out.println(prms[i]);
 						if (neededParam[i] && !prms[i].isConsistent()) {
 							throw new RuntimeException(
 									"Inconsistent bigraph (prm " + i + ")");
