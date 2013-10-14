@@ -2,6 +2,8 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
+import it.uniud.mads.jlibbig.core.AbstractNamed;
+import it.uniud.mads.jlibbig.core.BigraphHandler;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
@@ -20,14 +22,29 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	private final PropertyContainer props = new PropertyContainer(this);
 
+	private final String name;
+
 	EditableRoot() {
 		this(null);
 	}
 
 	EditableRoot(Owner owner) {
+		this.name = "R_" + AbstractNamed.generateName();
 		props.attachProperty(this.owner);
 		if (owner != null)
 			ownerSetter.set(owner);
+	}
+	
+	@Override
+	public String toString() {
+		Owner o = this.getOwner();
+		if(o != null){
+			BigraphHandler<?> h = (BigraphHandler<?>) o;
+			int i = h.getRoots().indexOf(this);
+			if(i >= 0)
+				return i + ":r";
+		}
+		return this.name;
 	}
 
 	@Override
@@ -83,22 +100,27 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 
 	@Override
 	public Property<?> attachProperty(Property<?> prop) {
-		if (prop.getName().equals(PROPERTY_OWNER))
-			throw new IllegalArgumentException("Property '" + PROPERTY_OWNER
+		if(prop == null)
+			throw new IllegalArgumentException("Argument can not be null.");
+		String name = prop.getName();
+		if (name.equals(PROPERTY_OWNER))
+			throw new IllegalArgumentException("Property '" + name
 					+ "' can not be substituted");
 		return props.attachProperty(prop);
 	}
 
 	@Override
 	public <V> Property<V> detachProperty(Property<V> prop) {
+		if(prop == null)
+			throw new IllegalArgumentException("Argument can not be null.");
 		return this.detachProperty(prop.getName());
 	}
 
 	@Override
 	public <V> Property<V> detachProperty(String name) {
-		if (name.equals(PROPERTY_OWNER))
-			throw new IllegalArgumentException("Property '" + PROPERTY_OWNER
-					+ "' can not be substituted");
+		if (PROPERTY_OWNER.equals(name))
+			throw new IllegalArgumentException("Property '" + name
+					+ "' can not be detached");
 		return props.detachProperty(name);
 	}
 

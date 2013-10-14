@@ -18,7 +18,7 @@ public class SimpleProperty<V> extends Property<V> {
 	/**
 	 * A flag indicating whatever the property is writable
 	 */
-	protected boolean readOnly = true;
+	protected boolean readOnly = false;
 
 	@SafeVarargs
 	public SimpleProperty(String name, PropertyListener<? super V>... listeners) {

@@ -9,7 +9,90 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test8();
+		test12();
+	}
+	
+	private static void test12(){
+		int MAXNUMDHCPIP = 3;
+		int MAXNUMPORTS = 3;
+		
+		SignatureBuilder sb = new SignatureBuilder();
+		sb.put( "router" , true , 0);
+		sb.put( "host" , true , 0 );
+		sb.put( "dhcp" , false , 0 );
+		sb.put( "if" , true , 1 );
+		sb.put( "ip" , true , 1 );
+		sb.put( "udp" , false , 1 );
+
+				
+		Signature signature = sb.makeSignature();
+		
+		//CONOSCENZA INIZIALE
+		BigraphBuilder abb = new BigraphBuilder( signature );
+		Root dominio = abb.addRoot();
+		Root r1 = abb.addRoot();
+		Node router = abb.addNode("router", dominio);
+		Node dhcp = abb.addNode( "dhcp" , router );
+		Node if0 = abb.addNode( "if", router );
+		abb.addNode( "if" , router );
+		Node ip = abb.addNode( "ip" , if0 );
+		for(int i = 0; i<MAXNUMDHCPIP ; ++i )
+			abb.addNode("ip" , dhcp );
+		for(int i = 0; i<MAXNUMPORTS ; ++i ){
+			abb.addNode("udp" , ip );
+		}
+		abb.addNode( "ip" , abb.addNode( "if" , abb.addNode( "router", r1 ) ) ); //ROUTER ESTERNO
+		
+		//AGGIUNGO HOST
+		Node host = abb.addNode("host", dominio);
+		Node ifhost = abb.addNode( "if" , host , if0.getPort(0).getHandle());
+		Node iphost = abb.addNode( "ip", ifhost, ip.getPort(0).getHandle());
+		for(int i = 0; i<MAXNUMPORTS ; ++i ){
+			abb.addNode("udp" , iphost );
+		}
+		
+		//REDEX: COLLEGO A RETE ESTERNA
+		BigraphBuilder redex = new BigraphBuilder( signature );
+		Root regione0 = redex.addRoot();
+		Root regione1 = redex.addRoot();
+		Node router0 = redex.addNode("router", regione0 );
+		redex.addSite( regione0 );
+		Node interfaccia0 = redex.addNode( "if" , router0 );
+		Node iprouter0 =  redex.addNode( "ip" , interfaccia0 );
+		redex.addSite( iprouter0 );
+		Node interfaccia1 = redex.addNode( "if" , router0 );
+		redex.addInnerName( "a" , iprouter0.getPort(0).getHandle() );
+		redex.addInnerName( "b" , interfaccia0.getPort(0).getHandle() );
+		redex.addSite( router0 );
+		redex.addNode( "ip" , redex.addNode( "if" , regione1 ));
+		
+		//REACTUM: COLLEGO A RETE ESTERNA
+		BigraphBuilder reactum = new BigraphBuilder( signature );
+		Root rr0 = reactum.addRoot();
+		Root rr1 = reactum.addRoot();
+		Node rrouter = reactum.addNode("router", rr0 );
+		reactum.addSite( rr0 );
+		Node rif0 = reactum.addNode( "if" , rrouter );
+		Node rip =  reactum.addNode( "ip" , rif0 );
+		reactum.addSite( rip );
+		Node rif1 = reactum.addNode( "if" , rrouter );
+		Node rip2 = reactum.addNode( "ip" , rif1 , rip.getPort(0).getHandle() );
+		reactum.addInnerName( "a" , rip.getPort(0).getHandle() );
+		reactum.addInnerName( "b" , rif0.getPort(0).getHandle() );
+		reactum.addSite( rrouter );
+		Node rexif = reactum.addNode( "if" , rr1 , rif1.getPort(0).getHandle() );
+		Node rexip = reactum.addNode( "ip" , rexif , rip.getPort(0).getHandle() );
+		for(int i = 1; i<=MAXNUMPORTS ; ++i ){
+			reactum.addNode("udp" , rip2 );
+			reactum.addNode("udp" , rexip );
+		}
+		
+		
+		for(Bigraph b :(new AgentRewritingRule( redex.makeBigraph(), reactum.makeBigraph() , 0, 1 , 2)).apply( abb.makeBigraph())){
+			System.out.println("RISULTATO");
+			System.out.println(b);
+		}	
+		System.out.println("fine");
 	}
 	
 	private static void test11(){
