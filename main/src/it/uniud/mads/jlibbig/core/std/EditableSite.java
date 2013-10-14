@@ -1,5 +1,7 @@
 package it.uniud.mads.jlibbig.core.std;
 
+import it.uniud.mads.jlibbig.core.AbstractNamed;
+import it.uniud.mads.jlibbig.core.BigraphHandler;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.DelegatedProperty;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyContainer;
@@ -18,15 +20,31 @@ class EditableSite implements EditableChild, Site {
 	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	private final PropertyContainer props = new PropertyContainer();
 
+	private final String name;
+	
 	EditableSite() {
 		props.attachProperty(this.owner);
+		this.name = "S_" + AbstractNamed.generateName();
 	}
 
 	EditableSite(EditableParent parent) {
+		this.name = "S_" + AbstractNamed.generateName();
 		props.attachProperty(this.owner);
 		this.setParent(parent);
 	}
 
+	@Override
+	public String toString() {
+		Owner o = this.getOwner();
+		if(o != null){
+			BigraphHandler<?> h = (BigraphHandler<?>) o;
+			int i = h.getRoots().indexOf(this);
+			if(i >= 0)
+				return i + ":s";
+		}
+		return this.name;
+	}
+	
 	@Override
 	public EditableParent getParent() {
 		return parent;
@@ -70,7 +88,7 @@ class EditableSite implements EditableChild, Site {
 	public boolean unregisterListener(ReplicateListener listener) {
 		return rep.unregisterListener(listener);
 	}
-
+	
 	@Override
 	public EditableSite getEditable() {
 		return this;

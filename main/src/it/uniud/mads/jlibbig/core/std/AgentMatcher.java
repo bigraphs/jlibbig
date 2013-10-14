@@ -15,7 +15,7 @@ import choco.kernel.model.variables.integer.IntegerVariable;
 
 public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
 	private final static boolean DEBUG_PRINT_SOLUTION_FETCH = DEBUG;
 	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
@@ -113,15 +113,15 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			rss = redex_sites.size();
 			rhs = redex_handles.size();
 
-			int k1 = 0;
+//			int k1 = 0;
 			this.redex_points = new HashSet<>(rns);
 			for (Node n : redex_nodes) {
 				Collection<? extends Port> ps = n.getPorts();
 				redex_points.addAll(ps);
-				for (Point p : ps) {
-					if (p.getHandle().isEdge())
-						k1++;
-				}
+//				for (Point p : ps) {
+//					if (p.getHandle().isEdge())
+//						k1++;
+//				}
 			}
 			rprs = redex_points.size(); // only ports
 			{
@@ -518,17 +518,20 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 												&& ancs.peek() != n.getParent())
 											ancs.pop();
 										// store ancestors for later
-										agent_ancestors.put(n, new HashSet<>(
+										agent_ancestors.put(n, new ArrayList<>(
 												ancs));
 									}
 									// put itself as an ancestor and
 									// process each of its children
-									ancs.push(p);
+									boolean push = false;
 									for (Child c : p.getChildren()) {
 										if (c.isParent()) {
 											visit.add((Parent) c);
+											push = true;
 										}
 									}
+									if(push)
+										ancs.push(p);
 								}
 							}
 							agent_ancestors_is_empty = false;
@@ -806,7 +809,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						}
 //						IntegerExpressionVariable sum1 = Choco.sum(vars1);
 						IntegerExpressionVariable sum2 = Choco.sum(vars2);
-
+	
 						for (Port pi : ni.getPorts()) {
 							Map<LinkEntity, IntegerVariable> row = e_vars
 									.get(pi);
