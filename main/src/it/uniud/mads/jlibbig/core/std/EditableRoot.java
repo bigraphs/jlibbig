@@ -128,6 +128,11 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 	public <V> Property<V> getProperty(String name) {
 		return props.getProperty(name);
 	}
+	
+	@Override
+	public  Collection<Property<?>> getProperties() {
+		return props.getProperties();
+	}
 
 	@Override
 	public Set<String> getPropertyNames() {

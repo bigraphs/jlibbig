@@ -58,7 +58,7 @@ public class AgentMatch extends BigraphMatch {
 				.append("\nparamWiring = ").append(lambda);
 		int i = 0;
 		for(Bigraph prm : params){
-			builder.append("\nparam[").append(i).append("] = ").append(params.get(i));
+			builder.append("\nparam[").append(i++).append("] = ").append(prm);
 		}		
 		return builder.toString();
 	}

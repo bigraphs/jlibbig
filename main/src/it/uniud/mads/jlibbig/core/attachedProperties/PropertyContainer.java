@@ -66,6 +66,17 @@ public class PropertyContainer implements PropertyTarget {
 	public <V> Property<V> getProperty(String name) {
 		return (Property<V>) props.get(name);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see it.uniud.mads.jlibbig.core.AttachedPropertyTarget#getProperty(java.lang.String)
+	 */
+	@Override
+	public  Collection<Property<?>> getProperties() {
+		return props.values();
+	}
+
 
 	/*
 	 * (non-Javadoc)

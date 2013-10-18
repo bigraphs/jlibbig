@@ -1,15 +1,14 @@
 package it.uniud.mads.jlibbig.core.std;
 
-import java.util.*;
-
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyTarget;
+
+import java.util.*;
 
 /**
  * Describes a node of a bigraph.
  * 
  */
-public interface Node extends Parent, Child, it.uniud.mads.jlibbig.core.Node,
-		PropertyTarget {
+public interface Node extends PropertyTarget,Parent, Child, it.uniud.mads.jlibbig.core.Node {
 	public List<? extends Port> getPorts();
 
 	/**

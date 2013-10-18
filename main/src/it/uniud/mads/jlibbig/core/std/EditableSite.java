@@ -1,21 +1,22 @@
 package it.uniud.mads.jlibbig.core.std;
 
+
 import it.uniud.mads.jlibbig.core.AbstractNamed;
 import it.uniud.mads.jlibbig.core.BigraphHandler;
 import it.uniud.mads.jlibbig.core.Owner;
-import it.uniud.mads.jlibbig.core.attachedProperties.DelegatedProperty;
-import it.uniud.mads.jlibbig.core.attachedProperties.PropertyContainer;
-import it.uniud.mads.jlibbig.core.attachedProperties.ReplicateListener;
-import it.uniud.mads.jlibbig.core.attachedProperties.ReplicateListenerContainer;
+import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
 class EditableSite implements EditableChild, Site {
 	static final String PROPERTY_OWNER = "Owner";
+	//public static final String PROPERTY_PARENT = "Parent";
 
-	private EditableParent parent;
+	private EditableParent parent;  //redundant with parentProp
 
-	private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<>();
-	private final DelegatedProperty<Owner> owner = new DelegatedProperty<Owner>(
-			PROPERTY_OWNER, true, ownerSetter);
+	private final DelegatedProperty.PropertySetter<Owner> ownerSetter;
+	private final DelegatedProperty<Owner> ownerProp;
+
+//	private final ProtectedProperty.ValueSetter<EditableParent> parentSetter;
+//	private final ProtectedProperty<EditableParent> parentProp;
 
 	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	private final PropertyContainer props = new PropertyContainer();
@@ -23,13 +24,19 @@ class EditableSite implements EditableChild, Site {
 	private final String name;
 	
 	EditableSite() {
-		props.attachProperty(this.owner);
 		this.name = "S_" + AbstractNamed.generateName();
+		this.ownerSetter = new DelegatedProperty.PropertySetter<>();
+		this.ownerProp = new DelegatedProperty<Owner>(PROPERTY_OWNER, true, ownerSetter);
+	
+//		this.parentSetter = new ProtectedProperty.ValueSetter<EditableParent>();
+//		this.parentProp = new ProtectedProperty<EditableParent>(PROPERTY_PARENT, parentSetter);
+//	
+		props.attachProperty(this.ownerProp);
+//		props.attachProperty(this.parentProp);
 	}
 
 	EditableSite(EditableParent parent) {
-		this.name = "S_" + AbstractNamed.generateName();
-		props.attachProperty(this.owner);
+		this();
 		this.setParent(parent);
 	}
 
@@ -52,26 +59,69 @@ class EditableSite implements EditableChild, Site {
 
 	@Override
 	public Owner getOwner() {
-		return this.owner.get();
+		return this.ownerProp.get();
 	}
 
 	@Override
 	public void setParent(EditableParent parent) {
-		if (this.parent != null) {
-			if (this.parent != parent) {
-				EditableParent p = this.parent;
-				this.parent = parent;
-				p.removeChild(this);
+		if(this.parent != parent){
+			EditableParent old = this.parent;
+			this.parent = parent;
+			if (old != null) {
+				old.removeChild(this);
 			}
-		}
-		this.parent = parent;
-		if (this.parent != null) {
-			this.parent.addChild(this);
-			this.ownerSetter.set(this.parent
-					.<Owner> getProperty(PROPERTY_OWNER));
+			if (parent != null) {
+				parent.addChild(this);
+				this.ownerSetter.set(parent
+						.<Owner> getProperty(PROPERTY_OWNER));
+			}
+//			this.parentSetter.set(parent);
 		}
 	}
 
+	/*
+	@Override
+	public Property<?> attachProperty(Property<?> prop) {
+		if(prop == null)
+			throw new IllegalArgumentException("Argument can not be null.");
+		String name = prop.getName();
+		if (PROPERTY_OWNER.equals(name) || PROPERTY_PARENT.equals(name))
+			throw new IllegalArgumentException("Property '" + name
+					+ "' can not be substituted");
+		return props.attachProperty(prop);
+	}
+
+	@Override
+	public <V> Property<V> detachProperty(Property<V> prop) {
+		if(prop == null)
+			throw new IllegalArgumentException("Argument can not be null.");
+		return this.detachProperty(prop.getName());
+	}
+
+	@Override
+	public <V> Property<V> detachProperty(String name) {
+		if (PROPERTY_OWNER.equals(name) || PROPERTY_PARENT.equals(name))
+			throw new IllegalArgumentException("Property '" + name
+					+ "' can not be detached");
+		return props.detachProperty(name);
+	}
+
+	@Override
+	public <V> Property<V> getProperty(String name) {
+		return props.getProperty(name);
+	}
+
+	@Override
+	public  Collection<Property<?>> getProperties() {
+		return props.getProperties();
+	}
+
+	@Override
+	public Set<String> getPropertyNames() {
+		return props.getPropertyNames();
+	}
+*/
+	
 	@Override
 	public EditableSite replicate() {
 		EditableSite copy = new EditableSite();
