@@ -114,7 +114,7 @@ public class SimpleProperty<V> extends Property<V> {
 	protected V set(V value, boolean silent) {
 		V old = this.value;
 		this.value = value;
-		if (!silent) {
+		if (!silent && old != value) {
 			tellChanged(this, old, value);
 		}
 		return old;

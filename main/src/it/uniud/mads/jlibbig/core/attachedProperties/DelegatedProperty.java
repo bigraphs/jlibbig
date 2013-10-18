@@ -94,15 +94,17 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 	protected void setProperty(Property<V> prop) {
 		if (this.prop != prop) {
 			V oldValue = this.get();
+			V newValue = (prop != null) ? prop.get() : null;
 			if (this.prop != null && registered)
 				this.prop.unregisterListener(lst);
 			this.prop = prop;
-			if (this.prop != null && registered)
-				this.prop.registerListener(lst);
+			if (prop != null && registered)
+				prop.registerListener(lst);
 			if (cacheValue) {
-				super.set(this.prop.get(), true);
+				super.set(newValue, true);
 			}
-			tellChanged(this, oldValue, this.get());
+			if(oldValue != newValue)
+				tellChanged(this, oldValue, this.get());
 		}
 	}
 

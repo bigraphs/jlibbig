@@ -9,16 +9,34 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 
 public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
+
+	private final static boolean DEBUG = true;
+	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
+	private final static boolean DEBUG_PRINT_RESULT = DEBUG;
+	
 	final Bigraph redex;
 	final Bigraph reactum;
 	final BigraphInstantiationMap eta;
 
+	private BigraphMatcher matcher;
+
 	public BigraphRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-		this(redex, reactum, new BigraphInstantiationMap(redex.sites.size(),
-				eta));
+		this(BigraphMatcher.DEFAULT, redex, reactum, new BigraphInstantiationMap(
+				redex.sites.size(), eta));
 	}
 
-	public BigraphRewritingRule(Bigraph redex, Bigraph reactum,
+	public BigraphRewritingRule(BigraphMatcher matcher, Bigraph redex,
+			Bigraph reactum, int... eta) {
+		this(matcher, redex, reactum, new BigraphInstantiationMap(
+				redex.sites.size(), eta));
+	}
+
+	public BigraphRewritingRule(Bigraph redex,
+			Bigraph reactum, BigraphInstantiationMap eta) {
+		this(BigraphMatcher.DEFAULT,redex, reactum, eta);
+	}
+	
+	public BigraphRewritingRule(BigraphMatcher matcher, Bigraph redex, Bigraph reactum,
 			BigraphInstantiationMap eta) {
 		if (reactum.getSignature() != redex.getSignature()) {
 			throw new IncompatibleSignatureException(
@@ -52,6 +70,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 		this.reactum = reactum;
 		this.eta = eta;
 
+		this.matcher = (matcher == null) ? BigraphMatcher.DEFAULT : matcher;
 	}
 
 	/**
@@ -195,45 +214,54 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 		@Override
 		public Iterator<Bigraph> iterator() {
 			if (mAble == null)
-				mAble = BigraphMatcher.DEFAULT.match(target, redex);
+				mAble = matcher.match(target, redex);
 			return new RewriteIterator();
 		}
 
 		private class RewriteIterator implements Iterator<Bigraph> {
 
-			Iterator<? extends BigraphMatch> matches = null;
+			Iterator<? extends BigraphMatch> mTor = null;
 			Iterator<Bigraph> args = null;
+			// caches context+redex but not args
 			Bigraph big = null;
 
 			@Override
 			public boolean hasNext() {
-				if (matches == null)
-					matches = mAble.iterator();
-				return matches.hasNext() || ((args != null) && args.hasNext());
+				if (mTor == null)
+					mTor = mAble.iterator();
+				return mTor.hasNext() || ((args != null) && args.hasNext());
 			}
 
 			@Override
 			public Bigraph next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				}
 				if (args == null || !args.hasNext()) {
-					if (matches.hasNext()) {
-						BigraphMatch match = matches.next();
+					//if (mTor.hasNext()) {
+						BigraphMatch match = mTor.next();
+						if (DEBUG_PRINT_MATCH)
+							System.out.println(match);
 						BigraphBuilder bb = new BigraphBuilder(
 								instantiateReactum(match), true);
 						bb.leftJuxtapose(match.getRedexId(), true);
 						bb.outerCompose(match.getContext(), true);
 						big = bb.makeBigraph(true);
 						args = eta.instantiate(match.getParam()).iterator();
-					}
+					//}
 				}
-
-				if ((args != null) && (args.hasNext())) {
+				if (args.hasNext()) {
+					Bigraph result = null;
 					Bigraph params = args.next();
 					if (args.hasNext())
-						return Bigraph.compose(big.clone(), params, true);
+						result = Bigraph.compose(big.clone(), params, true);
 					else
-						return Bigraph.compose(big, params, true);
+						result = Bigraph.compose(big, params, true);
+					if (DEBUG_PRINT_RESULT)
+						System.out.println(result);
+					return result;
 				}
-				return null;
+				throw new NoSuchElementException();
 			}
 
 			@Override

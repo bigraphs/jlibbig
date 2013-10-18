@@ -9,20 +9,20 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test12();
+		test2();
 	}
 	
 	private static void test12(){
-		int MAXNUMDHCPIP = 3;
-		int MAXNUMPORTS = 3;
+		int MAXNUMDHCPIP = 0;
+		int MAXNUMPORTS = 0;
 		
 		SignatureBuilder sb = new SignatureBuilder();
 		sb.put( "router" , true , 0);
 		sb.put( "host" , true , 0 );
-		sb.put( "dhcp" , false , 0 );
+		sb.put( "dhcp" , true , 0 );
 		sb.put( "if" , true , 1 );
 		sb.put( "ip" , true , 1 );
-		sb.put( "udp" , false , 1 );
+		sb.put( "udp" , true , 1 );
 
 				
 		Signature signature = sb.makeSignature();
@@ -44,13 +44,14 @@ public class foo {
 		abb.addNode( "ip" , abb.addNode( "if" , abb.addNode( "router", r1 ) ) ); //ROUTER ESTERNO
 		
 		//AGGIUNGO HOST
+		for(int j = 0; j < 2; ++j ){
 		Node host = abb.addNode("host", dominio);
 		Node ifhost = abb.addNode( "if" , host , if0.getPort(0).getHandle());
 		Node iphost = abb.addNode( "ip", ifhost, ip.getPort(0).getHandle());
 		for(int i = 0; i<MAXNUMPORTS ; ++i ){
 			abb.addNode("udp" , iphost );
 		}
-		
+		}
 		//REDEX: COLLEGO A RETE ESTERNA
 		BigraphBuilder redex = new BigraphBuilder( signature );
 		Root regione0 = redex.addRoot();
@@ -88,7 +89,7 @@ public class foo {
 		}
 		
 		
-		for(Bigraph b :(new AgentRewritingRule( redex.makeBigraph(), reactum.makeBigraph() , 0, 1 , 2)).apply( abb.makeBigraph())){
+		for(Bigraph b :(new BigraphRewritingRule( redex.makeBigraph(), reactum.makeBigraph() , 0, 1 , 2)).apply( abb.makeBigraph())){
 			System.out.println("RISULTATO");
 			System.out.println(b);
 		}	
@@ -114,7 +115,7 @@ public class foo {
 		Node rlan = redex.addNode( "lan" , rr , redex.addOuterName("a") );
 		Node rip = redex.addNode( "ip" , rr , redex.addOuterName("b"));
 		
-		for(AgentMatch m : AgentMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
+		for(BigraphMatch m : BigraphMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
 			System.out.println(m);
 		}
 	}
@@ -139,7 +140,7 @@ public class foo {
 		m.addSite( rr );
 		m.addInnerName( "a" , rlan.getPort(0).getHandle() );
 
-		for(Bigraph b :(new AgentRewritingRule( m.makeBigraph(), m.makeBigraph() , 0)).apply( bb.makeBigraph())){
+		for(Bigraph b :(new BigraphRewritingRule( m.makeBigraph(), m.makeBigraph() , 0)).apply( bb.makeBigraph())){
 			System.out.println(b);
 		}
 	}
@@ -160,7 +161,7 @@ public class foo {
 		BigraphBuilder redex = new BigraphBuilder(signature);
 		redex.addSite( redex.addNode( "if" , redex.addRoot() , redex.addOuterName("a") ) );
 				
-		for(AgentMatch m : AgentMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
+		for(BigraphMatch m : BigraphMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
 			System.out.println(m);
 		}
 	}
@@ -195,7 +196,7 @@ public class foo {
 		redex.addSite( dominio );
 		redex.addInnerName("b" , if0.getPort(0).getHandle() );
 		
-		for(AgentMatch m : AgentMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
+		for(BigraphMatch m : BigraphMatcher.DEFAULT.match( bb.makeBigraph(true) , redex.makeBigraph(true))){
 			System.out.println(m);
 		}
 	}
@@ -218,7 +219,7 @@ public class foo {
 		redex.addSite(redex.addNode("router", redex.addRoot()));
 		redex.addSite(redex.addNode("ip", redex.addRoot()));
 
-		AgentRewritingRule arr = new AgentRewritingRule(redex.makeBigraph(),
+		BigraphRewritingRule arr = new BigraphRewritingRule(redex.makeBigraph(),
 				redex.makeBigraph(), 0, 1);
 		System.out.println(arr.apply(bb.makeBigraph()).iterator().next()
 				.toString());
@@ -244,7 +245,7 @@ public class foo {
 		BigraphBuilder reactum = new BigraphBuilder(s);
 		reactum.addNode("lan", reactum.addRoot());
 
-		AgentRewritingRule arr = new AgentRewritingRule(
+		BigraphRewritingRule arr = new BigraphRewritingRule(
 				redex.makeBigraph(true), reactum.makeBigraph(true));
 
 		Bigraph b = bb.makeBigraph(true);
@@ -316,11 +317,11 @@ public class foo {
 
 		Bigraph bigReactum = redex.makeBigraph();
 
-		AgentRewritingRule arr = new AgentRewritingRule(bigRedex, bigReactum, 0);
+		BigraphRewritingRule arr = new BigraphRewritingRule(bigRedex, bigReactum, 0);
 
 		Bigraph k = rete.makeBigraph();
 
-		for (AgentMatch m : AgentMatcher.DEFAULT.match(k, bigRedex)) {
+		for (BigraphMatch m : BigraphMatcher.DEFAULT.match(k, bigRedex)) {
 			for (Node n : bigRedex.getNodes()) {
 				if (m.getImage(n) == null) {
 					System.out
@@ -399,7 +400,7 @@ public class foo {
 
 		Bigraph bigReactum = printBig(redex.makeBigraph());
 
-		AgentRewritingRule arr = new AgentRewritingRule(bigRedex, bigReactum, 0);
+		BigraphRewritingRule arr = new BigraphRewritingRule(bigRedex, bigReactum, 0);
 		int i = 0;
 		Bigraph k = rete.makeBigraph();
 
@@ -416,14 +417,14 @@ public class foo {
 		System.out.println("match test...");
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
-		for (AgentMatch m : new AgentMatcher().match(rete.makeBigraph(),
+		for (BigraphMatch m : new BigraphMatcher().match(rete.makeBigraph(),
 				bigRedex)) {
 			mc++;
 		}
 		Long t1 = System.currentTimeMillis();
 		System.out.println("done: " + mc + " matches in " + (t1 - t0) + " ms");
 
-		AgentRewritingRule ar = new AgentRewritingRule(bigRedex, bigReactum, 0);
+		BigraphRewritingRule ar = new BigraphRewritingRule(bigRedex, bigReactum, 0);
 		System.out.println("ground rewrite test...");
 		t0 = System.currentTimeMillis();
 		mc = 0;
@@ -462,7 +463,7 @@ public class foo {
 
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
-		for (AgentMatch t : new AgentMatcher().match(bbA.makeBigraph(true),
+		for (BigraphMatch t : new BigraphMatcher().match(bbA.makeBigraph(true),
 				bbR.makeBigraph(true))) {
 			mc++;
 		}
@@ -570,13 +571,13 @@ public class foo {
 		System.out.println("match test...");
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
-		for (AgentMatch t : new AgentMatcher().match(b2, b2)) {
+		for (BigraphMatch t : new BigraphMatcher().match(b2, b2)) {
 			mc++;
 		}
 		Long t1 = System.currentTimeMillis();
 		System.out.println("done: " + mc + " matches in " + (t1 - t0) + " ms");
 
-		AgentRewritingRule ar = new AgentRewritingRule(b2, b2);
+		BigraphRewritingRule ar = new BigraphRewritingRule(b2, b2);
 		System.out.println("ground rewrite test...");
 		t0 = System.currentTimeMillis();
 		mc = 0;

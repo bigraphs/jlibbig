@@ -12,22 +12,26 @@ import it.uniud.mads.jlibbig.core.attachedProperties.*;
  */
 class EditableNode implements Node, EditableParent, EditableChild {
 	public static final String PROPERTY_OWNER = "Owner";
-	//public static final String PROPERTY_ALIAS = "Alias";
+	// public static final String PROPERTY_PARENT = "Parent";
+	// public static final String PROPERTY_ALIAS = "Alias";
 
 	private Control control;
 	private final List<EditablePort> ports;
-	private EditableParent parent;
+	private EditableParent parent; // redundant with parentProp
 	private Collection<EditableChild> children;
 	private final List<? extends Port> ro_ports;
 	private final Collection<? extends Child> ro_chd;
 	private String name;
 
-	private final DelegatedProperty.PropertySetter<Owner> ownerSetter = new DelegatedProperty.PropertySetter<>();
-	private final DelegatedProperty<Owner> owner = new DelegatedProperty<Owner>(
-			PROPERTY_OWNER, true, ownerSetter);
+	private final DelegatedProperty.PropertySetter<Owner> ownerSetter;
+	private final DelegatedProperty<Owner> ownerProp;
 
-	//private final ReplicatingProperty<String> alias = new ReplicatingProperty<String>(PROPERTY_ALIAS); 
-	
+	// private final ProtectedProperty.ValueSetter<EditableParent> parentSetter;
+	// private final ProtectedProperty<EditableParent> parentProp;
+
+	// private final ReplicatingProperty<String> alias = new
+	// ReplicatingProperty<String>(PROPERTY_ALIAS);
+
 	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
 	private final PropertyContainer props = new PropertyContainer(this);
 
@@ -43,10 +47,20 @@ class EditableNode implements Node, EditableParent, EditableChild {
 		this.ro_ports = Collections.unmodifiableList(this.ports);
 		this.ro_chd = Collections.unmodifiableCollection(this.children);
 
-		//this.alias.set(name);
-		
-		props.attachProperty(this.owner);
-		//props.attachProperty(this.alias);
+		// this.alias.set(name);
+
+		this.ownerSetter = new DelegatedProperty.PropertySetter<>();
+		this.ownerProp = new DelegatedProperty<Owner>(PROPERTY_OWNER, true,
+				ownerSetter);
+
+		// this.parentSetter = new
+		// ProtectedProperty.ValueSetter<EditableParent>();
+		// this.parentProp = new
+		// ProtectedProperty<EditableParent>(PROPERTY_PARENT, parentSetter);
+
+		props.attachProperty(this.ownerProp);
+		// props.attachProperty(this.parentProp);
+		// props.attachProperty(this.alias);
 	}
 
 	EditableNode(Control control, EditableParent parent) {
@@ -64,41 +78,39 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
 	EditableNode(Control control, EditableParent parent,
 			EditableHandle... handles) {
-		this(control,parent);
+		this(control, parent);
 		for (int i = 0; i < Math.min(handles.length, control.getArity()); i++) {
 			this.ports.get(i).setHandle(handles[i]);
 		}
 	}
-	
-	public String getName(){
+
+	String getName() {
 		return name;
 	}
 
-//	public String getAlias(){
-//		return alias.get();
-//	}
-//	
-//
-//	public String setAlias(String value){
-//		return alias.set(value);
-//	}
-	
+	// public String getAlias(){
+	// return alias.get();
+	// }
+	//
+	//
+	// public String setAlias(String value){
+	// return alias.set(value);
+	// }
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-//		String alias = getAlias();
-//		if(alias == null){
-			builder.append(this.name)
-			.append(':')
-			.append(this.control.getName());
-//		}else{
-//			builder.append(alias)
-//			.append('(')
-//			.append(this.name)
-//			.append(':')
-//			.append(this.control.getName())
-//			.append(')');
-//		}
+		// String alias = getAlias();
+		// if(alias == null){
+		builder.append(this.name).append(':').append(this.control.getName());
+		// }else{
+		// builder.append(alias)
+		// .append('(')
+		// .append(this.name)
+		// .append(':')
+		// .append(this.control.getName())
+		// .append(')');
+		// }
 		return builder.toString();
 	}
 
@@ -131,25 +143,20 @@ class EditableNode implements Node, EditableParent, EditableChild {
 		return this.control;
 	}
 
-	// public void setControl(Control value){
-	// throw new UnsupportedOperationException("Not implemented yet.");
-	// //this.control = value;
-	// }
-
 	@Override
 	public void setParent(EditableParent parent) {
-		if (this.parent != null) {
-			if (this.parent != parent) {
-				EditableParent p = this.parent;
-				this.parent = parent;
-				p.removeChild(this);
+		if (this.parent != parent) {
+			EditableParent old = this.parent;
+			this.parent = parent;
+			if (old != null) {
+				old.removeChild(this);
 			}
-		}
-		this.parent = parent;
-		if (this.parent != null) {
-			this.parent.addChild(this);
-			this.ownerSetter.set(this.parent
-					.<Owner> getProperty(PROPERTY_OWNER));
+			if (parent != null) {
+				parent.addChild(this);
+				this.ownerSetter
+						.set(parent.<Owner> getProperty(PROPERTY_OWNER));
+			}
+			//this.parentSetter.set(parent);
 		}
 	}
 
@@ -201,10 +208,10 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
 	@Override
 	public Property<?> attachProperty(Property<?> prop) {
-		if(prop == null)
+		if (prop == null)
 			throw new IllegalArgumentException("Argument can not be null.");
 		String name = prop.getName();
-		if (name.equals(PROPERTY_OWNER))// || name.equals(PROPERTY_ALIAS))
+		if (PROPERTY_OWNER.equals(name))// || PROPERTY_PARENT.equals(name))
 			throw new IllegalArgumentException("Property '" + name
 					+ "' can not be substituted");
 		return props.attachProperty(prop);
@@ -212,14 +219,14 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
 	@Override
 	public <V> Property<V> detachProperty(Property<V> prop) {
-		if(prop == null)
+		if (prop == null)
 			throw new IllegalArgumentException("Argument can not be null.");
 		return this.detachProperty(prop.getName());
 	}
 
 	@Override
 	public <V> Property<V> detachProperty(String name) {
-		if (PROPERTY_OWNER.equals(name))// || PROPERTY_ALIAS.equals(name))
+		if (PROPERTY_OWNER.equals(name))// || PROPERTY_PARENT.equals(name))
 			throw new IllegalArgumentException("Property '" + name
 					+ "' can not be detached");
 		return props.detachProperty(name);
@@ -231,13 +238,18 @@ class EditableNode implements Node, EditableParent, EditableChild {
 	}
 
 	@Override
+	public Collection<Property<?>> getProperties() {
+		return props.getProperties();
+	}
+
+	@Override
 	public Set<String> getPropertyNames() {
 		return props.getPropertyNames();
 	}
 
 	@Override
 	public Owner getOwner() {
-		return this.owner.get();
+		return this.ownerProp.get();
 	}
 
 	@Override

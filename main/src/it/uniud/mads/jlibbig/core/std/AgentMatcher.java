@@ -275,6 +275,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						Handle hi = pi.getHandle();
 						IntegerVariable var = Choco.makeBooleanVar("PH_" + ki);
 						row.put(hi, var);
+						model.addVariable(var);
 						for (Point pj : redex_points) {
 							var = Choco.makeBooleanVar("PP_" + ki + "_" + kj++);
 							model.addVariable(var);
@@ -514,7 +515,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 									Parent p = visit.pop();
 									if (p.isNode()) {
 										Node n = (Node) p;
-										if (!ancs.isEmpty()
+										while(!ancs.isEmpty()
 												&& ancs.peek() != n.getParent())
 											ancs.pop();
 										// store ancestors for later
