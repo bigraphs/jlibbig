@@ -554,7 +554,7 @@ public class BRSParser extends Parser {
 				if (outer == null)
 					outerNames.put(nameid.name,
 							outer = pb.bb.addOuterName(nameid.name));
-				pb.bb.relink((Point) portIt.next(), outer);
+				pb.bb.relink(outer,(Point) portIt.next());
 			} else {
 				// case: "-p" , innerface
 				if (innerNames.contains(nameid.name))

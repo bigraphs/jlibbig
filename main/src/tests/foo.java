@@ -309,7 +309,7 @@ public class foo {
 
 		OuterName hostip = redex.addOuterName("host_ip");
 		redex.addNode("host", redex.getRoots().get(0), hostip);
-		redex.relink(ip.getPort(0), hostip);
+		redex.relink( hostip,ip.getPort(0));
 		BigraphBuilder rrtap = new BigraphBuilder(s);
 		rrtap.addSite(rrtap.addRoot());
 		rrtap.addInnerName("host_ip");
@@ -392,7 +392,7 @@ public class foo {
 		OuterName hostip = redex.addOuterName("host_ip");
 		redex.addNode("host", redex.getRoots().get(0), hostip).attachProperty(
 				new SimpleProperty<String>("id", "net200"));
-		redex.relink(ip.getPort(0), hostip);
+		redex.relink(hostip, ip.getPort(0));
 		BigraphBuilder rrtap = new BigraphBuilder(s);
 		rrtap.addSite(rrtap.addRoot());
 		rrtap.addInnerName("host_ip");
@@ -514,7 +514,7 @@ public class foo {
 
 		bbB.addSite(m);
 		bbB.addInnerName("x", bbB.addOuterName("x7"));
-		bbB.relink(m.getPort(0), bbB.addOuterName("x"));
+		bbB.relink(bbB.addOuterName("x"),m.getPort(0));
 		bbB.addInnerName("y", bbB.addOuterName("x8"));
 
 		Bigraph bB = bbB.makeBigraph();

@@ -24,8 +24,16 @@ public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 		super(usid, controls);
 	}
 
+	public boolean isSubSignature(Signature other){
+		return other != null && this.containsAll(other.ctrls.values());
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
+		return this.equals(obj,false);
+	}
+	
+	public boolean equals(Object obj, boolean ignoreUSID) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -33,7 +41,7 @@ public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 		if (!(obj instanceof Signature))
 			return false;
 		Signature other = (Signature) obj;
-		if (!USID.equals(other.USID))
+		if (!(ignoreUSID || USID.equals(other.USID)))
 			return false;
 		for (Control c : this) {
 			if (!c.equals(other.getByName(c.getName())))

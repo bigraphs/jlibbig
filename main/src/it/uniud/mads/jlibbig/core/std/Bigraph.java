@@ -30,6 +30,8 @@ final public class Bigraph implements it.uniud.mads.jlibbig.core.Bigraph<Control
 			.unmodifiableList(sites);
 
 	Bigraph(Signature sig) {
+		if(sig == null)
+			throw new IllegalArgumentException("Signature can not be null.");
 		this.signature = sig;
 	}
 

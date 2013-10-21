@@ -7,7 +7,7 @@ import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 
 /**
- * The class is meant as a helper for bigraph construction and manipulation in
+ * The class is meant as an helper for bigraph construction and manipulation in
  * presence of series of operations since {@link Bigraph} is immutable.
  * <p>
  * e.g. {@link Bigraph#compose(Bigraph, Bigraph)} or
@@ -49,6 +49,8 @@ final public class BigraphBuilder implements
 	 *            cloned.
 	 */
 	BigraphBuilder(Bigraph big, boolean reuse) {
+		if (big == null)
+			throw new IllegalArgumentException("Argument can not be null.");
 		if (!big.isConsistent())
 			throw new IllegalArgumentException("Inconsistent bigraph.");
 		this.big = (reuse) ? big.setOwner(this) : big.clone(this);
@@ -70,7 +72,9 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Return the bigraph build so far.
+	 * Return the bigraph build so far. The new bigraph is independent from any
+	 * other operation done by the builder. The new bigraph can be created more
+	 * efficiently if the builder is closed by the same method call.
 	 * 
 	 * @param close
 	 *            disables the builder to perform any other operation.
@@ -95,17 +99,15 @@ final public class BigraphBuilder implements
 		return closed;
 	}
 
-	private void assertOpen() {
+	/**
+	 * Asserts that the builder is not closed and operations on it are allowd.
+	 * If called on a closed builder, an exception is trown.
+	 */
+	private void assertOpen() throws UnsupportedOperationException {
 		if (this.closed)
 			throw new UnsupportedOperationException(
 					"The operation is not supported by a closed BigraphBuilder");
 	}
-
-	/*
-	 * private void assertOpen(String operation){ if(this.closed) throw new
-	 * UnsupportedOperationException("The operation <" + operation
-	 * +"> is not supported by a closed BigraphBuilder"); }
-	 */
 
 	@Override
 	public BigraphBuilder clone() {
@@ -133,33 +135,18 @@ final public class BigraphBuilder implements
 		return this.big.isGround();
 	}
 
-	/**
-	 * Get bigraph's roots.
-	 * 
-	 * @return a list carrying bigraph's roots
-	 */
 	@Override
 	public List<? extends Root> getRoots() {
 		assertOpen();
 		return this.big.getRoots();
 	}
 
-	/**
-	 * Get bigraph's sites.
-	 * 
-	 * @return a list carrying bigraph's sites
-	 */
 	@Override
 	public List<? extends Site> getSites() {
 		assertOpen();
 		return this.big.getSites();
 	}
 
-	/**
-	 * Get bigraph's outer names.
-	 * 
-	 * @return a list carrying bigraph's outer names
-	 */
 	@Override
 	public Collection<? extends OuterName> getOuterNames() {
 		assertOpen();
@@ -171,11 +158,6 @@ final public class BigraphBuilder implements
 		return this.big.outers.containsKey(name);
 	}
 
-	/**
-	 * Get bigraph's inner names.
-	 * 
-	 * @return a list carrying bigraph's inner names
-	 */
 	@Override
 	public Collection<? extends InnerName> getInnerNames() {
 		assertOpen();
@@ -187,22 +169,12 @@ final public class BigraphBuilder implements
 		return this.big.inners.containsKey(name);
 	}
 
-	/**
-	 * Get bigraph's nodes.
-	 * 
-	 * @return a set containing bigraph's nodes.
-	 */
 	@Override
 	public Collection<? extends Node> getNodes() {
 		assertOpen();
 		return this.big.getNodes();
 	}
 
-	/**
-	 * Get bigraph's edges.
-	 * 
-	 * @return a set containing bigraph's edges.
-	 */
 	@Override
 	public Collection<? extends Edge> getEdges() {
 		assertOpen();
@@ -210,9 +182,9 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Add a root to the current bigraph
+	 * Adds a root to the current bigraph.
 	 * 
-	 * @return the reference of the new root
+	 * @return the new root.
 	 */
 	public Root addRoot() {
 		assertOpen();
@@ -222,24 +194,33 @@ final public class BigraphBuilder implements
 		assertConsistency();
 		return r;
 	}
-	
+
+	/**
+	 * Adds a root to the current bigraph.
+	 * 
+	 * @param index
+	 *            the region to be assigned to the root.
+	 * @return the new root.
+	 */
 	public Root addRoot(int index) {
 		assertOpen();
 		EditableRoot r = new EditableRoot();
 		r.setOwner(this);
-		this.big.roots.add(index,r);
+		this.big.roots.add(index, r);
 		assertConsistency();
 		return r;
 	}
 
 	/**
-	 * Add a site to the current bigraph
+	 * Adds a site to the current bigraph.
 	 * 
 	 * @param parent
-	 *            the handler, in the place graph, father of the new site
-	 * @return the reference of the new site
+	 *            the parent of the site.
+	 * @return the new site.
 	 */
 	public Site addSite(Parent parent) {
+		if (parent == null)
+			throw new IllegalArgumentException("Argument can not be null.");
 		assertOpen();
 		assertOwner(parent, "Parent");
 		EditableSite s = new EditableSite((EditableParent) parent);
@@ -249,31 +230,35 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Add a new node to the bigraph
+	 * Adds a new node to the bigraph.
 	 * 
 	 * @param controlName
-	 *            the control's name of the new node
+	 *            the control's name of the new node.
 	 * @param parent
-	 *            the father of the new node, in the place graph
-	 * @return the reference of the new node
+	 *            the father of the new node, in the place graph.
+	 * @return the new node.
 	 */
 	public Node addNode(String controlName, Parent parent) {
 		return addNode(controlName, parent, new LinkedList<Handle>());
 	}
 
 	/**
-	 * Add a new node to the bigraph
+	 * Adds a new node to the bigraph.
 	 * 
 	 * @param controlName
-	 *            the control's name of the new node
+	 *            the control's name of the new node.
 	 * @param parent
-	 *            the father of the new node, in the place graph
+	 *            the father of the new node, in the place graph.
 	 * @param handles
 	 *            Handles (outernames or edges) that will be linked to new
-	 *            node's ports
-	 * @return the reference of the new node
+	 *            node's ports.
+	 * @return the new node.
 	 */
 	public Node addNode(String controlName, Parent parent, Handle... handles) {
+		if (controlName == null)
+			throw new IllegalArgumentException("Control name can not be null.");
+		if (parent == null)
+			throw new IllegalArgumentException("Parent can not be null.");
 		assertOpen();
 		Control c = this.big.getSignature().getByName(controlName);
 		if (c == null)
@@ -295,18 +280,22 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Add a new node to the bigraph
+	 * Adds a new node to the bigraph.
 	 * 
 	 * @param controlName
-	 *            the control's name of the new node
+	 *            the control's name of the new node.
 	 * @param parent
-	 *            the father of the new node, in the place graph
+	 *            the father of the new node, in the place graph.
 	 * @param handles
 	 *            list of handles (outernames or edges) that will be linked to
-	 *            new node's ports
-	 * @return the reference of the new node
+	 *            new node's ports.
+	 * @return the new node.
 	 */
 	public Node addNode(String controlName, Parent parent, List<Handle> handles) {
+		if (controlName == null)
+			throw new IllegalArgumentException("Control name can not be null.");
+		if (parent == null)
+			throw new IllegalArgumentException("Parent can not be null.");
 		assertOpen();
 		Control c = this.big.getSignature().getByName(controlName);
 		if (c == null)
@@ -315,7 +304,7 @@ final public class BigraphBuilder implements
 		assertOwner(parent, "Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
-			if (i < handles.size()) {
+			if (handles != null && i < handles.size()) {
 				hs[i] = (EditableHandle) handles.get(i);
 			}
 			if (hs[i] == null)
@@ -328,68 +317,62 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Add an outername to the current bigraph. <br />
-	 * Its name will be automatically chosen and can be retrieved with
-	 * {@link OuterName#getName() }.
+	 * Adds a fresh outer name to the current bigraph.
 	 * 
-	 * @return the reference of the new outername
+	 * @return the new outer name.
 	 */
 	public OuterName addOuterName() {
 		return addOuterName(new EditableOuterName());
 	}
 
 	/**
-	 * Add an outername to the current bigraph.
+	 * Add an outer name to the current bigraph.
 	 * 
 	 * @param name
-	 *            name of the new outername
-	 * @return the reference of the new outername
+	 *            the name of the new outer name.
+	 * @return the new outer name.
 	 */
 	public OuterName addOuterName(String name) {
+		if (name == null)
+			throw new IllegalArgumentException("Argument can not be null.");
 		return addOuterName(new EditableOuterName(name));
 	}
 
 	/**
-	 * Add an outername to the current bigraph.
+	 * Adds an outer name to the current bigraph.
 	 * 
-	 * @param n
-	 *            outername that will be added
-	 * @return the reference to the new outername
-	 * @see EditableOuterName
+	 * @param name
+	 *            the outer name that will be added.
+	 * @return new outer name.
 	 */
-	private OuterName addOuterName(EditableOuterName n) {
+	private OuterName addOuterName(EditableOuterName name) {
 		assertOpen();
-		if (big.outers.containsKey(n.getName())) {
-			throw new IllegalArgumentException("Name '" + n.getName()
+		if (big.outers.containsKey(name.getName())) {
+			throw new IllegalArgumentException("Name '" + name.getName()
 					+ "' already present.");
 		}
-		n.setOwner(this);
-		this.big.outers.put(n.getName(), n);
+		name.setOwner(this);
+		this.big.outers.put(name.getName(), name);
 		assertConsistency();
-		return n;
+		return name;
 	}
 
 	/**
-	 * Add a new innername to the current bigraph. <br />
-	 * Its name will be automatically chosen and can be retrieved with
-	 * {@link InnerName#getName() }. <br />
-	 * This innername will be linked to a new edge that can be retrieved with
-	 * {@link InnerName#getHandle() }.
+	 * Adds a fresh inner name to the current bigraph. The name will be the only
+	 * point of a fresh edge.
 	 * 
-	 * @return the reference of the new innername
+	 * @return the new inner name.
 	 */
 	public InnerName addInnerName() {
 		return addInnerName(new EditableInnerName(), new EditableEdge(this));
 	}
 
 	/**
-	 * Add a new innername to the current bigraph. <br />
-	 * Its name will be automatically chosen and can be retrieved with
-	 * {@link InnerName#getName() }.
+	 * Adds a new inner name to the current bigraph.
 	 * 
 	 * @param handle
-	 *            outername or edge that will be linked with the new innername
-	 * @return the reference of the new innername
+	 *            the outer name or the edge linking the new inner name.
+	 * @return the new inner name
 	 */
 	public InnerName addInnerName(Handle handle) {
 		assertOrSetOwner(handle, "Handle");
@@ -397,42 +380,45 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Add a new innername to the current bigraph. <br />
-	 * It will be linked to a new edge that can be retrieved with
-	 * {@link InnerName#getHandle()}.
+	 * Adds an inner name to the current bigraph. The name will be the only
+	 * point of a fresh edge.
 	 * 
 	 * @param name
-	 *            name of the new innername
-	 * @return the reference of the new innername
+	 *            name of the new inner name.
+	 * @return the new inner name.
 	 */
 	public InnerName addInnerName(String name) {
+		if (name == null)
+			throw new IllegalArgumentException("Name can not be null.");
 		return addInnerName(name, new EditableEdge(this));
 	}
 
 	/**
-	 * 0 Add a new innername to the current bigraph.
+	 * Adds an inner name to the current bigraph.
 	 * 
 	 * @param name
-	 *            name of the new innername
+	 *            name of the new inner name.
 	 * @param handle
-	 *            outername or edge that will be linked with the new innername
-	 * @return the reference of the new innername
+	 *            the outer name or the edge linking the new inner name.
+	 * @return the new inner name.
 	 */
 	public InnerName addInnerName(String name, Handle handle) {
+		if (name == null)
+			throw new IllegalArgumentException("Name can not be null.");
 		assertOrSetOwner(handle, "Handle");
 		return addInnerName(new EditableInnerName(name),
 				(EditableHandle) handle);
 	}
 
 	/**
-	 * Add an innername to the current bigraph. <br />
+	 * Add an innername to the current bigraph.
 	 * 
 	 * @param n
-	 *            innername that will be added
+	 *            innername that will be added.
 	 * @param h
 	 *            outername or edge that will be linked with the innername in
-	 *            input
-	 * @return the reference of the innername
+	 *            input.
+	 * @return the inner name
 	 */
 	private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
 		assertOpen();
@@ -446,83 +432,55 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Set a new handle (outername or edge) for a point (innername or node's
-	 * port).
-	 * 
-	 * @param point
-	 * @param handle
-	 */
-	public void relink(Point point, Handle handle) {
-		assertOpen();
-		assertOrSetOwner(handle, "Handle");
-		assertOrSetOwner(point, "Point");
-		EditablePoint p = (EditablePoint) point;
-		EditableHandle h = (EditableHandle) handle;
-		p.setHandle(h);
-		assertConsistency();
-	}
-
-	/**
-	 * Set a new edge for two points (innername or node's port), linking them.
-	 * 
-	 * @param p1
-	 *            first point
-	 * @param p2
-	 *            second point
-	 * @return the new edge connecting the points in input
-	 */
-	public Edge relink(Point p1, Point p2) {
-		assertOpen();
-		assertOwner(p1, "Point");
-		assertOwner(p2, "Point");
-		EditablePoint t1 = (EditablePoint) p1;
-		EditablePoint t2 = (EditablePoint) p2;
-		EditableEdge e = new EditableEdge();
-		e.setOwner(this);
-		t1.setHandle(e);
-		t2.setHandle(e);
-		assertConsistency();
-		return e;
-	}
-
-	/**
-	 * Set a new edge for an arbitrary number of points (innername or node's
-	 * port), linking them.
+	 * Links a set of points with a fresh edge.
 	 * 
 	 * @param points
-	 *            series of points
-	 * @return the new edge connecting the points in input
+	 *            the points to be linked.
+	 * @return the new edge connecting the points in input.
 	 */
 	public Edge relink(Point... points) {
-		assertOpen();
-		EditablePoint[] ps = new EditablePoint[points.length];
-		for (int i = 0; i < points.length; i++) {
-			ps[i] = (EditablePoint) points[i];
-			assertOwner(ps[i], "Point");
-		}
-		EditableEdge e = new EditableEdge();
-		e.setOwner(this);
-		for (int i = 0; i < points.length; i++) {
-			ps[i].setHandle(e);
-		}
-		assertConsistency();
-		return e;
+		return (Edge) relink(new EditableEdge(), points);
 	}
 
-	/**
-	 * Set a new edge for an arbitrary number of points (innername or node's
-	 * port), linking them.
-	 * 
-	 * @param points
-	 *            series of points
-	 * @return the new edge connecting the points in input
-	 */
 	public Edge relink(Collection<? extends Point> points) {
+		if (points == null)
+			throw new IllegalArgumentException("Argument can not be null.");
 		return relink(points.toArray(new EditablePoint[points.size()]));
 	}
 
 	/**
-	 * disconnect a point from its current handle and connect it with a new
+	 * Links a set of points with the given handle.
+	 * 
+	 * @param handle
+	 *            the handle to be used.
+	 * @param points
+	 *            the points to be linked.
+	 * @return the handle.
+	 */
+	public Handle relink(Handle handle, Point... points) {
+		assertOpen();
+		assertOrSetOwner(handle, "Handle");
+		EditablePoint[] ps = new EditablePoint[points.length];
+		EditableHandle h = (EditableHandle) handle;
+		for (int i = 0; i < points.length; i++) {
+			ps[i] = (EditablePoint) points[i];
+			assertOwner(ps[i], "Point");
+		}
+		for (int i = 0; i < points.length; i++) {
+			ps[i].setHandle(h);
+		}
+		assertConsistency();
+		return h;
+	}
+
+	public Handle relink(Handle handle, Collection<? extends Point> points) {
+		if (points == null)
+			throw new IllegalArgumentException("Argument can not be null.");
+		return relink(handle, points.toArray(new EditablePoint[points.size()]));
+	}
+
+	/**
+	 * Disconnects a point from its current handle and connect it with a fresh
 	 * edge.
 	 * 
 	 * @param point
@@ -533,6 +491,13 @@ final public class BigraphBuilder implements
 		return relink(point);
 	}
 
+	/**
+	 * Closes an outer name.
+	 * 
+	 * @param name
+	 *            the outer name as string.
+	 * @return the edge linking the points linked by the outer name just closed.
+	 */
 	public Edge closeOuterName(String name) {
 		EditableOuterName n1 = big.outers.get(name);
 		if (n1 != null) {
@@ -546,6 +511,13 @@ final public class BigraphBuilder implements
 		}
 	}
 
+	/**
+	 * Closes an outer name.
+	 * 
+	 * @param name
+	 *            the outer name to close.
+	 * @return the edge linking the points linked by the outer name just closed.
+	 */
 	public Edge closeOuterName(OuterName name) {
 		assertOwner(name, "OuterName ");
 		if (!big.outers.containsKey(name.getName())) {
@@ -559,6 +531,12 @@ final public class BigraphBuilder implements
 		return e;
 	}
 
+	/**
+	 * Closes an inner name.
+	 * 
+	 * @param name
+	 *            the inner name as string.
+	 */
 	public void closeInnerName(String name) {
 		EditableInnerName n1 = big.inners.get(name);
 		if (n1 != null) {
@@ -570,6 +548,12 @@ final public class BigraphBuilder implements
 		}
 	}
 
+	/**
+	 * Closes an inner name.
+	 * 
+	 * @param name
+	 *            the inner name to close.
+	 */
 	public void closeInnerName(InnerName name) {
 		assertOwner(name, "InnerName ");
 		if (!big.inners.containsKey(name.getName())) {
@@ -581,6 +565,14 @@ final public class BigraphBuilder implements
 		big.inners.remove(n1);
 	}
 
+	/**
+	 * Renames an outer name.
+	 * 
+	 * @param oldName
+	 *            the outer name to be renamed.
+	 * @param newName
+	 *            the new name.
+	 */
 	public void renameOuterName(String oldName, String newName) {
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
@@ -599,6 +591,14 @@ final public class BigraphBuilder implements
 		}
 	}
 
+	/**
+	 * Renames an outer name.
+	 * 
+	 * @param oldName
+	 *            the outer name to be renamed.
+	 * @param newName
+	 *            the new name.
+	 */
 	public void renameOuterName(OuterName oldName, String newName) {
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
@@ -614,6 +614,14 @@ final public class BigraphBuilder implements
 		}
 	}
 
+	/**
+	 * Renames an inner name.
+	 * 
+	 * @param oldName
+	 *            the inner name to be renamed.
+	 * @param newName
+	 *            the new name.
+	 */
 	public void renameInnerName(String oldName, String newName) {
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
@@ -632,6 +640,14 @@ final public class BigraphBuilder implements
 		}
 	}
 
+	/**
+	 * Renames an inner name.
+	 * 
+	 * @param oldName
+	 *            the inner name to be renamed.
+	 * @param newName
+	 *            the new name.
+	 */
 	public void renameInnerName(InnerName oldName, String newName) {
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
@@ -648,7 +664,9 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Merge regions (roots of a place graph)
+	 * Merges every region of the bigraph into one.
+	 * 
+	 * @return the new root.
 	 */
 	public Root merge() {
 		assertOpen();
@@ -665,6 +683,15 @@ final public class BigraphBuilder implements
 		return r;
 	}
 
+	/**
+	 * Merges the given regions of the bigraph into one.
+	 * 
+	 * @param index
+	 *            the index of the new region.
+	 * @param roots
+	 *            the index of the regions to be merged.
+	 * @return the new root.
+	 */
 	public Root merge(int index, int... roots) {
 		assertOpen();
 		EditableRoot r = new EditableRoot();
@@ -702,6 +729,12 @@ final public class BigraphBuilder implements
 		removeRoot(big.roots.get(index));
 	}
 
+	/**
+	 * Removes a site from the bigraph.
+	 * 
+	 * @param site
+	 *            the site to be removed.
+	 */
 	public void closeSite(Site site) {
 		assertOwner(site, "Site ");
 		((EditableSite) site).setParent(null);
@@ -709,6 +742,12 @@ final public class BigraphBuilder implements
 		assertConsistency();
 	}
 
+	/**
+	 * Removes a site from the bigraph.
+	 * 
+	 * @param index
+	 *            the index of site to be removed.
+	 */
 	public void closeSite(int index) {
 		if (index < 0 || index >= big.sites.size())
 			throw new IndexOutOfBoundsException(
@@ -780,8 +819,8 @@ final public class BigraphBuilder implements
 		for (Edge e : l.getEdges()) {
 			((EditableEdge) e).setOwner(this);
 		}
-		r.roots.addAll(0,l.roots);
-		r.sites.addAll(0,l.sites);
+		r.roots.addAll(0, l.roots);
+		r.sites.addAll(0, l.sites);
 		r.outers.putAll(l.outers);
 		r.inners.putAll(l.inners);
 		assertConsistency();
@@ -951,7 +990,7 @@ final public class BigraphBuilder implements
 		if (!out.inners.keySet().equals(in.outers.keySet())
 				|| out.sites.size() != in.roots.size()) {
 			// System.err.println(out.inners.keySet() + " " + in.outers.keySet()
-			//		+ " " + out.sites.size() + " " + in.roots.size());
+			// + " " + out.sites.size() + " " + in.roots.size());
 			throw new IncompatibleInterfaceException(
 					"The outer face of the first graph must be equal to inner face of the second");
 		}
