@@ -323,8 +323,8 @@ public class AgentBigraphBuilder implements
 	 * @param port
 	 * @param outername
 	 */
-	public void relink(Port port, OuterName outername) {
-		this.bigraph.relink(port, outername);
+	public void relink(OuterName outername,Port port) {
+		this.bigraph.relink( outername,port);
 	}
 
 	/**

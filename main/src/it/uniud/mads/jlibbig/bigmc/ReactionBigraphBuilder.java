@@ -345,8 +345,8 @@ public class ReactionBigraphBuilder implements
 	 * @param port
 	 * @param outername
 	 */
-	public void relink(Port port, OuterName outername) {
-		this.rbig.relink(port, outername);
+	public void relink(OuterName outername,Port port) {
+		this.rbig.relink(outername,port);
 	}
 
 	/**

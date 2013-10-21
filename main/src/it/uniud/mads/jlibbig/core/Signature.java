@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class Signature<C extends Control> implements Iterable<C> {
 
-	final private Map<String, C> ctrls = new HashMap<>();
+	final protected Map<String, C> ctrls = new HashMap<>();
 
 	final protected String USID;
 
