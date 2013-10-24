@@ -2,7 +2,7 @@ package it.uniud.mads.jlibbig.core.std;
 
 import it.uniud.mads.jlibbig.core.Owned;
 
-interface EditableChild extends Child, ReplicableEx, Owned {
+interface EditableChild extends Child, Replicable, Owned {
 	void setParent(EditableParent parent);
 
 	@Override

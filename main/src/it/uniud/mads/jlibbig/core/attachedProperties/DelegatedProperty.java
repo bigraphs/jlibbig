@@ -1,5 +1,9 @@
 package it.uniud.mads.jlibbig.core.attachedProperties;
 
+/**
+*
+* @param <V> the type of the value hold by the property.
+*/
 public class DelegatedProperty<V> extends ProtectedProperty<V> {
 
 	protected boolean cacheValue = false;
@@ -42,7 +46,7 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 		if (cacheValue) {
 			lst = new PropertyListener<V>() {
 				@Override
-				public void onChange(Property<? extends V> property,
+				public void onChanged(Property<? extends V> property,
 						V oldValue, V newValue) {
 					set(newValue, false);
 				}
@@ -50,7 +54,7 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 		} else {
 			lst = new PropertyListener<V>() {
 				@Override
-				public void onChange(Property<? extends V> property,
+				public void onChanged(Property<? extends V> property,
 						V oldValue, V newValue) {
 					tellChanged(DelegatedProperty.this, oldValue, newValue);
 				}

@@ -32,7 +32,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 	// private final ReplicatingProperty<String> alias = new
 	// ReplicatingProperty<String>(PROPERTY_ALIAS);
 
-	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
+	private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
 	private final PropertyContainer props = new PropertyContainer(this);
 
 	EditableNode(Control control) {
@@ -192,17 +192,17 @@ class EditableNode implements Node, EditableParent, EditableChild {
 	@Override
 	public EditableNode replicate() {
 		EditableNode copy = new EditableNode(this.control);
-		rep.tell(this, copy);
+		rep.tellReplicated(this, copy);
 		return copy;
 	}
 
 	@Override
-	public void registerListener(ReplicateListener listener) {
+	public void registerListener(ReplicationListener listener) {
 		rep.registerListener(listener);
 	}
 
 	@Override
-	public boolean unregisterListener(ReplicateListener listener) {
+	public boolean unregisterListener(ReplicationListener listener) {
 		return rep.unregisterListener(listener);
 	}
 

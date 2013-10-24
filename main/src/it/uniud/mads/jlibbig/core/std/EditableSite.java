@@ -18,7 +18,7 @@ class EditableSite implements EditableChild, Site {
 //	private final ProtectedProperty.ValueSetter<EditableParent> parentSetter;
 //	private final ProtectedProperty<EditableParent> parentProp;
 
-	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
+	private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
 	private final PropertyContainer props = new PropertyContainer();
 
 	private final String name;
@@ -125,17 +125,17 @@ class EditableSite implements EditableChild, Site {
 	@Override
 	public EditableSite replicate() {
 		EditableSite copy = new EditableSite();
-		rep.tell(this, copy);
+		rep.tellReplicated(this, copy);
 		return copy;
 	}
 
 	@Override
-	public void registerListener(ReplicateListener listener) {
+	public void registerListener(ReplicationListener listener) {
 		rep.registerListener(listener);
 	}
 
 	@Override
-	public boolean unregisterListener(ReplicateListener listener) {
+	public boolean unregisterListener(ReplicationListener listener) {
 		return rep.unregisterListener(listener);
 	}
 	

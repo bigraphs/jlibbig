@@ -1,36 +1,48 @@
 package it.uniud.mads.jlibbig.core.attachedProperties;
 
-
 /**
  * A class for properties to be shared between targets implementing
- * {@link it.uniud.mads.jlibbig.core.attachedProperties.Replicable}. The class automatically attach itself to new
- * replicas thus rendering the wrapped property shared between these. Listeners
- * are registered to the wrapped property. The class can be attached also to
- * targets not implementing Replicable, but the automatic sharing behaviour will
- * not be enabled (on these).
+ * {@link Replicating}. The class automatically attach itself to new replicas
+ * thus rendering the wrapped property shared between these. Listeners are
+ * registered to the wrapped property. The class can be attached also to targets
+ * not implementing {@link Replicating}, but the automatic sharing behaviour
+ * will not be enabled (on these).
  * 
  * @see ReplicatingProperty
- * @param <V>
+ * @param <V> the type of the value hold by the property.
  */
 public class SharedProperty<V> extends Property<V> {
 
 	protected final Property<V> property;
 
-	protected final ReplicateListener listener = new ReplicateListener() {
+	protected final ReplicationListener listener = new ReplicationListener() {
 		@Override
-		public void onReplicate(Replicable original, Replicable copy) {
-			SharedProperty.this.onReplicate(original, copy);
+		public void onReplicated(Replicating original, Replicating copy) {
+			SharedProperty.this.onReplicated(original, copy);
 		}
 	};
+
+	/**
+	 * Gets the name of the given property. Throws an
+	 * {@link IllegalArgumentException} if the property is null.
+	 * 
+	 * @param property
+	 *            the property to query.
+	 * @return the property name.
+	 */
+	private static String retrieveName(Property<?> property) {
+		if (property == null)
+			throw new IllegalArgumentException(
+					"The encapsulated property can not be null.");
+		return property.getName();
+	}
 
 	/**
 	 * @param property
 	 *            the property to be wrapped.
 	 */
 	public SharedProperty(Property<V> property) {
-		if (property == null)
-			throw new IllegalArgumentException(
-					"The encapsulated property can not be null.");
+		super(retrieveName(property));
 		this.property = property;
 	}
 
@@ -72,22 +84,17 @@ public class SharedProperty<V> extends Property<V> {
 	}
 
 	@Override
-	public String getName() {
-		return this.property.getName();
-	}
-
-	@Override
 	protected void onAttach(PropertyTarget target) {
 		this.property.onAttach(target);
-		if (target instanceof Replicable)
-			((Replicable) target).registerListener(listener);
+		if (target instanceof Replicating)
+			((Replicating) target).registerListener(listener);
 	}
 
 	@Override
 	protected void onDetach(PropertyTarget target) {
 		this.property.onDetach(target);
-		if (target instanceof Replicable)
-			((Replicable) target).unregisterListener(listener);
+		if (target instanceof Replicating)
+			((Replicating) target).unregisterListener(listener);
 	}
 
 	/**
@@ -100,7 +107,7 @@ public class SharedProperty<V> extends Property<V> {
 	 * @param original
 	 * @param copy
 	 */
-	protected void onReplicate(Replicable original, Replicable copy) {
+	protected void onReplicated(Replicating original, Replicating copy) {
 		((PropertyTarget) copy).attachProperty(SharedProperty.this);
 		copy.registerListener(listener);
 	};

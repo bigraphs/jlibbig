@@ -52,7 +52,7 @@ class EditableOuterName extends EditableLinkFacet implements OuterName,
 	@Override
 	public EditableOuterName replicate() {
 		EditableOuterName copy = new EditableOuterName(this.getName());
-		rep.tell(this, copy);
+		rep.tellReplicated(this, copy);
 		return copy;
 	}
 

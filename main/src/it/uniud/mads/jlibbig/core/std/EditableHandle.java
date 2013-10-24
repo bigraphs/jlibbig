@@ -6,7 +6,7 @@ import java.util.*;
  * Handle: Outername or Edge
  * 
  */
-interface EditableHandle extends Handle, ReplicableEx, EditableOwned {
+interface EditableHandle extends Handle, Replicable, EditableOwned {
 	/**
 	 * Get the set of control's ports and innernames of an handle
 	 * 
