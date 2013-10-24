@@ -8,8 +8,8 @@ package it.uniud.mads.jlibbig.core.attachedProperties;
  * observed by means of {@link PropertyListener}. The class that is interested
  * in processing a value change event implements the {@link PropertyListener}
  * interface, and the object created with that class is registered with an
- * object instance of a class inheriting from Property using registerListener
- * method.
+ * object instance of a class inheriting from Property using
+ * {@link #registerListener} method.
  * 
  * @param <V>
  *            the type of the value held by the property.

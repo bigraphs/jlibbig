@@ -1,16 +1,25 @@
 package it.uniud.mads.jlibbig.core.attachedProperties;
 
 /**
-*
-* @param <V> the type of the value hold by the property.
-*/
+ * Properties created from this class delegate the values handling to some other
+ * property. The property delegated can be set by means of a secret in the form
+ * of an instance of {@link PropertySetter}. Optionally, the value of the delegated property
+ * is cached to reduce the overhead of delegation chains. Listeners registering to
+ * instances of this class are not passed to the delegated property. 
+ * A property can be paired with at most one setter and this can not be changed;
+ * if the setter is reused and paired with some other property, any previous
+ * pairing will be lost.
+ * 
+ * @param <V>
+ *            the type of the value held by the delegated property.
+ */
 public class DelegatedProperty<V> extends ProtectedProperty<V> {
 
 	protected boolean cacheValue = false;
 
-	protected Property<V> prop;
-	protected final PropertyListener<? super V> lst;
-	protected boolean registered = false;
+	private Property<V> prop;
+	private final PropertyListener<? super V> lst;
+	private boolean registered = false;
 
 	@SafeVarargs
 	public DelegatedProperty(String name, boolean cacheValue,
@@ -91,10 +100,20 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 		return r;
 	}
 
+	/**
+	 * @return the property delegated by this object.
+	 */
 	public Property<V> getProperty() {
 		return prop;
 	}
 
+	/**
+	 * Sets the property to delegate. Caching policies and listeners are
+	 * preserved by changes.
+	 * 
+	 * @param prop
+	 *            the new property to delegate.
+	 */
 	protected void setProperty(Property<V> prop) {
 		if (this.prop != prop) {
 			V oldValue = this.get();
@@ -107,7 +126,7 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 			if (cacheValue) {
 				super.set(newValue, true);
 			}
-			if(oldValue != newValue)
+			if (oldValue != newValue)
 				tellChanged(this, oldValue, this.get());
 		}
 	}
@@ -134,9 +153,20 @@ public class DelegatedProperty<V> extends ProtectedProperty<V> {
 		}
 	}
 
-	public static class PropertySetter<V> {
+	/**
+	 * A secret used to write a {@link DelegatedProperty}. A setter can be
+	 * paired with at most one target property and if reused any previous
+	 * pairing will be lost.
+	 * 
+	 * @param <V>
+	 *            the type of the value hold by the property.
+	 */
+	public final static class PropertySetter<V> {
 		private DelegatedProperty<V> target;
 
+		/**
+		 * @return the instance the object can act upon.
+		 */
 		public DelegatedProperty<V> getTarget() {
 			return target;
 		}

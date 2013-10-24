@@ -92,8 +92,8 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	/**
 	 * Instantiates rule's reactum with respect to the given match.
 	 * 
-	 * @param match
-	 * @return
+	 * @param match the match with respect to the reactum has to be instantiated.
+	 * @return the reactum instance.
 	 */
 	protected final Bigraph instantiateReactum(BigraphMatch match) {
 		Bigraph reactum = getReactum();

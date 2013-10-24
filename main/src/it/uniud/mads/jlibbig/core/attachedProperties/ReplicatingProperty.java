@@ -63,7 +63,7 @@ public class ReplicatingProperty<V> extends SimpleProperty<V> {
 	 * replicated in order to attach a copy of this property to the replica and
 	 * listen for its replications. Inherit this method to intercept
 	 * replications and filter automatic registration of ReplicatingListeners
-	 * {@link SharedProperty.listener} and attachment of this property.
+	 * {@link ReplicatingProperty#listener} and attachment of this property.
 	 * 
 	 * @param original
 	 * @param copy

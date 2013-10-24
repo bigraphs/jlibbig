@@ -141,7 +141,7 @@ public abstract class AbstractNamed implements Named {
 
 	/**
 	 * Generates a name using the shared internal state of the class. This
-	 * method is not thread safe, use {@link generateName()} .
+	 * method is not thread safe, use {@link #generateName()} .
 	 * 
 	 * @return a name
 	 */

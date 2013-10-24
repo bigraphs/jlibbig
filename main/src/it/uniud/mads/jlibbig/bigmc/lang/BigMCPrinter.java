@@ -357,10 +357,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	 * @param c
 	 *            control or site handler
 	 * @param collection
-	 *            set of outernames
-	 * @param sites
-	 *            list of sites
-	 * @see Bigraph
+	 *            set of outer names
 	 * @return the resulting string
 	 */
 	private static String toString(Child c,

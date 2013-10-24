@@ -6,7 +6,7 @@ package it.uniud.mads.jlibbig.core.attachedProperties;
  * implements this interface, and the object created with that class is
  * registered with an instance of {@link Property}, using the
  * {@link Property#registerListener} method. When the event occurs, the object's
- * onChanged method is invoked.
+ * {@link #onChanged} method is invoked.
  * 
  * @param <V>
  *            the type of the value hold by the property.
