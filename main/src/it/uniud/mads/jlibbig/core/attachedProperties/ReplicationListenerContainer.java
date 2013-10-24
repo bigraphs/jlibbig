@@ -48,12 +48,25 @@ public class ReplicationListenerContainer {
 	 * @param listener
 	 *            the listener to be unregistered.
 	 * @return a boolean representing whether the listener was actually
-	 *         registered
+	 *         registered.
 	 */
 	public boolean unregisterListener(ReplicationListener listener) {
 		return _listeners.remove(listener);
 	}
 
+
+	/**
+	 * Checks if the given listener is registered.
+	 * 
+	 * @param listener
+	 *            the listener.
+	 * @return a boolean representing whether the listener is actually
+	 *         registered.
+	 */
+	public boolean isListenerRegistered(ReplicationListener listener) {
+		return _listeners.contains(listener);
+	}
+	
 	/**
 	 * Tells the listeners that a replication happened.
 	 * @param original

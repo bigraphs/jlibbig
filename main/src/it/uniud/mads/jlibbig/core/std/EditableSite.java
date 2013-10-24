@@ -135,6 +135,11 @@ class EditableSite implements EditableChild, Site {
 	}
 
 	@Override
+	public boolean isListenerRegistered(ReplicationListener listener) {
+		return rep.isListenerRegistered(listener);
+	}
+
+	@Override
 	public boolean unregisterListener(ReplicationListener listener) {
 		return rep.unregisterListener(listener);
 	}

@@ -76,6 +76,11 @@ class EditableEdge implements Edge, EditableHandle, Replicable {
 	public void registerListener(ReplicationListener listener) {
 		rep.registerListener(listener);
 	}
+	
+	@Override
+	public boolean isListenerRegistered(ReplicationListener listener) {
+		return rep.isListenerRegistered(listener);
+	}
 
 	@Override
 	public boolean unregisterListener(ReplicationListener listener) {
