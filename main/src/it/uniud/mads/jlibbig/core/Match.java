@@ -6,7 +6,6 @@ package it.uniud.mads.jlibbig.core;
  * such that the composition C;R;D yields exactly G. The bigraph C is called
  * context, R redex and D parameter.
  * 
- * @see BigraphMatcher
  * @param <A>
  *            type of bigraph
  */
