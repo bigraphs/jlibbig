@@ -12,7 +12,7 @@ package it.uniud.mads.jlibbig.core.attachedProperties;
 public interface Replicating {
 
 	/**
-	 * Registers the given replication listener to the replicating instance.
+	 * Registers the given replication listener with the replicating instance.
 	 * 
 	 * @param listener
 	 *            the listener to be registered.
@@ -25,8 +25,17 @@ public interface Replicating {
 	 * @param listener
 	 *            the listener to be unregistered.
 	 * @return a boolean representing whether the listener was actually
-	 *         registered
+	 *         registered.
 	 */
 	public abstract boolean unregisterListener(ReplicationListener listener);
-
+	
+	/**
+	 * Checks if the given listener is registered.
+	 * 
+	 * @param listener
+	 *            the listener.
+	 * @return a boolean representing whether the listener is actually
+	 *         registered.
+	 */
+	public abstract boolean isListenerRegistered(ReplicationListener listener);
 }

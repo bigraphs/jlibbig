@@ -3,7 +3,9 @@ package it.uniud.mads.jlibbig.core.attachedProperties;
 import java.util.*;
 
 /**
-*
+* The class provides a basic concretization of {@link Property}. It can operate
+* as it is and can take care of values and listeners for inheriting classes.
+* 
 * @param <V> the type of the value hold by the property.
 */
 public class SimpleProperty<V> extends Property<V> {
@@ -98,6 +100,13 @@ public class SimpleProperty<V> extends Property<V> {
 		return set(value, false);
 	}
 
+	/**
+	 * This method allows to set the property value without raising any event.
+	 * 
+	 * @param value the new value.
+	 * @param silent if true the change will not be listened.
+	 * @return the old value.
+	 */
 	protected V set(V value, boolean silent) {
 		V old = this.value;
 		this.value = value;
@@ -108,8 +117,16 @@ public class SimpleProperty<V> extends Property<V> {
 	}
 	
 
+	/**
+	 * Raises the value changed event. The property parameter can be used to 
+	 * impersonate other properties (e.g. by delegation).
+	 * 
+	 * @param property the property changed.
+	 * @param oldValue the old value.
+	 * @param newValue the new value.
+	 */
 	protected void tellChanged(Property<V> property, V oldValue, V newValue) {
-		ListIterator<PropertyListener<? super V>> li = _listeners
+		ListIterator<? extends PropertyListener<? super V>> li = _listeners
 				.listIterator();
 		while (li.hasNext()) {
 			li.next().onChanged(property, oldValue, newValue);

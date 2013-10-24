@@ -94,6 +94,11 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 	}
 
 	@Override
+	public boolean isListenerRegistered(ReplicationListener listener) {
+		return rep.isListenerRegistered(listener);
+	}
+	
+	@Override
 	public boolean unregisterListener(ReplicationListener listener) {
 		return rep.unregisterListener(listener);
 	}
@@ -135,7 +140,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 	}
 
 	@Override
-	public Set<String> getPropertyNames() {
+	public Collection<String> getPropertyNames() {
 		return props.getPropertyNames();
 	}
 

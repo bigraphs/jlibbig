@@ -197,6 +197,11 @@ class EditableNode implements Node, EditableParent, EditableChild {
 	}
 
 	@Override
+	public boolean isListenerRegistered(ReplicationListener listener) {
+		return rep.isListenerRegistered(listener);
+	}
+	
+	@Override
 	public void registerListener(ReplicationListener listener) {
 		rep.registerListener(listener);
 	}
@@ -243,7 +248,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 	}
 
 	@Override
-	public Set<String> getPropertyNames() {
+	public Collection<String> getPropertyNames() {
 		return props.getPropertyNames();
 	}
 
@@ -373,5 +378,4 @@ class EditableNode implements Node, EditableParent, EditableChild {
 			return false;
 		}
 	}
-
 }

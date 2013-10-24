@@ -5,7 +5,7 @@ package it.uniud.mads.jlibbig.core.attachedProperties;
  * {@link Replicating}. The class automatically attach itself to new replicas
  * thus rendering the wrapped property shared between these. Listeners are
  * registered to the wrapped property. The class can be attached also to targets
- * not implementing {@link Replicating}, but the automatic sharing behaviour
+ * not implementing {@link Replicating}, but the automatic sharing behavior
  * will not be enabled (on these).
  * 
  * @see ReplicatingProperty
@@ -102,7 +102,7 @@ public class SharedProperty<V> extends Property<V> {
 	 * replicated in order to attach this property to the replica and listen for
 	 * its replications. Inherit this method to intercept replications and
 	 * filter automatic registration of ReplicateListeners
-	 * {@link SharedProperty.listener} and attachment of this property.
+	 * {@link SharedProperty#listener} and attachment of this property.
 	 * 
 	 * @param original
 	 * @param copy
