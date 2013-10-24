@@ -11,7 +11,7 @@ import it.uniud.mads.jlibbig.core.attachedProperties.PropertyTarget;
  * @see Parent
  * 
  */
-interface EditableParent extends Parent, ReplicableEx, Owned, PropertyTarget {
+interface EditableParent extends Parent, Replicable, Owned, PropertyTarget {
 	/**
 	 * Get the set of children. This set and every object inside it can be
 	 * modified.
@@ -39,7 +39,7 @@ interface EditableParent extends Parent, ReplicableEx, Owned, PropertyTarget {
 	public abstract EditableRoot getRoot();
 
 	/**
-	 * @see ReplicableEx#replicate()
+	 * @see Replicable#replicate()
 	 */
 	@Override
 	public abstract EditableParent replicate();

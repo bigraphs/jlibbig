@@ -4,15 +4,15 @@ import java.util.*;
 
 import it.uniud.mads.jlibbig.core.AbstractNamed;
 import it.uniud.mads.jlibbig.core.Owner;
-import it.uniud.mads.jlibbig.core.attachedProperties.ReplicateListener;
-import it.uniud.mads.jlibbig.core.attachedProperties.ReplicateListenerContainer;
+import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListener;
+import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListenerContainer;
 
 /**
  * Edges of a link graph. <br />
  * They can be linked to innernames and edges.
  * 
  */
-class EditableEdge implements Edge, EditableHandle, ReplicableEx {
+class EditableEdge implements Edge, EditableHandle, Replicable {
 	private String name;
 
 	private Collection<EditablePoint> points = Collections
@@ -20,7 +20,7 @@ class EditableEdge implements Edge, EditableHandle, ReplicableEx {
 	private final Collection<? extends Point> ro_points = Collections
 			.unmodifiableCollection(this.points);
 	private Owner owner;
-	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
+	private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
 
 	EditableEdge() {
 		name = "E_" + AbstractNamed.generateName();
@@ -68,17 +68,17 @@ class EditableEdge implements Edge, EditableHandle, ReplicableEx {
 	@Override
 	public EditableEdge replicate() {
 		EditableEdge copy = new EditableEdge();
-		rep.tell(this, copy);
+		rep.tellReplicated(this, copy);
 		return copy;
 	}
 
 	@Override
-	public void registerListener(ReplicateListener listener) {
+	public void registerListener(ReplicationListener listener) {
 		rep.registerListener(listener);
 	}
 
 	@Override
-	public boolean unregisterListener(ReplicateListener listener) {
+	public boolean unregisterListener(ReplicationListener listener) {
 		return rep.unregisterListener(listener);
 	}
 

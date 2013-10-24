@@ -16,7 +16,7 @@ public class NodeChaser {
 
 	private final Map<Owner, WeakHashSet<Node>> index = new WeakHashMap<>();
 	private final Map<Node, PropertyListener<Owner>> ownerLsts = new WeakHashMap<>();
-	private final Map<Node, ReplicateListener> repLsts = new WeakHashMap<>();
+	private final Map<Node, ReplicationListener> repLsts = new WeakHashMap<>();
 
 	// private final void processQueue() {
 	// Reference<? extends Node> ref = null;
@@ -101,7 +101,7 @@ public class NodeChaser {
 
 		PropertyListener<Owner> ol = new PropertyListener<Owner>() {
 			@Override
-			public void onChange(Property<? extends Owner> property,
+			public void onChanged(Property<? extends Owner> property,
 					Owner oldValue, Owner newValue) {
 				WeakHashSet<Node> ns = index.get(getOwnerKey(oldValue));
 				if (ns != null)
@@ -118,9 +118,9 @@ public class NodeChaser {
 		node.<Owner> getProperty(EditableNode.PROPERTY_OWNER).registerListener(
 				ol);
 		ownerLsts.put(node, ol);
-		ReplicateListener rl = new ReplicateListener() {
+		ReplicationListener rl = new ReplicationListener() {
 			@Override
-			public void onReplicate(Replicable original, Replicable copy) {
+			public void onReplicated(Replicating original, Replicating copy) {
 				chase((EditableNode) copy);
 				onReplicates((Node) original, (Node) copy);
 			}

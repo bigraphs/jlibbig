@@ -1,5 +1,9 @@
 package it.uniud.mads.jlibbig.core.attachedProperties;
 
+/**
+*
+* @param <V> the type of the value hold by the property.
+*/
 public class ProtectedProperty<V> extends SimpleProperty<V> {
 
 	@SafeVarargs

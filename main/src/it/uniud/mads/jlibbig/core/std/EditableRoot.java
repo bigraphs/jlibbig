@@ -19,7 +19,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 	private final ProtectedProperty<Owner> owner = new ProtectedProperty<Owner>(
 			PROPERTY_OWNER, null, ownerSetter);
 
-	private final ReplicateListenerContainer rep = new ReplicateListenerContainer();
+	private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
 	private final PropertyContainer props = new PropertyContainer(this);
 
 	private final String name;
@@ -84,17 +84,17 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 	@Override
 	public EditableRoot replicate() {
 		EditableRoot copy = new EditableRoot();
-		rep.tell(this, copy);
+		rep.tellReplicated(this, copy);
 		return copy;
 	}
 
 	@Override
-	public void registerListener(ReplicateListener listener) {
+	public void registerListener(ReplicationListener listener) {
 		rep.registerListener(listener);
 	}
 
 	@Override
-	public boolean unregisterListener(ReplicateListener listener) {
+	public boolean unregisterListener(ReplicationListener listener) {
 		return rep.unregisterListener(listener);
 	}
 

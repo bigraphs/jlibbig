@@ -4,7 +4,7 @@ import java.util.*;
 
 /**
  * A class for properties attached to targets implementing
- * {@link it.uniud.mads.jlibbig.core.attachedProperties.Replicable}. The class automatically attach a copy of
+ * {@link it.uniud.mads.jlibbig.core.attachedProperties.Replicating}. The class automatically attach a copy of
  * itself to new replicas thus. Listeners are registered also for this new copy.
  * Therefore, functionality provided is similar to {@link SharedProperty}, but
  * results in a copy-on-write behaviour across the replicas. The class can be
@@ -15,9 +15,9 @@ import java.util.*;
  */
 public class ReplicatingProperty<V> extends SimpleProperty<V> {
 
-	protected final ReplicateListener repListener = new ReplicateListener() {
+	protected final ReplicationListener repListener = new ReplicationListener() {
 		@Override
-		public void onReplicate(Replicable original, Replicable copy) {
+		public void onReplicated(Replicating original, Replicating copy) {
 			ReplicatingProperty.this.onReplicate(original, copy);
 		}
 	};
@@ -47,14 +47,14 @@ public class ReplicatingProperty<V> extends SimpleProperty<V> {
 
 	@Override
 	protected void onAttach(PropertyTarget target) {
-		if (target instanceof Replicable)
-			((Replicable) target).registerListener(repListener);
+		if (target instanceof Replicating)
+			((Replicating) target).registerListener(repListener);
 	}
 
 	@Override
 	protected void onDetach(PropertyTarget target) {
-		if (target instanceof Replicable)
-			((Replicable) target).unregisterListener(repListener);
+		if (target instanceof Replicating)
+			((Replicating) target).unregisterListener(repListener);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class ReplicatingProperty<V> extends SimpleProperty<V> {
 	 * @param original
 	 * @param copy
 	 */
-	protected void onReplicate(Replicable original, Replicable copy) {
+	protected void onReplicate(Replicating original, Replicating copy) {
 		((PropertyTarget) copy).attachProperty(new ReplicatingProperty<>(this
 				.getName(), this.get(), this.isReadOnly(), super.listeners));
 		//copy.registerListener(repListener);
