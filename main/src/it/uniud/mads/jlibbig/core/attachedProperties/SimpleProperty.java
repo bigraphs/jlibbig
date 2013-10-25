@@ -126,10 +126,8 @@ public class SimpleProperty<V> extends Property<V> {
 	 * @param newValue the new value.
 	 */
 	protected void tellChanged(Property<V> property, V oldValue, V newValue) {
-		ListIterator<? extends PropertyListener<? super V>> li = _listeners
-				.listIterator();
-		while (li.hasNext()) {
-			li.next().onChanged(property, oldValue, newValue);
+		for(PropertyListener<? super V> listener : new ArrayList<>(_listeners)){
+			listener.onChanged(property, oldValue, newValue);
 		}
 	}	
 }

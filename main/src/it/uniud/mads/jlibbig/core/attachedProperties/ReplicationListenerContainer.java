@@ -75,9 +75,8 @@ public class ReplicationListenerContainer {
 	 *            the replica.
 	 */
 	public void tellReplicated(Replicating original, Replicating copy) {
-		Iterator<ReplicationListener> li = _listeners.iterator();
-		while (li.hasNext()) {
-			li.next().onReplicated(original, copy);
+		for(ReplicationListener listener : new ArrayList<>(_listeners)){
+			listener.onReplicated(original, copy);
 		}
 	}
 
