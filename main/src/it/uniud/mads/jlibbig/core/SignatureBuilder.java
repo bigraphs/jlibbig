@@ -18,7 +18,7 @@ public class SignatureBuilder<C extends Control> {
 	 * @return a signature
 	 */
 	public Signature<C> makeSignature() {
-		return new Signature<C>(ctrls.values());
+		return new Signature<>(ctrls.values());
 	}
 
 	/**
@@ -28,7 +28,7 @@ public class SignatureBuilder<C extends Control> {
 	 * @return a signature
 	 */
 	public Signature<C> makeSignature(String usid) {
-		return new Signature<C>(usid, ctrls.values());
+		return new Signature<>(usid, ctrls.values());
 	}
 
 	public void put(C control) {

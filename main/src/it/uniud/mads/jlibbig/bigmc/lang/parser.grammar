@@ -103,8 +103,8 @@ definitionlist
 				sb.put( v , b , n ); 
 				_brs = new BigraphSystem( sb.makeSignature() );
 			}else{
-				Control c = null;
-			if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+				Control c = _brs.getSignature().getByName( v );
+			if( c == null || c.getArity() != n || c.isActive() != b )
 				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_v.getStart() ) + " - Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
 			}
 			return new Symbol( null ); 
@@ -121,8 +121,8 @@ definitions
 				sb.put( v , b , n ); 
 				return new Symbol( sb );
 			}
-			Control c = null;
-			if( (c = _brs.getSignature().getByName( v )) == null || c.getArity() != n || c.isActive() != b )
+			Control c = _brs.getSignature().getByName( v );
+			if( c == null || c.getArity() != n || c.isActive() != b )
 				throw new RuntimeException( "Line: " + Symbol.getLine( _symbol_v.getStart() ) + " - Control " + v + ", " + (b == true ? "active" : "passive") + " and with arity " + n + ", not found in the input's signature" );
 			return new Symbol( null );
 		:}

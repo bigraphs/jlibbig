@@ -654,7 +654,7 @@ class BRSLexer extends Scanner {
 			case 39:
 				break;
 			case 2: {
-				return newToken(Terminals.VARID, new String(yytext()));
+				return newToken(Terminals.VARID, yytext());
 			}
 			case 40:
 				break;

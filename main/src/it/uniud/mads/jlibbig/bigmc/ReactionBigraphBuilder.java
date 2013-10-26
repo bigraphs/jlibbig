@@ -30,7 +30,7 @@ import it.uniud.mads.jlibbig.core.std.Site;
  * 
  */
 public class ReactionBigraphBuilder implements
-		it.uniud.mads.jlibbig.core.BigraphBuilder<Control> {
+		it.uniud.mads.jlibbig.core.BigraphBuilder<Control>, Cloneable {
 	final BigraphBuilder rbig;
 	private final List<Integer> sites;
 	private final List<Integer> ro_sites;

@@ -97,7 +97,7 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 			ass = agent_sites.size();
 			ahs = agent_handles.size();
 
-			this.agent_points = new HashSet<Point>(ans);
+			this.agent_points = new HashSet<>(ans);
 			for (Node n : agent_nodes) {
 				agent_points.addAll(n.getPorts());
 			}
@@ -926,14 +926,13 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 							+ solver.getSolutionCount());
 					System.out.print('\n');
 					int p_cell_width[] = new int[1 + rrs + rns + rss];
-					int c = 0;
 					p_cell_width[0] = 6;
 					for (Node n : agent_nodes) {
 						p_cell_width[0] = Math.max(p_cell_width[0], n
 								.toString().length());
 					}
 					System.out.printf("%-" + p_cell_width[0] + "s|", "P_VARS");
-					c = 1;
+					int c = 1;
 					for (int k = 0; k < rrs; k++, c++) {
 						String s = "R_" + k;
 						p_cell_width[c] = s.length();
@@ -1144,7 +1143,7 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					// + "]";
 					// }
 				}
-				Queue<VState> q = new LinkedList<VState>();
+				Queue<VState> q = new LinkedList<>();
 
 				for (EditableOuterName o1 : agent.outers.values()) {
 					EditableOuterName o2 = o1.replicate();

@@ -132,9 +132,8 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 						h2.setOwner(prm);
 						hnd_dic.put(h1, h2);
 					}
-					for (int i = 0; i < n2s.length; i++) {
-						n2s[i].getPort(j).setHandle(h2);
-					}
+                    for (EditableNode n2 : n2s)
+                        n2.getPort(j).setHandle(h2);
 				}
 				for (EditableChild c : n1.getEditableChildren()) {
 					q.add(new VState(s.r, n2s, c));
@@ -148,16 +147,15 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 				}
 			}
 		}
-		// set place interfaces
-		for (int i = 0; i < rs.length; i++) {
-			prm.roots.add(rs[i]);
-			rs[i].setOwner(prm);
-		}
-		for (int i = 0; i < ss.length; i++) {
-			if (ss[i] == null)
-				continue;
-			prm.sites.addAll(Arrays.asList(ss[i]));
-		}
+        for (EditableRoot r : rs) {
+            prm.roots.add(r);
+            r.setOwner(prm);
+        }
+        for (EditableSite[] s : ss) {
+            if (s == null)
+                continue;
+            prm.sites.addAll(Arrays.asList(s));
+        }
 
 		if (reuse) {
 			parameters.sites.clear();

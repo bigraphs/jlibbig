@@ -315,12 +315,11 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 
 			Iterator<? extends Port> portIt = ((Node) d).getPorts().iterator();
 			while (portIt.hasNext()) {
-				Handle handle = portIt.next().getHandle();
+				OuterName handle = (OuterName)portIt.next().getHandle();
 				if (collection.contains(handle)) {
 					for (int i = 0; i < unlinked; ++i)
 						ns.append(" - , ");
-					ns.append(" ").append(((OuterName) handle).getName())
-							.append(" , ");
+					ns.append(" ").append(handle.getName()).append(" , ");
 				} else
 					++unlinked;
 			}
@@ -375,12 +374,11 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 
 			Iterator<? extends Port> portIt = ((Node) c).getPorts().iterator();
 			while (portIt.hasNext()) {
-				Handle handle = portIt.next().getHandle();
+				OuterName handle = (OuterName)portIt.next().getHandle();
 				if (collection.contains(handle)) {
 					for (int i = 0; i < unlinked; ++i)
 						ns.append(" - , ");
-					ns.append(" ").append(((OuterName) handle).getName())
-							.append(" , ");
+					ns.append(" ").append(handle.getName()).append(" , ");
 				} else
 					++unlinked;
 			}

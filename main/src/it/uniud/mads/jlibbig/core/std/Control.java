@@ -46,7 +46,7 @@ public final class Control extends it.uniud.mads.jlibbig.core.Control {
 			return false;
 		Control other = (Control) obj;
 		if (getArity() != other.getArity()
-				|| super.getName() != other.getName())
+				|| !super.getName().equals(other.getName()))
 			return false;
 		return true;
 	}
