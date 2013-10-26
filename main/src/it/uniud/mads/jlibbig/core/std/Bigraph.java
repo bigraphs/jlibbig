@@ -14,9 +14,8 @@ import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
  * version of bigraphs, users can use {@link BigraphBuilder}.
  * </p>
  */
-final public class Bigraph implements it.uniud.mads.jlibbig.core.Bigraph<Control> {// ,
-																		// PropertyTarget
-																		// {
+final public class Bigraph implements
+    it.uniud.mads.jlibbig.core.Bigraph<Control>, Cloneable/*, PropertyTarget*/ {
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
@@ -754,9 +753,8 @@ final public class Bigraph implements it.uniud.mads.jlibbig.core.Bigraph<Control
 		for (int i = 0; i < width; i++) {
 			bb.addSite(bb.addRoot());
 		}
-		for (int i = 0; i < names.length; i++) {
-			bb.addInnerName(names[i], bb.addOuterName(names[i]));
-		}
+        for (String name : names)
+            bb.addInnerName(name, bb.addOuterName(name));
 		return bb.makeBigraph();
 	}
 

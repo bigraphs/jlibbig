@@ -15,7 +15,7 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
  * </p>
  */
 final public class BigraphBuilder implements
-		it.uniud.mads.jlibbig.core.BigraphBuilder<Control> {
+		it.uniud.mads.jlibbig.core.BigraphBuilder<Control>, Cloneable {
 	private final boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	private Bigraph big;
@@ -704,10 +704,10 @@ final public class BigraphBuilder implements
 				ir.next().setParent(r);
 			}
 		}
-		for (int i = 0; i < rs.length; i++) {
-			big.roots.remove(rs[i]);
-			rs[i].setOwner(null);
-		}
+        for (EditableRoot r1 : rs) {
+            big.roots.remove(r1);
+            r1.setOwner(null);
+        }
 		big.roots.add(index, r);
 		assertConsistency();
 		return r;
@@ -717,8 +717,9 @@ final public class BigraphBuilder implements
 		assertOwner(root, "Root ");
 		if (!root.getChildren().isEmpty())
 			throw new IllegalArgumentException("Unempty region.");
-		((EditableRoot) root).setOwner(null);
-		big.roots.remove(root);
+        EditableRoot editableRoot = (EditableRoot)root;
+		editableRoot.setOwner(null);
+		big.roots.remove(editableRoot);
 		assertConsistency();
 	}
 
@@ -737,8 +738,9 @@ final public class BigraphBuilder implements
 	 */
 	public void closeSite(Site site) {
 		assertOwner(site, "Site ");
-		((EditableSite) site).setParent(null);
-		big.sites.remove(site);
+        EditableSite editableSite = (EditableSite)site;
+		editableSite.setParent(null);
+		big.sites.remove(editableSite);
 		assertConsistency();
 	}
 
@@ -1370,7 +1372,7 @@ final public class BigraphBuilder implements
 
 	// /////////////////////////////////////////////////////////////////////////
 
-	private final void assertConsistency() {
+	private void assertConsistency() {
 		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");

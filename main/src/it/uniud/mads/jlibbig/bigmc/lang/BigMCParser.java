@@ -159,9 +159,8 @@ class BigMCParser extends Parser {
 							sb.put(v, b, n);
 							_brs = new BigraphRewritingSystem(sb.makeSignature());
 						} else {
-							Control c = null;
-							if ((c = _brs.getSignature().getByName(v)) == null
-									|| c.getArity() != n || c.isActive() != b)
+							Control c = _brs.getSignature().getByName(v);
+							if (c == null || c.getArity() != n || c.isActive() != b)
 								throw new RuntimeException(
 										"Line: "
 												+ Symbol.getLine(_symbol_v
@@ -201,9 +200,8 @@ class BigMCParser extends Parser {
 							sb.put(v, b, n);
 							return new Symbol(sb);
 						}
-						Control c = null;
-						if ((c = _brs.getSignature().getByName(v)) == null
-								|| c.getArity() != n || c.isActive() != b)
+						Control c = _brs.getSignature().getByName(v);
+						if (c == null || c.getArity() != n || c.isActive() != b)
 							throw new RuntimeException("Line: "
 									+ Symbol.getLine(_symbol_v.getStart())
 									+ " - Control " + v + ", "

@@ -599,12 +599,12 @@ class BigMCLexer extends Scanner {
 			case 22:
 				break;
 			case 20: {
-				return newToken(Terminals.CTRL, new Boolean(true));
+				return newToken(Terminals.CTRL, true);
 			}
 			case 23:
 				break;
 			case 21: {
-				return newToken(Terminals.CTRL, new Boolean(false));
+				return newToken(Terminals.CTRL, false);
 			}
 			case 24:
 				break;
@@ -639,7 +639,7 @@ class BigMCLexer extends Scanner {
 			case 30:
 				break;
 			case 2: {
-				return newToken(Terminals.VARID, new String(yytext()));
+				return newToken(Terminals.VARID, yytext());
 			}
 			case 31:
 				break;

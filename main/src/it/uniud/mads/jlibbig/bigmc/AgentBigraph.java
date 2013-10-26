@@ -16,7 +16,8 @@ import it.uniud.mads.jlibbig.core.std.Site;
  * Class used to store immutable ground Bigraph (Agent). For a mutable version,
  * users can use {@link it.uniud.mads.jlibbig.bigmc.AgentBigraphBuilder}
  */
-public class AgentBigraph implements it.uniud.mads.jlibbig.core.Bigraph<Control> {
+public class AgentBigraph implements
+        it.uniud.mads.jlibbig.core.Bigraph<Control>, Cloneable {
 	final Bigraph bigraph;
 
 	/**

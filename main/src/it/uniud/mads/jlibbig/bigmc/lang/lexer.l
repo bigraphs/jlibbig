@@ -37,8 +37,8 @@ Digit = [0-9]
 %%
 
 <YYINITIAL> {
-	"%active"		{ return newToken(Terminals.CTRL , new Boolean(true) ); }
-	"%passive"		{ return newToken(Terminals.CTRL , new Boolean(false) ); }
+	"%active"		{ return newToken(Terminals.CTRL , true ); }
+	"%passive"		{ return newToken(Terminals.CTRL , false ); }
 	"%name"|"%outer"	{ return newToken(Terminals.OUTERNAME); }
 	
 	";"	{ return newToken(Terminals.SEMICOLON); }
@@ -47,7 +47,7 @@ Digit = [0-9]
 	"nil"	{ return newToken(Terminals.NIL); }
 	
 	{Digit}+			{ return newToken(Terminals.NUM, new Integer(yytext())); }
-	{Letter}({Letter}|{Digit}|"_")*	{ return newToken(Terminals.VARID, new String(yytext())); }
+	{Letter}({Letter}|{Digit}|"_")*	{ return newToken(Terminals.VARID, yytext()); }
 	
 	"."	{ return newToken(Terminals.POINT); }
 	"|"	{ return newToken(Terminals.PIPE); }

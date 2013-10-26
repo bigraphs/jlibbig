@@ -52,7 +52,7 @@ Digit = [0-9]
 	"1"			{ return newToken( Terminals.ONE ); }
 
 	{Digit}+			{ return newToken( Terminals.NUM, Integer.parseInt( yytext() ) ); }
-	{Letter}({Letter}|{Digit}|"_")*	{ return newToken( Terminals.VARID, new String( yytext() ) ); }
+	{Letter}({Letter}|{Digit}|"_")*	{ return newToken( Terminals.VARID, yytext() ); }
 	
 	"."	{ return newToken(Terminals.POINT); }
 	"|"	{ return newToken(Terminals.PIPE); }

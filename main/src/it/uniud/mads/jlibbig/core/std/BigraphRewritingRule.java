@@ -175,9 +175,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 				sites[reactum.sites.indexOf(s1)] = s2;
 			}
 		}
-		for (int i = 0; i < sites.length; i++) {
-			big.sites.add(sites[i]);
-		}
+        big.sites.addAll(Arrays.asList(sites));
 		return big;
 	}
 
@@ -251,7 +249,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 					//}
 				}
 				if (args.hasNext()) {
-					Bigraph result = null;
+					Bigraph result;
 					Bigraph params = args.next();
 					if (args.hasNext())
 						result = Bigraph.compose(big.clone(), params, true);

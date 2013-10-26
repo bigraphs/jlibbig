@@ -119,7 +119,6 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 				if (!hasNext()) {
 					throw new NoSuchElementException();
 				}
-				Bigraph result = null;
 				AgentMatch match = mTor.next();
 
 				if (DEBUG_PRINT_MATCH)
@@ -153,7 +152,7 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 				inreact = Bigraph.juxtapose(inreact, match.getRedexId());
 				bb.outerCompose(inreact, true);
 				bb.outerCompose(match.getContext(), true);
-				result = bb.makeBigraph(true);
+				Bigraph result = bb.makeBigraph(true);
 				if (DEBUG_PRINT_RESULT)
 					System.out.println(result);
 				return result;

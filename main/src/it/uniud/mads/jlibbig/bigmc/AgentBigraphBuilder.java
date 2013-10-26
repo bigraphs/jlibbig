@@ -27,7 +27,7 @@ import it.uniud.mads.jlibbig.core.std.Site;
  * 
  */
 public class AgentBigraphBuilder implements
-		it.uniud.mads.jlibbig.core.BigraphBuilder<Control> {
+		it.uniud.mads.jlibbig.core.BigraphBuilder<Control>, Cloneable {
 	BigraphBuilder bigraph;
 
 	public static final String nameexpr = "[a-zA-Z][a-zA-Z_0-9]*";

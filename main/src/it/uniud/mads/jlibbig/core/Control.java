@@ -45,7 +45,7 @@ public class Control extends AbstractNamed implements Named {
 		if (getClass() != obj.getClass())
 			return false;
 		Control other = (Control) obj;
-		if (arity != other.arity || super.getName() != other.getName())
+		if (arity != other.arity || !super.getName().equals(other.getName()))
 			return false;
 		return true;
 	}
