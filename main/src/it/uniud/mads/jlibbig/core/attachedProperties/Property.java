@@ -1,5 +1,11 @@
 package it.uniud.mads.jlibbig.core.attachedProperties;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * An attached property holds some value and can be dynamically attached (and
  * detached) to extend objects created from classes implementing the
@@ -22,6 +28,19 @@ public abstract class Property<V> {
 	private final String name;
 
 	/**
+	 * A flag indicating whatever the property is writable
+	 */
+	protected boolean readOnly;
+	
+	private final List<PropertyListener<? super V>> _listeners = new LinkedList<>();
+
+	/**
+	 * A list holding all the listener registered for this property
+	 */
+	protected final Collection<PropertyListener<? super V>> listeners = Collections
+			.unmodifiableCollection(_listeners);
+	
+	/**
 	 * Every property shall have a name. The name can not be changed. However, a
 	 * property can be referred by different names wrapping it inside other
 	 * properties e.g. by means of {@link DelegatedProperty}.
@@ -30,15 +49,23 @@ public abstract class Property<V> {
 	 *            the name of the property.
 	 */
 	public Property(String name) {
+		this(name,true,null);
+	}
+	public Property(String name, boolean writable, Collection<? extends PropertyListener<? super V>> listeners) {
 		if (name == null)
 			throw new IllegalArgumentException("The argument can not be null.");
 		this.name = name;
+		this.readOnly = !writable;
+		if(listeners != null)
+			this._listeners.addAll(listeners);
 	}
 
 	/**
 	 * @return a boolean representing whether the property is read-only.
 	 */
-	public abstract boolean isReadOnly();
+	public boolean isReadOnly() {
+		return this.readOnly;
+	}
 
 	/**
 	 * Checks if the given listener is registered.
@@ -48,8 +75,9 @@ public abstract class Property<V> {
 	 * @return a boolean representing whether the listener is actually
 	 *         registered.
 	 */
-	public abstract boolean isListenerRegistered(
-			PropertyListener<? super V> listener);
+	public boolean isListenerRegistered(PropertyListener<? super V> listener) {
+		return _listeners.contains(listener);
+	}
 
 	/**
 	 * Registers the given listener with the property.
@@ -57,8 +85,11 @@ public abstract class Property<V> {
 	 * @param listener
 	 *            the listener to be registered.
 	 */
-	public abstract void registerListener(PropertyListener<? super V> listener);
-
+	public void registerListener(PropertyListener<? super V> listener) {
+		if (_listeners.contains(listener))
+			return;
+		_listeners.add(listener);
+	}
 	/**
 	 * Unregisters the given listener.
 	 * 
@@ -67,9 +98,10 @@ public abstract class Property<V> {
 	 * @return a boolean representing whether the listener was actually
 	 *         registered.
 	 */
-	public abstract boolean unregisterListener(
-			PropertyListener<? super V> listener);
-
+	public boolean unregisterListener(PropertyListener<? super V> listener) {
+		return _listeners.remove(listener);
+	}
+	
 	/**
 	 * Gets the property value.
 	 * 
@@ -118,4 +150,17 @@ public abstract class Property<V> {
 		return "Property '" + getName() + "'=" + get();
 	};
 
+	/**
+	 * Raises the value changed event. The property parameter can be used to 
+	 * impersonate other properties (e.g. by delegation).
+	 * 
+	 * @param property the property changed.
+	 * @param oldValue the old value.
+	 * @param newValue the new value.
+	 */
+	protected void tellChanged(Property<V> property, V oldValue, V newValue) {
+		for(PropertyListener<? super V> listener : new ArrayList<>(listeners)){
+			listener.onChanged(property, oldValue, newValue);
+		}
+	}
 }

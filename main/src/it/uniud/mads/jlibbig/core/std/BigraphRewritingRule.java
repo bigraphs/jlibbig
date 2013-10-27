@@ -132,7 +132,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 				this.p = p;
 			}
 		}
-		Queue<Pair> q = new LinkedList<>();
+		Deque<Pair> q = new ArrayDeque<>();
 		for (EditableRoot r1 : reactum.roots) {
 			EditableRoot r2 = r1.replicate();
 			big.roots.add(r2);

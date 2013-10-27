@@ -44,7 +44,7 @@ final public class Bigraph implements
 		Set<Site> unseen_sites = new HashSet<>();
 		unseen_sites.addAll(this.sites);
 		Set<Child> seen_children = new HashSet<>();
-		Queue<Parent> q = new LinkedList<>();
+		Deque<Parent> q = new ArrayDeque<>();
 		for (EditableRoot r : this.roots) {
 			if (r.getOwner() != owner) {
 				System.err.println("INCOSISTENCY: foreign root");

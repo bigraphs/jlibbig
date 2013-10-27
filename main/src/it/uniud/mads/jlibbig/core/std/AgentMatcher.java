@@ -349,8 +349,8 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 					 * found in an active context whereas qp are in a passive
 					 * one or passive.
 					 */
-					Queue<Node> qa = new LinkedList<>();
-					Queue<Node> qp = new LinkedList<>();
+					Deque<Node> qa = new ArrayDeque<>();
+					Deque<Node> qp = new ArrayDeque<>();
 					for (Root r : agent_roots) {
 						for (Child c : r.getChildren()) {
 							if (c.isNode()) {
@@ -1107,7 +1107,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 					// + "]";
 					// }
 				}
-				Queue<VState> q = new LinkedList<>();
+				Deque<VState> q = new ArrayDeque<>();
 				// {
 				// private static final long serialVersionUID = 1L;
 				//
