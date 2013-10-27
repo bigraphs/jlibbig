@@ -12,6 +12,7 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 	private final static boolean DEBUG = true;
 	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
 	private final static boolean DEBUG_PRINT_RESULT = DEBUG;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	final private boolean[] neededParam;
 	final private boolean[] cloneParam;
@@ -155,6 +156,9 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 				Bigraph result = bb.makeBigraph(true);
 				if (DEBUG_PRINT_RESULT)
 					System.out.println(result);
+				if (DEBUG_CONSISTENCY_CHECK && !result.isConsistent()) {
+					throw new RuntimeException("Inconsistent bigraph");
+				}
 				return result;
 			}
 
