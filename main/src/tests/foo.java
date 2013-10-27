@@ -9,7 +9,7 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test2();
+		test1();
 	}
 	
 	private static void test12(){
@@ -247,11 +247,14 @@ public class foo {
 
 		BigraphRewritingRule arr = new BigraphRewritingRule(
 				redex.makeBigraph(true), reactum.makeBigraph(true));
-
+		
 		Bigraph b = bb.makeBigraph(true);
 
 		int i = 1;
-		while ((b = arr.apply(b).iterator().next()) != null) {
+		Iterator<Bigraph> ib = arr.apply(b).iterator();
+		while (ib.hasNext()) {
+			b = ib.next();
+			ib = arr.apply(b).iterator();
 			System.out
 					.println("-----------------------------------------------");
 			System.out.println("riscrittura #" + i++ + ":");
@@ -319,9 +322,9 @@ public class foo {
 
 		BigraphRewritingRule arr = new BigraphRewritingRule(bigRedex, bigReactum, 0);
 
-		Bigraph k = rete.makeBigraph();
+		Bigraph b = rete.makeBigraph();
 
-		for (BigraphMatch m : BigraphMatcher.DEFAULT.match(k, bigRedex)) {
+		for (BigraphMatch m : BigraphMatcher.DEFAULT.match(b, bigRedex)) {
 			for (Node n : bigRedex.getNodes()) {
 				if (m.getImage(n) == null) {
 					System.out
@@ -331,11 +334,14 @@ public class foo {
 		}
 
 		int i = 1;
-		while ((k = arr.apply(k).iterator().next()) != null) {
+		Iterator<Bigraph> ib = arr.apply(b).iterator();
+		while (ib.hasNext()) {
+			b = ib.next();
+			ib = arr.apply(b).iterator();
 			System.out
 					.println("-----------------------------------------------");
 			System.out.println("riscrittura #" + i++ + ":");
-			System.out.println(k);
+			System.out.println(b);
 		}
 	}
 

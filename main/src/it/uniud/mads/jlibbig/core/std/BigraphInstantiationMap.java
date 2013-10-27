@@ -58,7 +58,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 	}
 
 	Iterable<Bigraph> instantiate(Bigraph parameters, boolean reuse) {
-		if (parameters.roots.size() != this.dom) {
+		if (parameters.roots.size() < this.cod) {
 			throw new IncompatibleInterfaceException();
 		}
 		List<Bigraph> l = new LinkedList<>();

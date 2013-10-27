@@ -10,10 +10,11 @@ import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 
 public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
 	private final static boolean DEBUG_PRINT_RESULT = DEBUG;
-	
+	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+
 	final Bigraph redex;
 	final Bigraph reactum;
 	final BigraphInstantiationMap eta;
@@ -21,8 +22,8 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	private BigraphMatcher matcher;
 
 	public BigraphRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-		this(BigraphMatcher.DEFAULT, redex, reactum, new BigraphInstantiationMap(
-				redex.sites.size(), eta));
+		this(BigraphMatcher.DEFAULT, redex, reactum,
+				new BigraphInstantiationMap(redex.sites.size(), eta));
 	}
 
 	public BigraphRewritingRule(BigraphMatcher matcher, Bigraph redex,
@@ -31,17 +32,17 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 				redex.sites.size(), eta));
 	}
 
-	public BigraphRewritingRule(Bigraph redex,
-			Bigraph reactum, BigraphInstantiationMap eta) {
-		this(BigraphMatcher.DEFAULT,redex, reactum, eta);
-	}
-	
-	public BigraphRewritingRule(BigraphMatcher matcher, Bigraph redex, Bigraph reactum,
+	public BigraphRewritingRule(Bigraph redex, Bigraph reactum,
 			BigraphInstantiationMap eta) {
+		this(BigraphMatcher.DEFAULT, redex, reactum, eta);
+	}
+
+	public BigraphRewritingRule(BigraphMatcher matcher, Bigraph redex,
+			Bigraph reactum, BigraphInstantiationMap eta) {
 		if (reactum.getSignature() != redex.getSignature()) {
 			throw new IncompatibleSignatureException(
-					"Redex and reactum should have the same singature.",reactum.getSignature(),
-					redex.getSignature());
+					"Redex and reactum should have the same singature.",
+					reactum.getSignature(), redex.getSignature());
 		}
 		if (redex.sites.size() < eta.getPlaceCodomain()) {
 			throw new InvalidInstantiationRuleException(
@@ -92,7 +93,8 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	/**
 	 * Instantiates rule's reactum with respect to the given match.
 	 * 
-	 * @param match the match with respect to the reactum has to be instantiated.
+	 * @param match
+	 *            the match with respect to the reactum has to be instantiated.
 	 * @return the reactum instance.
 	 */
 	protected final Bigraph instantiateReactum(BigraphMatch match) {
@@ -175,7 +177,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 				sites[reactum.sites.indexOf(s1)] = s2;
 			}
 		}
-        big.sites.addAll(Arrays.asList(sites));
+		big.sites.addAll(Arrays.asList(sites));
 		return big;
 	}
 
@@ -236,17 +238,17 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 					throw new NoSuchElementException();
 				}
 				if (args == null || !args.hasNext()) {
-					//if (mTor.hasNext()) {
-						BigraphMatch match = mTor.next();
-						if (DEBUG_PRINT_MATCH)
-							System.out.println(match);
-						BigraphBuilder bb = new BigraphBuilder(
-								instantiateReactum(match), true);
-						bb.leftJuxtapose(match.getRedexId(), true);
-						bb.outerCompose(match.getContext(), true);
-						big = bb.makeBigraph(true);
-						args = eta.instantiate(match.getParam()).iterator();
-					//}
+					// if (mTor.hasNext()) {
+					BigraphMatch match = mTor.next();
+					if (DEBUG_PRINT_MATCH)
+						System.out.println(match);
+					BigraphBuilder bb = new BigraphBuilder(
+							instantiateReactum(match), true);
+					bb.leftJuxtapose(match.getRedexId(), true);
+					bb.outerCompose(match.getContext(), true);
+					big = bb.makeBigraph(true);
+					args = eta.instantiate(match.getParam()).iterator();
+					// }
 				}
 				if (args.hasNext()) {
 					Bigraph result;
@@ -257,6 +259,9 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 						result = Bigraph.compose(big, params, true);
 					if (DEBUG_PRINT_RESULT)
 						System.out.println(result);
+					if (DEBUG_CONSISTENCY_CHECK && !result.isConsistent()) {
+						throw new RuntimeException("Inconsistent bigraph");
+					}
 					return result;
 				}
 				throw new NoSuchElementException();
