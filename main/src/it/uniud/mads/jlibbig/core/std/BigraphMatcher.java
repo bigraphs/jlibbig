@@ -373,8 +373,8 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					 * found in an active context whereas children in qp are in
 					 * passive contexts or passive nodes.
 					 */
-					Queue<Node> qa = new LinkedList<>();
-					Queue<Child> qp = new LinkedList<>();
+					Deque<Node> qa = new ArrayDeque<>();
+					Deque<Child> qp = new ArrayDeque<>();
 					for (Root r : agent_roots) {
 						for (Child c : r.getChildren()) {
 							if (c.isNode()) {
@@ -1143,7 +1143,7 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					// + "]";
 					// }
 				}
-				Queue<VState> q = new LinkedList<>();
+				Deque<VState> q = new ArrayDeque<>();
 
 				for (EditableOuterName o1 : agent.outers.values()) {
 					EditableOuterName o2 = o1.replicate();
@@ -1279,9 +1279,9 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 								 * Add it as an outer of prm, if it is not
 								 * already present, and link it to p2 resp.
 								 */
-								h2 = prm.outers.get(i0);
+								String name = i0.getName();
+								h2 = prm.outers.get(name);
 								if (h2 == null) {
-									String name = i0.getName();
 									EditableOuterName o2 = new EditableOuterName(
 											name);
 									o2.setOwner(prm);
@@ -1502,9 +1502,9 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 											 * already present, and link it to
 											 * p2 resp.
 											 */
-											h2 = prm.outers.get(i0);
+											String name = i0.getName();
+											h2 = prm.outers.get(name);
 											if (h2 == null) {
-												String name = i0.getName();
 												EditableOuterName o2 = new EditableOuterName(
 														name);
 												o2.setOwner(v.b);

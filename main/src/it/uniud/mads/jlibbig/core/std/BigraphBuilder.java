@@ -502,7 +502,7 @@ final public class BigraphBuilder implements
 		EditableOuterName n1 = big.outers.get(name);
 		if (n1 != null) {
 			Edge e = relink(n1.getEditablePoints());
-			big.outers.remove(n1);
+			big.outers.remove(name);
 			n1.setOwner(null);
 			return e;
 		} else {
@@ -526,7 +526,7 @@ final public class BigraphBuilder implements
 		}
 		EditableOuterName n1 = (EditableOuterName) name;
 		Edge e = relink(n1.getEditablePoints());
-		big.outers.remove(n1);
+		big.outers.remove(n1.getName());
 		n1.setOwner(null);
 		return e;
 	}
@@ -541,7 +541,7 @@ final public class BigraphBuilder implements
 		EditableInnerName n1 = big.inners.get(name);
 		if (n1 != null) {
 			n1.setHandle(null);
-			big.inners.remove(n1);
+			big.inners.remove(name);
 		} else {
 			throw new IllegalArgumentException("Name '" + name
 					+ "' not present.");
@@ -562,7 +562,7 @@ final public class BigraphBuilder implements
 		}
 		EditableInnerName n1 = (EditableInnerName) name;
 		n1.setHandle(null);
-		big.inners.remove(n1);
+		big.inners.remove(n1.getName());
 	}
 
 	/**

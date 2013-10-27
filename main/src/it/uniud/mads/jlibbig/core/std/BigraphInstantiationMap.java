@@ -101,7 +101,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 				this.r = r;
 			}
 		}
-		Queue<VState> q = new LinkedList<>();
+		Deque<VState> q = new ArrayDeque<>();
 		for (int j = 0; j < map.length; j++) {
 			EditableRoot r1 = parameters.roots.get(map[j]);
 			EditableRoot[] r2s = new EditableRoot[multiplicity[j]];
