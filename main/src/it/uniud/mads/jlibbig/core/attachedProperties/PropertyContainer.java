@@ -121,5 +121,4 @@ public class PropertyContainer implements PropertyTarget {
 	public Collection<String> getPropertyNames() {
 		return this.props.keySet();
 	}
-
 }

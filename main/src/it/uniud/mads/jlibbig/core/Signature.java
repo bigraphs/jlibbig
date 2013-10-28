@@ -3,20 +3,46 @@ package it.uniud.mads.jlibbig.core;
 import java.util.*;
 
 /**
- * Bigraphs' signatures are immutable. To make a signature, users can use
- * {@link SignatureBuilder}.
+ * Objects created from this class are bigraphical signatures. A signature
+ * defines the controls that can be assigned to the nodes of bigraphs over it. A
+ * {@link Control} describes the arity the arity (i.e. the number of ports) of a
+ * {@link Node} decorated with it. The class {@link SignatureBuilder} provides
+ * some helper methods for signature construction.
  */
 public class Signature<C extends Control> implements Iterable<C> {
 
+	/**
+	 * The map of the controls within the signature. Controls are indexed by
+	 * their name.
+	 */
 	final protected Map<String, C> ctrls = new HashMap<>();
 
+	/**
+	 * The unique signature identifier.
+	 */
 	final protected String USID;
 
-	public Signature(Collection<? extends C> controls) {
+	/**
+	 * Creates a new signature for the given list of controls; a fresh
+	 * identifier is choosen. Controls can not have the same name.
+	 * 
+	 * @param controls
+	 *            the controls contained within the signature.
+	 */
+	public Signature(Iterable<? extends C> controls) {
 		this(null, controls);
 	}
 
-	public Signature(String usid, Collection<? extends C> controls) {
+	/**
+	 * Creates a new signature for the given identifier and list of controls.
+	 * Controls can not have the same name.
+	 * 
+	 * @param usid
+	 *            the identifier of the signature.
+	 * @param controls
+	 *            the controls contained within the signature.
+	 */
+	public Signature(String usid, Iterable<? extends C> controls) {
 		for (C c : controls) {
 			if (ctrls.put(c.getName(), c) != null) {
 				throw new IllegalArgumentException(
@@ -27,21 +53,30 @@ public class Signature<C extends Control> implements Iterable<C> {
 				.randomUUID().toString() : usid;
 	}
 
+	/**
+	 * Creates a new signature for the given list of controls; a fresh
+	 * identifier is choosen. Controls can not have the same name.
+	 * 
+	 * @param controls
+	 *            the controls contained within the signature.
+	 */
 	@SafeVarargs
 	public Signature(C... controls) {
 		this(null, controls);
 	}
 
+	/**
+	 * Creates a new signature for the given identifier and list of controls.
+	 * Controls can not have the same name.
+	 * 
+	 * @param usid
+	 *            the identifier of the signature.
+	 * @param controls
+	 *            the controls contained within the signature.
+	 */
 	@SafeVarargs
 	public Signature(String usid, C... controls) {
-		for (C c : controls) {
-			if (ctrls.put(c.getName(), c) != null) {
-				throw new IllegalArgumentException(
-						"Controls must be uniquely named within the same signature");
-			}
-		}
-		this.USID = (usid == null || usid.trim().length() == 0) ? UUID
-				.randomUUID().toString() : usid;
+		this(usid, Arrays.asList(controls));
 	}
 
 	protected void add(C control) {
@@ -84,6 +119,58 @@ public class Signature<C extends Control> implements Iterable<C> {
 	}
 
 	/**
+	 * Checks if a given signature is equal to this one. Two signatures are
+	 * equals when they contain the same controls (in the sense of their equals
+	 * method) and have the same identifier.
+	 * 
+	 * @param other
+	 *            the other signature.
+	 * @return a boolean indicating whether the given signature is equal to this
+	 *         one.
+	 */
+	public boolean equals(Signature<C> other) {
+		return this.equals(other, false);
+	}
+
+	/**
+	 * Checks if a given signature is equal to this one; but optionally ignores
+	 * the signature identifiers. Two signatures are equals when they contain
+	 * the same controls (in the sense of their equals method) and have the same
+	 * identifier.
+	 * 
+	 * @param other
+	 *            the other signature.
+	 * @param ignoreUSID
+	 *            if {@true} identifiers are ignored.
+	 * @return a boolean indicating whether the given signature is equal to this
+	 *         one.
+	 */
+	public boolean equals(Signature<C> other, boolean ignoreUSID) {
+		if (this == other)
+			return true;
+		if (other == null)
+			return false;
+		if (!USID.equals(other.USID))
+			return false;
+		for (Control c : ctrls.values()) {
+			if (!c.equals(other.getByName(c.getName())))
+				return false;
+		}
+		if (!ctrls.equals(other.ctrls))
+			return false;
+		return true;
+	}
+
+	/**
+	 * Gets the identifier of the signature.
+	 * 
+	 * @return the signature identifier.
+	 */
+	public String getUSID() {
+		return this.USID.toString();
+	}
+
+	/**
 	 * Get a control (if present), specifying its name.
 	 * 
 	 * @param name
@@ -94,25 +181,36 @@ public class Signature<C extends Control> implements Iterable<C> {
 		return ctrls.get(name);
 	}
 
-	public String getUSID() {
-		return this.USID.toString();
-	}
-
 	@Override
 	public String toString() {
 		return USID + ":" + ctrls.values();
 	}
 
-	public boolean contains(Control arg0) {
-		// very naive
-		return this.ctrls.containsValue(arg0);
+	/**
+	 * Checks whether there is a control for the given name.
+	 * 
+	 * @param name
+	 *            the name of the control to be looked for.
+	 * @return a boolean indicating whether there is such a control.
+	 */
+	public boolean contains(String name) {
+		return this.ctrls.containsKey(name);
 	}
 
-	public boolean containsAll(Collection<?> arg0) {
-		// very naive
-		return this.ctrls.values().containsAll(arg0);
+	/**
+	 * Checks whether the given control belong to this signature.
+	 * 
+	 * @param control
+	 *            the control to be looked for.
+	 * @return a boolean indicating whether the control is in the signature.
+	 */
+	public boolean contains(Control control) {
+		return this.ctrls.containsValue(control);
 	}
 
+	/**
+	 * @return a boolean indicating whether the signature is empty.
+	 */
 	public boolean isEmpty() {
 		return this.ctrls.isEmpty();
 	}
@@ -122,6 +220,9 @@ public class Signature<C extends Control> implements Iterable<C> {
 		return Collections.unmodifiableMap(this.ctrls).values().iterator();
 	}
 
+	/**
+	 * @return the cardinality of the signature.
+	 */
 	public int size() {
 		return this.ctrls.size();
 	}

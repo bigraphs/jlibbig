@@ -156,7 +156,7 @@ class BigMCParser extends Parser {
 						final Integer n = (Integer) _symbol_n.value;
 
 						if (_brs == null) {
-							sb.put(v, b, n);
+							sb.add(v, b, n);
 							_brs = new BigraphRewritingSystem(sb.makeSignature());
 						} else {
 							Control c = _brs.getSignature().getByName(v);
@@ -197,7 +197,7 @@ class BigMCParser extends Parser {
 								throw new RuntimeException("Line: "
 										+ Symbol.getLine(_symbol_v.getStart())
 										+ " - Control already defined: " + v);
-							sb.put(v, b, n);
+							sb.add(v, b, n);
 							return new Symbol(sb);
 						}
 						Control c = _brs.getSignature().getByName(v);

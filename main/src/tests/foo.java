@@ -9,7 +9,7 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test12();
+		test1();
 	}
 	
 	private static void test12(){
@@ -17,12 +17,12 @@ public class foo {
 		int MAXNUMPORTS = 0;
 		
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put( "router" , true , 0);
-		sb.put( "host" , true , 0 );
-		sb.put( "dhcp" , true , 0 );
-		sb.put( "if" , true , 1 );
-		sb.put( "ip" , true , 1 );
-		sb.put( "udp" , true , 1 );
+		sb.add( "router" , true , 0);
+		sb.add( "host" , true , 0 );
+		sb.add( "dhcp" , true , 0 );
+		sb.add( "if" , true , 1 );
+		sb.add( "ip" , true , 1 );
+		sb.add( "udp" , true , 1 );
 
 				
 		Signature signature = sb.makeSignature();
@@ -98,8 +98,8 @@ public class foo {
 	
 	private static void test11(){
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("lan",true,1);
-		sb.put("ip",false,1);
+		sb.add("lan",true,1);
+		sb.add("ip",false,1);
 
 		Signature s = sb.makeSignature("MySig");
 		
@@ -122,8 +122,8 @@ public class foo {
 	
 	private static void test10(){
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("lan",true,1);
-		sb.put("ip",false,1);
+		sb.add("lan",true,1);
+		sb.add("ip",false,1);
 
 		Signature s = sb.makeSignature("MySig");
 		
@@ -147,7 +147,7 @@ public class foo {
 	
 	private static void test9(){
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put( "if" , true , 1 );
+		sb.add( "if" , true , 1 );
 		Signature signature = sb.makeSignature();
 		
 		//BIGRAFO
@@ -168,11 +168,11 @@ public class foo {
 
 	private static void test8(){
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put( "dominio" , true , 0);
-		sb.put( "router" , true , 0);
-		sb.put( "host" , true , 0 );
-		sb.put( "if" , true , 1 );
-		sb.put( "ip" , true , 1 );
+		sb.add( "dominio" , true , 0);
+		sb.add( "router" , true , 0);
+		sb.add( "host" , true , 0 );
+		sb.add( "if" , true , 1 );
+		sb.add( "ip" , true , 1 );
 		Signature signature = sb.makeSignature();
 		
 		//BIGRAFO
@@ -203,10 +203,10 @@ public class foo {
 	
 	private static void test6() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router", true, 2);
-		sb.put("lan", true, 1);
-		sb.put("ip", false, 1);
-		sb.put("host", true, 1);
+		sb.add("router", true, 2);
+		sb.add("lan", true, 1);
+		sb.add("ip", false, 1);
+		sb.add("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
 
 		// BIGRAFO
@@ -228,10 +228,10 @@ public class foo {
 
 	private static void test5() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router", true, 2);
-		sb.put("lan", true, 1);
-		sb.put("ip", false, 1);
-		sb.put("host", true, 1);
+		sb.add("router", true, 2);
+		sb.add("lan", true, 1);
+		sb.add("ip", false, 1);
+		sb.add("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
 
 		// BIGRAFO
@@ -265,10 +265,10 @@ public class foo {
 	private static void test4() {
 
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router", true, 2);
-		sb.put("lan", true, 1);
-		sb.put("ip", false, 1);
-		sb.put("host", true, 1);
+		sb.add("router", true, 2);
+		sb.add("lan", true, 1);
+		sb.add("ip", false, 1);
+		sb.add("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
 
 		BigraphBuilder rete = new BigraphBuilder(s);
@@ -347,10 +347,10 @@ public class foo {
 
 	private static void test3() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("router", true, 2);
-		sb.put("lan", true, 1);
-		sb.put("ip", false, 1);
-		sb.put("host", true, 1);
+		sb.add("router", true, 2);
+		sb.add("lan", true, 1);
+		sb.add("ip", false, 1);
+		sb.add("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
 
 		// RETE:
@@ -443,7 +443,7 @@ public class foo {
 
 	private static void test2() {
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("a", true, 1);
+		sb.add("a", true, 1);
 		Signature s = sb.makeSignature("MySig");
 
 		Handle h;
@@ -495,9 +495,17 @@ public class foo {
 		};
 
 		SignatureBuilder sb = new SignatureBuilder();
-		sb.put("a", true, 0);
-		sb.put("b", true, 1);
-		sb.put("c", false, 2);
+		sb.add("a", true, 0);
+		sb.add("b", true, 1);
+		sb.add("c", false, 2);
+		
+		Control c_a = sb.get("a");
+		c_a.attachProperty(new SimpleProperty<Integer>("TEST_1",1));
+		c_a.attachProperty(new SimpleProperty<Integer>("TEST_2",2));
+		c_a.attachProperty(new SimpleProperty<String>("TEST_3"));
+		
+		System.out.println(c_a.toString(true));
+		
 		Signature s = sb.makeSignature("MySig");
 		// build A
 		BigraphBuilder bbA = new BigraphBuilder(s);

@@ -1,56 +1,71 @@
 package it.uniud.mads.jlibbig.core.std;
 
-import java.util.*;
-
 /**
- * Bigraphs' signatures are immutable. To make a signature, users can use
- * {@link SignatureBuilder}.
+ * Objects created from this class are bigraphical dynamic signatures.A
+ * signature defines the controls that can be assigned to the nodes of bigraphs
+ * over it. A dynamic {@link Control} describes the arity the arity (i.e. the
+ * number of ports) and the modality (i.e. active or passive) of a {@link Node}
+ * decorated with it. The class {@link SignatureBuilder} provides some helper
+ * methods for signature construction since objects created from the signature
+ * class are immutable and all controls have to be specified on instantiation
  */
 public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 
-	public Signature(Collection<Control> controls) {
+	/**
+	 * Creates a new signature for the given list of controls; a fresh identifier is choosen.
+	 * Controls can not have the same name. 
+	 * 
+	 * @param controls the controls contained within the signature.
+	 */
+	public Signature(Iterable<Control> controls) {
 		this(null, controls);
 	}
 
-	public Signature(String usid, Collection<Control> controls) {
+	/**
+	 * Creates a new signature for the given identifier and list of controls.
+	 * Controls can not have the same name.
+	 * 
+	 * @param usid
+	 *            the identifier of the signature.
+	 * @param controls
+	 *            the controls contained within the signature.
+	 */
+	public Signature(String usid, Iterable<Control> controls) {
 		super(usid, controls);
 	}
 
+	/**
+	 * Creates a new signature for the given list of controls; a fresh identifier is choosen.
+	 * Controls can not have the same name. 
+	 * 
+	 * @param controls the controls contained within the signature.
+	 */
 	public Signature(Control... controls) {
 		this(null, controls);
 	}
 
+	/**
+	 * Creates a new signature for the given identifier and list of controls.
+	 * Controls can not have the same name. 
+	 * 
+	 * @param usid the identifier of the signature.
+	 * @param controls the controls contained within the signature.
+	 */
 	public Signature(String usid, Control... controls) {
 		super(usid, controls);
 	}
 
-	public boolean isSubSignature(Signature other){
-		return other != null && this.containsAll(other.ctrls.values());
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		return this.equals(obj,false);
-	}
-	
-	public boolean equals(Object obj, boolean ignoreUSID) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Signature))
-			return false;
-		Signature other = (Signature) obj;
-		if (!(ignoreUSID || USID.equals(other.USID)))
-			return false;
-		for (Control c : this) {
-			if (!c.equals(other.getByName(c.getName())))
-				return false;
-		}
-		for (Control c : other) {
-			if (!c.equals(this.getByName(c.getName())))
-				return false;
-		}
-		return true;
+	/**
+	 * Checks whatever the signature is contained in the given one. Containment
+	 * is based on set inclusion and {@link Control} equality; USIDs are
+	 * ignored.
+	 * 
+	 * @param other
+	 *            the other signature.
+	 * @return
+	 */
+	public boolean isSubSignature(Signature other) {
+		return other != null
+				&& super.ctrls.values().containsAll(other.ctrls.values());
 	}
 }

@@ -3,81 +3,87 @@ package it.uniud.mads.jlibbig.core;
 import java.util.*;
 
 /**
- * Helper for signature construction. Every instance maintains a set of controls
- * which are used to instantiate signatures on demand.
- * 
- * @see Signature
+ * The class provides methods for signature construction since {@link Signature}
+ * is immutable. Every instance of the class maintains a collection of instances
+ * of {@link Control} which are used to instantiate signatures on demand.
  */
 public class SignatureBuilder<C extends Control> {
 
 	private Map<String, C> ctrls = new HashMap<>();
 
 	/**
-	 * Creates a signature with the control present in the builder
+	 * Creates a signature with the controls in the builder and a fresh
+	 * signature identifier.
 	 * 
-	 * @return a signature
+	 * @return a signature.
 	 */
 	public Signature<C> makeSignature() {
 		return new Signature<>(ctrls.values());
 	}
 
 	/**
-	 * Creates a signature with the control present in the builder and the given
+	 * Creates a signature with the controls in the builder and the given
 	 * signature identifier.
 	 * 
-	 * @return a signature
+	 * @return a signature.
 	 */
 	public Signature<C> makeSignature(String usid) {
 		return new Signature<>(usid, ctrls.values());
 	}
 
-	public void put(C control) {
+	/**
+	 * Adds a control to the builder. Controls with the same name are substituted.
+	 * @param control the control to be added.
+	 */
+	public void add(C control) {
 		ctrls.put(control.getName(), control);
 	}
 
 	/**
-	 * Check if a name is already used by a signature's control
+	 * Checks if a name is already used by a signature's control
 	 * 
 	 * @param name
-	 *            control's name that will be checked
-	 * @return boolean value
+	 *            the name of the control to be looked for.
+	 * @return {@literal true} if a control with the given name is present in
+	 *         the builder.
 	 */
 	public boolean contains(String name) {
 		return ctrls.containsKey(name);
 	}
 
 	/**
-	 * Get the control corresponding to the name in input
+	 * Gets the control corresponding to the given name.
 	 * 
 	 * @param name
-	 *            control's name
-	 * @return the corresponding control
+	 *            the name of the control to be looked for.
+	 * @return the corresponding control or {@literal null} if there is no
+	 *         control for the given name.
 	 */
 	public C get(String name) {
 		return ctrls.get(name);
 	}
 
 	/**
-	 * Get a collection of all controls in the signature
+	 * Gets the collection of all controls in the builder.
 	 * 
-	 * @return collection of signature's controls
+	 * @return the control collection.
 	 */
 	public Collection<C> getAll() {
 		return Collections.unmodifiableCollection(ctrls.values());
 	}
 
 	/**
-	 * Remove a control from the signature.
+	 * Removes the control for the given name from the builder.
 	 * 
 	 * @param name
-	 *            control's name
+	 *            the name of the control to be removed.
 	 */
 	public void remove(String name) {
 		ctrls.remove(name);
 	}
 
 	/**
-	 * Remove all controls from the signature.
+	 * Removes all controls from the builder.
 	 */
 	public void clear() {
 		ctrls.clear();
