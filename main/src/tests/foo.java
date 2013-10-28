@@ -9,7 +9,7 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test1();
+		test12();
 	}
 	
 	private static void test12(){
