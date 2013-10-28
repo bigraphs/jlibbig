@@ -13,6 +13,9 @@ import choco.kernel.model.constraints.Constraint;
 import choco.kernel.model.variables.integer.IntegerExpressionVariable;
 import choco.kernel.model.variables.integer.IntegerVariable;
 
+/**
+ *
+ */
 public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 	private final static boolean DEBUG = false;
@@ -30,11 +33,34 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 		return this.match(agent, redex, null);
 	}
 
+	/**
+	 * @param agent the agent.
+	 * @param redex the redex to be matched in the agent.
+	 * @param neededParams a boolean mask describing whereas a parameter must be
+	 * generated or can be skiped.
+	 * @return an iterable for iterating over the matches.
+	 */
 	Iterable<? extends AgentMatch> match(Bigraph agent, Bigraph redex,
 			boolean... neededParams) {
 		return new MatchIterable(agent, redex, neededParams);
 	}
 
+	/**
+	 * The method describes which nodes can be matched. The base implementation
+	 * requires two nodes to have the same control. Inherit the method to
+	 * specify different matching policies. For the current implementation
+	 * matchable nodes can not have different arities.
+	 * 
+	 * @param agent
+	 *            the agent.
+	 * @param fromAgent
+	 *            the agent node.
+	 * @param redex
+	 *            the redex bigraph.
+	 * @param fromRedex
+	 *            the redex node.
+	 * @return a boolean representing whether the two nodes can be matched.
+	 */
 	protected boolean areMatchable(Bigraph agent, Node fromAgent,
 			Bigraph redex, Node fromRedex) {
 		return fromAgent.getControl().equals(fromRedex.getControl());
@@ -69,7 +95,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
 		final boolean[] neededParam;
 
-		final int ars, ans, ahs, rrs, rns, rss, rhs, rps, rprs, rins;//, reps;
+		final int ars, ans, ahs, rrs, rns, rss, rhs, rps, rprs, rins;// , reps;
 
 		private MatchIterable(Bigraph agent, Bigraph redex,
 				boolean[] neededParams) {
@@ -113,15 +139,10 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 			rss = redex_sites.size();
 			rhs = redex_handles.size();
 
-//			int k1 = 0;
 			this.redex_points = new HashSet<>(rns);
 			for (Node n : redex_nodes) {
 				Collection<? extends Port> ps = n.getPorts();
 				redex_points.addAll(ps);
-//				for (Point p : ps) {
-//					if (p.getHandle().isEdge())
-//						k1++;
-//				}
 			}
 			rprs = redex_points.size(); // only ports
 			{
@@ -515,7 +536,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 									Parent p = visit.pop();
 									if (p.isNode()) {
 										Node n = (Node) p;
-										while(!ancs.isEmpty()
+										while (!ancs.isEmpty()
 												&& ancs.peek() != n.getParent())
 											ancs.pop();
 										// store ancestors for later
@@ -531,7 +552,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 											push = true;
 										}
 									}
-									if(push)
+									if (push)
 										ancs.push(p);
 								}
 							}
@@ -576,7 +597,8 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				{
 					for (Handle ha : agent_handles) {
 						Collection<? extends Point> ps = ha.getPoints();
-						IntegerVariable[] vars1 = new IntegerVariable[rhs + ps.size()];
+						IntegerVariable[] vars1 = new IntegerVariable[rhs
+								+ ps.size()];
 						int k = 0;
 						for (Point p : ps) {
 							vars1[k++] = e_vars.get(p).get(ha);
@@ -785,18 +807,18 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 					for (Node ni : agent_nodes) {
 						// sum over ni anchestors and redex roots
 						Collection<Parent> ancs = agent_ancestors.get(ni);
-//						IntegerVariable[] vars1 = new IntegerVariable[ancs
-//								.size() * rrs];
+						// IntegerVariable[] vars1 = new IntegerVariable[ancs
+						// .size() * rrs];
 						IntegerVariable[] vars2 = new IntegerVariable[(1 + ancs
 								.size()) * rss];
-//						int k1 = 0;
+						// int k1 = 0;
 						int k2 = 0;
 						for (Parent f : ancs) {
 							Map<PlaceEntity, IntegerVariable> row = p_vars
 									.get(f);
-//							for (Root g : redex_roots) {
-//								vars1[k1++] = row.get(g);
-//							}
+							// for (Root g : redex_roots) {
+							// vars1[k1++] = row.get(g);
+							// }
 							for (Site g : redex_sites) {
 								vars2[k2++] = row.get(g);
 							}
@@ -808,16 +830,17 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 								vars2[k2++] = row.get(g);
 							}
 						}
-//						IntegerExpressionVariable sum1 = Choco.sum(vars1);
+						// IntegerExpressionVariable sum1 = Choco.sum(vars1);
 						IntegerExpressionVariable sum2 = Choco.sum(vars2);
-	
+
 						for (Port pi : ni.getPorts()) {
 							Map<LinkEntity, IntegerVariable> row = e_vars
 									.get(pi);
 							// all the redex points
-							//IntegerVariable[] vars3 = new IntegerVariable[rprs];
+							// IntegerVariable[] vars3 = new
+							// IntegerVariable[rprs];
 							IntegerVariable[] vars4 = new IntegerVariable[rins];
-							//int k3 = 0;
+							// int k3 = 0;
 							int k4 = 0;
 							for (Point in : redex.getInnerNames()) {
 								IntegerVariable var = row.get(in);
@@ -1059,28 +1082,8 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 				Map<Handle, EditableHandle> lmb_hnd_dic = new IdentityHashMap<>();
 				Map<Bigraph, Map<Handle, EditableHandle>> prms_hnd_dic = new IdentityHashMap<>();
 
-				// Collection<Node> unseen_agt_nodes = new
-				// HashSet<>(agent_nodes);
-
 				Map<Handle, EditableHandle> handle_img = new IdentityHashMap<>(
 						rhs);
-				// Map<Root, EditableParent> root_img = new
-				// IdentityHashMap<>(rs);
-				// Map<Node, EditableNode> node_img = new
-				// IdentityHashMap<>(rns);
-				// Map<Site, Collection<EditableNode>> site_img = new
-				// IdentityHashMap<>(rns);
-
-				/*
-				 * { Collection<Node> ns = new LinkedList<>(redex_nodes);
-				 * Iterator<Node> in1 = unseen_agt_nodes.iterator();
-				 * while(in1.hasNext()){ Node n1 = in1.next(); Map<PlaceEntity,
-				 * IntegerVariable> p_row = p_vars.get(n1); Iterator<Node> in0 =
-				 * ns.iterator(); while(in0.hasNext()){ Node n0 = in0.next(); if
-				 * (solver.getVar(p_row.get(n0)).getVal() == 1) {
-				 * node_img.put(n0, (EditableNode) n1); in0.remove();
-				 * in1.remove(); break; } } if(ns.isEmpty()) break; } }
-				 */
 
 				class VState {
 					final PlaceEntity c; // the agent root/node to be visited
@@ -1100,24 +1103,8 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 						this.p = p;
 						this.b = b;
 					}
-
-					// @Override
-					// public String toString() {
-					// return "[p=" +this.p + ", c=" + this.c + ", i=" + this.i
-					// + "]";
-					// }
 				}
 				Deque<VState> q = new ArrayDeque<>();
-				// {
-				// private static final long serialVersionUID = 1L;
-				//
-				// @Override
-				// public boolean add(VState value){
-				// System.out.println("ENQUEUE:");
-				// System.out.println(value);
-				// return super.add(value);
-				// }
-				// };
 
 				for (EditableOuterName o1 : agent.outers.values()) {
 					EditableOuterName o2 = o1.replicate();

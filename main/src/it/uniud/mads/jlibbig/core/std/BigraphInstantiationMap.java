@@ -7,11 +7,15 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 
 public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
+
+	//private final static boolean DEBUG = true;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+
+	
 	final private int map[];
 	final private int dom;
 	final private int cod;
 
-	// final private boolean[] reusable;
 	final private int[] multiplicity;
 
 	public BigraphInstantiationMap(int codomain, int... map) {
@@ -29,7 +33,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 			this.map[i] = j;
 			// reusable[i] = (0 == mulParam[j]++);
 			multiplicity[j]++;
-		}
+		}		
 	}
 
 	public int getPlaceDomain() {
@@ -93,25 +97,29 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 		class VState {
 			final EditableChild c;
 			final EditableParent[] ps;
-			final int r;
 
-			VState(int r, EditableParent[] ps, EditableChild c) {
+			VState(EditableParent[] ps, EditableChild c) {
 				this.c = c;
 				this.ps = ps;
-				this.r = r;
 			}
 		}
 		Deque<VState> q = new ArrayDeque<>();
-		for (int j = 0; j < map.length; j++) {
-			EditableRoot r1 = parameters.roots.get(map[j]);
-			EditableRoot[] r2s = new EditableRoot[multiplicity[j]];
-			int k = 0;
-			for (int i = 0; i < rs.length; i++) {
-				r2s[k] = rs[i] = (reuse && k > 0) ? r1 : r1.replicate();
-				k++;
-			}
-			for (EditableChild c : r1.getEditableChildren()) {
-				q.add(new VState(j, r2s, c));
+		
+		for (int j = 0; j < cod; j++) {
+			int  m = multiplicity[j];
+			if(m > 0){
+				EditableRoot r1 = parameters.roots.get(map[j]);
+				EditableRoot[] r2s = new EditableRoot[m];
+				int k = 0;
+				for (int i = 0; i < dom; i++) {
+					if(map[i] == j){
+						r2s[k] = rs[i] = (reuse && k > 0) ? r1 : r1.replicate();
+						k++;
+					}
+				}
+				for (EditableChild c : r1.getEditableChildren()) {
+					q.add(new VState(r2s, c));
+				}
 			}
 		}
 		while (!q.isEmpty()) {
@@ -136,7 +144,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
                         n2.getPort(j).setHandle(h2);
 				}
 				for (EditableChild c : n1.getEditableChildren()) {
-					q.add(new VState(s.r, n2s, c));
+					q.add(new VState(n2s, c));
 				}
 			} else {
 				EditableSite s1 = (EditableSite) s.c;
@@ -163,7 +171,9 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 			parameters.inners.clear();
 			parameters.outers.clear();
 		}
-
+		if (DEBUG_CONSISTENCY_CHECK && !prm.isConsistent()) {
+			throw new RuntimeException("Inconsistent bigraph");
+		}
 		l.add(prm);
 		return l;
 	}

@@ -65,7 +65,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 		if (!redex.inners.keySet().containsAll(reactum.inners.keySet())
 				|| !reactum.inners.keySet().containsAll(redex.inners.keySet())) {
 			throw new IncompatibleInterfaceException(
-					"Redex and reactum should have the same outer interface.");
+					"Redex and reactum should have the same set inner names.");
 		}
 		this.redex = redex;
 		this.reactum = reactum;
