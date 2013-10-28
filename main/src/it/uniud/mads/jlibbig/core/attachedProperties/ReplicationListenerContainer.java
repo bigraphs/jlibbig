@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * The class provides an helper for implementing {@link Replicating} interface.
  * That interface allows the implementer to make its replications observable to
- * implementations of {@link ReplicatingListener}.
+ * implementations of {@link ReplicationListener}.
  */
 public class ReplicationListenerContainer {
 

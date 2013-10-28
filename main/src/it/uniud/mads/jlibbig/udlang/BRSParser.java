@@ -615,7 +615,7 @@ public class BRSParser extends Parser {
 								throw new RuntimeException("Line: "
 										+ Symbol.getLine(_symbol_m.getStart())
 										+ " - Control already defined: " + v);
-							sb.put(v, m, n);
+							sb.add(v, m, n);
 							_sys = new BigraphRewritingSystem(sb.makeSignature());
 							return new Symbol(null);
 						}
@@ -655,7 +655,7 @@ public class BRSParser extends Parser {
 								throw new RuntimeException("Line: "
 										+ Symbol.getLine(_symbol_m.getStart())
 										+ " - Control already defined: " + v);
-							sb.put(v, m, n);
+							sb.add(v, m, n);
 							return new Symbol(sb);
 						}
 						Control c = null;

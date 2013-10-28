@@ -62,8 +62,8 @@ public class ReplicatingProperty<V> extends SimpleProperty<V> {
 	 * This method is called when a PropertyTarget holding the property is
 	 * replicated in order to attach a copy of this property to the replica and
 	 * listen for its replications. Inherit this method to intercept
-	 * replications and filter automatic registration of ReplicatingListeners
-	 * {@link ReplicatingProperty#listener} and attachment of this property.
+	 * replications and filter automatic registration of ReplicationListeners
+	 * {@link SimpleProperty#listeners} and attachment of this property.
 	 * 
 	 * @param original
 	 * @param copy

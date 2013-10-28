@@ -4,18 +4,41 @@ import it.uniud.mads.jlibbig.core.AbstractNamed;
 import it.uniud.mads.jlibbig.core.Named;
 
 /**
- * Describes a control. Each node of a bigraph have its control.
+ * Objects created from this class are bigraphical controls describing the arity
+ * (i.e. the number of ports) of nodes decorated with it. 
+ * Every {@link Bigraph} has a {@link Signature}
+ * describing the controls that can be assigned to its nodes; every {@link Node}
+ * should be assigned exactly one control.
  */
 public class Control extends AbstractNamed implements Named {
 
 	protected int arity;
 
+	/**
+	 * Creates a control for the given arity and assign it a fresh
+	 * name.
+	 * 
+	 * @param arity
+	 *            a non-negative integer defining the number of ports of the
+	 *            nodes decorated with this control.
+	 */
 	public Control(int arity) {
 		this("C_" + AbstractNamed.generateName(), arity);
 	}
 
+	/**
+	 * Creates a control for the given name and arity
+	 * 
+	 * @param name
+	 *            the name of the control.
+	 * @param arity
+	 *            a non-negative integer defining the number of ports of the
+	 *            nodes decorated with this control.
+	 */
 	public Control(String name, int arity) {
 		super(name);
+		if(arity < 0)
+			throw new IllegalArgumentException("Arity should be greater or equal to zero.");			
 		this.arity = arity;
 	}
 
