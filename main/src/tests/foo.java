@@ -9,7 +9,7 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test1();
+		test12();
 	}
 	
 	private static void test12(){
@@ -483,12 +483,12 @@ public class foo {
 				System.out.println("- CHEASING " + node + ".");
 			}
 
-			protected void onReplicates(Node original, Node copy) {
+			protected void onReplicated(Node original, Node copy) {
 				System.out.println("- REPLICATION DETECTED FOR " + original
 						+ " => " + copy + ".");
 			}
 
-			protected void onOwnerChanges(Node node, Owner oldValue,
+			protected void onOwnerChanged(Node node, Owner oldValue,
 					Owner newValue) {
 				System.out.println("- OWNER CHANGE DETECTED FOR " + node + ".");
 			}
@@ -600,6 +600,31 @@ public class foo {
 		}
 		t1 = System.currentTimeMillis();
 		System.out.println("done: " + mc + " rewrites in " + (t1 - t0) + " ms");
+		
+		System.out.println("chased nodes: " + nc.getAll().size());
+		for(int i = 1;i<=3;i++){
+			System.out.println("sleeping...");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.gc();
+			System.out.println("GC...");
+			System.out.println("chased nodes after GC #"+i+": " + nc.getAll().size());
+		}
+		System.out.println("chased nodes owned by bA: " + nc.getAll(bA).size());
+		System.out.println("chased nodes owned by bB: " + nc.getAll(bB).size());
+		System.out.println("chased nodes owned by b1: " + nc.getAll(b1).size());
+		System.out.println("chased nodes owned by b2: " + nc.getAll(b2).size());
+		System.out.println("chased nodes owned by bb1: " + nc.getAll(bb1).size());
+		System.out.println("chased nodes owned by bb2: " + nc.getAll(bb2).size());
+		System.out.println("chased nodes owned by ar.redex: " + nc.getAll(ar.getRedex()).size());
+		System.out.println("chased nodes owned by ar.reactum: " + nc.getAll(ar.getReactum()).size());
+		nc.releaseAll();
+		System.out.println("chased nodes after releaseAll: " + nc.getAll().size());
+		
+		
 	}
 
 	private static void printT() {

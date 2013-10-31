@@ -7,24 +7,18 @@ import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 import it.uniud.mads.jlibbig.core.util.WeakHashSet;
 
+/**
+ * Objects created from this class can be used to keep trace of nodes and their
+ * replicas.
+ */
 public class NodeChaser {
 
 	private static final Owner FAKE_OWNER = new Owner() {
 	};
 
-	// ReferenceQueue<Node> nodeQueue = new ReferenceQueue<Node>();
-
 	private final Map<Owner, WeakHashSet<Node>> index = new WeakHashMap<>();
 	private final Map<Node, PropertyListener<Owner>> ownerLsts = new WeakHashMap<>();
 	private final Map<Node, ReplicationListener> repLsts = new WeakHashMap<>();
-
-	// private final void processQueue() {
-	// Reference<? extends Node> ref = null;
-	// do {
-	// ref = this.nodeQueue.poll();
-	// onNodeRemoved((Node) ref.get());
-	// } while (ref != null);
-	// }
 
 	private Owner getOwnerKey(Node node) {
 		return getOwnerKey(node.getOwner());
@@ -36,11 +30,25 @@ public class NodeChaser {
 		return owner;
 	}
 
-	public Set<Node> getAll() {
-		return ownerLsts.keySet();
+	/**
+	 * @return the collection of all chased nodes.
+	 */
+	public Collection<Node> getAll() {
+		Collection<Node> col = new ArrayList<>(ownerLsts.keySet().size());
+		Iterator<Owner> oi = index.keySet().iterator();
+		while(oi.hasNext()){
+			Owner o = oi.next();
+			col.addAll(getAll(o));
+		}
+		return col;
 	}
 
-	public Set<Node> getAll(Owner owner) {
+	/**
+	 * Retrieves the chased nodes for the given owner. 
+	 * @param owner
+	 * @return the collection of all chased nodes belonging to the given owner.
+	 */
+	public Collection<Node> getAll(Owner owner) {
 		WeakHashSet<Node> s = index.get(getOwnerKey(owner));
 		if (s == null)
 			return new HashSet<>();
@@ -48,15 +56,30 @@ public class NodeChaser {
 			return s.toSet();
 	}
 
+	/**
+	 * Stops chasing every node.
+	 */
 	public void releaseAll() {
-		for (Node node : ownerLsts.keySet()) {
-			node.<Owner> getProperty(EditableNode.PROPERTY_OWNER)
-					.unregisterListener(ownerLsts.remove(node));
-			((EditableNode) node).unregisterListener(repLsts.remove(node));
-			// onNodeRemoved(node);
+		Iterator<Owner> oi = index.keySet().iterator();
+		while(oi.hasNext()){
+			Owner o = oi.next();
+			releaseAll(o);
+			oi.remove();
 		}
+//		Iterator<Node> in = ownerLsts.keySet().iterator();
+//		while(in.hasNext()){
+//			EditableNode node = (EditableNode) in.next();
+//			node.<Owner>getProperty(EditableNode.PROPERTY_OWNER)
+//					.unregisterListener(ownerLsts.get(node));
+//			node.unregisterListener(repLsts.remove(node));
+//			in.remove();
+//		}
 	}
 
+	/**
+	 * Stops chasing the nodes for the given owner.
+	 * @param owner
+	 */
 	public void releaseAll(Owner owner) {
 		WeakHashSet<Node> set = index.get(owner);
 		if (set == null)
@@ -66,13 +89,17 @@ public class NodeChaser {
 			Node node = ir.next();
 			if (node != null) {
 				node.<Owner> getProperty(EditableNode.PROPERTY_OWNER)
-						.unregisterListener(ownerLsts.remove(node));
+				.unregisterListener(ownerLsts.get(node));
 				((EditableNode) node).unregisterListener(repLsts.remove(node));
-				// onNodeRemoved(node);
+				ir.remove();
 			}
 		}
 	}
 
+	/**
+	 * Stops chasing the given node.
+	 * @param node
+	 */
 	public void release(Node node) {
 		if (isChased(node)) {
 			node.<Owner> getProperty(EditableNode.PROPERTY_OWNER)
@@ -81,10 +108,18 @@ public class NodeChaser {
 		}
 	}
 
+	/**
+	 * @param node
+	 * @return a boolean indicating whether the given node is being chased by this chaser.
+	 */
 	public boolean isChased(Node node) {
 		return ownerLsts.containsKey(node);
 	}
 
+	/**
+	 * Starts chasing the given node.
+	 * @param node
+	 */
 	public void chase(Node node) {
 		chase((EditableNode) node);
 	}
@@ -97,7 +132,7 @@ public class NodeChaser {
 		}
 		ns.add(node);
 		// avoid strong references
-		final WeakReference<EditableNode> ref = new WeakReference<>(node); // ,nodeQueue);
+		final WeakReference<EditableNode> ref = new WeakReference<>(node);
 
 		PropertyListener<Owner> ol = new PropertyListener<Owner>() {
 			@Override
@@ -112,7 +147,7 @@ public class NodeChaser {
 					index.put(getOwnerKey(newValue), ns);
 				}
 				ns.add(ref.get());
-				onOwnerChanges(ref.get(), oldValue, newValue);
+				onOwnerChanged(ref.get(), oldValue, newValue);
 			}
 		};
 		node.<Owner> getProperty(EditableNode.PROPERTY_OWNER).registerListener(
@@ -122,7 +157,7 @@ public class NodeChaser {
 			@Override
 			public void onReplicated(Replicating original, Replicating copy) {
 				chase((EditableNode) copy);
-				onReplicates((Node) original, (Node) copy);
+				NodeChaser.this.onReplicated((Node) original, (Node) copy);
 			}
 		};
 		repLsts.put(node, rl);
@@ -131,14 +166,27 @@ public class NodeChaser {
 		onNodeAdded(node);
 	}
 
+	/**
+	 * The method is invoked when the chaser starts chasing a node.
+	 * @param node the new node.
+	 */
 	protected void onNodeAdded(Node node) {
 	}
 
-	// protected void onNodeRemoved(Node node){}
-
-	protected void onOwnerChanges(Node node, Owner oldValue, Owner newValue) {
+	/**
+	 * The method is invoked after the owner of a node changes.
+	 * @param node the node whose owner changed.
+	 * @param oldValue the old owner.
+	 * @param newValue the new owner.
+	 */
+	protected void onOwnerChanged(Node node, Owner oldValue, Owner newValue) {
 	};
 
-	protected void onReplicates(Node original, Node copy) {
+	/**
+	 * The method is invoked after a node replicates.
+	 * @param original the original node.
+	 * @param copy the replica.
+	 */
+	protected void onReplicated(Node original, Node copy) {
 	};
 }

@@ -7,12 +7,14 @@ import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 
 /**
- * The class is meant as an helper for bigraph construction and manipulation in
- * presence of series of operations since {@link Bigraph} is immutable.
- * <p>
- * e.g. {@link Bigraph#compose(Bigraph, Bigraph)} or
- * {@link Bigraph#juxtapose(Bigraph, Bigraph)} instantiate a new object.
- * </p>
+ * This class provides services for the creation and manipulation of bigraphs
+ * since instances of {@link Bigraph} are immutable.
+ * 
+ * For efficiency reasons immutability can be relaxed by the user (cf.
+ * {@link #outerCompose(Bigraph, boolean)}) by allowing the reuse of (parts) of
+ * the arguments. Notice that, if not handled properly, the reuse of bigraphs
+ * can cause inconsistencies e.g. as a consequence of the reuse of a bigraphs
+ * held by a rewriting rule as its redex or reactum.
  */
 final public class BigraphBuilder implements
 		it.uniud.mads.jlibbig.core.BigraphBuilder<Control>, Cloneable {
@@ -32,10 +34,10 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Create a builder from the given bigraph.
+	 * Creates a builder from (a copy of) the given bigraph.
 	 * 
 	 * @param big
-	 *            the bigraph describing the starting state
+	 *            the bigraph describing the starting state.
 	 */
 	public BigraphBuilder(Bigraph big) {
 		this(big, false);
@@ -63,7 +65,8 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Return the bigraph build so far.
+	 * Returns the bigraph build so far. The new bigraph is independent from any
+	 * other operation done by the builder.
 	 * 
 	 * @return a bigraph.
 	 */
@@ -95,6 +98,12 @@ final public class BigraphBuilder implements
 		return b;
 	}
 
+	/**
+	 * A closed builder can not perform any operation.
+	 * 
+	 * @return a boolean indicating whether the builder is disabled to perform
+	 *         any operation.
+	 */
 	public boolean isClosed() {
 		return closed;
 	}
@@ -704,10 +713,10 @@ final public class BigraphBuilder implements
 				ir.next().setParent(r);
 			}
 		}
-        for (EditableRoot r1 : rs) {
-            big.roots.remove(r1);
-            r1.setOwner(null);
-        }
+		for (EditableRoot r1 : rs) {
+			big.roots.remove(r1);
+			r1.setOwner(null);
+		}
 		big.roots.add(index, r);
 		assertConsistency();
 		return r;
@@ -717,7 +726,7 @@ final public class BigraphBuilder implements
 		assertOwner(root, "Root ");
 		if (!root.getChildren().isEmpty())
 			throw new IllegalArgumentException("Unempty region.");
-        EditableRoot editableRoot = (EditableRoot)root;
+		EditableRoot editableRoot = (EditableRoot) root;
 		editableRoot.setOwner(null);
 		big.roots.remove(editableRoot);
 		assertConsistency();
@@ -738,7 +747,7 @@ final public class BigraphBuilder implements
 	 */
 	public void closeSite(Site site) {
 		assertOwner(site, "Site ");
-        EditableSite editableSite = (EditableSite)site;
+		EditableSite editableSite = (EditableSite) site;
 		editableSite.setParent(null);
 		big.sites.remove(editableSite);
 		assertConsistency();
