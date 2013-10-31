@@ -7,37 +7,55 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 
 /**
- * The class is used to store immutable bigraphs.
- * <p>
- * e.g. {@link #compose(Bigraph, Bigraph)} or
- * {@link #juxtapose(Bigraph, Bigraph)} instantiate a new object. For a mutable
- * version of bigraphs, users can use {@link BigraphBuilder}.
- * </p>
+ * Objects created from this class are bigraphs with abstract internal names
+ * (i.e. {@link Node} equality is reference based) whereas link interfaces still
+ * use concrete names. Instances of this class are immutable and can be created
+ * by means of the factory methods provided by this class like e.g.
+ * {@link #makeEmpty}, {@link #makeId}, {@link #compose}, and {@link #juxtapose}
+ * ; or from instances of {@link BigraphBuilder}.
+ */
+/*
+ * For efficiency reasons immutability can be relaxed by the user (cf. {@link
+ * #compose(Bigraph, Bigraph, boolean)}) allowing the reuse of (all or parts) of
+ * these objects.
  */
 final public class Bigraph implements
-    it.uniud.mads.jlibbig.core.Bigraph<Control>, Cloneable/*, PropertyTarget*/ {
+		it.uniud.mads.jlibbig.core.Bigraph<Control>, Cloneable/* , PropertyTarget */{
 
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
 	final List<EditableSite> sites = new ArrayList<>();
 	final Map<String, EditableOuterName> outers = new IdentityHashMap<>();
 	final Map<String, EditableInnerName> inners = new IdentityHashMap<>();
-
+	
 	private final List<? extends Root> ro_roots = Collections
 			.unmodifiableList(roots);
 	private final List<? extends Site> ro_sites = Collections
 			.unmodifiableList(sites);
 
 	Bigraph(Signature sig) {
-		if(sig == null)
+		if (sig == null)
 			throw new IllegalArgumentException("Signature can not be null.");
 		this.signature = sig;
 	}
 
+	/**
+	 * Checks the consistency of the bigraph.
+	 * 
+	 * @return a boolean indicating whether the bigraph is consistent.
+	 */
 	boolean isConsistent() {
 		return this.isConsistent(this);
 	}
 
+	/**
+	 * Checks the consistency of the bigraph. Optionally, an owner different
+	 * from this object can be specified.
+	 * 
+	 * @param owner
+	 *            the alternative owner.
+	 * @return a boolean indicating whether the bigraph is consistent.
+	 */
 	boolean isConsistent(Owner owner) {
 		Set<Point> seen_points = new HashSet<>();
 		Set<Handle> seen_handles = new HashSet<>();
@@ -149,10 +167,10 @@ final public class Bigraph implements
 	}
 
 	/**
-	 * Set owner of internal structures of this bigraph (but leaves them
-	 * connected to it). Be careful. This method is meant to be used by Builder
+	 * Sets the owner of internal structures of this bigraph (but leaves them
+	 * connected to it). Be careful. This method is meant to be used by builders
 	 * to avoid leaking references to their internal working bigraph. If the
-	 * argument is null, the owner is set to the cloned bigraph.
+	 * argument is null, the owner is set to this bigraph.
 	 * 
 	 * @param owner
 	 * @return this bigraph
@@ -178,13 +196,13 @@ final public class Bigraph implements
 	}
 
 	/**
-	 * Same as clone, but set a custom owner for the internal structures of the
-	 * cloned bigraph. It correspond to
+	 * Same as clone, but additionally sets a custom owner for the internal s
+	 * tructures of the cloned bigraph. It corresponds to
 	 * <code>someBigraph.clone().setOwner(someOwner)</code>. If the argument is
 	 * null, the owner is set to the cloned bigraph.
 	 * 
 	 * @param owner
-	 * @return a cloned bigraph
+	 * @return a copy of this bigraph.
 	 */
 	Bigraph clone(Owner owner) {
 		/*
@@ -382,7 +400,7 @@ final public class Bigraph implements
 		return getEdges(this.getNodes());
 	}
 
-	// avoid visit the place graph to compute the set of nodes
+	// avoids the visit of the place graph to compute the set of nodes
 	Collection<? extends Edge> getEdges(Iterable<? extends Node> nodes) {
 		Set<Edge> s = new HashSet<>();
 		for (Node n : nodes) {
@@ -402,6 +420,8 @@ final public class Bigraph implements
 		return s;
 	}
 
+	/* comparators used by toString */
+
 	private static final Comparator<Control> controlComparator = new Comparator<Control>() {
 		@Override
 		public int compare(Control o1, Control o2) {
@@ -418,6 +438,25 @@ final public class Bigraph implements
 						.compareTo(o2.getEditable().getName());
 			else
 				return c;
+		}
+	};
+
+	private final Comparator<Child> childComparator = new Comparator<Child>() {
+		@Override
+		public int compare(Child o1, Child o2) {
+			if (o1.isSite()) {
+				if (o2.isSite()) {
+					return (sites.indexOf(o1) < sites.indexOf(o2)) ? -1 : 1;
+				} else {
+					return 1;
+				}
+			} else {
+				if (o2.isSite()) {
+					return -1;
+				} else {
+					return nodeComparator.compare((Node) o1, (Node) o2);
+				}
+			}
 		}
 	};
 
@@ -461,23 +500,21 @@ final public class Bigraph implements
 		}
 	};
 
-	// unused
-	// private static final Comparator<OuterName> outerComparator = new
-	// Comparator<OuterName>() {
-	// @Override
-	// public int compare(OuterName o1, OuterName o2) {
-	// return o1.getName().compareTo(o2.getName());
-	// }
-	// };
-	//
-	// private static final Comparator<Edge> edgeComparator = new
-	// Comparator<Edge>() {
-	// @Override
-	// public int compare(Edge o1, Edge o2) {
-	// return o1.getEditable().getName()
-	// .compareTo(o2.getEditable().getName());
-	// }
-	// };
+	private static final Comparator<OuterName> outerComparator = new Comparator<OuterName>() {
+		@Override
+		public int compare(OuterName o1, OuterName o2) {
+			return o1.getName().compareTo(o2.getName());
+		}
+	};
+
+	private static final Comparator<Edge> edgeComparator = new Comparator<Edge>() {
+		@Override
+		public int compare(Edge o1, Edge o2) {
+			return o1.getEditable().getName()
+					.compareTo(o2.getEditable().getName());
+		}
+	};
+
 	//
 	// private static final Comparator<Handle> handleComparator = new
 	// Comparator<Handle>() {
@@ -514,14 +551,19 @@ final public class Bigraph implements
 				b.append(", ");
 		}
 		b.append("} :: <").append(this.sites.size()).append(",{");
-		Iterator<EditableInnerName> ii = this.inners.values().iterator();
+
+		List<EditableInnerName> ins = new ArrayList<>(this.inners.values());
+		Collections.sort(ins, innerComparator);
+		Iterator<EditableInnerName> ii = ins.iterator();
 		while (ii.hasNext()) {
 			b.append(ii.next().toString());
 			if (ii.hasNext())
 				b.append(", ");
 		}
 		b.append("}> -> <").append(this.roots.size()).append(",{");
-		Iterator<EditableOuterName> io = this.outers.values().iterator();
+		List<EditableOuterName> ons = new ArrayList<>(this.outers.values());
+		Collections.sort(ons, outerComparator);
+		Iterator<EditableOuterName> io = ons.iterator();
 		while (io.hasNext()) {
 			b.append(io.next().toString());
 			if (io.hasNext())
@@ -545,7 +587,9 @@ final public class Bigraph implements
 			}
 			b.append('}');
 		}
-		for (Handle h : this.getEdges()) {
+		List<? extends Edge> es = new ArrayList<>(this.getEdges());
+		Collections.sort(es, edgeComparator);
+		for (Handle h : es) {
 			b.append(nl).append(h);
 			b.append(":e <- {");
 			List<? extends Point> ps = new ArrayList<>(h.getPoints());
@@ -573,7 +617,9 @@ final public class Bigraph implements
 				b.append(p);
 			}
 			b.append(" <- {");
-			Iterator<? extends Child> ic = p.getChildren().iterator();
+			List<? extends Child> cs = new ArrayList<>(p.getChildren());
+			Collections.sort(cs, childComparator);
+			Iterator<? extends Child> ic = cs.iterator();
 			while (ic.hasNext()) {
 				Child c = ic.next();
 				if (c.isSite()) {
@@ -591,30 +637,32 @@ final public class Bigraph implements
 	}
 
 	/**
-	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the
-	 * first (left) bigraph will precede those of the second (right) bigraph.
+	 * Juxtaposes two bigraph. The first argument will be the left operand that
+	 * is its roots and sites will precede those of the second argument in the
+	 * outcome.
 	 * 
 	 * @param left
-	 *            the first bigraph
+	 *            the first bigraph.
 	 * @param right
-	 *            the second bigraph
-	 * @return the resulting bigraph
+	 *            the second bigraph.
+	 * @return the juxtaposition of the arguments.
 	 */
 	public static Bigraph juxtapose(Bigraph left, Bigraph right) {
 		return juxtapose(left, right, false);
 	}
 
 	/**
-	 * Juxtapose two bigraph. In the resulting bigraph, roots and sites of the
-	 * first (left) bigraph will precede those of the second (right) bigraph.
+	 * Juxtaposes two bigraph. The first argument will be the left operand that
+	 * is its roots and sites will precede those of the second argument in the
+	 * outcome. Optionally, arguments can be reused.
 	 * 
 	 * @param left
-	 *            the first bigraph
+	 *            the first bigraph.
 	 * @param right
-	 *            the second bigraph
+	 *            the second bigraph.
 	 * @param reuse
-	 *            flag. If true, bigraphs in input won't be copied.
-	 * @return the resulting bigraph
+	 *            flag. If true, bigraphs in input will not be copied.
+	 * @return the juxtaposition of the arguments.
 	 */
 	static Bigraph juxtapose(Bigraph left, Bigraph right, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -643,28 +691,31 @@ final public class Bigraph implements
 	}
 
 	/**
-	 * Compose two bigraph. The first bigraph in input will be the "outer" one.
+	 * Composes two bigraphs. The first argument will be the outer bigraph that
+	 * is the one composed to the outer face of the second argument.
 	 * 
 	 * @param out
 	 *            the outer bigraph
 	 * @param in
 	 *            the inner bigraph
-	 * @return the resulting bigraph
+	 * @return the composition of the arguments.
 	 */
 	public static Bigraph compose(Bigraph out, Bigraph in) {
 		return compose(out, in, false);
 	}
 
 	/**
-	 * Compose two bigraph. The first bigraph in input will be the "outer" one.
+	 * Composes two bigraphs. The first argument will be the outer bigraph that
+	 * is the one composed to the outer face of the second argument. Optionally,
+	 * arguments can be reused.
 	 * 
 	 * @param out
 	 *            the outer bigraph
 	 * @param in
 	 *            the inner bigraph
 	 * @param reuse
-	 *            flag. If true, bigraphs in input won't be copied.
-	 * @return the resulting bigraph
+	 *            flag. If true, bigraphs in input will not be copied.
+	 * @return the composition of the arguments.
 	 */
 	static Bigraph compose(Bigraph out, Bigraph in, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
@@ -726,18 +777,20 @@ final public class Bigraph implements
 	}
 
 	/**
-	 * Make an empty bigraph.
+	 * Creates an empty bigraph for the given signature.
 	 * 
 	 * @param signature
-	 *            the signature of the bigraph
-	 * @return the empty bigraph
+	 *            the signature of the bigraph.
+	 * @return the empty bigraph.
 	 */
 	public static Bigraph makeEmpty(Signature signature) {
 		return new Bigraph(signature);
 	}
 
 	/**
-	 * Make an identity bigraph.
+	 * Creates an identity bigraph i.e. a bigraph without nodes where every site
+	 * is the only child of the root at the same index and every inner name is
+	 * the only point of the outer name with the same concrete name.
 	 * 
 	 * @param signature
 	 *            the signature of the bigraph.
@@ -753,13 +806,15 @@ final public class Bigraph implements
 		for (int i = 0; i < width; i++) {
 			bb.addSite(bb.addRoot());
 		}
-        for (String name : names)
-            bb.addInnerName(name, bb.addOuterName(name));
+		for (String name : names)
+			bb.addInnerName(name, bb.addOuterName(name));
 		return bb.makeBigraph();
 	}
 
 	/**
-	 * Make an identity bigraph.
+	 * Creates an identity bigraph i.e. a bigraph without nodes where every site
+	 * is the only child of the root at the same index and every inner name is
+	 * the only point of the outer name with the same concrete name.
 	 * 
 	 * @param signature
 	 *            the signature of the bigraph.
@@ -768,7 +823,7 @@ final public class Bigraph implements
 	 * @param names
 	 *            the set of names that will appear in resulting bigraph's link
 	 *            faces.
-	 * @return the resulting identity bigraph.
+	 * @return an identity bigraph.
 	 */
 	public static Bigraph makeId(Signature signature, int width,
 			Iterable<? extends LinkFacet> names) {
@@ -783,14 +838,37 @@ final public class Bigraph implements
 		return bb.makeBigraph();
 	}
 
-	// TODO factory methods
+	// TODO more factory methods
 
+	/**
+	 * Creates the collection containing all the names in the given collections
+	 * of link facets (i.e. inner and outer names).
+	 * 
+	 * @param arg0
+	 *            one of the collections to be intersected.
+	 * @param arg1
+	 *            one of the collections to be intersected.
+	 * @return the intersection.
+	 */
 	private static Collection<String> intersectNames(
 			Collection<? extends LinkFacet> arg0,
 			Collection<? extends LinkFacet> arg1) {
 		return intersectNames(arg0, arg1, new HashSet<String>());
 	}
 
+	/**
+	 * Extends the given collection of strings with all the names in the given
+	 * collections of link facets (i.e. inner and outer names).
+	 * 
+	 * @param arg0
+	 *            one of the collections to be intersected.
+	 * @param arg1
+	 *            one of the collections to be intersected.
+	 * @param ns0
+	 *            the collection to be extended.
+	 * @return the given string collection extended with the intersection of the
+	 *         other two.
+	 */
 	private static Collection<String> intersectNames(
 			Collection<? extends LinkFacet> arg0,
 			Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
