@@ -1,12 +1,15 @@
 package it.uniud.mads.jlibbig.core;
 
 /**
- * Describes a Matcher for bigraphs.
+ * Provides services for computing the matches of a bigraph (sometimes called redex) 
+ * into an other. In particular, a match of a bigraph R in G is a triple <C,R,P> 
+ * yielding G when composed. The bigraphs C, R, and P are called Context, Redex and Prameter of
+ * the match respectively. Matches are described by implementations of {@link Match}.
  * 
  * @param <A>
- *            type of the bigraph
+ *            kind of the 'agent' bigraph.
  * @param <R>
- *            type of the redex
+ *            kind of the redex.
  */
 public interface Matcher<A extends Bigraph<?>, R extends Bigraph<?>> {
 	/**

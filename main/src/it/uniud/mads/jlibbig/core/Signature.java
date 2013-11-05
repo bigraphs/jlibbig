@@ -141,7 +141,7 @@ public class Signature<C extends Control> implements Iterable<C> {
 	 * @param other
 	 *            the other signature.
 	 * @param ignoreUSID
-	 *            if {@true} identifiers are ignored.
+	 *            if {@literal true} identifiers are ignored.
 	 * @return a boolean indicating whether the given signature is equal to this
 	 *         one.
 	 */

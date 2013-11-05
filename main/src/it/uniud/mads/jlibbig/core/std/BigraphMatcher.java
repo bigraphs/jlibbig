@@ -13,6 +13,15 @@ import choco.kernel.model.constraints.Constraint;
 import choco.kernel.model.variables.integer.IntegerExpressionVariable;
 import choco.kernel.model.variables.integer.IntegerVariable;
 
+/**
+ * Provides services for computing the matches of bigraphs with abstract
+ * internal names which are described by {@link BigraphMatch}.
+ * 
+ * The field {@link #DEFAULT} refers to a default instance of the matcher.
+ * 
+ * The standard matching of nodes can be changed by re-implementing the
+ * protected method {@link #areMatchable}.
+ */
 public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 
 	private final static boolean DEBUG = false;
@@ -21,7 +30,7 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	/**
-	 * The default instance of the macher.
+	 * The default instance of the matcher.
 	 */
 	public final static BigraphMatcher DEFAULT = new BigraphMatcher();
 
@@ -29,7 +38,26 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex) {
 		return new MatchIterable(agent, redex);
 	}
-	
+
+	/**
+	 * The method is called to asses if a pair of nodes (one from the redex and
+	 * the other from the agent bigraph) is a potential match or not. The
+	 * default implementation requires the two nodes to have the same control.
+	 * 
+	 * An inheriting class can strengthen or weaken this constrain but has to
+	 * ensure that matchable nodes have at least the same number of ports due to
+	 * wiring preservation under matching.
+	 * 
+	 * @param agent
+	 *            the bigraph describing the agent.
+	 * @param fromAgent
+	 *            the node from the agent bigraph.
+	 * @param redex
+	 *            the bigraph describing the redex.
+	 * @param fromRedex
+	 *            the node from the redex bigraph.
+	 * @return a boolean indicating whether the two nodes are can be matched.
+	 */
 	protected boolean areMatchable(Bigraph agent, Node fromAgent,
 			Bigraph redex, Node fromRedex) {
 		return fromAgent.getControl().equals(fromRedex.getControl());
@@ -63,17 +91,16 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		final Collection<? extends Edge> redex_edges;
 		final List<Handle> redex_handles;
 
-		//final boolean[] neededParam;
+		// final boolean[] neededParam;
 
 		/*
 		 * naming policy for sizes: a- agent r- redex -rs roots -ns nodes -ss
 		 * sites -hs handles -ps points -prs ports -ins inners -ots outers
 		 */
-		final int ars, ans, ass, ahs, aps, rrs, rns, rss, rhs, rps, rprs,
-				rins;
+		final int ars, ans, ass, ahs, aps, rrs, rns, rss, rhs, rps, rprs, rins;
 
-		private MatchIterable(Bigraph agent, Bigraph redex){
-//				boolean[] neededParams) {
+		private MatchIterable(Bigraph agent, Bigraph redex) {
+			// boolean[] neededParams) {
 			if (!agent.isGround()) {
 				throw new UnsupportedOperationException(
 						"Agent should be a bigraph with empty inner interface i.e. ground.");
@@ -127,10 +154,10 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 			rps = redex_points.size();
 			rins = rps - rprs;
 
-//			this.neededParam = new boolean[rss];
-//			for (int i = 0; i < this.neededParam.length; i++) {
-//				this.neededParam[i] = (neededParams == null) || neededParams[i];
-//			}
+			// this.neededParam = new boolean[rss];
+			// for (int i = 0; i < this.neededParam.length; i++) {
+			// this.neededParam[i] = (neededParams == null) || neededParams[i];
+			// }
 		}
 
 		@Override

@@ -1,33 +1,33 @@
 package it.uniud.mads.jlibbig.core;
 
 /**
- * Represents a match of a redex in a bigraph. In particular, given a bigraph of
- * type <code>A</code> G and a redex R, a match of R in G is a triple <C,R,D>
- * such that the composition C;R;D yields exactly G. The bigraph C is called
- * context, R redex and D parameter.
+ * This interface describe the basic match of a bigraph in another one. In
+ * particular, a match of a bigraph R in G is a triple <C,R,P> yielding G when
+ * composed. The bigraphs C, R, and P are called Context, Redex and Prameter of
+ * the match respectively.
  * 
  * @param <A>
- *            type of bigraph
+ *            the kind of bigraph the match belongs.
  */
 public interface Match<A extends Bigraph<?>> {
 	/**
 	 * The match context.
 	 * 
-	 * @return the context
+	 * @return a bigraph representing the context of this match.
 	 */
 	A getContext();
 
 	/**
 	 * The match redex.
 	 * 
-	 * @return the redex
+	 * @return a bigraph representing the redex of this match.
 	 */
 	A getRedex();
 
 	/**
-	 * The parameters of the match.
+	 * The parameter of the match.
 	 * 
-	 * @return the parameters
+	 * @return a bigraph representing the parameter of this match.
 	 */
 	A getParam();
 }
