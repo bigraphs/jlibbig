@@ -14,7 +14,13 @@ import choco.kernel.model.variables.integer.IntegerExpressionVariable;
 import choco.kernel.model.variables.integer.IntegerVariable;
 
 /**
- *
+ * Provides services for computing the matches a bigraph (with abstract
+ * internal names) into a ground one; matches are described by {@link AgentMatch}.
+ * 
+ * The field {@link #DEFAULT} refers to a default instance of the matcher.
+ * 
+ * The standard matching of nodes can be changed by re-implementing the
+ * protected method {@link #areMatchable}.
  */
 public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
@@ -34,10 +40,13 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	}
 
 	/**
-	 * @param agent the agent.
-	 * @param redex the redex to be matched in the agent.
-	 * @param neededParams a boolean mask describing whereas a parameter must be
-	 * generated or can be skiped.
+	 * @param agent
+	 *            the agent.
+	 * @param redex
+	 *            the redex to be matched in the agent.
+	 * @param neededParams
+	 *            a boolean mask describing whereas a parameter must be
+	 *            generated or can be skiped.
 	 * @return an iterable for iterating over the matches.
 	 */
 	Iterable<? extends AgentMatch> match(Bigraph agent, Bigraph redex,
@@ -46,20 +55,23 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	}
 
 	/**
-	 * The method describes which nodes can be matched. The base implementation
-	 * requires two nodes to have the same control. Inherit the method to
-	 * specify different matching policies. For the current implementation
-	 * matchable nodes can not have different arities.
+	 * The method is called to asses if a pair of nodes (one from the redex and
+	 * the other from the agent bigraph) is a potential match or not. The
+	 * default implementation requires the two nodes to have the same control.
+	 * 
+	 * An inheriting class can strengthen or weaken this constrain but has to
+	 * ensure that matchable nodes have at least the same number of ports due to
+	 * wiring preservation under matching.
 	 * 
 	 * @param agent
-	 *            the agent.
+	 *            the bigraph describing the agent.
 	 * @param fromAgent
-	 *            the agent node.
+	 *            the node from the agent bigraph.
 	 * @param redex
-	 *            the redex bigraph.
+	 *            the bigraph describing the redex.
 	 * @param fromRedex
-	 *            the redex node.
-	 * @return a boolean representing whether the two nodes can be matched.
+	 *            the node from the redex bigraph.
+	 * @return a boolean indicating whether the two nodes are can be matched.
 	 */
 	protected boolean areMatchable(Bigraph agent, Node fromAgent,
 			Bigraph redex, Node fromRedex) {
