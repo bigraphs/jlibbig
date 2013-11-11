@@ -2,12 +2,38 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
-import it.uniud.mads.jlibbig.core.InstantiationRule;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.RewritingRule;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
+import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
+/**
+ * A rewriting rule is a reaction rule described by means of rewrites i.e. the
+ * reaction is a substitution of an occurrence (in the bigraph to which the rule
+ * is applied) of the rule's redex with the rule's reactum. Redex and reactum of
+ * a rewriting rule are described by means of two bigraphs ({@link #getRedex()}
+ * and {@link #getReactum()}). Occurrences are described by matches (cf.
+ * {@link BigraphMatch}) i.e. triples like <C,F,P> where F is the juxtaposition
+ * of is the redex occurrence R and some suitable identity. Then R is replaced
+ * by the reactum R' and the parameter P is instantiated to P' in order to match
+ * R' inner interface. Parameter instantiation is handled by instantiation rule
+ * returned by {@link #getInstantiationRule()}.
+ * 
+ * Matches are computed by means of {@link BigraphMatcher} but the class allows
+ * to provide different matchers.
+ * 
+ * During the rewrite, the reactum is instantiated by standard replication.
+ * Non-replicating attached properties such as {@link SimpleProperty} may be
+ * lost in the process; consider the use of self-replicating ones such as
+ * {@link ReplicatingProperty} or {@link SharedProperty}. Self-replicating
+ * properties may suit most scenarios but may be handy to intercept rectum node
+ * instantiation e.g. for adding or changing properties. This can be achieved by
+ * inheriting the method
+ * {@link #instantiateReactumNode}.
+ * 
+ * @see AgentRewritingRule
+ */
 public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 
 	private final static boolean DEBUG = false;
@@ -75,8 +101,8 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	}
 
 	/**
-	 * This method is called diring the instantiation of rule's reactum. Inherit
-	 * this method to customize instantiation of Nodes e.g. attaching properties
+	 * This method is called during the instantiation of rule's reactum. Inherit
+	 * this method to customise instantiation of Nodes e.g. attaching properties
 	 * taken from nodes in the redex image determined by the given match.
 	 * 
 	 * @param original
@@ -192,7 +218,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	}
 
 	@Override
-	public InstantiationRule<Bigraph> getInstantiationRule() {
+	public BigraphInstantiationMap getInstantiationRule() {
 		return this.eta;
 	}
 
