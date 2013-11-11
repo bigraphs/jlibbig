@@ -1,12 +1,16 @@
-/**
- * 
- */
 package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
 import it.uniud.mads.jlibbig.core.exceptions.*;
 
+/**
+ * This class specialises {@link BigraphRewritingRule} for ground bigraphs i.e.
+ * bigraphs with empty inner interface. Matches are computed by means of 
+ * {@link AgentMatcher} by other matchers can be specified.
+ * 
+ * @see BigraphRewritingRule
+ */
 public class AgentRewritingRule extends BigraphRewritingRule {
 
 	private final static boolean DEBUG = true;

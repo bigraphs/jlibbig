@@ -6,12 +6,18 @@ import it.uniud.mads.jlibbig.core.InstantiationRule;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 
+/**
+ * Objects created from this class are instantiation rules for bigraphs which
+ * are maps from the reactum sites to the redex ones describing how parameters
+ * (for the fixed width) are instantiated.
+ * 
+ * @see BigraphRewritingRule
+ */
 public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 
-	//private final static boolean DEBUG = true;
+	// private final static boolean DEBUG = true;
 	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
 
-	
 	final private int map[];
 	final private int dom;
 	final private int cod;
@@ -33,17 +39,36 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 			this.map[i] = j;
 			// reusable[i] = (0 == mulParam[j]++);
 			multiplicity[j]++;
-		}		
+		}
 	}
 
+	/**
+	 * Gets the domain of the instantiation map which is the number of rectum
+	 * sites or equivalently the width of the instantiated parameter.
+	 * 
+	 * @return the number of sites in the reactum.
+	 */
 	public int getPlaceDomain() {
 		return dom;
 	}
 
+	/**
+	 * Gets the codomain of the instantiation map which is the number of redex
+	 * sites or equivalently the width of the parameter before it is
+	 * instantiated.
+	 * 
+	 * @return the number of sites in the reactum.
+	 */
 	public int getPlaceCodomain() {
 		return cod;
 	}
 
+	/**
+	 * Gets, for every site in the reactum, its image under the instantiation map.
+	 * 
+	 * @param arg the position of the site in the reactum.
+	 * @return the position of the site in the redex.
+	 */
 	public int getPlaceInstance(int arg) {
 		if (-1 < arg && arg < dom) {
 			return map[arg];
@@ -52,6 +77,14 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 		}
 	}
 
+	/**
+	 * Tells if a site is needed i.e. if it is the image of some site from the reactum
+	 * w.r.t. the instantiation map.
+	 * 
+	 * @param prm the redex site.
+	 * @return a boolean indicating whether the given site is the image of something
+	 * under the instantiation map.
+	 */
 	public boolean isNeeded(int prm) {
 		return -1 < prm && prm < cod && multiplicity[prm] > 0;
 	}
@@ -104,15 +137,15 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 			}
 		}
 		Deque<VState> q = new ArrayDeque<>();
-		
+
 		for (int j = 0; j < cod; j++) {
-			int  m = multiplicity[j];
-			if(m > 0){
+			int m = multiplicity[j];
+			if (m > 0) {
 				EditableRoot r1 = parameters.roots.get(map[j]);
 				EditableRoot[] r2s = new EditableRoot[m];
 				int k = 0;
 				for (int i = 0; i < dom; i++) {
-					if(map[i] == j){
+					if (map[i] == j) {
 						r2s[k] = rs[i] = (reuse && k > 0) ? r1 : r1.replicate();
 						k++;
 					}
@@ -140,8 +173,8 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 						h2.setOwner(prm);
 						hnd_dic.put(h1, h2);
 					}
-                    for (EditableNode n2 : n2s)
-                        n2.getPort(j).setHandle(h2);
+					for (EditableNode n2 : n2s)
+						n2.getPort(j).setHandle(h2);
 				}
 				for (EditableChild c : n1.getEditableChildren()) {
 					q.add(new VState(n2s, c));
@@ -155,15 +188,15 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 				}
 			}
 		}
-        for (EditableRoot r : rs) {
-            prm.roots.add(r);
-            r.setOwner(prm);
-        }
-        for (EditableSite[] s : ss) {
-            if (s == null)
-                continue;
-            prm.sites.addAll(Arrays.asList(s));
-        }
+		for (EditableRoot r : rs) {
+			prm.roots.add(r);
+			r.setOwner(prm);
+		}
+		for (EditableSite[] s : ss) {
+			if (s == null)
+				continue;
+			prm.sites.addAll(Arrays.asList(s));
+		}
 
 		if (reuse) {
 			parameters.sites.clear();
