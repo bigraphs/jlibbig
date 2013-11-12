@@ -1,8 +1,9 @@
 package it.uniud.mads.jlibbig.core;
 
 /**
- * In a bigraph, a point can either be a node's port or a innername
- * 
+ * Points are link entities connected by the hyper-edges composing the link
+ * graphs. Points are inner names or ports depending on whereas they belong to
+ * an inner interface or to a node.
  */
 public interface Point extends LinkEntity {
 	/**

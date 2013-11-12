@@ -1,13 +1,9 @@
 package it.uniud.mads.jlibbig.core.std;
 
-/**
- * Describes innernames or control's ports of a bigraph.
- * 
- * @see Point
- */
+
 interface EditablePoint extends Point {
 	/**
-	 * Set point's handle (outername or edge)
+	 * Set point's handle.
 	 * 
 	 * @param handle
 	 *            point's new handle

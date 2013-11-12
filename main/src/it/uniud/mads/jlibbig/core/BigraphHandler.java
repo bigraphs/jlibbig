@@ -62,7 +62,7 @@ public interface BigraphHandler<C extends Control> extends Owner {
 	 * 
 	 * @return a set containing bigraph's nodes.
 	 */
-	public abstract Collection<? extends Node> getNodes();
+	public abstract Collection<? extends Node<? extends C>> getNodes();
 
 	/**
 	 * Get bigraph's edges.

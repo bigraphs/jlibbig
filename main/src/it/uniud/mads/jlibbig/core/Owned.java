@@ -1,10 +1,14 @@
 package it.uniud.mads.jlibbig.core;
 
+/**
+ * Describes entities owned by some {@link Owner}.
+ * For instance, nodes are owned by the bigraph containing them.
+ */
 public interface Owned {
 	/**
-	 * Get the current owner
+	 * Gets the current owner of this object
 	 * 
-	 * @return the current owner
+	 * @return the owner
 	 */
 	Owner getOwner();
 }

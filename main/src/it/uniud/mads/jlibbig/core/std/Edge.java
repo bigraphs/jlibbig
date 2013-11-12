@@ -1,8 +1,8 @@
 package it.uniud.mads.jlibbig.core.std;
 
 /**
- * Describes an edge of a link graph.
- * 
+ * Edges are handles not accessible through the outer interface on the contrary
+ * of outer names ({@link OuterName}).
  */
 public interface Edge extends Handle, it.uniud.mads.jlibbig.core.Edge {
 	@Override

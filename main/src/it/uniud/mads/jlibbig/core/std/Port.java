@@ -1,17 +1,14 @@
 package it.uniud.mads.jlibbig.core.std;
 
 /**
- * Control's ports
- * 
- * @see Control
+ * Ports are end-points for hyper-edges composing the link graphs and are
+ * exposed by nodes structured in the place graph composing the bigraph together
+ * with the aforementioned link graph. Despite a link graph {@link Point}, ports
+ * belong to a node and are identified by their number or position w.r.t. that
+ * node.
  */
-public interface Port extends Point, it.uniud.mads.jlibbig.core.Port {
+public interface Port extends Point, it.uniud.mads.jlibbig.core.Port<Control> {
 
-	/**
-	 * Get the port's node
-	 * 
-	 * @return the port's node
-	 */
 	@Override
 	public abstract Node getNode();
 

@@ -17,6 +17,8 @@ package it.uniud.mads.jlibbig.core;
  *            The kind of bigraphs the rules applies to.
  * @param <B>
  *            The kind of bigraphs used for describing redex and reactum.
+ *            
+ * @see RewritingSystem
  */
 public interface RewritingRule<A extends Bigraph<?>, B extends Bigraph<?>>
 		extends ReactionRule<A> {
