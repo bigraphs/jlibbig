@@ -5,30 +5,25 @@ import it.uniud.mads.jlibbig.core.attachedProperties.PropertyTarget;
 import java.util.*;
 
 /**
- * Describes a node of a bigraph.
- * 
+ * Describes nodes of bigraphs with abstract internal names. For this kind of
+ * nodes identity is instance based. Nodes are assigned a {@link Control} which
+ * specifies their arity i.e. the number of ports exposed by a node. Ports are
+ * end-points for hyper-edges composing the link graph.
  */
-public interface Node extends PropertyTarget,Parent, Child, it.uniud.mads.jlibbig.core.Node {
+public interface Node extends PropertyTarget, Parent, Child,
+		it.uniud.mads.jlibbig.core.Node<Control> {
 	public List<? extends Port> getPorts();
 
-	/**
-	 * get the n-th port of a node
-	 * 
-	 * @param index
-	 *            index of the port
-	 * @return the index-th port
-	 */
 	@Override
 	public abstract Port getPort(int index);
 
-	/**
-	 * Get the node's control
-	 * 
-	 * @return the node's control
-	 */
 	@Override
 	public abstract Control getControl();
 
+	/*
+	 * Actually this is a dirty trick prevent implementation of this interface
+	 * outside of the package.
+	 */
 	@Override
 	public abstract EditableNode getEditable();
 }

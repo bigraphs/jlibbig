@@ -7,11 +7,6 @@ import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListener;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListenerContainer;
 
-/**
- * Edges of a link graph. <br />
- * They can be linked to innernames and edges.
- * 
- */
 class EditableEdge implements Edge, EditableHandle, Replicable {
 	private String name;
 

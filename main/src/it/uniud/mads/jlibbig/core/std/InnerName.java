@@ -1,9 +1,14 @@
 package it.uniud.mads.jlibbig.core.std;
 
+import it.uniud.mads.jlibbig.core.Named;
+
 /**
- * Describes a name of an internal link graph interface. Differently from outer
- * names, inners can be linked but not link (i.e. they appear in the domain of a
- * link map but not in its codomain).
+ * Inner names are points accessible through the inner interface (whereas ports
+ * are not) identified by their name (cf. {@link Named}). Inner names (like
+ * outer ones) are link facets comparison is based on their name.
+ * 
+ * @see LinkFacet
+ * @see Point
  */
 public interface InnerName extends Point, LinkFacet,
 		it.uniud.mads.jlibbig.core.InnerName {

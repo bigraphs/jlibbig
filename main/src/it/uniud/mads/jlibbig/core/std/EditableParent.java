@@ -5,12 +5,6 @@ import java.util.*;
 import it.uniud.mads.jlibbig.core.Owned;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyTarget;
 
-/**
- * Describes roots or nodes of a place graph.
- * 
- * @see Parent
- * 
- */
 interface EditableParent extends Parent, Replicable, Owned, PropertyTarget {
 	/**
 	 * Get the set of children. This set and every object inside it can be

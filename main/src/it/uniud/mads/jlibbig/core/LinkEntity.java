@@ -1,47 +1,52 @@
 package it.uniud.mads.jlibbig.core;
 
 import it.uniud.mads.jlibbig.core.Owned;
-
+/**
+ * Describes entities composing the link graph such as handles ({@link Handle})
+ * and points ({@link Point}).
+ * 
+ * @see PlaceEntity
+ */
 public interface LinkEntity extends Owned {
 	/**
 	 * Checks if a entity is a handle.
 	 * 
-	 * @return the result of the check
+	 * @return a boolean indicating whether this entity is an handle.
 	 */
 	boolean isHandle();
 
 	/**
-	 * Checks if a entity is a point.
+	 * Checks if this entity is a point.
 	 * 
-	 * @return the result of the check
+	 * @return a boolean indicating whether this entity is a point.
 	 */
 	boolean isPoint();
 
 	/**
-	 * Checks if a entity is a port.
+	 * Checks if this entity is a port.
 	 * 
-	 * @return the result of the check
+	 * @return a boolean indicating whether this entity is a port.
 	 */
 	boolean isPort();
 
 	/**
-	 * Check if a entity is an inner name.
+	 * Checks if this entity is an inner name.
 	 * 
-	 * @return the result of the check
+	 * @return a boolean indicating whether this entity is an inner name.
 	 */
 	boolean isInnerName();
 
 	/**
-	 * Check if a entity is an outer name.
+	 * Checks if this entity is an outer name.
 	 * 
-	 * @return the result of the check
+	 * @return a boolean indicating whether this entity is a outer name.
 	 */
 	boolean isOuterName();
 
 	/**
-	 * Check if a entity is an edge.
+	 * Checks if this entity is an edge.
 	 * 
-	 * @return the result of the check
+	 * @return a boolean indicating whether this entity is a edge.
 	 */
 	boolean isEdge();
 

@@ -27,7 +27,7 @@ final public class Bigraph implements
 	final List<EditableSite> sites = new ArrayList<>();
 	final Map<String, EditableOuterName> outers = new IdentityHashMap<>();
 	final Map<String, EditableInnerName> inners = new IdentityHashMap<>();
-	
+
 	private final List<? extends Root> ro_roots = Collections
 			.unmodifiableList(roots);
 	private final List<? extends Site> ro_sites = Collections
@@ -667,6 +667,9 @@ final public class Bigraph implements
 	static Bigraph juxtapose(Bigraph left, Bigraph right, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
+		if (left == right)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
 		if (!left.signature.equals(right.signature)) {
 			throw new IncompatibleSignatureException(left.getSignature(),
 					right.getSignature());
@@ -720,6 +723,9 @@ final public class Bigraph implements
 	static Bigraph compose(Bigraph out, Bigraph in, boolean reuse) {
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
+		if (out == in)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be composed with itself.");
 		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.getSignature(),
 					in.getSignature());

@@ -5,14 +5,13 @@ import java.util.Collection;
 import it.uniud.mads.jlibbig.core.Owned;
 
 /**
- * Handle: outername or edge
- * 
+ * Handles are link entities identifying the hyper-edges that compose link
+ * graphs and that link points. Handles are outer names or edges depending on
+ * whereas they belong to an outer interface or not.
  */
 public interface Handle extends Owned, LinkEntity,
 		it.uniud.mads.jlibbig.core.Handle {
-	/**
-	 * Get a set of handle's points (innernames or ports).
-	 */
+
 	@Override
 	public abstract Collection<? extends Point> getPoints();
 

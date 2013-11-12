@@ -2,12 +2,12 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.Collection;
 
+/**
+ * Place graph entities are organised in tree-like structures.
+ * 
+ * @see Child
+ */
 public interface Parent extends PlaceEntity, it.uniud.mads.jlibbig.core.Parent {
-	/**
-	 * Get the set of children
-	 * 
-	 * @return the set of children of this parent
-	 */
 	@Override
 	public abstract Collection<? extends Child> getChildren();
 

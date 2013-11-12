@@ -1,12 +1,14 @@
 package it.uniud.mads.jlibbig.core;
 
+
 /**
- * Describes a child (node or site) of a bigraph
+ * Place graph entities are organised in tree-like structures.
  * 
+ * @see Parent
  */
 public interface Child extends PlaceEntity {
 	/**
-	 * Get the parent (node or root) of a child.
+	 * Gets the parent of this child.
 	 * 
 	 * @return the child's parent.
 	 */

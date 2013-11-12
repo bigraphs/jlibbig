@@ -803,6 +803,9 @@ final public class BigraphBuilder implements
 		assertOpen();
 		Bigraph left = graph;
 		Bigraph right = this.big;
+		if (left == right)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
 		if (!left.signature.equals(right.signature)) {
@@ -863,6 +866,9 @@ final public class BigraphBuilder implements
 		assertOpen();
 		Bigraph left = this.big;
 		Bigraph right = graph;
+		if (left == right)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
 		if (!left.signature.equals(right.signature)) {
@@ -921,6 +927,9 @@ final public class BigraphBuilder implements
 		Bigraph out = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
+		if (out == in)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be composed with itself.");
 		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
@@ -994,6 +1003,9 @@ final public class BigraphBuilder implements
 		Bigraph out = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
+		if (out == in)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be composed with itself.");
 		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
@@ -1079,6 +1091,9 @@ final public class BigraphBuilder implements
 		Bigraph out = this.big;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
+		if (out == in)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be composed with itself.");
 		if (!out.signature.equals(in.signature)) {
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
@@ -1128,6 +1143,9 @@ final public class BigraphBuilder implements
 		assertOpen();
 		Bigraph in = this.big;
 		Bigraph out = graph;
+		if (out == in)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be composed with itself.");
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
 		if (!out.signature.equals(in.signature)) {
@@ -1272,6 +1290,9 @@ final public class BigraphBuilder implements
 		Bigraph right = graph;
 		// Arguments are assumed to be consistent (e.g. parent and links are
 		// well defined)
+		if (left == right)
+			throw new IllegalArgumentException(
+					"Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
 		if (!left.signature.equals(right.signature)) {
 			throw new IncompatibleSignatureException(left.signature,
 					right.signature);

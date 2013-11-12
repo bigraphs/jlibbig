@@ -6,10 +6,6 @@ import it.uniud.mads.jlibbig.core.AbstractNamed;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
-/**
- * Describes a node of a bigraph. <br />
- * Every node must have its control.
- */
 class EditableNode implements Node, EditableParent, EditableChild {
 	public static final String PROPERTY_OWNER = "Owner";
 	// public static final String PROPERTY_PARENT = "Parent";
