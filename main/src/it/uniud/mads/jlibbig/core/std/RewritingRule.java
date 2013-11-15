@@ -3,7 +3,6 @@ package it.uniud.mads.jlibbig.core.std;
 import java.util.*;
 
 import it.uniud.mads.jlibbig.core.Owner;
-import it.uniud.mads.jlibbig.core.RewritingRule;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
@@ -14,13 +13,13 @@ import it.uniud.mads.jlibbig.core.attachedProperties.*;
  * is applied) of the rule's redex with the rule's reactum. Redex and reactum of
  * a rewriting rule are described by means of two bigraphs ({@link #getRedex()}
  * and {@link #getReactum()}). Occurrences are described by matches (cf.
- * {@link BigraphMatch}) i.e. triples like <C,F,P> where F is the juxtaposition
+ * {@link Match}) i.e. triples like <C,F,P> where F is the juxtaposition
  * of is the redex occurrence R and some suitable identity. Then R is replaced
  * by the reactum R' and the parameter P is instantiated to P' in order to match
  * R' inner interface. Parameter instantiation is handled by instantiation rule
  * returned by {@link #getInstantiationRule()}.
  * 
- * Matches are computed by means of {@link BigraphMatcher} but the class allows
+ * Matches are computed by means of {@link Matcher} but the class allows
  * to provide different matchers.
  * 
  * During the rewrite, the reactum is instantiated by standard replication.
@@ -34,7 +33,7 @@ import it.uniud.mads.jlibbig.core.attachedProperties.*;
  * 
  * @see AgentRewritingRule
  */
-public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
+public class RewritingRule implements it.uniud.mads.jlibbig.core.RewritingRule<Bigraph, Bigraph> {
 
 	private final static boolean DEBUG = false;
 	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
@@ -43,28 +42,28 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 
 	final Bigraph redex;
 	final Bigraph reactum;
-	final BigraphInstantiationMap eta;
+	final InstantiationMap eta;
 
-	private BigraphMatcher matcher;
+	private Matcher matcher;
 
-	public BigraphRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-		this(BigraphMatcher.DEFAULT, redex, reactum,
-				new BigraphInstantiationMap(redex.sites.size(), eta));
+	public RewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
+		this(Matcher.DEFAULT, redex, reactum,
+				new InstantiationMap(redex.sites.size(), eta));
 	}
 
-	public BigraphRewritingRule(BigraphMatcher matcher, Bigraph redex,
+	public RewritingRule(Matcher matcher, Bigraph redex,
 			Bigraph reactum, int... eta) {
-		this(matcher, redex, reactum, new BigraphInstantiationMap(
+		this(matcher, redex, reactum, new InstantiationMap(
 				redex.sites.size(), eta));
 	}
 
-	public BigraphRewritingRule(Bigraph redex, Bigraph reactum,
-			BigraphInstantiationMap eta) {
-		this(BigraphMatcher.DEFAULT, redex, reactum, eta);
+	public RewritingRule(Bigraph redex, Bigraph reactum,
+			InstantiationMap eta) {
+		this(Matcher.DEFAULT, redex, reactum, eta);
 	}
 
-	public BigraphRewritingRule(BigraphMatcher matcher, Bigraph redex,
-			Bigraph reactum, BigraphInstantiationMap eta) {
+	public RewritingRule(Matcher matcher, Bigraph redex,
+			Bigraph reactum, InstantiationMap eta) {
 		if (reactum.getSignature() != redex.getSignature()) {
 			throw new IncompatibleSignatureException(
 					"Redex and reactum should have the same singature.",
@@ -97,7 +96,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 		this.reactum = reactum;
 		this.eta = eta;
 
-		this.matcher = (matcher == null) ? BigraphMatcher.DEFAULT : matcher;
+		this.matcher = (matcher == null) ? Matcher.DEFAULT : matcher;
 	}
 
 	/**
@@ -113,7 +112,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	 *            The match referred by the instantiation.
 	 */
 	protected void instantiateReactumNode(Node original, Node instance,
-			BigraphMatch match) {
+			Match match) {
 	}
 
 	/**
@@ -123,7 +122,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	 *            the match with respect to the reactum has to be instantiated.
 	 * @return the reactum instance.
 	 */
-	protected final Bigraph instantiateReactum(BigraphMatch match) {
+	protected final Bigraph instantiateReactum(Match match) {
 		Bigraph reactum = getReactum();
 		Bigraph big = new Bigraph(reactum.signature);
 		Owner owner = big;
@@ -218,7 +217,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 	}
 
 	@Override
-	public BigraphInstantiationMap getInstantiationRule() {
+	public InstantiationMap getInstantiationRule() {
 		return this.eta;
 	}
 
@@ -231,7 +230,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 
 		private final Bigraph target;
 
-		private Iterable<? extends BigraphMatch> mAble;
+		private Iterable<? extends Match> mAble;
 
 		RewriteIterable(Bigraph target) {
 			this.target = target;
@@ -246,7 +245,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 
 		private class RewriteIterator implements Iterator<Bigraph> {
 
-			Iterator<? extends BigraphMatch> mTor = null;
+			Iterator<? extends Match> mTor = null;
 			Iterator<Bigraph> args = null;
 			// caches context+redex but not args
 			Bigraph big = null;
@@ -265,7 +264,7 @@ public class BigraphRewritingRule implements RewritingRule<Bigraph, Bigraph> {
 				}
 				if (args == null || !args.hasNext()) {
 					// if (mTor.hasNext()) {
-					BigraphMatch match = mTor.next();
+					Match match = mTor.next();
 					if (DEBUG_PRINT_MATCH)
 						System.out.println(match);
 					BigraphBuilder bb = new BigraphBuilder(

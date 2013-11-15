@@ -4,14 +4,13 @@ import java.util.*;
 
 import it.uniud.mads.jlibbig.core.*;
 import it.uniud.mads.jlibbig.core.std.Bigraph;
-import it.uniud.mads.jlibbig.core.std.BigraphInstantiationMap;
 
 public class InstantiationMap implements InstantiationRule<AgentBigraph> {
 
-	private final BigraphInstantiationMap eta;
+	private final it.uniud.mads.jlibbig.core.std.InstantiationMap eta;
 
 	InstantiationMap(int codomain, int... map) {
-		eta = new BigraphInstantiationMap(codomain, map);
+		eta = new it.uniud.mads.jlibbig.core.std.InstantiationMap(codomain, map);
 	}
 
 	public int getPlaceDomain() {

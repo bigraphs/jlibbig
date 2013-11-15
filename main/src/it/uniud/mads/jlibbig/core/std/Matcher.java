@@ -2,7 +2,6 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
-import it.uniud.mads.jlibbig.core.Matcher;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 import it.uniud.mads.jlibbig.core.util.BidMap;
 
@@ -14,15 +13,15 @@ import choco.kernel.model.variables.integer.IntegerExpressionVariable;
 import choco.kernel.model.variables.integer.IntegerVariable;
 
 /**
- * Provides services for computing the matches of bigraphs with abstract
- * internal names which are described by {@link BigraphMatch}.
+ * Provides services for computing matches of bigraphs with abstract
+ * internal names; matches are described by {@link Match}.
  * 
  * The field {@link #DEFAULT} refers to a default instance of the matcher.
  * 
  * The standard matching of nodes can be changed by re-implementing the
  * protected method {@link #areMatchable}.
  */
-public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
+public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigraph> {
 
 	private final static boolean DEBUG = false;
 	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
@@ -32,10 +31,10 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 	/**
 	 * The default instance of the matcher.
 	 */
-	public final static BigraphMatcher DEFAULT = new BigraphMatcher();
+	public final static Matcher DEFAULT = new Matcher();
 
 	@Override
-	public Iterable<? extends BigraphMatch> match(Bigraph agent, Bigraph redex) {
+	public Iterable<? extends Match> match(Bigraph agent, Bigraph redex) {
 		return new MatchIterable(agent, redex);
 	}
 
@@ -63,7 +62,7 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		return fromAgent.getControl().equals(fromRedex.getControl());
 	}
 
-	private class MatchIterable implements Iterable<BigraphMatch> {
+	private class MatchIterable implements Iterable<Match> {
 
 		final Bigraph agent, redex;
 
@@ -161,16 +160,16 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 		}
 
 		@Override
-		public Iterator<BigraphMatch> iterator() {
+		public Iterator<Match> iterator() {
 			return new MatchIterator();
 		}
 
-		private class MatchIterator implements Iterator<BigraphMatch> {
+		private class MatchIterator implements Iterator<Match> {
 
 			private boolean mayHaveNext = true;
 			private boolean firstRun = true;
 
-			private BigraphMatch nextMatch = null;
+			private Match nextMatch = null;
 
 			final private CPModel model;
 			final private CPSolver solver;
@@ -898,7 +897,7 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					}
 				}
 				// END OF CONSTRAINTS /////////////////////////////////////////
-
+				
 				CPSolver solver = new CPSolver();
 				solver.read(model);
 				solver.generateSearchStrategy();
@@ -915,11 +914,11 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 			}
 
 			@Override
-			public BigraphMatch next() {
+			public Match next() {
 				if (!hasNext()) {
 					throw new NoSuchElementException();
 				}
-				BigraphMatch res = nextMatch;
+				Match res = nextMatch;
 				nextMatch = null;
 				return res;
 			}
@@ -1578,7 +1577,7 @@ public class BigraphMatcher implements Matcher<Bigraph, Bigraph> {
 					}
 
 				}
-				this.nextMatch = new BigraphMatch(ctx, rdx, id, prm, nEmb);
+				this.nextMatch = new Match(ctx, rdx, id, prm, nEmb);
 			}
 		}
 	}
