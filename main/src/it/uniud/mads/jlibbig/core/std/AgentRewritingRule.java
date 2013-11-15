@@ -5,13 +5,13 @@ import java.util.*;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 
 /**
- * This class specialises {@link BigraphRewritingRule} for ground bigraphs i.e.
+ * This class specialises {@link RewritingRule} for ground bigraphs i.e.
  * bigraphs with empty inner interface. Matches are computed by means of 
  * {@link AgentMatcher} by other matchers can be specified.
  * 
- * @see BigraphRewritingRule
+ * @see RewritingRule
  */
-public class AgentRewritingRule extends BigraphRewritingRule {
+public class AgentRewritingRule extends RewritingRule {
 
 	private final static boolean DEBUG = true;
 	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
@@ -24,23 +24,23 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 	private AgentMatcher matcher;
 
 	public AgentRewritingRule(Bigraph redex, Bigraph reactum, int... eta) {
-		this(AgentMatcher.DEFAULT, redex, reactum, new BigraphInstantiationMap(
+		this(AgentMatcher.DEFAULT, redex, reactum, new InstantiationMap(
 				redex.sites.size(), eta));
 	}
 
 	public AgentRewritingRule(AgentMatcher matcher, Bigraph redex,
 			Bigraph reactum, int... eta) {
-		this(matcher, redex, reactum, new BigraphInstantiationMap(
+		this(matcher, redex, reactum, new InstantiationMap(
 				redex.sites.size(), eta));
 	}
 
 	public AgentRewritingRule(Bigraph redex, Bigraph reactum,
-			BigraphInstantiationMap eta) {
+			InstantiationMap eta) {
 		this(AgentMatcher.DEFAULT, redex, reactum, eta);
 	}
 
 	public AgentRewritingRule(AgentMatcher matcher, Bigraph redex,
-			Bigraph reactum, BigraphInstantiationMap eta) {
+			Bigraph reactum, InstantiationMap eta) {
 		super(redex, reactum, eta);
 
 		this.matcher = (matcher == null) ? AgentMatcher.DEFAULT : matcher;
@@ -73,7 +73,7 @@ public class AgentRewritingRule extends BigraphRewritingRule {
 	}
 
 	@Override
-	public BigraphInstantiationMap getInstantiationRule() {
+	public InstantiationMap getInstantiationRule() {
 		return this.eta;
 	}
 

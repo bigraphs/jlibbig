@@ -1,7 +1,7 @@
 package it.uniud.mads.jlibbig.udlang;
 
 import it.uniud.mads.jlibbig.core.std.Bigraph;
-import it.uniud.mads.jlibbig.core.std.BigraphRewritingRule;
+import it.uniud.mads.jlibbig.core.std.RewritingRule;
 import it.uniud.mads.jlibbig.core.std.Signature;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import java.util.*;
 public class BigraphRewritingSystem {
 	final private Signature signature;
 	final private Set<Bigraph> bigraphs;
-	final private Set<BigraphRewritingRule> reactions;
+	final private Set<RewritingRule> reactions;
 
 	/**
 	 * @param sig
@@ -53,9 +53,9 @@ public class BigraphRewritingSystem {
 	 * 
 	 * @return A set of Reaction.
 	 * @see Bigraph
-	 * @see BigraphRewritingRule
+	 * @see RewritingRule
 	 */
-	public Set<BigraphRewritingRule> getReactions() {
+	public Set<RewritingRule> getReactions() {
 		return Collections.unmodifiableSet(reactions);
 	}
 
@@ -106,7 +106,7 @@ public class BigraphRewritingSystem {
 			throw new RuntimeException(
 					"Redex and reactum must have the same set of innernames.");
 		reactions
-				.add(new BigraphRewritingRule(redex, reactum, instantiationMap));
+				.add(new RewritingRule(redex, reactum, instantiationMap));
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class BigraphRewritingSystem {
 		StringBuilder str = new StringBuilder();
 
 		str.append("REACTIONS:").append(nl);
-		for (BigraphRewritingRule reac : reactions) {
+		for (RewritingRule reac : reactions) {
 			str.append(reac.getRedex().toString()).append(nl).append("-->")
 					.append(nl).append(reac.getReactum().toString()).append(nl)
 					.append(nl);

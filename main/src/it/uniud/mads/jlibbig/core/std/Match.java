@@ -1,6 +1,5 @@
 package it.uniud.mads.jlibbig.core.std;
 
-import it.uniud.mads.jlibbig.core.AbstractMatch;
 import it.uniud.mads.jlibbig.core.util.BidMap;
 
 /**
@@ -15,14 +14,14 @@ import it.uniud.mads.jlibbig.core.util.BidMap;
  * juxtaposition of F and a suitable identity; these are called the redex image
  * and the redex id respectively.
  */
-public class BigraphMatch extends AbstractMatch<Bigraph> {
+public class Match extends it.uniud.mads.jlibbig.core.AbstractMatch<Bigraph> {
 
 	protected Bigraph rdxImage;
 	protected Bigraph rdxId;
 
 	private BidMap<Node, Node> emb_nodes;
 
-	protected BigraphMatch(Bigraph context, Bigraph redexImage,
+	protected Match(Bigraph context, Bigraph redexImage,
 			Bigraph redexId, Bigraph param, BidMap<Node, Node> nodeEmbedding) {
 		super(context, null, param);
 		// if(context == null)
@@ -101,7 +100,7 @@ public class BigraphMatch extends AbstractMatch<Bigraph> {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("BigraphMatch:\ncontext = ").append(context)
+		builder.append("Match:\ncontext = ").append(context)
 				.append("\nredexImage = ").append(rdxImage)
 				.append("\nredexId = ").append(rdxId).append("\nparam = ")
 				.append(param);

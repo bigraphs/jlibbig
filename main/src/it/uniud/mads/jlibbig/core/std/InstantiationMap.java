@@ -2,7 +2,6 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
-import it.uniud.mads.jlibbig.core.InstantiationRule;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 
@@ -11,9 +10,9 @@ import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
  * are maps from the reactum sites to the redex ones describing how parameters
  * (for the fixed width) are instantiated.
  * 
- * @see BigraphRewritingRule
+ * @see RewritingRule
  */
-public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
+public class InstantiationMap implements it.uniud.mads.jlibbig.core.InstantiationRule<Bigraph> {
 
 	// private final static boolean DEBUG = true;
 	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
@@ -24,7 +23,7 @@ public class BigraphInstantiationMap implements InstantiationRule<Bigraph> {
 
 	final private int[] multiplicity;
 
-	public BigraphInstantiationMap(int codomain, int... map) {
+	public InstantiationMap(int codomain, int... map) {
 		dom = map.length;
 		cod = codomain--;
 		this.map = new int[dom];

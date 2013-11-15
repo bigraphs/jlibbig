@@ -15,7 +15,7 @@ import java.util.*;
  * 
  * Given two bigraphs F and G (over the same signature), a match of F in G is a
  * triple <C,R,P> such that their composition C;R;P yields G as for
- * {@link it.uniud.mads.jlibbig.core.Match}. Like {@link BigraphMatch} the redex
+ * {@link it.uniud.mads.jlibbig.core.Match}. Like {@link Match} the redex
  * R is the juxtaposition of F and a suitable identity; these are called the
  * redex image and the redex id respectively. Moreover, the parameter P is given
  * in discrete normal form as the composition of a wiring described
@@ -23,7 +23,7 @@ import java.util.*;
  * ground bigraphs described by {@link #getParams()} which are indexed by the
  * sites of the redex ({@link #getRedexImage()}).
  */
-public class AgentMatch extends BigraphMatch {
+public class AgentMatch extends Match {
 
 	protected final List<Bigraph> params;
 	protected final Bigraph lambda;
