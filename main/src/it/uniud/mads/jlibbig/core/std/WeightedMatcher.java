@@ -16,13 +16,13 @@ import choco.kernel.solver.Solver;
 
 /**
  * Provides services for computing optimal matches of bigraphs with abstract
- * internal names; matches are described by {@link Match}.
- * A weight is assigned to every matchable pair of nodes (one from the agent 
- * and the other from the redex) and the weight of a match is defined as the
- * sum of weights assigned to the pairs used in the match. The matcher computes
- * optimal matches only i.e. those with maximal (resp. minimal) weight. The default
- * behaviour looks for maximal solutions but the behaviour can be specified.
- * Weights are defined by the method {@link #matchingWeight}.
+ * internal names; matches are described by {@link Match}. A weight is assigned
+ * to every matchable pair of nodes (one from the agent and the other from the
+ * redex) and the weight of a match is defined as the sum of weights assigned to
+ * the pairs used in the match. The matcher computes optimal matches only i.e.
+ * those with maximal (resp. minimal) weight. The default behaviour looks for
+ * maximal solutions but the behaviour can be specified. Weights are defined by
+ * the method {@link #matchingWeight}.
  * 
  * The field {@link #DEFAULT} refers to a default instance of the matcher.
  * 
@@ -41,13 +41,24 @@ public class WeightedMatcher extends Matcher {
 	 */
 	public final static WeightedMatcher DEFAULT = new WeightedMatcher();
 
+	private final boolean maximizing;
+
+	public WeightedMatcher() {
+		this(true);
+	}
+
+	public WeightedMatcher(boolean maximizing) {
+		super();
+		this.maximizing = maximizing;
+	}
+
 	@Override
 	public Iterable<? extends WeightedMatch> match(Bigraph agent, Bigraph redex) {
 		return new MatchIterable(agent, redex);
 	}
-	
-	protected int matchingWeight(Bigraph agent, Node agentNode,
-			Bigraph redex, Node redexNode) {
+
+	protected int matchingWeight(Bigraph agent, Node agentNode, Bigraph redex,
+			Node redexNode) {
 		return 0;
 	}
 
@@ -181,7 +192,7 @@ public class WeightedMatcher extends Matcher {
 			 */
 			final Map<Handle, Map<Handle, IntegerVariable>> f_vars = new IdentityHashMap<>(
 					rhs);
-			
+
 			/* the cost expression */
 			private IntegerVariable weight;
 
@@ -340,7 +351,7 @@ public class WeightedMatcher extends Matcher {
 				weight = Choco.makeIntVar("OPT");
 				model.addVariable(weight);
 				List<IntegerExpressionVariable> weights = new LinkedList<>();
-				
+
 				// PLACE CONSTRAINTS //////////////////////////////////////////
 
 				// 2 // M_ij = 0 if nodes are different in the sense of this.eq
@@ -825,11 +836,11 @@ public class WeightedMatcher extends Matcher {
 							boolean comp = areMatchable(agent, ni, redex, nj);
 							// ! Place constraint 2 //
 							if (comp) {
-								Integer w = matchingWeight(agent,ni,redex,nj);
-								if(w != 0){
-									weights.add(Choco.mult(w,m));
+								Integer w = matchingWeight(agent, ni, redex, nj);
+								if (w != 0) {
+									weights.add(Choco.mult(w, m));
 								}
-							}else{
+							} else {
 								model.addConstraint(Choco.eq(0, m));
 							}
 							for (int i = ni.getControl().getArity() - 1; 0 <= i; i--) {
@@ -896,14 +907,16 @@ public class WeightedMatcher extends Matcher {
 						}
 					}
 				}
-				
+
 				// weight var
 				{
-					IntegerExpressionVariable[] vars = new IntegerExpressionVariable[weights.size()];
-					model.addConstraint(Choco.eq(weight,Choco.sum(weights.toArray(vars))));
+					IntegerExpressionVariable[] vars = new IntegerExpressionVariable[weights
+							.size()];
+					model.addConstraint(Choco.eq(weight,
+							Choco.sum(weights.toArray(vars))));
 				}
 				// END OF CONSTRAINTS /////////////////////////////////////////
-				
+
 				CPSolver solver = new CPSolver();
 				solver.read(model);
 				solver.setObjective(solver.getVar(weight));
@@ -946,7 +959,8 @@ public class WeightedMatcher extends Matcher {
 				if (DEBUG_PRINT_SOLUTION_FETCH)
 					System.out.println("fetch solution has been invoked...");
 				// look for a solution for the CSP
-				if ((first && !solver.maximize(true))
+				if ((first && 
+						((maximizing && !solver.maximize(false)) || (!maximizing && !solver.minimize(false))))
 						|| (!first && !solver.nextSolution())) {
 					if (DEBUG_PRINT_SOLUTION_FETCH)
 						System.out

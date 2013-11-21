@@ -2,8 +2,6 @@ package it.uniud.mads.jlibbig.core;
 
 import java.util.Collection;
 
-import it.uniud.mads.jlibbig.core.std.Signature;
-
 /**
  * A bigraphical reactive system is a collection of states represented by
  * bigraphs that can evolve by means of reactions described by a collection of
@@ -13,8 +11,6 @@ import it.uniud.mads.jlibbig.core.std.Signature;
  *            the kind of bigraphs describing the states of the system.
  */
 public interface ReactiveSystem<B extends Bigraph<?>> {
-	public abstract Signature getSignature();
-
 	public abstract Collection<? extends ReactionRule<? extends B>> getRules();
 
 	public abstract Collection<? extends B> getBigraphs();
