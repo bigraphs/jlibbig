@@ -5,7 +5,6 @@ import java.util.*;
 
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
-import it.uniud.mads.jlibbig.core.util.WeakHashSet;
 
 /**
  * Objects created from this class can be used to keep trace of nodes and their
@@ -16,9 +15,13 @@ public class NodeChaser {
 	private static final Owner FAKE_OWNER = new Owner() {
 	};
 
-	private final Map<Owner, WeakHashSet<Node>> index = new WeakHashMap<>();
+	private final Map<Owner, Set<Node>> index = new WeakHashMap<>();
 	private final Map<Node, PropertyListener<Owner>> ownerLsts = new WeakHashMap<>();
 	private final Map<Node, ReplicationListener> repLsts = new WeakHashMap<>();
+
+    private Set<Node> newWeakHashSet() {
+        return Collections.newSetFromMap(new WeakHashMap<Node, Boolean>());
+    }
 
 	private Owner getOwnerKey(Node node) {
 		return getOwnerKey(node.getOwner());
@@ -44,16 +47,16 @@ public class NodeChaser {
 	}
 
 	/**
-	 * Retrieves the chased nodes for the given owner. 
+	 * Retrieves the chased nodes for the given owner.
 	 * @param owner
 	 * @return the collection of all chased nodes belonging to the given owner.
 	 */
 	public Collection<Node> getAll(Owner owner) {
-		WeakHashSet<Node> s = index.get(getOwnerKey(owner));
+		Set<Node> s = index.get(getOwnerKey(owner));
 		if (s == null)
 			return new HashSet<>();
 		else
-			return s.toSet();
+			return s;
 	}
 
 	/**
@@ -81,7 +84,7 @@ public class NodeChaser {
 	 * @param owner
 	 */
 	public void releaseAll(Owner owner) {
-		WeakHashSet<Node> set = index.get(owner);
+		Set<Node> set = index.get(owner);
 		if (set == null)
 			return;
 		Iterator<Node> ir = set.iterator();
@@ -125,9 +128,9 @@ public class NodeChaser {
 	}
 
 	void chase(EditableNode node) {
-		WeakHashSet<Node> ns = index.get(getOwnerKey(node));
+		Set<Node> ns = index.get(getOwnerKey(node));
 		if (ns == null) {
-			ns = new WeakHashSet<>();
+			ns = newWeakHashSet();
 			index.put(getOwnerKey(node), ns);
 		}
 		ns.add(node);
@@ -138,12 +141,12 @@ public class NodeChaser {
 			@Override
 			public void onChanged(Property<? extends Owner> property,
 					Owner oldValue, Owner newValue) {
-				WeakHashSet<Node> ns = index.get(getOwnerKey(oldValue));
+				Set<Node> ns = index.get(getOwnerKey(oldValue));
 				if (ns != null)
 					ns.remove(ref.get());
 				ns = index.get(getOwnerKey(newValue));
 				if (ns == null) {
-					ns = new WeakHashSet<>();
+					ns = newWeakHashSet();
 					index.put(getOwnerKey(newValue), ns);
 				}
 				ns.add(ref.get());

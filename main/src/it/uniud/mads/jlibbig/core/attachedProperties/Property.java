@@ -16,7 +16,7 @@ import java.util.List;
  * interface, and the object created with that class is registered with an
  * object instance of a class inheriting from Property using
  * {@link #registerListener} method.
- * 
+ *
  * @param <V>
  *            the type of the value held by the property.
  */
@@ -28,10 +28,10 @@ public abstract class Property<V> {
 	private final String name;
 
 	/**
-	 * A flag indicating whatever the property is writable
+	 * A flag indicating whether the property is writable
 	 */
 	protected boolean readOnly;
-	
+
 	private final List<PropertyListener<? super V>> _listeners = new LinkedList<>();
 
 	/**
@@ -39,12 +39,12 @@ public abstract class Property<V> {
 	 */
 	protected final Collection<PropertyListener<? super V>> listeners = Collections
 			.unmodifiableCollection(_listeners);
-	
+
 	/**
 	 * Every property shall have a name. The name can not be changed. However, a
 	 * property can be referred by different names wrapping it inside other
 	 * properties e.g. by means of {@link DelegatedProperty}.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the property.
 	 */
@@ -69,7 +69,7 @@ public abstract class Property<V> {
 
 	/**
 	 * Checks if the given listener is registered.
-	 * 
+	 *
 	 * @param listener
 	 *            the listener.
 	 * @return a boolean representing whether the listener is actually
@@ -81,7 +81,7 @@ public abstract class Property<V> {
 
 	/**
 	 * Registers the given listener with the property.
-	 * 
+	 *
 	 * @param listener
 	 *            the listener to be registered.
 	 */
@@ -92,7 +92,7 @@ public abstract class Property<V> {
 	}
 	/**
 	 * Unregisters the given listener.
-	 * 
+	 *
 	 * @param listener
 	 *            the listener to be unregistered.
 	 * @return a boolean representing whether the listener was actually
@@ -101,17 +101,17 @@ public abstract class Property<V> {
 	public boolean unregisterListener(PropertyListener<? super V> listener) {
 		return _listeners.remove(listener);
 	}
-	
+
 	/**
 	 * Gets the property value.
-	 * 
+	 *
 	 * @return the property value.
 	 */
 	public abstract V get();
 
 	/**
 	 * Sets the property value.
-	 * 
+	 *
 	 * @param value
 	 *            the new value.
 	 * @return the old value.
@@ -128,7 +128,7 @@ public abstract class Property<V> {
 	/**
 	 * The method is invoked when the property is attached to a property target
 	 * handling properties with {@link PropertyContainer}.
-	 * 
+	 *
 	 * @param target
 	 *            the target to which the property is attached.
 	 */
@@ -138,7 +138,7 @@ public abstract class Property<V> {
 	/**
 	 * The method is invoked when the property is detached from a property
 	 * target handling properties with {@link PropertyContainer}.
-	 * 
+	 *
 	 * @param target
 	 *            the target from which the property is detached.
 	 */
@@ -151,9 +151,9 @@ public abstract class Property<V> {
 	};
 
 	/**
-	 * Raises the value changed event. The property parameter can be used to 
+	 * Raises the value changed event. The property parameter can be used to
 	 * impersonate other properties (e.g. by delegation).
-	 * 
+	 *
 	 * @param property the property changed.
 	 * @param oldValue the old value.
 	 * @param newValue the new value.
