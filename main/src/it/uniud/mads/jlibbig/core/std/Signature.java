@@ -14,7 +14,7 @@ public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 	/**
 	 * Creates a new signature for the given list of controls; a fresh
 	 * identifier is choosen. Controls can not have the same name.
-	 * 
+	 *
 	 * @param controls
 	 *            the controls contained within the signature.
 	 */
@@ -25,7 +25,7 @@ public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 	/**
 	 * Creates a new signature for the given identifier and list of controls.
 	 * Controls can not have the same name.
-	 * 
+	 *
 	 * @param usid
 	 *            the identifier of the signature.
 	 * @param controls
@@ -38,7 +38,7 @@ public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 	/**
 	 * Creates a new signature for the given list of controls; a fresh
 	 * identifier is choosen. Controls can not have the same name.
-	 * 
+	 *
 	 * @param controls
 	 *            the controls contained within the signature.
 	 */
@@ -49,7 +49,7 @@ public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 	/**
 	 * Creates a new signature for the given identifier and list of controls.
 	 * Controls can not have the same name.
-	 * 
+	 *
 	 * @param usid
 	 *            the identifier of the signature.
 	 * @param controls
@@ -60,10 +60,10 @@ public class Signature extends it.uniud.mads.jlibbig.core.Signature<Control> {
 	}
 
 	/**
-	 * Checks whatever the signature is contained in the given one. Containment
+	 * Checks whether the signature is contained in the given one. Containment
 	 * is based on set inclusion and {@link Control} equality; USIDs are
 	 * ignored.
-	 * 
+	 *
 	 * @param other
 	 *            the other signature.
 	 * @return a boolean indicating whether this object is contained in the

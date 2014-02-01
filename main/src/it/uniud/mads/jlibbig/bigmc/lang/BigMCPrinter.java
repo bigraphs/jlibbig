@@ -19,9 +19,9 @@ import it.uniud.mads.jlibbig.bigmc.*;
 /**
  * BigMC's syntax pretty printer. Convert into Strings all the bigraphs or
  * systems that can be represented with the BigMC's Language
- * 
+ *
  * @see <a href="http://bigraph.org/bigmc/">bigraph.org/bigmc</a>
- * 
+ *
  */
 public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	public BigMCPrinter() {
@@ -31,7 +31,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 
 	/**
 	 * Convert a BigraphSystem into a string in BigMC's syntax
-	 * 
+	 *
 	 * @param brs
 	 *            the system that will be converted into a string.
 	 * @see BigraphRewritingSystem
@@ -64,7 +64,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 
 	/**
 	 * Convert a Signature into a string in BigMC's syntax
-	 * 
+	 *
 	 * @param sig
 	 *            The Signature that will be converted into a string.
 	 * @see Signature
@@ -85,7 +85,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	/**
 	 * Convert a Collection of {@link RewritingRule} into a string in BigMC's
 	 * syntax.
-	 * 
+	 *
 	 * @param reaction_rules
 	 *            Collection of RewritingRules that will be converted into a
 	 *            string.
@@ -102,7 +102,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	/**
 	 * Convert a {@link RewritingRule} into the corresponding String in BigMC's
 	 * syntax.
-	 * 
+	 *
 	 * @param reaction
 	 * @return the resulting string
 	 */
@@ -114,7 +114,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	/**
 	 * Translate a bigraph ( {@link ReactionBigraph} ) to a string with BigMC's
 	 * syntax
-	 * 
+	 *
 	 * @param big
 	 *            the bigraph that will be converted into a string.
 	 * @return the resulting string
@@ -144,7 +144,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	/**
 	 * Translate a bigraph ( {@link ReactionBigraphBuilder} ) to a string with
 	 * BigMC's syntax
-	 * 
+	 *
 	 * @param big
 	 *            the bigraph that will be converted into a string.
 	 * @return the resulting string
@@ -173,7 +173,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	/**
 	 * Translate a bigraph ( {@link AgentBigraph} ) to a string with BigMC's
 	 * syntax
-	 * 
+	 *
 	 * @param big
 	 *            the bigraph that will be converted into a string.
 	 * @return the resulting string
@@ -198,7 +198,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	/**
 	 * Translate a bigraph ( {@link AgentBigraphBuilder} ) to a string with
 	 * BigMC's syntax
-	 * 
+	 *
 	 * @param big
 	 *            the bigraph that will be converted into a string.
 	 * @return the resulting string
@@ -224,7 +224,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 	 * Translate a bigraph ( {@link BigraphHandler} ) to a string with BigMC's
 	 * syntax (if the bigraph can be converted into a ReactionBigraph or an
 	 * AgentBigraph).
-	 * 
+	 *
 	 * @param big
 	 *            the bigraph that will be converted into a string.
 	 * @return the resulting string
@@ -289,7 +289,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 
 	/**
 	 * Auxiliary procedure, used by toString( ReactionBigraph )
-	 * 
+	 *
 	 * @param d
 	 *            control or site handler
 	 * @param collection
@@ -308,12 +308,12 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 		if (d instanceof Site) {
 			s.append("$").append(sitenum.get(sitelist.indexOf(d)));
 		} else {
-			s.append(((Node) d).getControl().getName());
+			s.append(((Node<?>) d).getControl().getName());
 
 			StringBuilder ns = new StringBuilder();
 			int unlinked = 0;
 
-			Iterator<? extends Port> portIt = ((Node) d).getPorts().iterator();
+			Iterator<? extends Port<?>> portIt = ((Node<?>) d).getPorts().iterator();
 			while (portIt.hasNext()) {
 				OuterName handle = (OuterName)portIt.next().getHandle();
 				if (collection.contains(handle)) {
@@ -329,7 +329,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 				s.append("[").append(ns.substring(0, ns.length() - 2))
 						.append("]");
 
-			Collection<? extends Child> childs = ((Node) d).getChildren();
+			Collection<? extends Child> childs = ((Node<?>) d).getChildren();
 			if (!childs.isEmpty()) {
 				s.append(".");
 				if (childs.size() > 1)
@@ -352,7 +352,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 
 	/**
 	 * Auxiliary procedure, used by toString( AgentBigraph )
-	 * 
+	 *
 	 * @param c
 	 *            control or site handler
 	 * @param collection
@@ -367,12 +367,12 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 			throw new RuntimeException(
 					"Unexpected error while printing: AgentBigraph with Sites.");
 		} else {
-			s.append(((Node) c).getControl().getName());
+			s.append(((Node<?>) c).getControl().getName());
 
 			StringBuilder ns = new StringBuilder();
 			int unlinked = 0;
 
-			Iterator<? extends Port> portIt = ((Node) c).getPorts().iterator();
+			Iterator<? extends Port<?>> portIt = ((Node<?>) c).getPorts().iterator();
 			while (portIt.hasNext()) {
 				OuterName handle = (OuterName)portIt.next().getHandle();
 				if (collection.contains(handle)) {
@@ -388,7 +388,7 @@ public class BigMCPrinter implements PrettyPrinter<BigraphRewritingSystem> {
 				s.append("[").append(ns.substring(0, ns.length() - 2))
 						.append("]");
 
-			Collection<? extends Child> childs = ((Node) c).getChildren();
+			Collection<? extends Child> childs = ((Node<?>) c).getChildren();
 			if (!childs.isEmpty()) {
 				s.append(".");
 				if (childs.size() > 1)

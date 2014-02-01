@@ -9,7 +9,7 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
 /**
  * This class provides services for the creation and manipulation of bigraphs
  * since instances of {@link Bigraph} are immutable.
- * 
+ *
  * For efficiency reasons immutability can be relaxed by the user (cf.
  * {@link #outerCompose(Bigraph, boolean)}) by allowing the reuse of (parts) of
  * the arguments. Notice that, if not handled properly, the reuse of bigraphs
@@ -25,7 +25,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Initially the builder describes an empty bigraph for the given signature.
-	 * 
+	 *
 	 * @param sig
 	 *            the signature to be used.
 	 */
@@ -35,7 +35,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Creates a builder from (a copy of) the given bigraph.
-	 * 
+	 *
 	 * @param big
 	 *            the bigraph describing the starting state.
 	 */
@@ -47,7 +47,7 @@ final public class BigraphBuilder implements
 	 * @param big
 	 *            the bigraph describing the starting state.
 	 * @param reuse
-	 *            whatever the argument can be reused as it is or should be
+	 *            whether the argument can be reused as it is or should be
 	 *            cloned.
 	 */
 	BigraphBuilder(Bigraph big, boolean reuse) {
@@ -67,7 +67,7 @@ final public class BigraphBuilder implements
 	/**
 	 * Returns the bigraph build so far. The new bigraph is independent from any
 	 * other operation done by the builder.
-	 * 
+	 *
 	 * @return a bigraph.
 	 */
 	public Bigraph makeBigraph() {
@@ -78,7 +78,7 @@ final public class BigraphBuilder implements
 	 * Return the bigraph build so far. The new bigraph is independent from any
 	 * other operation done by the builder. The new bigraph can be created more
 	 * efficiently if the builder is closed by the same method call.
-	 * 
+	 *
 	 * @param close
 	 *            disables the builder to perform any other operation.
 	 * @return a bigraph.
@@ -100,7 +100,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * A closed builder can not perform any operation.
-	 * 
+	 *
 	 * @return a boolean indicating whether the builder is disabled to perform
 	 *         any operation.
 	 */
@@ -192,7 +192,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a root to the current bigraph.
-	 * 
+	 *
 	 * @return the new root.
 	 */
 	public Root addRoot() {
@@ -206,7 +206,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a root to the current bigraph.
-	 * 
+	 *
 	 * @param index
 	 *            the region to be assigned to the root.
 	 * @return the new root.
@@ -222,7 +222,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a site to the current bigraph.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent of the site.
 	 * @return the new site.
@@ -240,7 +240,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a new node to the bigraph.
-	 * 
+	 *
 	 * @param controlName
 	 *            the control's name of the new node.
 	 * @param parent
@@ -253,7 +253,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a new node to the bigraph.
-	 * 
+	 *
 	 * @param controlName
 	 *            the control's name of the new node.
 	 * @param parent
@@ -290,7 +290,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a new node to the bigraph.
-	 * 
+	 *
 	 * @param controlName
 	 *            the control's name of the new node.
 	 * @param parent
@@ -327,7 +327,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a fresh outer name to the current bigraph.
-	 * 
+	 *
 	 * @return the new outer name.
 	 */
 	public OuterName addOuterName() {
@@ -336,7 +336,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Add an outer name to the current bigraph.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the new outer name.
 	 * @return the new outer name.
@@ -349,7 +349,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds an outer name to the current bigraph.
-	 * 
+	 *
 	 * @param name
 	 *            the outer name that will be added.
 	 * @return new outer name.
@@ -369,7 +369,7 @@ final public class BigraphBuilder implements
 	/**
 	 * Adds a fresh inner name to the current bigraph. The name will be the only
 	 * point of a fresh edge.
-	 * 
+	 *
 	 * @return the new inner name.
 	 */
 	public InnerName addInnerName() {
@@ -378,7 +378,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds a new inner name to the current bigraph.
-	 * 
+	 *
 	 * @param handle
 	 *            the outer name or the edge linking the new inner name.
 	 * @return the new inner name
@@ -391,7 +391,7 @@ final public class BigraphBuilder implements
 	/**
 	 * Adds an inner name to the current bigraph. The name will be the only
 	 * point of a fresh edge.
-	 * 
+	 *
 	 * @param name
 	 *            name of the new inner name.
 	 * @return the new inner name.
@@ -404,7 +404,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Adds an inner name to the current bigraph.
-	 * 
+	 *
 	 * @param name
 	 *            name of the new inner name.
 	 * @param handle
@@ -421,7 +421,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Add an innername to the current bigraph.
-	 * 
+	 *
 	 * @param n
 	 *            innername that will be added.
 	 * @param h
@@ -442,7 +442,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Links a set of points with a fresh edge.
-	 * 
+	 *
 	 * @param points
 	 *            the points to be linked.
 	 * @return the new edge connecting the points in input.
@@ -459,7 +459,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Links a set of points with the given handle.
-	 * 
+	 *
 	 * @param handle
 	 *            the handle to be used.
 	 * @param points
@@ -491,7 +491,7 @@ final public class BigraphBuilder implements
 	/**
 	 * Disconnects a point from its current handle and connect it with a fresh
 	 * edge.
-	 * 
+	 *
 	 * @param point
 	 *            the point that will be unlinked
 	 * @return the new edge
@@ -502,7 +502,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Closes an outer name.
-	 * 
+	 *
 	 * @param name
 	 *            the outer name as string.
 	 * @return the edge linking the points linked by the outer name just closed.
@@ -522,7 +522,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Closes an outer name.
-	 * 
+	 *
 	 * @param name
 	 *            the outer name to close.
 	 * @return the edge linking the points linked by the outer name just closed.
@@ -542,7 +542,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Closes an inner name.
-	 * 
+	 *
 	 * @param name
 	 *            the inner name as string.
 	 */
@@ -559,7 +559,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Closes an inner name.
-	 * 
+	 *
 	 * @param name
 	 *            the inner name to close.
 	 */
@@ -576,7 +576,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Renames an outer name.
-	 * 
+	 *
 	 * @param oldName
 	 *            the outer name to be renamed.
 	 * @param newName
@@ -602,7 +602,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Renames an outer name.
-	 * 
+	 *
 	 * @param oldName
 	 *            the outer name to be renamed.
 	 * @param newName
@@ -625,7 +625,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Renames an inner name.
-	 * 
+	 *
 	 * @param oldName
 	 *            the inner name to be renamed.
 	 * @param newName
@@ -651,7 +651,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Renames an inner name.
-	 * 
+	 *
 	 * @param oldName
 	 *            the inner name to be renamed.
 	 * @param newName
@@ -674,7 +674,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Merges every region of the bigraph into one.
-	 * 
+	 *
 	 * @return the new root.
 	 */
 	public Root merge() {
@@ -694,7 +694,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Merges the given regions of the bigraph into one.
-	 * 
+	 *
 	 * @param index
 	 *            the index of the new region.
 	 * @param roots
@@ -741,7 +741,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Removes a site from the bigraph.
-	 * 
+	 *
 	 * @param site
 	 *            the site to be removed.
 	 */
@@ -755,7 +755,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Removes a site from the bigraph.
-	 * 
+	 *
 	 * @param index
 	 *            the index of site to be removed.
 	 */
@@ -781,7 +781,7 @@ final public class BigraphBuilder implements
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
 	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 */
@@ -793,7 +793,7 @@ final public class BigraphBuilder implements
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
 	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 * @param reuse
@@ -844,7 +844,7 @@ final public class BigraphBuilder implements
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
 	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 */
@@ -856,7 +856,7 @@ final public class BigraphBuilder implements
 	 * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
 	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 * @param reuse
@@ -905,7 +905,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Compose the current bigraphbuilder with the bigraph in input.
-	 * 
+	 *
 	 * @param graph
 	 *            the "inner" bigraph
 	 */
@@ -915,7 +915,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Compose the current bigraphbuilder with the bigraph in input.
-	 * 
+	 *
 	 * @param graph
 	 *            the "inner" bigraph
 	 * @param reuse
@@ -981,7 +981,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Compose bigraph in input with the current bigraphbuilder
-	 * 
+	 *
 	 * @param graph
 	 *            the "outer" bigraph
 	 */
@@ -991,7 +991,7 @@ final public class BigraphBuilder implements
 
 	/**
 	 * Compose the current bigraph in input with the bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            the "outer" bigraph
 	 * @param reuse
@@ -1067,7 +1067,7 @@ final public class BigraphBuilder implements
 	 * Nest the current bigraphbuilder with the bigraph in input. <br />
 	 * Nesting, differently from composition, add bigraph's outernames to
 	 * bigraphbuilder if they aren't already present.
-	 * 
+	 *
 	 * @param graph
 	 *            the "inner" bigraph
 	 */
@@ -1079,7 +1079,7 @@ final public class BigraphBuilder implements
 	 * Nest the current bigraphbuilder with the bigraph in input. <br />
 	 * Nesting, differently from composition, add bigraph's outername to
 	 * bigraphbuilder if they aren't already present.
-	 * 
+	 *
 	 * @param graph
 	 *            the "inner" bigraph
 	 * @param reuse
@@ -1120,7 +1120,7 @@ final public class BigraphBuilder implements
 	 * Nesting, differently from composition, add bigraph's outername to
 	 * bigraphbuilder if they aren't already present. It will then perform the
 	 * standard composition.
-	 * 
+	 *
 	 * @param graph
 	 *            the "inner" bigraph
 	 */
@@ -1133,7 +1133,7 @@ final public class BigraphBuilder implements
 	 * Nesting, differently from composition, add bigraph's outername to
 	 * bigraphbuilder if they aren't already present. It will then perform the
 	 * standard composition.
-	 * 
+	 *
 	 * @param graph
 	 *            the "inner" bigraph
 	 * @param reuse
@@ -1184,7 +1184,7 @@ final public class BigraphBuilder implements
 	 * be merged. <br />
 	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 */
@@ -1199,7 +1199,7 @@ final public class BigraphBuilder implements
 	 * be merged. <br />
 	 * Roots and sites of the bigraph will precede those of the bigraphbuilder
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 * @param reuse
@@ -1263,7 +1263,7 @@ final public class BigraphBuilder implements
 	 * be merged. <br />
 	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 */
@@ -1278,7 +1278,7 @@ final public class BigraphBuilder implements
 	 * be merged. <br />
 	 * Roots and sites of the bigraphbuilder will precede those of the bigraph
 	 * in the resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 * @param reuse
@@ -1344,7 +1344,7 @@ final public class BigraphBuilder implements
 	 * bigraphbuilder. <br />
 	 * Sites of the bigraph will precede those of the bigraphbuilder in the
 	 * resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 */
@@ -1358,7 +1358,7 @@ final public class BigraphBuilder implements
 	 * bigraphbuilder. <br />
 	 * Sites of the bigraph will precede those of the bigraphbuilder in the
 	 * resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 * @param reuse
@@ -1375,7 +1375,7 @@ final public class BigraphBuilder implements
 	 * bigraphbuilder. <br />
 	 * Sites of the bigraphbuilder will precede those of the bigraph in the
 	 * resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 */
@@ -1389,7 +1389,7 @@ final public class BigraphBuilder implements
 	 * bigraphbuilder. <br />
 	 * Sites of the bigraphbuilder will precede those of the bigraph in the
 	 * resulting bigraphbuilder.
-	 * 
+	 *
 	 * @param graph
 	 *            bigraph that will be juxtaposed.
 	 * @param reuse
