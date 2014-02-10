@@ -30,7 +30,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
 
 	/**
-	 * The default instance of the macher.
+	 * The default instance of the matcher.
 	 */
 	public final static AgentMatcher DEFAULT = new AgentMatcher();
 
@@ -46,7 +46,7 @@ public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 	 *            the redex to be matched in the agent.
 	 * @param neededParams
 	 *            a boolean mask describing whereas a parameter must be
-	 *            generated or can be skiped.
+	 *            generated or can be skipped.
 	 * @return an iterable for iterating over the matches.
 	 */
 	Iterable<? extends AgentMatch> match(Bigraph agent, Bigraph redex,
