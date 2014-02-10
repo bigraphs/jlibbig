@@ -14,6 +14,12 @@ import choco.kernel.model.variables.integer.IntegerExpressionVariable;
 import choco.kernel.model.variables.integer.IntegerVariable;
 import choco.kernel.solver.Solver;
 
+/*
+ * TODO: refactor matchers (Matcher, AgentMatcher ...)
+ * 
+ */
+
+
 /**
  * Provides services for computing optimal matches of bigraphs with abstract
  * internal names; matches are described by {@link Match}. A weight is assigned
@@ -28,6 +34,8 @@ import choco.kernel.solver.Solver;
  * 
  * The standard matching of nodes can be changed by re-implementing the
  * protected method {@link #areMatchable}.
+ * 
+ * WARNING: Implementation still is in an early stage.
  */
 public class WeightedMatcher extends Matcher {
 
