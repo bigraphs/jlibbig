@@ -22,6 +22,9 @@ import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 final public class Bigraph implements
 		it.uniud.mads.jlibbig.core.Bigraph<Control>, Cloneable/* , PropertyTarget */{
 
+	//private final static boolean DEBUG = false;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
 	final List<EditableSite> sites = new ArrayList<>();
@@ -94,6 +97,7 @@ final public class Bigraph implements
 						EditableHandle h = ((EditablePoint) t).getHandle();
 						if (h == null || h.getOwner() != owner) {
 							// foreign or broken handle
+							System.out.println(this);
 							System.err
 									.println("INCOSISTENCY: broken or foreign handle");
 							return false;
@@ -686,10 +690,22 @@ final public class Bigraph implements
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = (reuse) ? right : right.clone();
+		for (EditableOwned o : r.roots) {
+			o.setOwner(l);
+		}
+		for (EditableOwned o : r.outers.values()) {
+			o.setOwner(l);
+		}
+		for (Edge e : r.getEdges()) {
+			((EditableEdge) e).setOwner(l);
+		}
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
 		l.outers.putAll(r.outers);
 		l.inners.putAll(r.inners);
+		if (DEBUG_CONSISTENCY_CHECK && !l.isConsistent()) {
+			throw new RuntimeException("Inconsistent bigraph");
+		}
 		return l;
 	}
 
@@ -737,6 +753,7 @@ final public class Bigraph implements
 		}
 		Bigraph a = (reuse) ? out : out.clone();
 		Bigraph b = (reuse) ? in : in.clone();
+		Collection<? extends Edge> es = b.getEdges();
 		// iterate over sites and roots of a and b respectively and glue them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
@@ -751,18 +768,6 @@ final public class Bigraph implements
 		}
 		// iterate over inner and outer names of a and b respectively and glue
 		// them
-		// for (EditableOuterName o : b.outers) {
-		// for (EditableInnerName i : a.inners) {
-		// if (!i.equals(o))
-		// continue;
-		// EditableHandle h = i.getHandle();
-		// for (EditablePoint p : o.getEditablePoints()) {
-		// p.setHandle(h);
-		// }
-		// a.inners.remove(i);
-		// break;
-		// }
-		// }
 		Map<String, EditableHandle> a_inners = new HashMap<>();
 		for (EditableInnerName i : a.inners.values()) {
 			a_inners.put(i.getName(), i.getHandle());
@@ -779,6 +784,12 @@ final public class Bigraph implements
 		a.sites.clear();
 		a.inners.putAll(b.inners);
 		a.sites.addAll(b.sites);
+		for (Edge e : es) {
+			((EditableEdge) e).setOwner(a);
+		}
+		if (DEBUG_CONSISTENCY_CHECK && !a.isConsistent()) {
+			throw new RuntimeException("Inconsistent bigraph");
+		}
 		return a;
 	}
 
