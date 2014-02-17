@@ -9,7 +9,7 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test12();
+		test5();
 	}
 	
 	private static void test12(){
@@ -328,15 +328,6 @@ public class foo {
 		RewritingRule arr = new RewritingRule(bigRedex, bigReactum, 0);
 
 		Bigraph b = rete.makeBigraph();
-
-		for (Match m : Matcher.DEFAULT.match(b, bigRedex)) {
-			for (Node n : bigRedex.getNodes()) {
-				if (m.getImage(n) == null) {
-					System.out
-							.println("################################# ARGH!!!!!!!!!!!!!");
-				}
-			}
-		}
 
 		int i = 1;
 		Iterator<Bigraph> ib = arr.apply(b).iterator();
