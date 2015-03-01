@@ -13,10 +13,14 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
  */
 public class AgentRewritingRule extends RewritingRule {
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.debug")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.debug.reactions");
 	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
 	private final static boolean DEBUG_PRINT_RESULT = DEBUG;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.reactions");
 
 	final private boolean[] neededParam;
 	final private boolean[] cloneParam;

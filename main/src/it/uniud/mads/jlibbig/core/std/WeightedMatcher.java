@@ -39,10 +39,14 @@ import choco.kernel.solver.Solver;
  */
 public class WeightedMatcher extends Matcher {
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.debug")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.debug.matchers");
 	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
 	private final static boolean DEBUG_PRINT_SOLUTION_FETCH = DEBUG;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.matchers");
 
 	/**
 	 * The default instance of the matcher.

@@ -22,8 +22,9 @@ import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 final public class Bigraph implements
 		it.uniud.mads.jlibbig.core.Bigraph<Control>, Cloneable/* , PropertyTarget */{
 
-	//private final static boolean DEBUG = false;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
 	
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();

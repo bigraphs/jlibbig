@@ -14,8 +14,8 @@ import choco.kernel.model.variables.integer.IntegerExpressionVariable;
 import choco.kernel.model.variables.integer.IntegerVariable;
 
 /**
- * Provides services for computing the matches a bigraph (with abstract
- * internal names) into a ground one; matches are described by {@link AgentMatch}.
+ * Provides services for computing the matches a bigraph (with abstract internal
+ * names) into a ground one; matches are described by {@link AgentMatch}.
  * 
  * The field {@link #DEFAULT} refers to a default instance of the matcher.
  * 
@@ -24,10 +24,14 @@ import choco.kernel.model.variables.integer.IntegerVariable;
  */
 public class AgentMatcher implements Matcher<Bigraph, Bigraph> {
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.debug")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.debug.matchers");
 	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
 	private final static boolean DEBUG_PRINT_SOLUTION_FETCH = DEBUG;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.matchers");
 
 	/**
 	 * The default instance of the matcher.

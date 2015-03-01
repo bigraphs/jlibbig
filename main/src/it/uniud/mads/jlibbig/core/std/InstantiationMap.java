@@ -14,8 +14,9 @@ import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
  */
 public class InstantiationMap implements it.uniud.mads.jlibbig.core.InstantiationRule<Bigraph> {
 
-	// private final static boolean DEBUG = true;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.reactions");
 
 	final private int map[];
 	final private int dom;
