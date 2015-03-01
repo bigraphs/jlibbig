@@ -1,6 +1,7 @@
 package tests;
 
 import java.util.*;
+
 import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 import it.uniud.mads.jlibbig.core.std.*;
@@ -262,8 +263,8 @@ public class foo {
 			ib = arr.apply(b).iterator();
 			System.out
 					.println("-----------------------------------------------");
-			System.out.println("riscrittura #" + i++ + ":");
-			System.out.println(b);
+			System.out.println("rewrite #" + i++ + ":");
+			//System.out.println(b);
 		}
 	}
 
@@ -348,7 +349,7 @@ public class foo {
 		sb.add("ip", false, 1);
 		sb.add("host", true, 1);
 		Signature s = sb.makeSignature("MySig");
-
+		
 		// RETE:
 		BigraphBuilder rete = new BigraphBuilder(s);
 		Root r0 = rete.addRoot();

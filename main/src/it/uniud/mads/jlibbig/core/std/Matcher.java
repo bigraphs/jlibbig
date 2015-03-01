@@ -23,11 +23,15 @@ import choco.kernel.model.variables.integer.IntegerVariable;
  */
 public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigraph> {
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.debug")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.debug.matchers");
 	private final static boolean DEBUG_PRINT_CSP_SOLUTIONS = DEBUG;
 	private final static boolean DEBUG_PRINT_SOLUTION_FETCH = DEBUG;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
-
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.matchers");
+	//private final static boolean DEBUG_TIMESTAMPS = Boolean.getBoolean("it.uniud.mads.jlibbig.timestamps.matchers");
 	/**
 	 * The default instance of the matcher.
 	 */
@@ -63,7 +67,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 	}
 
 	private class MatchIterable implements Iterable<Match> {
-
+		
 		final Bigraph agent, redex;
 
 		boolean agent_ancestors_is_empty = true;
@@ -74,7 +78,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 		final List<? extends Root> agent_roots;
 		final List<? extends Site> agent_sites;
 		final Collection<? extends Node> agent_nodes;
-		// final Collection<Port> agent_ports;
+		final Collection<Port> agent_ports;
 		final Collection<Point> agent_points;
 		final Collection<? extends Edge> agent_edges;
 		/*
@@ -96,7 +100,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 		 * naming policy for sizes: a- agent r- redex -rs roots -ns nodes -ss
 		 * sites -hs handles -ps points -prs ports -ins inners -ots outers
 		 */
-		final int ars, ans, ass, ahs, aps, rrs, rns, rss, rhs, rps, rprs, rins;
+		final int ars, ans, ass, ahs, aps, aprs, rrs, rns, rss, rhs, rps, rprs, rins;
 
 		private MatchIterable(Bigraph agent, Bigraph redex) {
 			// boolean[] neededParams) {
@@ -123,10 +127,13 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 			ass = agent_sites.size();
 			ahs = agent_handles.size();
 
-			this.agent_points = new HashSet<>(ans);
+			this.agent_ports = new HashSet<>(2*ans);
+			this.agent_points = new HashSet<>(2*ans);
 			for (Node n : agent_nodes) {
-				agent_points.addAll(n.getPorts());
+				agent_ports.addAll(n.getPorts());
 			}
+			aprs = agent_ports.size();
+			agent_points.addAll(agent_ports);
 			agent_points.addAll(agent.getInnerNames());
 			aps = agent_points.size();
 
@@ -699,6 +706,18 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						}
 					}
 				}
+				{
+					IntegerVariable[] vars = new IntegerVariable[aprs];
+					for (Point pr : redex_points) {
+						if (pr.isInnerName()) {
+							int k = 0;
+							for (Point pa : agent_ports) {
+								vars[k++] = e_vars.get(pa).get(pr);
+							}
+							model.addConstraint(Choco.eq(1, Choco.sum(vars)));
+						}
+					}
+				}
 
 				// 5 // relation between f_vars and e_vars for handles
 				{
@@ -765,7 +784,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				// 8 // handles type
 				{
 					/*
-					 * Redex handles can not be matched to agent outers.
+					 * Redex handles can not be matched to agent outers
 					 */
 					ListIterator<Handle> ir1 = redex_handles.listIterator(0);
 					while (ir1.hasNext()) {

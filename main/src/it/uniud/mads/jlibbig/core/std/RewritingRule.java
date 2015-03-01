@@ -35,10 +35,14 @@ import it.uniud.mads.jlibbig.core.attachedProperties.*;
  */
 public class RewritingRule implements it.uniud.mads.jlibbig.core.RewritingRule<Bigraph, Bigraph> {
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.debug")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.debug.reactions");
 	private final static boolean DEBUG_PRINT_MATCH = DEBUG;
 	private final static boolean DEBUG_PRINT_RESULT = DEBUG;
-	private final static boolean DEBUG_CONSISTENCY_CHECK = true;
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.reactions");
 
 	final Bigraph redex;
 	final Bigraph reactum;

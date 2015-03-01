@@ -18,7 +18,10 @@ import it.uniud.mads.jlibbig.core.exceptions.*;
  */
 final public class BigraphBuilder implements
 		it.uniud.mads.jlibbig.core.BigraphBuilder<Control>, Cloneable {
-	private final boolean DEBUG_CONSISTENCY_CHECK = true;
+
+	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
+			.getBoolean("it.uniud.mads.jlibbig.consistency")
+			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
 
 	private Bigraph big;
 	private boolean closed = false;
