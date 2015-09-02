@@ -8,7 +8,7 @@ import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
 /**
  * Objects created from this class can be used to keep trace of nodes and their
- * replicas.
+ * replicas e.g. created by reactions.
  */
 public class NodeChaser {
 

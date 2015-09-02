@@ -5,6 +5,8 @@ import java.util.*;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.exceptions.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
+import it.uniud.mads.jlibbig.core.util.CachingProxy;
+import it.uniud.mads.jlibbig.core.util.Provider;
 
 /**
  * Objects created from this class are bigraphs with abstract internal names
@@ -19,13 +21,17 @@ import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
  * #compose(Bigraph, Bigraph, boolean)}) allowing the reuse of (all or parts) of
  * these objects.
  */
+/**
+ * @author Marco
+ *
+ */
 final public class Bigraph implements
 		it.uniud.mads.jlibbig.core.Bigraph<Control>, Cloneable/* , PropertyTarget */{
 
 	private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
 			.getBoolean("it.uniud.mads.jlibbig.consistency")
-			|| Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
-	
+			|| Boolean
+					.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
 	final Signature signature;
 	final List<EditableRoot> roots = new ArrayList<>();
 	final List<EditableSite> sites = new ArrayList<>();
@@ -181,8 +187,9 @@ final public class Bigraph implements
 	 * @return this bigraph
 	 */
 	Bigraph setOwner(Owner owner) {
-		if (owner == null)
+		if (owner == null){
 			owner = this;
+		}
 		for (EditableOwned o : this.roots) {
 			o.setOwner(owner);
 		}
@@ -365,13 +372,85 @@ final public class Bigraph implements
 		return this.inners.values();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see it.uniud.mads.jlibbig.core.AbstBigraph#getNodes()
+	/* The set of nodes composing a bigraph is derived by visiting its place graph.
+	 * On one hand storing this information in some collection introduces
+	 * redundancies on the other end retrieving it every time it is needed may result
+	 * too costly since bigraphs are meant to be immutable (up to internal optimisations).
+	 * To mitigate between the two sides we use a caching proxy to access this information:
+	 * the proxy takes care of handling the cache accordingly to the machine load.
+	 * The cache is populated invoking the medthod provideNodes whereas 
+	 * onNodeAdded, onNodeRemoved, and onNodesChanged should be invoked to inform
+	 * the structure of potentially invalidating changes.
+	 * */
+	CachingProxy<Collection<EditableNode>> nodesProxy = new CachingProxy<>(
+			new Provider<Collection<EditableNode>>() {
+				@Override
+				public Collection<EditableNode> get() {
+					return provideNodes();
+				}
+			});
+	
+	
+	/**
+	 * Adds the new node to the cached collection of all nodes.
+	 * No coherence controls are enforced and the update is not
+	 * propagated to the edge collection.
+	 * @param node
 	 */
-	@Override
-	public Collection<? extends Node> getNodes() {
+	void onNodeAdded(EditableNode node){
+		Collection<EditableNode> ns = nodesProxy.softGet();
+		if(ns != null){
+			ns.add(node);
+		}
+	}
+	
+	/**
+	 * Adds the new nodes to the cached collection of all nodes.
+	 * No coherence controls are enforced and the update is not
+	 * propagated to the edge or ancestor collections.
+	 * @param nodes
+	 */
+	void onNodeAdded(Collection<EditableNode> nodes){
+		Collection<EditableNode> ns = nodesProxy.softGet();
+		if(ns != null){
+			ns.addAll(nodes);
+		}
+	}
+	
+	/**
+	 * Removes the given node from the cached collection of all nodes.
+	 * No coherence controls are enforced and the update is not
+	 * propagated to the edge collection.
+	 * @param node
+	 */
+	void onNodeRemoved(EditableNode node){
+		ancestors.clear(); // very conservative, could be improved
+		Collection<EditableNode> ns = nodesProxy.softGet();
+		if(ns != null){
+			ns.remove(node);
+		}
+	}
+	
+	/**
+	 * Removes the given nodes from the cached collection of all nodes.
+	 * No coherence controls are enforced and the update is not
+	 * propagated to the edge collection.
+	 * @param node
+	 */
+	void onNodeRemoved(Collection<EditableNode> nodes){
+		ancestors.clear(); // very conservative, could be improved
+		Collection<EditableNode> ns = nodesProxy.softGet();
+		if(ns != null){
+			ns.removeAll(nodes);
+		}
+	}
+	
+	void onNodeSetChanged(){
+		this.nodesProxy.invalidate();
+		this.ancestors.clear();
+	}
+
+	private Collection<EditableNode> provideNodes() {
 		Set<EditableNode> s = new HashSet<>();
 		Queue<EditableNode> q = new LinkedList<>();
 		for (Root r : this.roots) {
@@ -398,33 +477,111 @@ final public class Bigraph implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see it.uniud.mads.jlibbig.core.AbstBigraph#getEdges()
+	 * @see it.uniud.mads.jlibbig.core.AbstBigraph#getNodes()
 	 */
 	@Override
-	public Collection<? extends Edge> getEdges() {
-		return getEdges(this.getNodes());
+	public Collection<? extends Node> getNodes() {
+		return nodesProxy.get();
 	}
-
-	// avoids the visit of the place graph to compute the set of nodes
-	Collection<? extends Edge> getEdges(Iterable<? extends Node> nodes) {
-		Set<Edge> s = new HashSet<>();
+	
+	
+	/* Edges are handled like nodes, see getNodes() */
+	CachingProxy<Collection<EditableEdge>> edgesProxy = new CachingProxy<>(
+			new Provider<Collection<EditableEdge>>() {
+				@Override
+				public Collection<EditableEdge> get() {
+					return provideEdges();
+				}
+			});
+	
+	void onEdgeAdded(EditableEdge edge){
+		Collection<EditableEdge> ns = edgesProxy.softGet();
+		if(ns != null){
+			ns.add(edge);
+		}
+	}
+	
+	void onEdgeAdded(Collection<EditableEdge> edges){
+		Collection<EditableEdge> ns = edgesProxy.softGet();
+		if(ns != null){
+			ns.addAll(edges);
+		}
+	}
+	
+	void onEdgeRemoved(EditableEdge edge){
+		Collection<EditableEdge> ns = edgesProxy.softGet();
+		if(ns != null){
+			ns.remove(edge);
+		}
+	}
+	
+	void onEdgeRemoved(Collection<EditableEdge> edges){
+		Collection<EditableEdge> ns = edgesProxy.softGet();
+		if(ns != null){
+			ns.removeAll(edges);
+		}
+	}
+	
+	void onEdgeSetChanged(){
+		this.nodesProxy.invalidate();
+	}
+	
+	public Collection<EditableEdge> provideEdges() {
+		Iterable<? extends Node> nodes = getNodes();
+		Set<EditableEdge> s = new HashSet<>();
 		for (Node n : nodes) {
 			for (Port p : n.getPorts()) {
 				Handle h = p.getHandle();
-				if (h instanceof Edge) {
-					s.add((Edge) h);
+				if (h.isEdge()) {
+					s.add((EditableEdge) h);
 				}
 			}
 		}
 		for (InnerName n : this.inners.values()) {
 			Handle h = n.getHandle();
-			if (h instanceof Edge) {
-				s.add((Edge) h);
+			if (h.isEdge()) {
+				s.add((EditableEdge) h);
 			}
 		}
 		return s;
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see it.uniud.mads.jlibbig.core.AbstBigraph#getEdges()
+	 */
+	@Override
+	public Collection<? extends Edge> getEdges() {
+		return this.edgesProxy.get();
+	}
+	
+	private Map<Child, Collection<Parent>> ancestors = new WeakHashMap<>();
+	
+	static final Collection<Parent> EMPTY_ANCS_LST = Collections.unmodifiableList(Collections.emptyList());
+	
+	
+	Collection<Parent> getAncestors(Child child){
+		if(child == null){
+			throw new IllegalArgumentException("The argument can not be null.");
+		}
+//		if(child.getOwner() != this){
+//			throw new ForeignArgumentException("The argument does not belong to this bigraph.");
+//		}
+		Collection<Parent> s = ancestors.get(child);
+		if(s == null){
+			Parent parent = child.getParent();
+			if(parent.isRoot()){
+				s = EMPTY_ANCS_LST;
+			}else{
+				s = new LinkedList<>(getAncestors((Child) parent));
+				s.add(parent);
+			}
+			ancestors.put(child, s);
+		}
+		return s;	
+	}
+	
 	/* comparators used by toString */
 
 	private static final Comparator<Control> controlComparator = new Comparator<Control>() {
@@ -541,7 +698,7 @@ final public class Bigraph implements
 	// }
 	// }
 	// };
-
+	
 	@Override
 	public String toString() {
 
@@ -691,15 +848,21 @@ final public class Bigraph implements
 		}
 		Bigraph l = (reuse) ? left : left.clone();
 		Bigraph r = (reuse) ? right : right.clone();
+		
 		for (EditableOwned o : r.roots) {
 			o.setOwner(l);
 		}
 		for (EditableOwned o : r.outers.values()) {
 			o.setOwner(l);
 		}
-		for (Edge e : r.getEdges()) {
-			((EditableEdge) e).setOwner(l);
+		Collection<EditableEdge> es = r.edgesProxy.get();
+		for (EditableEdge e : es) {
+			e.setOwner(l);
 		}
+		l.onEdgeAdded(es);
+		l.onNodeAdded(r.nodesProxy.get());
+		r.onEdgeSetChanged();
+		r.onNodeSetChanged();
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
 		l.outers.putAll(r.outers);
@@ -754,7 +917,8 @@ final public class Bigraph implements
 		}
 		Bigraph a = (reuse) ? out : out.clone();
 		Bigraph b = (reuse) ? in : in.clone();
-		Collection<? extends Edge> es = b.getEdges();
+		Collection<EditableEdge> es = b.edgesProxy.get();
+		Collection<EditableNode> ns = b.nodesProxy.get();
 		// iterate over sites and roots of a and b respectively and glue them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
@@ -785,9 +949,13 @@ final public class Bigraph implements
 		a.sites.clear();
 		a.inners.putAll(b.inners);
 		a.sites.addAll(b.sites);
-		for (Edge e : es) {
-			((EditableEdge) e).setOwner(a);
+		a.onNodeAdded(ns);
+		b.onNodeSetChanged();
+		for (EditableEdge e : es) {
+			e.setOwner(a);
 		}
+		a.onEdgeAdded(es);
+		b.onEdgeSetChanged();
 		if (DEBUG_CONSISTENCY_CHECK && !a.isConsistent()) {
 			throw new RuntimeException("Inconsistent bigraph");
 		}
