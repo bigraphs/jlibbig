@@ -4,6 +4,7 @@ import java.util.*;
 
 import it.uniud.mads.jlibbig.core.AbstractNamed;
 import it.uniud.mads.jlibbig.core.Owner;
+import it.uniud.mads.jlibbig.core.attachedProperties.Replicable;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListener;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListenerContainer;
 

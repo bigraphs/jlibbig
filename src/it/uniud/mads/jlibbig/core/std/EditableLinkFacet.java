@@ -1,6 +1,7 @@
 package it.uniud.mads.jlibbig.core.std;
 
 import it.uniud.mads.jlibbig.core.AbstractNamed;
+import it.uniud.mads.jlibbig.core.attachedProperties.Replicable;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListener;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListenerContainer;
 
