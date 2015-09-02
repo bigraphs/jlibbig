@@ -70,8 +70,8 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 		
 		final Bigraph agent, redex;
 
-		boolean agent_ancestors_is_empty = true;
-		final Map<Child, Collection<Parent>> agent_ancestors;
+		// boolean agent_ancestors_is_empty = true;
+		// final Map<Child, Collection<Parent>> agent_ancestors;
 
 		// caches some collections of entities (e.g. nodes and edges are
 		// computed on the fly)
@@ -104,10 +104,6 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 
 		private MatchIterable(Bigraph agent, Bigraph redex) {
 			// boolean[] neededParams) {
-			if (!agent.isGround()) {
-				throw new UnsupportedOperationException(
-						"Agent should be a bigraph with empty inner interface i.e. ground.");
-			}
 			if (!agent.signature.equals(redex.signature)) {
 				throw new UnsupportedOperationException(
 						"Agent and redex should have the same singature.");
@@ -118,7 +114,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 			this.agent_roots = agent.getRoots();
 			this.agent_nodes = agent.getNodes();
 			this.agent_sites = agent.getSites();
-			this.agent_edges = agent.getEdges(agent_nodes);
+			this.agent_edges = agent.getEdges();//agent_nodes);
 			this.agent_handles = new LinkedList<Handle>(agent_edges);
 			agent_handles.addAll(agent.getOuterNames());
 
@@ -137,12 +133,12 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 			agent_points.addAll(agent.getInnerNames());
 			aps = agent_points.size();
 
-			this.agent_ancestors = new HashMap<>(ans);
+			// this.agent_ancestors = new HashMap<>(ans);
 
 			this.redex_roots = redex.getRoots();
 			this.redex_sites = redex.getSites();
 			this.redex_nodes = redex.getNodes();
-			this.redex_edges = redex.getEdges(redex_nodes);
+			this.redex_edges = redex.getEdges();//redex_nodes);
 			this.redex_handles = new LinkedList<Handle>(redex_edges);
 			redex_handles.addAll(redex.getOuterNames());
 
@@ -573,12 +569,13 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 
 				// 9 // sum(f in ancs(i)\{i}, g in m) M_fg + M_ij <= 1 if j in
 				// roots
-				if (agent_ancestors_is_empty) {
-					/*
+/* The class bigraph provides ancestor for us				
+ 				if (agent_ancestors_is_empty) {
+					
 					 * acquire agent_ancestors and re-check if it still is empty
 					 * if this is the case, descends the agent parent map and
 					 * builds agent_ancestors
-					 */
+					 
 					synchronized (agent_ancestors) {
 						if (agent_ancestors_is_empty) {
 							Stack<Parent> ancs = new Stack<>();
@@ -609,12 +606,12 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 							agent_ancestors_is_empty = false;
 						}
 					}
-				}
+				}*/
 				{
 					for (Node i : agent_nodes) {
-						Collection<Parent> ancs = agent_ancestors.get(i);
+						Collection<Parent> ancs = agent.getAncestors(i);
 						IntegerExpressionVariable[] vars = new IntegerExpressionVariable[(ancs
-								.size() - 1) * rss];
+								.size()) * rss];
 						int k = 0;
 						for (Parent f : ancs) {
 							if (f.isNode()) {
@@ -625,6 +622,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								}
 							}
 						}
+						
 						IntegerExpressionVariable sum = Choco.sum(vars);
 						Map<PlaceEntity, IntegerVariable> i_row = p_vars.get(i);
 						for (Root j : redex_roots) {
@@ -872,7 +870,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				{
 					for (Node ni : agent_nodes) {
 						// sum over ni anchestors and redex roots
-						Collection<Parent> ancs = agent_ancestors.get(ni);
+						Collection<Parent> ancs = agent.getAncestors(ni);
 						IntegerVariable[] vars2 = new IntegerVariable[(1 + ancs
 								.size()) * rss];
 						int k2 = 0;
@@ -883,7 +881,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								vars2[k2++] = row.get(g);
 							}
 						}
-						{
+						{// ancs does not include ni
 							Map<PlaceEntity, IntegerVariable> row = p_vars
 									.get(ni);
 							for (Site g : redex_sites) {

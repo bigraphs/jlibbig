@@ -10,7 +10,7 @@ import it.uniud.mads.jlibbig.core.Owner;
 @SuppressWarnings("unused")
 public class foo {
 	public static void main(String[] args) {
-		test5();
+		test2();
 	}
 	
 	private static void test12(){
@@ -463,7 +463,7 @@ public class foo {
 		bbR.addRoot();
 		bbR.addInnerName("y", h);
 		bbR.addInnerName("z", bbR.addOuterName("z"));
-
+	
 		Long t0 = System.currentTimeMillis();
 		int mc = 0;
 		for (Match t : new Matcher().match(bbA.makeBigraph(true),

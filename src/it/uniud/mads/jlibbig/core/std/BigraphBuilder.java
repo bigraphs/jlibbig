@@ -279,14 +279,21 @@ final public class BigraphBuilder implements
 		assertOwner(parent, "Parent");
 		EditableHandle[] hs = new EditableHandle[c.getArity()];
 		for (int i = 0; i < hs.length; i++) {
+			EditableHandle h = null;
 			if (i < handles.length) {
-				hs[i] = (EditableHandle) handles[i];
+				h = (EditableHandle) handles[i];
 			}
-			if (hs[i] == null)
-				hs[i] = new EditableEdge();
-			assertOrSetOwner(hs[i], "Handle");
+			if (h != null){
+				assertOwner(h, "Handle");
+			}else{
+				EditableEdge e = new EditableEdge(this);
+				big.onEdgeAdded(e);
+				h = e;
+			}
+			hs[i] = h;
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
+		this.big.onNodeAdded(n);
 		assertConsistency();
 		return n;
 	}
@@ -314,16 +321,25 @@ final public class BigraphBuilder implements
 			throw new IllegalArgumentException(
 					"Control should be in the signature.");
 		assertOwner(parent, "Parent");
-		EditableHandle[] hs = new EditableHandle[c.getArity()];
-		for (int i = 0; i < hs.length; i++) {
-			if (handles != null && i < handles.size()) {
-				hs[i] = (EditableHandle) handles.get(i);
+		int ar = c.getArity();
+		List<EditableHandle> hs = new ArrayList<>(ar);
+		Iterator<Handle> hi = (handles == null) ? null : handles.iterator();
+		for (int i = 0; i < ar; i++) {
+			EditableHandle h = null;
+			if(hi != null && hi.hasNext()){
+				h = (EditableHandle) hi.next();
 			}
-			if (hs[i] == null)
-				hs[i] = new EditableEdge();
-			assertOrSetOwner(hs[i], "Handle");
+			if(h != null){
+				assertOwner(h, "Handle");
+			}else{
+				EditableEdge e = new EditableEdge(this);
+				big.onEdgeAdded(e);
+				h = e;
+			}
+			hs.add(h);
 		}
 		EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
+		this.big.onNodeAdded(n);
 		assertConsistency();
 		return n;
 	}
@@ -345,7 +361,7 @@ final public class BigraphBuilder implements
 	 * @return the new outer name.
 	 */
 	public OuterName addOuterName(String name) {
-		if (name == null)
+		if (name == null || name.length() == 0)
 			throw new IllegalArgumentException("Argument can not be null.");
 		return addOuterName(new EditableOuterName(name));
 	}
@@ -376,7 +392,9 @@ final public class BigraphBuilder implements
 	 * @return the new inner name.
 	 */
 	public InnerName addInnerName() {
-		return addInnerName(new EditableInnerName(), new EditableEdge(this));
+		EditableEdge e = new EditableEdge(this);
+		big.onEdgeAdded(e);
+		return addInnerName(new EditableInnerName(), e);
 	}
 
 	/**
@@ -387,7 +405,11 @@ final public class BigraphBuilder implements
 	 * @return the new inner name
 	 */
 	public InnerName addInnerName(Handle handle) {
+		Owner o = handle.getOwner();
 		assertOrSetOwner(handle, "Handle");
+		if(handle.isEdge() && o != null){
+			this.big.onEdgeAdded((EditableEdge) handle);
+		}
 		return addInnerName(new EditableInnerName(), (EditableHandle) handle);
 	}
 
@@ -400,9 +422,11 @@ final public class BigraphBuilder implements
 	 * @return the new inner name.
 	 */
 	public InnerName addInnerName(String name) {
-		if (name == null)
+		if (name == null || name.length() == 0)
 			throw new IllegalArgumentException("Name can not be null.");
-		return addInnerName(name, new EditableEdge(this));
+		EditableEdge e = new EditableEdge(this);
+		big.onEdgeAdded(e);
+		return addInnerName(name, e);
 	}
 
 	/**
@@ -417,7 +441,11 @@ final public class BigraphBuilder implements
 	public InnerName addInnerName(String name, Handle handle) {
 		if (name == null)
 			throw new IllegalArgumentException("Name can not be null.");
+		Owner o = handle.getOwner();
 		assertOrSetOwner(handle, "Handle");
+		if(handle.isEdge() && o != null){
+			this.big.onEdgeAdded((EditableEdge) handle);
+		}
 		return addInnerName(new EditableInnerName(name),
 				(EditableHandle) handle);
 	}
@@ -479,7 +507,14 @@ final public class BigraphBuilder implements
 			assertOwner(ps[i], "Point");
 		}
 		for (int i = 0; i < points.length; i++) {
+			Handle old = ps[i].getHandle();
 			ps[i].setHandle(h);
+			if(old.isEdge() && old.getPoints().isEmpty()){
+				big.onEdgeRemoved((EditableEdge) old);
+			}
+		}
+		if(handle.isEdge()){ // checking owner to be null is not enough to find new edges
+			big.onEdgeAdded((EditableEdge) handle);
 		}
 		assertConsistency();
 		return h;
@@ -504,31 +539,22 @@ final public class BigraphBuilder implements
 	}
 
 	/**
-	 * Closes an outer name.
+	 * Closes an outer name turning it into an edge.
 	 *
 	 * @param name
 	 *            the outer name as string.
-	 * @return the edge linking the points linked by the outer name just closed.
+	 * @return the new edge.
 	 */
 	public Edge closeOuterName(String name) {
-		EditableOuterName n1 = big.outers.get(name);
-		if (n1 != null) {
-			Edge e = relink(n1.getEditablePoints());
-			big.outers.remove(name);
-			n1.setOwner(null);
-			return e;
-		} else {
-			throw new IllegalArgumentException("Name '" + name
-					+ "' not present.");
-		}
+		return closeOuterName(big.outers.get(name));
 	}
 
 	/**
-	 * Closes an outer name.
+	 * Closes an outer name turning it into an edge.
 	 *
 	 * @param name
 	 *            the outer name to close.
-	 * @return the edge linking the points linked by the outer name just closed.
+	 * @return the new edge.
 	 */
 	public Edge closeOuterName(OuterName name) {
 		assertOwner(name, "OuterName ");
@@ -550,14 +576,7 @@ final public class BigraphBuilder implements
 	 *            the inner name as string.
 	 */
 	public void closeInnerName(String name) {
-		EditableInnerName n1 = big.inners.get(name);
-		if (n1 != null) {
-			n1.setHandle(null);
-			big.inners.remove(name);
-		} else {
-			throw new IllegalArgumentException("Name '" + name
-					+ "' not present.");
-		}
+		closeInnerName(big.inners.get(name));
 	}
 
 	/**
@@ -573,8 +592,12 @@ final public class BigraphBuilder implements
 					+ "' not present.");
 		}
 		EditableInnerName n1 = (EditableInnerName) name;
+		Handle h = n1.getHandle();
 		n1.setHandle(null);
 		big.inners.remove(n1.getName());
+		if(h.isEdge() && h.getPoints().isEmpty()){
+			big.onEdgeRemoved((EditableEdge) h);
+		}
 	}
 
 	/**
@@ -589,17 +612,11 @@ final public class BigraphBuilder implements
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
 		EditableOuterName n1 = big.outers.get(oldName);
-		if (n1 != null) {
-			EditableOuterName n2 = big.outers.get(newName);
-			if (n2 == null) {
-				if (!newName.equals(oldName))
-					n1.setName(newName);
-			} else
-				throw new IllegalArgumentException("Name '" + newName
-						+ "' is present already.");
-		} else {
+		if (n1 == null){
 			throw new IllegalArgumentException("Name '" + oldName
 					+ "' is not present.");
+		}else{
+			renameOuterName(n1,newName);
 		}
 	}
 
@@ -638,17 +655,11 @@ final public class BigraphBuilder implements
 		if (newName == null || oldName == null)
 			throw new IllegalArgumentException("Arguments can not be null");
 		EditableInnerName n1 = big.inners.get(oldName);
-		if (n1 != null) {
-			EditableInnerName n2 = big.inners.get(newName);
-			if (n2 == null) {
-				if (!newName.equals(oldName))
-					n1.setName(newName);
-			} else
-				throw new IllegalArgumentException("Name '" + newName
-						+ "' already in use");
-		} else {
+		if (n1 == null) {
 			throw new IllegalArgumentException("Name '" + oldName
 					+ "' is not present.");
+		}else{
+			renameInnerName(n1,newName);
 		}
 	}
 
@@ -732,6 +743,9 @@ final public class BigraphBuilder implements
 		EditableRoot editableRoot = (EditableRoot) root;
 		editableRoot.setOwner(null);
 		big.roots.remove(editableRoot);
+		if(!root.getChildren().isEmpty()){
+			big.onNodeSetChanged(); // retrieving its descendants is not cheap and the cache may already be invalid anyway.
+		}
 		assertConsistency();
 	}
 
@@ -833,9 +847,14 @@ final public class BigraphBuilder implements
 		for (EditableOwned o : l.outers.values()) {
 			o.setOwner(this);
 		}
-		for (Edge e : l.getEdges()) {
-			((EditableEdge) e).setOwner(this);
+		Collection<EditableEdge> es = l.edgesProxy.get();
+		for (EditableEdge e : es) {
+			e.setOwner(this);
 		}
+		r.onEdgeAdded(es);
+		r.onNodeAdded(l.nodesProxy.get());
+		l.onEdgeSetChanged();
+		l.onNodeSetChanged();
 		r.roots.addAll(0, l.roots);
 		r.sites.addAll(0, l.sites);
 		r.outers.putAll(l.outers);
@@ -896,9 +915,14 @@ final public class BigraphBuilder implements
 		for (EditableOwned o : r.outers.values()) {
 			o.setOwner(this);
 		}
-		for (Edge e : r.getEdges()) {
-			((EditableEdge) e).setOwner(this);
+		Collection<EditableEdge> es = r.edgesProxy.get();
+		for (EditableEdge e : es) {
+			e.setOwner(this);
 		}
+		l.onEdgeAdded(es);
+		l.onNodeAdded(r.nodesProxy.get());
+		r.onEdgeSetChanged();
+		r.onNodeSetChanged();
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
 		l.outers.putAll(r.outers);
@@ -944,8 +968,8 @@ final public class BigraphBuilder implements
 		}
 		Bigraph a = out;
 		Bigraph b = (reuse) ? in : in.clone();
-		Collection<? extends Edge> es = b.getEdges();
-		// iterate over sites and roots of a and b respectively and glue them
+		Collection<EditableEdge> es = b.edgesProxy.get();
+		Collection<EditableNode> ns = b.nodesProxy.get();
 		// iterate over sites and roots of a and b respectively and glue them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
@@ -976,9 +1000,13 @@ final public class BigraphBuilder implements
 		clearChildCollection(a.sites);// ;.clear();
 		a.inners.putAll(b.inners);
 		a.sites.addAll(b.sites);
-		for (Edge e : es) {
-			((EditableEdge) e).setOwner(this);
+		a.onNodeAdded(ns);
+		b.onNodeSetChanged();
+		for (EditableEdge e : es) {
+			e.setOwner(this);
 		}
+		a.onEdgeAdded(es);
+		b.onEdgeSetChanged();
 		assertConsistency();
 	}
 
@@ -1022,7 +1050,8 @@ final public class BigraphBuilder implements
 		}
 		Bigraph a = (reuse) ? out : out.clone();
 		Bigraph b = in; // this BB
-		Collection<? extends Edge> es = a.getEdges();
+		Collection<EditableEdge> es = a.edgesProxy.get();
+		Collection<EditableNode> ns = a.nodesProxy.get();
 		// iterates over sites and roots of a and b respectively and glues them
 		Iterator<EditableRoot> ir = b.roots.iterator();
 		Iterator<EditableSite> is = a.sites.iterator();
@@ -1060,9 +1089,13 @@ final public class BigraphBuilder implements
 		for (EditableOwned o : b.outers.values()) {
 			o.setOwner(this);
 		}
-		for (Edge e : es) {
-			((EditableEdge) e).setOwner(this);
+		b.onNodeAdded(ns);
+		a.onNodeSetChanged();
+		for (EditableEdge e : es) {
+			e.setOwner(this);
 		}
+		b.onEdgeAdded(es);
+		a.onEdgeSetChanged();
 		assertConsistency();
 	}
 
@@ -1249,9 +1282,14 @@ final public class BigraphBuilder implements
 				}
 			}
 		}
-		for (Edge e : l.getEdges()) {
-			((EditableEdge) e).setOwner(this);
+		Collection<EditableEdge> es = l.edgesProxy.get();
+		for (EditableEdge e : es) {
+			e.setOwner(this);
 		}
+		r.onEdgeAdded(es);
+		r.onNodeAdded(l.nodesProxy.get());
+		l.onEdgeSetChanged();
+		l.onNodeSetChanged();
 		r.roots.addAll(l.roots);
 		r.sites.addAll(l.sites);
 		r.outers.putAll(os);
@@ -1331,9 +1369,14 @@ final public class BigraphBuilder implements
 				}
 			}
 		}
-		for (Edge e : r.getEdges()) {
-			((EditableEdge) e).setOwner(this);
+		Collection<EditableEdge> es = r.edgesProxy.get();
+		for (EditableEdge e : es) {
+			e.setOwner(this);
 		}
+		l.onEdgeAdded(es);
+		l.onNodeAdded(r.nodesProxy.get());
+		r.onEdgeSetChanged();
+		r.onNodeSetChanged();
 		l.roots.addAll(r.roots);
 		l.sites.addAll(r.sites);
 		l.outers.putAll(os);
@@ -1406,7 +1449,6 @@ final public class BigraphBuilder implements
 	// /////////////////////////////////////////////////////////////////////////
 
 	private void assertConsistency() {
-		// TODO skip check on internal data
 		if (DEBUG_CONSISTENCY_CHECK && !big.isConsistent(this))
 			throw new RuntimeException("Inconsistent bigraph.");
 	}
@@ -1416,7 +1458,7 @@ final public class BigraphBuilder implements
 			throw new IllegalArgumentException(obj + " can not be null.");
 		Owner o = owned.getOwner();
 		if (o != this)
-			throw new IllegalArgumentException(obj
+			throw new UnexpectedOwnerException(obj
 					+ " should be owned by this structure.");
 	}
 
@@ -1427,7 +1469,7 @@ final public class BigraphBuilder implements
 		if (o == null)
 			((EditableOwned) owned).setOwner(this);
 		else if (o != this)
-			throw new IllegalArgumentException(obj
+			throw new UnexpectedOwnerException(obj
 					+ " already owned by an other structure.");
 	}
 

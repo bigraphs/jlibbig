@@ -126,7 +126,7 @@ public class WeightedMatcher extends Matcher {
 			this.agent_roots = agent.getRoots();
 			this.agent_nodes = agent.getNodes();
 			this.agent_sites = agent.getSites();
-			this.agent_edges = agent.getEdges(agent_nodes);
+			this.agent_edges = agent.getEdges();//agent_nodes);
 			this.agent_handles = new LinkedList<Handle>(agent_edges);
 			agent_handles.addAll(agent.getOuterNames());
 
@@ -147,7 +147,7 @@ public class WeightedMatcher extends Matcher {
 			this.redex_roots = redex.getRoots();
 			this.redex_sites = redex.getSites();
 			this.redex_nodes = redex.getNodes();
-			this.redex_edges = redex.getEdges(redex_nodes);
+			this.redex_edges = redex.getEdges();//redex_nodes);
 			this.redex_handles = new LinkedList<Handle>(redex_edges);
 			redex_handles.addAll(redex.getOuterNames());
 

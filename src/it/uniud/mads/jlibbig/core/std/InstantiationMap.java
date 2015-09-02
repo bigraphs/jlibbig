@@ -141,7 +141,7 @@ public class InstantiationMap implements it.uniud.mads.jlibbig.core.Instantiatio
 		for (int j = 0; j < cod; j++) {
 			int m = multiplicity[j];
 			if (m > 0) {
-				EditableRoot r1 = parameters.roots.get(map[j]);
+				EditableRoot r1 = parameters.roots.get(j);
 				EditableRoot[] r2s = new EditableRoot[m];
 				int k = 0;
 				for (int i = 0; i < dom; i++) {
