@@ -4,6 +4,7 @@ import java.util.*;
 
 import it.uniud.mads.jlibbig.core.Owned;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyTarget;
+import it.uniud.mads.jlibbig.core.attachedProperties.Replicable;
 
 interface EditableParent extends Parent, Replicable, Owned, PropertyTarget {
 	/**

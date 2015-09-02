@@ -1,5 +1,7 @@
 package it.uniud.mads.jlibbig.core.std;
 
+import it.uniud.mads.jlibbig.core.attachedProperties.Replicable;
+
 import java.util.*;
 
 interface EditableHandle extends Handle, Replicable, EditableOwned {
