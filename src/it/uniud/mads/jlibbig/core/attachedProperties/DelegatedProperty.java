@@ -1,9 +1,9 @@
 package it.uniud.mads.jlibbig.core.attachedProperties;
 
 /**
- * Properties created from this class delegate the values handling to some other
- * property. The property delegated can be set by means of a secret in the form
- * of an instance of {@link PropertySetter}. Optionally, the value of the delegated property
+ * Properties created from this class delegate value handling to some other
+ * property object. The delegated property can be set by means of a secret in the form
+ * of a {@link PropertySetter}. Optionally, the value of the delegated property
  * is cached to reduce the overhead of delegation chains. Listeners registering to
  * instances of this class are not passed to the delegated property. 
  * A property can be paired with at most one setter and this can not be changed;
