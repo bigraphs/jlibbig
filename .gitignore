@@ -1,0 +1,44 @@
+# This file holds a list of files to be ignored when committing to GitHub.
+# If you want to exclude a local file from the commit, please add it here.
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so 
+
+# NetBeans Project Files #
+##########################
+build/
+dist/
+nbproject/
+*.mf
+*.xml
+changelog.txt
+*/config.txt
+lib/
+
+# Eclipse Project Files #
+##########################
+.project
+.classpath
+/.settings
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db 
+
+# Files for personal, local use #
+#################################
+src/tests/
+ignoreme/
+/bin/
