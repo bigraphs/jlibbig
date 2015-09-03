@@ -3,7 +3,7 @@ package it.uniud.mads.jlibbig.core.std;
 import java.util.Collection;
 import java.util.Iterator;
 
-import it.uniud.mads.jlibbig.core.AbstractNamed;
+import it.uniud.mads.jlibbig.core.util.NameHelper;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
 /**
@@ -31,7 +31,7 @@ public final class Control extends it.uniud.mads.jlibbig.core.Control implements
 	 *            nodes decorated with this control.
 	 */
 	public Control(boolean active, int arity) {
-		this("C_" + AbstractNamed.generateName(), active, arity);
+		this("C_" + NameHelper.generateName(), active, arity);
 	}
 
 	/**

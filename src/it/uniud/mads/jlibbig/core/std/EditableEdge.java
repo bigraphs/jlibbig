@@ -2,7 +2,7 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
-import it.uniud.mads.jlibbig.core.AbstractNamed;
+import it.uniud.mads.jlibbig.core.util.NameHelper;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.Replicable;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListener;
@@ -19,7 +19,7 @@ class EditableEdge implements Edge, EditableHandle, Replicable {
 	private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
 
 	EditableEdge() {
-		name = "E_" + AbstractNamed.generateName();
+		name = "E_" + NameHelper.generateName();
 	}
 
 	EditableEdge(Owner owner) {

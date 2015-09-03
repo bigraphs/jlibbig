@@ -2,7 +2,7 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
-import it.uniud.mads.jlibbig.core.AbstractNamed;
+import it.uniud.mads.jlibbig.core.util.NameHelper;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
@@ -32,7 +32,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 	private final PropertyContainer props = new PropertyContainer(this);
 
 	EditableNode(Control control) {
-		this.name = "N_" + AbstractNamed.generateName();
+		this.name = "N_" + NameHelper.generateName();
 		this.control = control;
 		List<EditablePort> ports = new ArrayList<>();
 		for (int i = 0; i < control.getArity(); i++) {

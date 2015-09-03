@@ -1,6 +1,6 @@
 package it.uniud.mads.jlibbig.core;
 
-import it.uniud.mads.jlibbig.core.AbstractNamed;
+import it.uniud.mads.jlibbig.core.util.NameHelper;
 import it.uniud.mads.jlibbig.core.Named;
 
 /**
@@ -23,7 +23,7 @@ public class Control extends AbstractNamed implements Named {
 	 *            nodes decorated with this control.
 	 */
 	public Control(int arity) {
-		this("C_" + AbstractNamed.generateName(), arity);
+		this("C_" + NameHelper.generateName(), arity);
 	}
 
 	/**
