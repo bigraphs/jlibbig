@@ -85,14 +85,26 @@ public class RewritingRule implements it.uniud.mads.jlibbig.core.RewritingRule<B
 			throw new InvalidInstantiationRuleException(
 					"The instantiation rule does not match the reactum inner interface.");
 		}
+		
+		Set<String> xs = new HashSet<>(reactum.outers.keySet());
+		Set<String> ys = new HashSet<>(redex.outers.keySet());
+		Set<String> zs = new HashSet<>(xs);
+		xs.removeAll(ys);
+		ys.removeAll(zs);
+						
 		if (redex.roots.size() != reactum.roots.size()
-				|| !redex.outers.keySet().containsAll(reactum.outers.keySet())
-				|| !reactum.outers.keySet().containsAll(redex.outers.keySet())) {
+				|| !xs.isEmpty() || !ys.isEmpty()) {
 			throw new IncompatibleInterfaceException(
 					"Redex and reactum should have the same outer interface.");
 		}
-		if (!redex.inners.keySet().containsAll(reactum.inners.keySet())
-				|| !reactum.inners.keySet().containsAll(redex.inners.keySet())) {
+		
+		xs = new HashSet<>(reactum.inners.keySet());
+		ys = new HashSet<>(redex.inners.keySet());
+		zs = new HashSet<>(xs);
+		xs.removeAll(ys);
+		ys.removeAll(zs);
+		
+		if (!xs.isEmpty() || !ys.isEmpty()) {
 			throw new IncompatibleInterfaceException(
 					"Redex and reactum should have the same set inner names.");
 		}
