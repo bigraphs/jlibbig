@@ -34,10 +34,10 @@ Main Branches:
 * Develop branch: develop
 
 Prefixes:
-** Release branches: release/version
-** Feature branches: feature/name-target version(if given)
-** Hot-fix branches: hotfix/version
-** Support branches: support/legacy version
+* Release branches: release/version
+* Feature branches: feature/name-target version(if given)
+* Hot-fix branches: hotfix/version
+* Support branches: support/legacy version
 
 A short and nice tutorial about this branching model
 can be found [here](http://nvie.com/posts/a-successful-git-branching-model/).
