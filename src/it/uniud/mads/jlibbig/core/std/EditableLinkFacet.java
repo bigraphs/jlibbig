@@ -1,18 +1,18 @@
 package it.uniud.mads.jlibbig.core.std;
 
-import it.uniud.mads.jlibbig.core.AbstractNamed;
 import it.uniud.mads.jlibbig.core.attachedProperties.Replicable;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListener;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListenerContainer;
+import it.uniud.mads.jlibbig.core.util.NameHelper;
 
 abstract class EditableLinkFacet implements LinkFacet, EditableNamed,
 		Replicable {
 
-	protected String name;
+	private String name;
 	protected final ReplicationListenerContainer rep = new ReplicationListenerContainer();
 
 	protected EditableLinkFacet() {
-		this("X_" + AbstractNamed.generateName());
+		this("X_" + NameHelper.generateName());
 	}
 
 	protected EditableLinkFacet(String name) {
@@ -71,9 +71,4 @@ abstract class EditableLinkFacet implements LinkFacet, EditableNamed,
 		}
 		return name.equals(other.name);
 	}
-
-	// @Override
-	// public int compareTo(String arg0) {
-	// return this.name.compareTo(arg0);
-	// }
 }
