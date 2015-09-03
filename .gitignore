@@ -40,5 +40,7 @@ Thumbs.db
 # Files for personal, local use #
 #################################
 src/tests/
+src/it/uniud/mads/jlibbig/tests
+libs/
 ignoreme/
-/bin/
+bin/
