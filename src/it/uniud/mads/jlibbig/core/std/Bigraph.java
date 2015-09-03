@@ -910,7 +910,14 @@ final public class Bigraph implements
 			throw new IncompatibleSignatureException(out.getSignature(),
 					in.getSignature());
 		}
-		if (!out.inners.keySet().equals(in.outers.keySet())
+		
+		Set<String> xs = new HashSet<>(out.inners.keySet());
+		Set<String> ys = new HashSet<>(in.outers.keySet());
+		Set<String> zs = new HashSet<>(xs);
+		xs.removeAll(ys);
+		ys.removeAll(zs);
+						
+		if (!xs.isEmpty() || !ys.isEmpty()
 				|| out.sites.size() != in.roots.size()) {
 			throw new IncompatibleInterfaceException(
 					"The outer face of the first graph must be equal to inner face of the second");
