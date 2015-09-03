@@ -43,18 +43,6 @@ A short and nice tutorial about this branching model
 can be found [here](http://nvie.com/posts/a-successful-git-branching-model/).
 Utilities such [git-flow](https://github.com/nvie/gitflow) may be very helpful.
 
-## External dependencies
-
-All external dependencies must be stated in the project README.
-Information to be included:
-* version requirements for both jLibBig and the dependency;
-* URL(s) e.g. project page, source(s);
-* optionally, a self-hosted mirror.
-
-If the dependency is introduced by a new feature update the README.md locally. 
-
-In any case, do not include external resources etc. in the repository, instead link them (mirrors, self-hosting, dropbox).
-
 ### Versions
 
 Every commit to master is a new version by definition and must be tagged with its version.
@@ -81,3 +69,14 @@ Checklist:
 3. follow namining conventions;
 4. commit to master must be tagged with the version.
 
+## External dependencies
+
+All external dependencies must be stated in the project README.
+Information to be included:
+* version requirements for both jLibBig and the dependency;
+* URL(s) e.g. project page, source(s);
+* optionally, a self-hosted mirror.
+
+If the dependency is introduced by a new feature update the README.md locally. 
+
+In any case, do not include external resources etc. in the repository, instead link them (mirrors, self-hosting, dropbox).
