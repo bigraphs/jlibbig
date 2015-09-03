@@ -961,7 +961,13 @@ final public class BigraphBuilder implements
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
-		if (!out.inners.keySet().equals(in.outers.keySet())
+		Set<String> xs = new HashSet<>(out.inners.keySet());
+		Set<String> ys = new HashSet<>(in.outers.keySet());
+		Set<String> zs = new HashSet<>(xs);
+		xs.removeAll(ys);
+		ys.removeAll(zs);
+						
+		if (!xs.isEmpty() || !ys.isEmpty()
 				|| out.sites.size() != in.roots.size()) {
 			throw new IncompatibleInterfaceException(
 					"The outer face of the first graph must be equal to inner face of the second");
@@ -1041,7 +1047,13 @@ final public class BigraphBuilder implements
 			throw new IncompatibleSignatureException(out.signature,
 					in.signature);
 		}
-		if (!out.inners.keySet().equals(in.outers.keySet())
+		Set<String> xs = new HashSet<>(out.inners.keySet());
+		Set<String> ys = new HashSet<>(in.outers.keySet());
+		Set<String> zs = new HashSet<>(xs);
+		xs.removeAll(ys);
+		ys.removeAll(zs);
+						
+		if (!xs.isEmpty() || !ys.isEmpty()
 				|| out.sites.size() != in.roots.size()) {
 			// System.err.println(out.inners.keySet() + " " + in.outers.keySet()
 			// + " " + out.sites.size() + " " + in.roots.size());
