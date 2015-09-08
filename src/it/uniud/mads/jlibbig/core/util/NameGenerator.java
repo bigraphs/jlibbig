@@ -11,9 +11,6 @@ public class NameGenerator {
 	
 	public static final NameGenerator DEFAULT = new NameGenerator();
 
-	protected static final long MIN_BLOCK_SIZE = 1000L;
-	protected static final long MAX_BLOCK_SIZE = 1000000L;
-	
 	private BigInteger _sharedCounter = BigInteger.ZERO; 
 	
 	private final ThreadLocal<Block> _localBlock = new ThreadLocal<Block>(){
@@ -47,6 +44,9 @@ public class NameGenerator {
 	
 	protected class Block{
 		
+		private static final long MIN_BLOCK_SIZE = 1000L;
+		private static final long MAX_BLOCK_SIZE = 1000000L;
+			
 		private static final long SHRINK_FACTOR = 2;
 		private static final long GROW_FACTOR = 2;
 		
