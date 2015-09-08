@@ -2,7 +2,7 @@ package it.uniud.mads.jlibbig.core.std;
 
 import java.util.*;
 
-import it.uniud.mads.jlibbig.core.util.NameHelper;
+import it.uniud.mads.jlibbig.core.util.NameGenerator;
 import it.uniud.mads.jlibbig.core.BigraphHandler;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
@@ -29,7 +29,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
 	}
 
 	EditableRoot(Owner owner) {
-		this.name = "R_" + NameHelper.generateName();
+		this.name = "R_" + NameGenerator.DEFAULT.generate();
 		props.attachProperty(this.owner);
 		if (owner != null)
 			ownerSetter.set(owner);
