@@ -2,35 +2,44 @@
  * 
  */
 package it.uniud.mads.jlibbig.core.util;
+import java.lang.ref.SoftReference;
 
 import java.math.BigInteger;
 
 public class NameGenerator {
 
-	private final static boolean DEBUG_NAME_GEN = true; //Boolean.getBoolean("it.uniud.mads.jlibbig.namegeneration");
+	private final static boolean DEBUG = true; //Boolean.getBoolean("it.uniud.mads.jlibbig.namegeneration");
 	
 	public static final NameGenerator DEFAULT = new NameGenerator();
 
 	private BigInteger _sharedCounter = BigInteger.ZERO; 
 	
-	private final ThreadLocal<Block> _localBlock = new ThreadLocal<Block>(){
+	private final ThreadLocal<SoftReference<Block>> _localBlock = new ThreadLocal<SoftReference<Block>>(){
 		@Override
-		protected Block initialValue(){
-			return createLocalBlock();
+		protected SoftReference<Block> initialValue(){
+			return null;
 		}
 	};
 	
 	NameGenerator(){}
 	
 	public String generate(){
-		return this._localBlock.get().next();
+		SoftReference<Block> ref = this._localBlock.get();
+		if(ref == null){
+			if(DEBUG){
+				System.out.println("New local block for thread " + Thread.currentThread().getId() + "-" + Thread.currentThread().getName());
+			}
+			ref = new SoftReference<>(createLocalBlock());
+			this._localBlock.set(ref);
+		}
+		return ref.get().next();
 	}
 		
 	private BigInteger getNewBlock(BigInteger size){
 		BigInteger block;
 		synchronized(this){
-			if(DEBUG_NAME_GEN){
-				System.out.println("Allocating a new block of size " + size.toString());
+			if(DEBUG){
+				System.out.println("Allocating a new block of size " + size.toString() + " for thread " + Thread.currentThread().getId() + "-" + Thread.currentThread().getName());
 			}
 			block = this._sharedCounter;
 			this._sharedCounter = block.add(size);
@@ -45,10 +54,12 @@ public class NameGenerator {
 	protected class Block{
 		
 		private static final long MIN_BLOCK_SIZE = 1000L;
-		private static final long MAX_BLOCK_SIZE = 1000000L;
+		private static final long MAX_BLOCK_SIZE = 100000L;
 			
 		private static final long SHRINK_FACTOR = 2;
 		private static final long GROW_FACTOR = 2;
+		private static final long TIME_THRESHOLD = 1000; //milliseconds between block refills, grow if below
+		private static final long FREQ_THRESHOLD = 5; //number of refills since last size change, shrink if above
 		
 		private long _rem = 0;
 		private long _currentSize = MIN_BLOCK_SIZE*2;
@@ -66,9 +77,9 @@ public class NameGenerator {
 		protected long onRefilling(long oldBlockSize){
 			long now = System.currentTimeMillis();
 			long newBlockSize = oldBlockSize;
-			if(now - _lastGenT < 1000 && newBlockSize * GROW_FACTOR <= MAX_BLOCK_SIZE){
+			if(now - _lastGenT < TIME_THRESHOLD && newBlockSize * GROW_FACTOR <= MAX_BLOCK_SIZE){
 				newBlockSize *= GROW_FACTOR;
-			}else if(_genSinceLastSizeCng > 5 && newBlockSize / SHRINK_FACTOR >= MIN_BLOCK_SIZE){
+			}else if(_genSinceLastSizeCng > FREQ_THRESHOLD && newBlockSize / SHRINK_FACTOR >= MIN_BLOCK_SIZE){
 				newBlockSize /= SHRINK_FACTOR;
 			}
 			return newBlockSize;
