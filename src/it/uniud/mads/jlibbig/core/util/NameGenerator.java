@@ -8,7 +8,7 @@ import java.math.BigInteger;
 
 public class NameGenerator {
 
-	private final static boolean DEBUG = true; //Boolean.getBoolean("it.uniud.mads.jlibbig.namegeneration");
+	private final static boolean DEBUG = Boolean.getBoolean("it.uniud.mads.jlibbig.namegeneration");
 	
 	public static final NameGenerator DEFAULT = new NameGenerator();
 
