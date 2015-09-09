@@ -1,11 +1,12 @@
-/**
- * 
- */
 package it.uniud.mads.jlibbig.core.util;
 import java.lang.ref.SoftReference;
 
 import java.math.BigInteger;
 
+/**
+ * A class for generating names. Names are unique with respect to each instance of the generator.
+ *
+ */
 public class NameGenerator {
 
 	private final static boolean DEBUG = Boolean.getBoolean("it.uniud.mads.jlibbig.namegeneration");
@@ -14,17 +15,20 @@ public class NameGenerator {
 
 	private BigInteger _sharedCounter = BigInteger.ZERO; 
 	
-	private final ThreadLocal<SoftReference<Block>> _localBlock = new ThreadLocal<SoftReference<Block>>(){
+	private final ThreadLocal<SoftReference<BlockProxy>> _localBlock = new ThreadLocal<SoftReference<BlockProxy>>(){
 		@Override
-		protected SoftReference<Block> initialValue(){
+		protected SoftReference<BlockProxy> initialValue(){
 			return null;
 		}
 	};
-	
-	NameGenerator(){}
-	
+		
+	/**
+	 * Generates a name unique with respect to this instance of the generator.
+	 * 
+	 * @return a name
+	 */
 	public String generate(){
-		SoftReference<Block> ref = this._localBlock.get();
+		SoftReference<BlockProxy> ref = this._localBlock.get();
 		if(ref == null){
 			if(DEBUG){
 				System.out.println("New local block for thread " + Thread.currentThread().getId() + "-" + Thread.currentThread().getName());
@@ -47,11 +51,18 @@ public class NameGenerator {
 		return block;
 	}
 	
-	protected Block createLocalBlock(){
-		return new Block();
+	/**
+	 * Creates a proxy for name blocks for this thread.
+	 * Inherit this method to provide alternative implementations to Block.
+	 * Blocks are allocated invoking {@link getNewBlock}; the method is thread safe.
+	 * 
+	 * @return a proxy to be used by this thread.
+	 */
+	protected BlockProxy createLocalBlock(){
+		return new BlockProxy();
 	}
 	
-	protected class Block{
+	protected class BlockProxy{
 		
 		private static final long MIN_BLOCK_SIZE = 1000L;
 		private static final long MAX_BLOCK_SIZE = 100000L;
@@ -68,7 +79,7 @@ public class NameGenerator {
 		private int _genSinceLastSizeCng = -1;
 		private BigInteger _next = null;
 		
-		Block(){}
+		BlockProxy(){}
 		
 		public long getSize(){
 			return this._currentSize;
