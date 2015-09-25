@@ -3,7 +3,7 @@ package it.uniud.mads.jlibbig.core.std;
 import it.uniud.mads.jlibbig.core.attachedProperties.Replicable;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListener;
 import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListenerContainer;
-import it.uniud.mads.jlibbig.core.util.NameHelper;
+import it.uniud.mads.jlibbig.core.util.NameGenerator;
 
 abstract class EditableLinkFacet implements LinkFacet, EditableNamed,
 		Replicable {
@@ -12,7 +12,7 @@ abstract class EditableLinkFacet implements LinkFacet, EditableNamed,
 	protected final ReplicationListenerContainer rep = new ReplicationListenerContainer();
 
 	protected EditableLinkFacet() {
-		this("X_" + NameHelper.generateName());
+		this("X_" + NameGenerator.DEFAULT.generate());
 	}
 
 	protected EditableLinkFacet(String name) {

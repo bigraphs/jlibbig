@@ -3,7 +3,7 @@ package it.uniud.mads.jlibbig.core.std;
 import java.util.Collection;
 import java.util.Iterator;
 
-import it.uniud.mads.jlibbig.core.util.NameHelper;
+import it.uniud.mads.jlibbig.core.util.NameGenerator;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 
 /**
@@ -19,7 +19,6 @@ public final class Control extends it.uniud.mads.jlibbig.core.Control implements
 	
 	private final PropertyContainer props;
 	
-
 	/**
 	 * Creates a control for the given arity and modality and assign it a fresh
 	 * name.
@@ -31,7 +30,7 @@ public final class Control extends it.uniud.mads.jlibbig.core.Control implements
 	 *            nodes decorated with this control.
 	 */
 	public Control(boolean active, int arity) {
-		this("C_" + NameHelper.generateName(), active, arity);
+		this("C_" + NameGenerator.DEFAULT.generate(), active, arity);
 	}
 
 	/**

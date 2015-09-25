@@ -1,6 +1,6 @@
 package it.uniud.mads.jlibbig.core;
 
-import it.uniud.mads.jlibbig.core.util.NameHelper;
+import it.uniud.mads.jlibbig.core.util.NameGenerator;
 
 /**
  * Describes a name identified entity and provides some name generation
@@ -17,7 +17,7 @@ public abstract class AbstractNamed implements Named {
 	 * @see #generateName()
 	 */
 	protected AbstractNamed() {
-		this(NameHelper.generateName());
+		this(NameGenerator.DEFAULT.generate());
 	}
 
 	protected AbstractNamed(String name) {
@@ -29,7 +29,7 @@ public abstract class AbstractNamed implements Named {
 	
 	protected AbstractNamed(String name, boolean isPrefix) {
 		if(isPrefix){
-			this.name = name + NameHelper.generateName();
+			this.name = name + NameGenerator.DEFAULT.generate();
 		}else{
 			if (name == null || name.isEmpty()){
 				throw new IllegalArgumentException("Name can not be empty.");

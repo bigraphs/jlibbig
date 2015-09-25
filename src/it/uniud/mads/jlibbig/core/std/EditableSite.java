@@ -1,6 +1,6 @@
 package it.uniud.mads.jlibbig.core.std;
 
-import it.uniud.mads.jlibbig.core.util.NameHelper;
+import it.uniud.mads.jlibbig.core.util.NameGenerator;
 import it.uniud.mads.jlibbig.core.BigraphHandler;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
@@ -23,7 +23,7 @@ class EditableSite implements EditableChild, Site {
 	private final String name;
 	
 	EditableSite() {
-		this.name = "S_" + NameHelper.generateName();
+		this.name = "S_" + NameGenerator.DEFAULT.generate();
 		this.ownerSetter = new DelegatedProperty.PropertySetter<>();
 		this.ownerProp = new DelegatedProperty<Owner>(PROPERTY_OWNER, true, ownerSetter);
 	
