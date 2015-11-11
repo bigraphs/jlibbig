@@ -236,26 +236,41 @@ public class RewritingRule implements it.uniud.mads.jlibbig.core.RewritingRule<B
 	public InstantiationMap getInstantiationRule() {
 		return this.eta;
 	}
-
+	
 	@Override
 	public Iterable<Bigraph> apply(Bigraph to) {
-		return new RewriteIterable(to);
+		return this.apply(this.getMatcher(),to);
 	}
 
+	public Iterable<Bigraph> apply(Matcher m, Bigraph to) {
+		return new RewriteIterable(m,to);
+	}
+	
+	public Matcher getMatcher(){
+		return this.matcher;
+	}
+
+	public void setMatcher(Matcher m){
+		this.matcher = m;
+	}
+	
 	private class RewriteIterable implements Iterable<Bigraph> {
 
+		private final Matcher matcher;
+		
 		private final Bigraph target;
 
 		private Iterable<? extends Match> mAble;
 
-		RewriteIterable(Bigraph target) {
+		RewriteIterable(Matcher m, Bigraph target) {
 			this.target = target;
+			this.matcher = m;
 		}
 
 		@Override
 		public Iterator<Bigraph> iterator() {
 			if (mAble == null)
-				mAble = matcher.match(target, redex);
+				mAble = this.matcher.match(target, redex);
 			return new RewriteIterator();
 		}
 
