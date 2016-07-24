@@ -1,7 +1,6 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
 import it.uniud.mads.jlibbig.core.Owned;
-import it.uniud.mads.jlibbig.core.std.LinkEntity; // TODO fix references
 import it.uniud.mads.jlibbig.core.std.Node;
 
 /**

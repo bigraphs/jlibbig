@@ -10,10 +10,10 @@ import java.util.Collection;
  * whereas they belong to an outer interface or not.
  */
 public interface Handle extends Owned, LinkEntity,
-		it.uniud.mads.jlibbig.core.Handle {
+        it.uniud.mads.jlibbig.core.Handle {
 
-	@Override
-	public abstract Collection<? extends Point> getPoints();
+    @Override
+    Collection<? extends Point> getPoints();
 
-	public abstract EditableHandle getEditable();
+    EditableHandle getEditable();
 }
