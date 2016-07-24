@@ -13,7 +13,7 @@ import java.util.Iterator;
 /**
  * Objects created from this class are bigraphical controls describing the
  * modality (i.e. active or passive) and the arity (i.e. the number of ports) of
- * nodes decorated with it. Every {@link Bigraph} has a {@link Signature}
+ * nodes decorated with it. Every {@link Bigraph} has a {@link DirectedSignature}
  * describing the controls that can be assigned to its nodes; every {@link Node}
  * should be assigned exactly one control.
  */
