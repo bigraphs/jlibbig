@@ -1,7 +1,5 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import it.uniud.mads.jlibbig.core.std.Site; // TODO import site class and fix refernce
-
 /**
  * Roots describe regions of the bigraph. These are the roots of the place
  * graph structure and compose its outer interface.
