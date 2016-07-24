@@ -20,12 +20,11 @@ import java.util.Iterator;
  */
 public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control implements PropertyTarget {
 
+    private final boolean active;
+    private final PropertyContainer props;
     protected int arityPlus;
     protected int arityMinus;
-
-    private final boolean active;
-
-    private final PropertyContainer props;
+    String _tostring;
 
     /**
      * Creates a control for the given arity and modality and assign it a fresh
@@ -107,8 +106,6 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
                 || getArityMinus() != other.getArityMinus()
                 || !super.getName().equals(other.getName()));
     }
-
-    String _tostring;
 
     @Override
     public String toString() {

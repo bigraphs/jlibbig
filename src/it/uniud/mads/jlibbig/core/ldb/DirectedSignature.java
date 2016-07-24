@@ -1,15 +1,11 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import it.uniud.mads.jlibbig.core.ldb.DirectedControl;
-import it.uniud.mads.jlibbig.core.std.Node;
-import it.uniud.mads.jlibbig.core.std.SignatureBuilder;
-
 /**
  * Objects created from this class are bigraphical dynamic signatures.A
  * signature defines the controls that can be assigned to the nodes of bigraphs
  * over it. A dynamic {@link DirectedControl} describes the arity the arity (i.e. the
  * number of ports) and the modality (i.e. active or passive) of a {@link Node}
- * decorated with it. The class {@link SignatureBuilder} provides some helper
+ * decorated with it. The class {@link DirectedSignatureBuilder} provides some helper
  * methods for signature construction since objects created from the signature
  * class are immutable and all controls have to be specified on instantiation
  */
