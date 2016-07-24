@@ -7,8 +7,8 @@ interface EditableChild extends Child, Replicable, Owned {
     void setParent(EditableParent parent);
 
     @Override
-    public abstract EditableParent getParent();
+    EditableParent getParent();
 
     @Override
-    public abstract EditableChild replicate();
+    EditableChild replicate();
 }

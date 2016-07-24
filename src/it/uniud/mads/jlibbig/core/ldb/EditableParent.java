@@ -13,27 +13,27 @@ interface EditableParent extends Parent, Replicable, Owned, PropertyTarget {
      *
      * @return the set of parent's children
      */
-    public abstract Collection<EditableChild> getEditableChildren();
+    Collection<EditableChild> getEditableChildren();
 
     /**
      * Add a child to this parent.
      *
      * @param child the child that will be added
      */
-    public abstract void addChild(EditableChild child);
+    void addChild(EditableChild child);
 
     /**
      * Remove a child
      *
      * @param child the child that will be removed
      */
-    public abstract void removeChild(EditableChild child);
+    void removeChild(EditableChild child);
 
-    public abstract EditableRoot getRoot();
+    EditableRoot getRoot();
 
     /**
      * @see Replicable#replicate()
      */
     @Override
-    public abstract EditableParent replicate();
+    EditableParent replicate();
 }

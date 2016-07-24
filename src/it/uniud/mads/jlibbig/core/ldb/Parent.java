@@ -9,7 +9,7 @@ import java.util.Collection;
  */
 public interface Parent extends PlaceEntity, it.uniud.mads.jlibbig.core.Parent {
     @Override
-    public abstract Collection<? extends Child> getChildren();
+    Collection<? extends Child> getChildren();
 
-    public abstract EditableParent getEditable();
+    EditableParent getEditable();
 }

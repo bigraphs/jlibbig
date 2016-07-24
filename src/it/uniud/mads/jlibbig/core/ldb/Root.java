@@ -1,6 +1,6 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import it.uniud.mads.jlibbig.core.std.Site;
+import it.uniud.mads.jlibbig.core.std.Site; // TODO import site class and fix refernce
 
 /**
  * Roots describe regions of the bigraph. These are the roots of the place
@@ -12,5 +12,5 @@ import it.uniud.mads.jlibbig.core.std.Site;
 public interface Root extends Parent, PlaceEntity,
         it.uniud.mads.jlibbig.core.Root {
     @Override
-    public abstract EditableRoot getEditable();
+    EditableRoot getEditable();
 }

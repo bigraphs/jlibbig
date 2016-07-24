@@ -18,7 +18,7 @@ class EditableRoot implements EditableParent, Root, EditableOwned {
     private final Set<? extends Child> ro_chd = Collections.unmodifiableSet(this.children);
 
     private final ProtectedProperty.ValueSetter<Owner> ownerSetter = new ProtectedProperty.ValueSetter<>();
-    private final ProtectedProperty<Owner> owner = new ProtectedProperty<Owner>(PROPERTY_OWNER, null, ownerSetter);
+    private final ProtectedProperty<Owner> owner = new ProtectedProperty<>(PROPERTY_OWNER, null, ownerSetter);
 
     private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
     private final PropertyContainer props = new PropertyContainer(this);
