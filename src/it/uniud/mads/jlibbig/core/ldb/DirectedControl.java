@@ -4,7 +4,6 @@ import it.uniud.mads.jlibbig.core.attachedProperties.Property;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyContainer;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyTarget;
 import it.uniud.mads.jlibbig.core.std.Bigraph;
-import it.uniud.mads.jlibbig.core.std.Node;
 import it.uniud.mads.jlibbig.core.util.NameGenerator;
 
 import java.util.Collection;

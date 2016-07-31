@@ -1,7 +1,5 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import it.uniud.mads.jlibbig.core.std.Node; // TODO fix reference
-
 /**
  * Objects created from this class are bigraphical dynamic signatures.A
  * signature defines the controls that can be assigned to the nodes of bigraphs
