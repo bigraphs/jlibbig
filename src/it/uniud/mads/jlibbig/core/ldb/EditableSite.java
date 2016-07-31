@@ -9,17 +9,14 @@ import it.uniud.mads.jlibbig.core.attachedProperties.ReplicationListenerContaine
 import it.uniud.mads.jlibbig.core.util.NameGenerator;
 
 class EditableSite implements EditableChild, Site {
+
     static final String PROPERTY_OWNER = "Owner";
-
-    private EditableParent parent;  //redundant with parentProp
-
     private final DelegatedProperty.PropertySetter<Owner> ownerSetter;
     private final DelegatedProperty<Owner> ownerProp;
-
     private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
     private final PropertyContainer props = new PropertyContainer();
-
     private final String name;
+    private EditableParent parent;  //redundant with parentProp
 
     EditableSite() {
         this.name = "S_" + NameGenerator.DEFAULT.generate();
@@ -57,21 +54,6 @@ class EditableSite implements EditableChild, Site {
     }
 
     @Override
-    public void setParent(EditableParent parent) {
-        if (this.parent != parent) {
-            EditableParent old = this.parent;
-            this.parent = parent;
-            if (old != null) {
-                old.removeChild(this);
-            }
-            if (parent != null) {
-                parent.addChild(this);
-                this.ownerSetter.set(parent.getProperty(PROPERTY_OWNER));
-            }
-        }
-    }
-
-    @Override
     public EditableSite replicate() {
         EditableSite copy = new EditableSite();
         rep.tellReplicated(this, copy);
@@ -101,6 +83,21 @@ class EditableSite implements EditableChild, Site {
     @Override
     public boolean isParent() {
         return false;
+    }
+
+    @Override
+    public void setParent(EditableParent parent) {
+        if (this.parent != parent) {
+            EditableParent old = this.parent;
+            this.parent = parent;
+            if (old != null) {
+                old.removeChild(this);
+            }
+            if (parent != null) {
+                parent.addChild(this);
+                this.ownerSetter.set(parent.getProperty(PROPERTY_OWNER));
+            }
+        }
     }
 
     @Override

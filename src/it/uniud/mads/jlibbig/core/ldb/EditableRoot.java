@@ -13,17 +13,13 @@ import java.util.Set;
 class EditableRoot implements EditableParent, Root, EditableOwned {
 
     static final String PROPERTY_OWNER = "Owner";
-
-    private Set<EditableChild> children = new HashSet<>();
-    private final Set<? extends Child> ro_chd = Collections.unmodifiableSet(this.children);
-
     private final ProtectedProperty.ValueSetter<Owner> ownerSetter = new ProtectedProperty.ValueSetter<>();
     private final ProtectedProperty<Owner> owner = new ProtectedProperty<>(PROPERTY_OWNER, null, ownerSetter);
-
     private final ReplicationListenerContainer rep = new ReplicationListenerContainer();
     private final PropertyContainer props = new PropertyContainer(this);
-
     private final String name;
+    private Set<EditableChild> children = new HashSet<>();
+    private final Set<? extends Child> ro_chd = Collections.unmodifiableSet(this.children);
 
     EditableRoot() {
         this(null);
