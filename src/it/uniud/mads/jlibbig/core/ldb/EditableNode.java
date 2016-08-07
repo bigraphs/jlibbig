@@ -1,6 +1,7 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
 import it.uniud.mads.jlibbig.core.Owner;
+import it.uniud.mads.jlibbig.core.Port;
 import it.uniud.mads.jlibbig.core.attachedProperties.*;
 import it.uniud.mads.jlibbig.core.util.NameGenerator;
 
@@ -8,10 +9,10 @@ import java.util.*;
 
 class EditableNode implements Node, EditableParent, EditableChild {
     public static final String PROPERTY_OWNER = "Owner";
-    private final List<EditablePort> upperPorts;
-    private final List<EditablePort> lowerPorts;
-    private final List<? extends Port> ro_upperPorts;
-    private final List<? extends Port> ro_lowerPorts;
+    private final List<EditableOutPort> outPorts;
+    private final List<EditableInPort> inPorts;
+    private final List<? extends OutPort> ro_outPorts;
+    private final List<? extends InPort> ro_inPorts;
     private final Collection<? extends Child> ro_chd;
     private final DelegatedProperty.PropertySetter<Owner> ownerSetter;
     private final DelegatedProperty<Owner> ownerProp;
@@ -25,19 +26,19 @@ class EditableNode implements Node, EditableParent, EditableChild {
     EditableNode(DirectedControl control) {
         this.name = "N_" + NameGenerator.DEFAULT.generate();
         this.control = control;
-        List<EditablePort> upperPorts = new ArrayList<>();
-        List<EditablePort> lowerPorts = new ArrayList<>();
-        for (int i = 0; i < control.getArityPlus(); i++) {
-            upperPorts.add(new EditablePort(i, '+'));
+        List<EditableOutPort> outPorts = new ArrayList<>();
+        List<EditableInPort> inPorts = new ArrayList<>();
+        for (int i = 0; i < control.getArityOut(); i++) {
+            outPorts.add(new EditableOutPort(i));
         }
-        for (int i = 0; i < control.getArityMinus(); i++) {
-            lowerPorts.add(new EditablePort(i, '-'));
+        for (int i = 0; i < control.getArityIn(); i++) {
+            inPorts.add(new EditableInPort(i));
         }
-        this.upperPorts = Collections.unmodifiableList(upperPorts);
-        this.lowerPorts = Collections.unmodifiableList(lowerPorts);
+        this.outPorts = Collections.unmodifiableList(outPorts);
+        this.inPorts = Collections.unmodifiableList(inPorts);
         this.children = new HashSet<>();
-        this.ro_upperPorts = Collections.unmodifiableList(this.upperPorts);
-        this.ro_lowerPorts = Collections.unmodifiableList(this.lowerPorts);
+        this.ro_outPorts = Collections.unmodifiableList(this.outPorts);
+        this.ro_inPorts = Collections.unmodifiableList(this.inPorts);
         this.ro_chd = Collections.unmodifiableCollection(this.children);
 
         this.ownerSetter = new DelegatedProperty.PropertySetter<>();
@@ -52,22 +53,21 @@ class EditableNode implements Node, EditableParent, EditableChild {
         setParent(parent);
     }
 
-//    TODO: handles in directed bigraphs
-//    EditableNode(DirectedControl control, EditableParent parent,
-//                 List<? extends Handle> handles) {
-//        this(control, parent);
-//        for (int i = 0; i < Math.min(handles.size(), control.getArity()); i++) {
-//            this.ports.get(i).setHandle((it.uniud.mads.jlibbig.core.std.EditableHandle) handles.get(i));
-//        }
-//    }
-//
-//    EditableNode(Control control, it.uniud.mads.jlibbig.core.std.EditableParent parent,
-//                 it.uniud.mads.jlibbig.core.std.EditableHandle... handles) {
-//        this(control, parent);
-//        for (int i = 0; i < Math.min(handles.length, control.getArity()); i++) {
-//            this.ports.get(i).setHandle(handles[i]);
-//        }
-//    }
+    EditableNode(DirectedControl control, EditableParent parent,
+                 List<? extends Handle> handles) {
+        this(control, parent);
+        for (int i = 0; i < Math.min(handles.size(), control.getArityOut()); i++) {
+            this.outPorts.get(i).setHandle((EditableHandle) handles.get(i));
+        }
+    }
+
+    EditableNode(DirectedControl control, EditableParent parent,
+                 EditableHandle... handles) {
+        this(control, parent);
+        for (int i = 0; i < Math.min(handles.length, control.getArityOut()); i++) {
+            this.outPorts.get(i).setHandle(handles[i]);
+        }
+    }
 
     String getName() {
         return name;
@@ -91,49 +91,40 @@ class EditableNode implements Node, EditableParent, EditableChild {
     @Override
     public List<? extends Port> getPorts() {
         List<Port> ports = new ArrayList<>();
-        ports.addAll(this.ro_upperPorts);
-        ports.addAll(this.ro_lowerPorts);
+        ports.addAll(this.ro_outPorts);
+        ports.addAll(this.ro_inPorts);
         return ports;
     }
 
     @Override
-    public List<? extends Port> getUpperPorts() {
-        return this.ro_upperPorts;
+    public Port<DirectedControl> getPort(int index) {
+        return null;
+    }
+
+    public List<? extends OutPort> getOutPorts() {
+        return this.ro_outPorts;
+    }
+
+    public List<? extends InPort> getInPorts() {
+        return this.ro_inPorts;
+    }
+
+    public List<EditableOutPort> getOutPortsForEdit() {
+        return this.outPorts;
+    }
+
+    public List<EditableInPort> getInPortsForEdit() {
+        return this.inPorts;
     }
 
     @Override
-    public List<? extends Port> getLowerPorts() {
-        return this.ro_lowerPorts;
-    }
-
-    public List<EditablePort> getPortsForEdit() {
-        List<EditablePort> ports = new ArrayList<>();
-        ports.addAll(this.upperPorts);
-        ports.addAll(this.lowerPorts);
-        return ports;
-    }
-
-    public List<EditablePort> getUpperPortsForEdit() {
-        return this.upperPorts;
-    }
-
-    public List<EditablePort> getLowerPortsForEdit() {
-        return this.lowerPorts;
+    public EditableOutPort getOutPort(int index) {
+        return this.getOutPortsForEdit().get(index);
     }
 
     @Override
-    public EditablePort getPort(int index) {
-        return this.getPortsForEdit().get(index);
-    }
-
-    public EditablePort getPort(int index, char direction) {
-        if (direction == '+') {
-            return this.upperPorts.get(index);
-        } else if (direction == '-') {
-            return this.lowerPorts.get(index);
-        } else {
-            return null;
-        }
+    public EditableInPort getInPort(int index) {
+        return this.getInPortsForEdit().get(index);
     }
 
     @Override
@@ -291,14 +282,12 @@ class EditableNode implements Node, EditableParent, EditableChild {
         return result;
     }
 
-    public class EditablePort implements Port, EditablePoint {
+    public class EditableOutPort implements OutPort, EditablePoint {
         private final int number;
-        private final char direction;
         private EditableHandle handle;
 
-        private EditablePort(int number, char direction) {
+        private EditableOutPort(int number) {
             this.number = number;
-            this.direction = direction;
         }
 
         @Override
@@ -308,16 +297,12 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
         @Override
         public String toString() {
-            return number + direction + "@" + EditableNode.this;
+            return number + '+' + "@" + EditableNode.this;
         }
 
         @Override
         public int getNumber() {
             return this.number;
-        }
-
-        public char getDirection() {
-            return this.direction;
         }
 
         @Override
@@ -331,7 +316,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
         }
 
         @Override
-        public EditablePort getEditable() {
+        public EditableOutPort getEditable() {
             return this;
         }
 
@@ -376,6 +361,119 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
         @Override
         public boolean isEdge() {
+            return false;
+        }
+    }
+
+    public class EditableInPort implements InPort, EditableHandle {
+        private final int number;
+
+        private EditableInPort(int number) {
+            this.number = number;
+        }
+
+        @Override
+        public EditableNode getNode() {
+            return EditableNode.this;
+        }
+
+        @Override
+        public String toString() {
+            return number + '+' + "@" + EditableNode.this;
+        }
+
+        @Override
+        public int getNumber() {
+            return this.number;
+        }
+
+        @Override
+        public EditableHandle getHandle() {
+            return this;
+        }
+
+        @Override
+        public Collection<? extends Point> getPoints() {
+            return null;
+        }
+
+        @Override
+        public EditableInPort getEditable() {
+            return this;
+        }
+
+        @Override
+        public boolean isHandle() {
+            return true;
+        }
+
+        @Override
+        public boolean isPoint() {
+            return false;
+        }
+
+        @Override
+        public boolean isPort() {
+            return true;
+        }
+
+        @Override
+        public boolean isInnerName() {
+            return false;
+        }
+
+        @Override
+        public boolean isOuterName() {
+            return false;
+        }
+
+        @Override
+        public boolean isEdge() {
+            return false;
+        }
+
+        @Override
+        public Owner getOwner() {
+            return null;
+        }
+
+        @Override
+        public void setOwner(Owner value) {
+
+        }
+
+        @Override
+        public Collection<EditablePoint> getEditablePoints() {
+            return null;
+        }
+
+        @Override
+        public void linkPoint(EditablePoint point) {
+
+        }
+
+        @Override
+        public void unlinkPoint(EditablePoint point) {
+
+        }
+
+        @Override
+        public EditableHandle replicate() {
+            return null;
+        }
+
+        @Override
+        public void registerListener(ReplicationListener listener) {
+
+        }
+
+        @Override
+        public boolean unregisterListener(ReplicationListener listener) {
+            return false;
+        }
+
+        @Override
+        public boolean isListenerRegistered(ReplicationListener listener) {
             return false;
         }
     }

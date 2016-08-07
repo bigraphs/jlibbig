@@ -12,14 +12,14 @@ import java.util.List;
  */
 public interface Node extends PropertyTarget, Parent, Child,
         it.uniud.mads.jlibbig.core.Node<DirectedControl> {
-    public List<? extends Port> getPorts();
 
-    public List<? extends Port> getUpperPorts();
+    public List<? extends OutPort> getOutPorts();
 
-    public List<? extends Port> getLowerPorts();
+    public List<? extends InPort> getInPorts();
 
-    @Override
-    public abstract Port getPort(int index);
+    public abstract OutPort getOutPort(int index);
+
+    public abstract InPort getInPort(int index);
 
     @Override
     public abstract DirectedControl getControl();

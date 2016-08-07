@@ -20,38 +20,38 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
 
     private final boolean active;
     private final PropertyContainer props;
-    protected int arityPlus;
-    protected int arityMinus;
+    protected int arityOut;
+    protected int arityIn;
     String _tostring;
 
     /**
      * Creates a control for the given arity and modality and assign it a fresh
      * name.
      *
-     * @param active     a boolean indicating whether the control is active or passive.
-     * @param arityPlus  a non-negative integer defining the number of upper ports of the
-     *                   nodes decorated with this control.
-     * @param arityMinus a non-negative integer defining the number of lower ports of the
-     *                   nodes decorated with this control.
+     * @param active   a boolean indicating whether the control is active or passive.
+     * @param arityOut a non-negative integer defining the number of upper ports of the
+     *                 nodes decorated with this control.
+     * @param arityIn  a non-negative integer defining the number of lower ports of the
+     *                 nodes decorated with this control.
      */
-    public DirectedControl(boolean active, int arityPlus, int arityMinus) {
-        this("DC_" + NameGenerator.DEFAULT.generate(), active, arityPlus, arityMinus);
+    public DirectedControl(boolean active, int arityOut, int arityIn) {
+        this("DC_" + NameGenerator.DEFAULT.generate(), active, arityOut, arityIn);
     }
 
     /**
      * Creates a control for the given name, arity and modality.
      *
-     * @param name       the name of the control.
-     * @param active     a boolean indicating whether the control is active or passive.
-     * @param arityPlus  a non-negative integer defining the number of upper ports of the
-     *                   nodes decorated with this control.
-     * @param arityMinus a non-negative integer defining the number of lower ports of the
-     *                   nodes decorated with this control.
+     * @param name     the name of the control.
+     * @param active   a boolean indicating whether the control is active or passive.
+     * @param arityOut a non-negative integer defining the number of upper ports of the
+     *                 nodes decorated with this control.
+     * @param arityIn  a non-negative integer defining the number of lower ports of the
+     *                 nodes decorated with this control.
      */
-    public DirectedControl(String name, boolean active, int arityPlus, int arityMinus) {
-        super(name, arityPlus + arityMinus);
-        this.arityPlus = arityPlus;
-        this.arityMinus = arityMinus;
+    public DirectedControl(String name, boolean active, int arityOut, int arityIn) {
+        super(name, arityOut + arityIn);
+        this.arityOut = arityOut;
+        this.arityIn = arityIn;
         this.active = active;
         this.props = new PropertyContainer(this);
     }
@@ -61,8 +61,8 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
      *
      * @return control's positive arity.
      */
-    public int getArityPlus() {
-        return arityPlus;
+    public int getArityOut() {
+        return arityOut;
     }
 
     /**
@@ -70,8 +70,8 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
      *
      * @return control's negative arity.
      */
-    public int getArityMinus() {
-        return arityMinus;
+    public int getArityIn() {
+        return arityIn;
     }
 
     /**
@@ -100,8 +100,8 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
         if (getClass() != obj.getClass())
             return false;
         DirectedControl other = (DirectedControl) obj;
-        return !(getArityPlus() != other.getArityPlus()
-                || getArityMinus() != other.getArityMinus()
+        return !(getArityOut() != other.getArityOut()
+                || getArityIn() != other.getArityIn()
                 || !super.getName().equals(other.getName()));
     }
 
@@ -114,7 +114,7 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
         StringBuilder builder = null;
         if (_tostring == null) {
             builder = new StringBuilder();
-            builder.append(getName()).append(":(").append(getArityPlus()).append(",").append(getArityMinus()).append((active) ? ",a)" : ",p)");
+            builder.append(getName()).append(":(").append(getArityOut()).append(",").append(getArityIn()).append((active) ? ",a)" : ",p)");
             _tostring = builder.toString();
         }
         if (includeProperties) {
