@@ -4,54 +4,54 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Interface {
-    private final List<OuterInterfacePair> names = new ArrayList<>();
+public class OuterInterface {
+    private final List<OuterInterfacePair> pairs = new ArrayList<>();
 
-    public Interface() {
-        names.add(new OuterInterfacePair());
+    public OuterInterface() {
+        pairs.add(new OuterInterfacePair());
     }
 
-    public static Interface join(Interface x, Interface y) {
-        List<OuterInterfacePair> xn = x.names;
-        List<OuterInterfacePair> yn = y.names;
+    public static OuterInterface join(OuterInterface x, OuterInterface y) {
+        List<OuterInterfacePair> xn = x.pairs;
+        List<OuterInterfacePair> yn = y.pairs;
         List<OuterInterfacePair> zn = new ArrayList<>();
 
-        Interface z = new Interface();
-        z.names.set(0, OuterInterfacePair.merge(xn.get(0), yn.get(0)));
+        OuterInterface z = new OuterInterface();
+        z.pairs.set(0, OuterInterfacePair.merge(xn.get(0), yn.get(0)));
         xn.remove(0);
         yn.remove(0);
         zn.addAll(xn);
         zn.addAll(yn);
-        z.names.addAll(zn);
+        z.pairs.addAll(zn);
 
         return z;
     }
 
     public int getWidth() {
-        return names.size() - 1;
+        return pairs.size() - 1;
     }
 
     public Collection<? extends OuterName> getAsc() {
         List<OuterName> os = new ArrayList<>();
-        for (OuterInterfacePair ip : names) {
+        for (OuterInterfacePair ip : pairs) {
             os.addAll(ip.getAscendants());
         }
         return os;
     }
 
     public Collection<? extends OuterName> getAsc(int index) {
-        return this.names.get(index).getAscendants();
+        return this.pairs.get(index).getAscendants();
     }
 
     public Collection<? extends InnerName> getDesc() {
         List<InnerName> is = new ArrayList<>();
-        for (OuterInterfacePair ip : names) {
+        for (OuterInterfacePair ip : pairs) {
             is.addAll(ip.getDescendants());
         }
         return is;
     }
 
     public Collection<? extends InnerName> getDesc(int index) {
-        return this.names.get(index).getDescendants();
+        return this.pairs.get(index).getDescendants();
     }
 }

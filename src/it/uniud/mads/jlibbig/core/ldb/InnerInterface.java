@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Interface {
+public class InnerInterface {
     private final List<OuterInterfacePair> names = new ArrayList<>();
 
-    public Interface() {
+    public InnerInterface() {
         names.add(new OuterInterfacePair());
     }
 
-    public static Interface join(Interface x, Interface y) {
+    public static InnerInterface join(InnerInterface x, InnerInterface y) {
         List<OuterInterfacePair> xn = x.names;
         List<OuterInterfacePair> yn = y.names;
         List<OuterInterfacePair> zn = new ArrayList<>();
 
-        Interface z = new Interface();
+        InnerInterface z = new InnerInterface();
         z.names.set(0, OuterInterfacePair.merge(xn.get(0), yn.get(0)));
         xn.remove(0);
         yn.remove(0);

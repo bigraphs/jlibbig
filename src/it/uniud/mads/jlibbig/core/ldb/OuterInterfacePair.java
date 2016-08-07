@@ -6,29 +6,29 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-public class InterfacePair implements Owner {
-    private final Map<String, EditableOuterName> outers = new IdentityHashMap<>();
-    private final Map<String, EditableInnerName> inners = new IdentityHashMap<>();
+public class OuterInterfacePair implements Owner {
+    private final Map<String, EditableOuterName> ascendants = new IdentityHashMap<>();
+    private final Map<String, EditableInnerName> descendants = new IdentityHashMap<>();
 
-    public InterfacePair() {
+    public OuterInterfacePair() {
 
     }
 
-    private InterfacePair(Map<String, EditableOuterName> outers, Map<String, EditableInnerName> inners) {
-        this.outers.putAll(outers);
-        this.inners.putAll(inners);
+    private OuterInterfacePair(Map<String, EditableOuterName> ascendants, Map<String, EditableInnerName> descendants) {
+        this.ascendants.putAll(ascendants);
+        this.descendants.putAll(descendants);
     }
 
-    static InterfacePair merge(InterfacePair a, InterfacePair b) {
+    static OuterInterfacePair merge(OuterInterfacePair a, OuterInterfacePair b) {
         Map<String, EditableOuterName> os = new IdentityHashMap<>();
         Map<String, EditableInnerName> is = new IdentityHashMap<>();
 
-        os.putAll(a.outers);
-        os.putAll(b.outers);
-        is.putAll(a.inners);
-        is.putAll(b.inners);
+        os.putAll(a.ascendants);
+        os.putAll(b.ascendants);
+        is.putAll(a.descendants);
+        is.putAll(b.descendants);
 
-        return new InterfacePair(os, is);
+        return new OuterInterfacePair(os, is);
     }
 
     /**
@@ -36,8 +36,8 @@ public class InterfacePair implements Owner {
      *
      * @return the new outer name.
      */
-    public OuterName addOuterName() {
-        return addOuterName(new EditableOuterName());
+    public OuterName addAscendant() {
+        return addAscendant(new EditableOuterName());
     }
 
     /**
@@ -46,10 +46,10 @@ public class InterfacePair implements Owner {
      * @param name the name of the new outer name.
      * @return the new outer name.
      */
-    public OuterName addOuterName(String name) {
+    public OuterName addAscendant(String name) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Argument can not be null.");
-        return addOuterName(new EditableOuterName(name));
+        return addAscendant(new EditableOuterName(name));
     }
 
     /**
@@ -58,12 +58,12 @@ public class InterfacePair implements Owner {
      * @param name the outer name that will be added.
      * @return new outer name.
      */
-    private OuterName addOuterName(EditableOuterName name) {
-        if (outers.containsKey(name.getName())) {
+    private OuterName addAscendant(EditableOuterName name) {
+        if (ascendants.containsKey(name.getName())) {
             throw new IllegalArgumentException("Name '" + name.getName() + "' already present.");
         }
         name.setOwner(this);
-        outers.put(name.getName(), name);
+        ascendants.put(name.getName(), name);
         return name;
     }
 
@@ -73,9 +73,9 @@ public class InterfacePair implements Owner {
      *
      * @return the new inner name.
      */
-    public InnerName addInnerName() {
+    public InnerName addDescendant() {
         EditableEdge e = new EditableEdge(this);
-        return addInnerName(new EditableInnerName(), e);
+        return addDescendant(new EditableInnerName(), e);
     }
 
     /**
@@ -84,8 +84,8 @@ public class InterfacePair implements Owner {
      * @param handle the outer name or the edge linking the new inner name.
      * @return the new inner name
      */
-    public InnerName addInnerName(Handle handle) {
-        return addInnerName(new EditableInnerName(), (EditableHandle) handle);
+    public InnerName addDescendant(Handle handle) {
+        return addDescendant(new EditableInnerName(), (EditableHandle) handle);
     }
 
     /**
@@ -95,11 +95,11 @@ public class InterfacePair implements Owner {
      * @param name name of the new inner name.
      * @return the new inner name.
      */
-    public InnerName addInnerName(String name) {
+    public InnerName addDescendant(String name) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Name can not be null.");
         EditableEdge e = new EditableEdge(this);
-        return addInnerName(name, e);
+        return addDescendant(name, e);
     }
 
     /**
@@ -109,10 +109,10 @@ public class InterfacePair implements Owner {
      * @param handle the outer name or the edge linking the new inner name.
      * @return the new inner name.
      */
-    public InnerName addInnerName(String name, Handle handle) {
+    public InnerName addDescendant(String name, Handle handle) {
         if (name == null)
             throw new IllegalArgumentException("Name can not be null.");
-        return addInnerName(new EditableInnerName(name), (EditableHandle) handle);
+        return addDescendant(new EditableInnerName(name), (EditableHandle) handle);
     }
 
     /**
@@ -123,28 +123,28 @@ public class InterfacePair implements Owner {
      *          input.
      * @return the inner name
      */
-    private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
-        if (inners.containsKey(n.getName())) {
+    private InnerName addDescendant(EditableInnerName n, EditableHandle h) {
+        if (descendants.containsKey(n.getName())) {
             throw new IllegalArgumentException("Name already present.");
         }
         n.setHandle(h);
-        inners.put(n.getName(), n);
+        descendants.put(n.getName(), n);
         return n;
     }
 
-    public Collection<? extends OuterName> getOuterNames() {
-        return this.outers.values();
+    public Collection<? extends OuterName> getAscendants() {
+        return this.ascendants.values();
     }
 
-    public Collection<? extends InnerName> getInnerNames() {
-        return this.inners.values();
+    public Collection<? extends InnerName> getDescendants() {
+        return this.descendants.values();
     }
 
-    public boolean containsOuterName(String name) {
-        return this.outers.containsKey(name);
+    public boolean containsAscendant(String name) {
+        return this.ascendants.containsKey(name);
     }
 
-    public boolean containsInnerName(String name) {
-        return this.inners.containsKey(name);
+    public boolean containsDescendant(String name) {
+        return this.descendants.containsKey(name);
     }
 }
