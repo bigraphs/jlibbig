@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class Interface {
-    private final List<InterfacePair> names = new ArrayList<InterfacePair>();
+    private final List<InterfacePair> names = new ArrayList<>();
 
     public Interface() {
         names.add(new InterfacePair());

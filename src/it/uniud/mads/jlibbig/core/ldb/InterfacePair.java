@@ -19,7 +19,7 @@ public class InterfacePair implements Owner {
         this.inners.putAll(inners);
     }
 
-    public static InterfacePair merge(InterfacePair a, InterfacePair b) {
+    static InterfacePair merge(InterfacePair a, InterfacePair b) {
         Map<String, EditableOuterName> os = new IdentityHashMap<>();
         Map<String, EditableInnerName> is = new IdentityHashMap<>();
 
@@ -85,7 +85,6 @@ public class InterfacePair implements Owner {
      * @return the new inner name
      */
     public InnerName addInnerName(Handle handle) {
-        Owner o = handle.getOwner();
         return addInnerName(new EditableInnerName(), (EditableHandle) handle);
     }
 
@@ -113,7 +112,6 @@ public class InterfacePair implements Owner {
     public InnerName addInnerName(String name, Handle handle) {
         if (name == null)
             throw new IllegalArgumentException("Name can not be null.");
-        Owner o = handle.getOwner();
         return addInnerName(new EditableInnerName(name), (EditableHandle) handle);
     }
 
