@@ -31,27 +31,27 @@ public class OuterInterface {
         return pairs.size() - 1;
     }
 
-    public Collection<? extends OuterName> getAsc() {
-        List<OuterName> asc = new ArrayList<>();
+    public Collection<? extends EditableOuterName> getAsc() {
+        List<EditableOuterName> asc = new ArrayList<>();
         for (OuterInterfacePair ip : pairs) {
             asc.addAll(ip.getAscendants());
         }
         return asc;
     }
 
-    public Collection<? extends OuterName> getAsc(int index) {
+    public Collection<? extends EditableOuterName> getAsc(int index) {
         return this.pairs.get(index).getAscendants();
     }
 
-    public Collection<? extends InnerName> getDesc() {
-        List<InnerName> desc = new ArrayList<>();
+    public Collection<? extends EditableInnerName> getDesc() {
+        List<EditableInnerName> desc = new ArrayList<>();
         for (OuterInterfacePair ip : pairs) {
             desc.addAll(ip.getDescendants());
         }
         return desc;
     }
 
-    public Collection<? extends InnerName> getDesc(int index) {
+    public Collection<? extends EditableInnerName> getDesc(int index) {
         return this.pairs.get(index).getDescendants();
     }
 }

@@ -139,11 +139,11 @@ public class OuterInterfacePair implements Owner {
         return n;
     }
 
-    public Collection<? extends OuterName> getAscendants() {
+    public Collection<? extends EditableOuterName> getAscendants() {
         return this.ascendants.values();
     }
 
-    public Collection<? extends InnerName> getDescendants() {
+    public Collection<? extends EditableInnerName> getDescendants() {
         return this.descendants.values();
     }
 
