@@ -5,19 +5,19 @@ import java.util.Collection;
 import java.util.List;
 
 public class InnerInterface {
-    private final List<OuterInterfacePair> names = new ArrayList<>();
+    private final List<InnerInterfacePair> names = new ArrayList<>();
 
     public InnerInterface() {
-        names.add(new OuterInterfacePair());
+        names.add(new InnerInterfacePair());
     }
 
     public static InnerInterface join(InnerInterface x, InnerInterface y) {
-        List<OuterInterfacePair> xn = x.names;
-        List<OuterInterfacePair> yn = y.names;
-        List<OuterInterfacePair> zn = new ArrayList<>();
+        List<InnerInterfacePair> xn = x.names;
+        List<InnerInterfacePair> yn = y.names;
+        List<InnerInterfacePair> zn = new ArrayList<>();
 
         InnerInterface z = new InnerInterface();
-        z.names.set(0, OuterInterfacePair.merge(xn.get(0), yn.get(0)));
+        z.names.set(0, InnerInterfacePair.merge(xn.get(0), yn.get(0)));
         xn.remove(0);
         yn.remove(0);
         zn.addAll(xn);
@@ -31,27 +31,27 @@ public class InnerInterface {
         return names.size() - 1;
     }
 
-    public Collection<? extends OuterName> getAsc() {
-        List<OuterName> os = new ArrayList<>();
-        for (OuterInterfacePair ip : names) {
+    public Collection<? extends InnerName> getAsc() {
+        List<InnerName> os = new ArrayList<>();
+        for (InnerInterfacePair ip : names) {
             os.addAll(ip.getAscendants());
         }
         return os;
     }
 
-    public Collection<? extends OuterName> getAsc(int index) {
+    public Collection<? extends InnerName> getAsc(int index) {
         return this.names.get(index).getAscendants();
     }
 
-    public Collection<? extends InnerName> getDesc() {
-        List<InnerName> is = new ArrayList<>();
-        for (OuterInterfacePair ip : names) {
+    public Collection<? extends OuterName> getDesc() {
+        List<OuterName> is = new ArrayList<>();
+        for (InnerInterfacePair ip : names) {
             is.addAll(ip.getDescendants());
         }
         return is;
     }
 
-    public Collection<? extends InnerName> getDesc(int index) {
+    public Collection<? extends OuterName> getDesc(int index) {
         return this.names.get(index).getDescendants();
     }
 }
