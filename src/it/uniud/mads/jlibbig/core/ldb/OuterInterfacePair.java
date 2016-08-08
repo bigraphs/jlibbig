@@ -19,6 +19,13 @@ public class OuterInterfacePair implements Owner {
         this.descendants.putAll(descendants);
     }
 
+    /**
+     * Merges two pairs into a single one.
+     *
+     * @param a the first pair.
+     * @param b the second pair.
+     * @return the merged pair.
+     */
     static OuterInterfacePair merge(OuterInterfacePair a, OuterInterfacePair b) {
         Map<String, EditableOuterName> os = new IdentityHashMap<>();
         Map<String, EditableInnerName> is = new IdentityHashMap<>();
@@ -32,7 +39,7 @@ public class OuterInterfacePair implements Owner {
     }
 
     /**
-     * Adds a fresh outer name to the current interface pair.
+     * Adds a fresh ascendant name to the current interface pair.
      *
      * @return the new outer name.
      */
@@ -41,10 +48,10 @@ public class OuterInterfacePair implements Owner {
     }
 
     /**
-     * Add an outer name to the current interface pair.
+     * Add an ascendant name to the current interface pair.
      *
-     * @param name the name of the new outer name.
-     * @return the new outer name.
+     * @param name the name of the new ascendant name.
+     * @return the new ascendant name.
      */
     public OuterName addAscendant(String name) {
         if (name == null || name.length() == 0)
@@ -53,10 +60,10 @@ public class OuterInterfacePair implements Owner {
     }
 
     /**
-     * Adds an outer name to the current interface pair.
+     * Adds an ascendant name to the current interface pair.
      *
-     * @param name the outer name that will be added.
-     * @return new outer name.
+     * @param name the ascendant name that will be added.
+     * @return new ascendant name.
      */
     private OuterName addAscendant(EditableOuterName name) {
         if (ascendants.containsKey(name.getName())) {
@@ -68,10 +75,10 @@ public class OuterInterfacePair implements Owner {
     }
 
     /**
-     * Adds a fresh inner name to the current interface pair. The name will be the only
+     * Adds a fresh descendant name to the current interface pair. The name will be the only
      * point of a fresh edge.
      *
-     * @return the new inner name.
+     * @return the new descendant name.
      */
     public InnerName addDescendant() {
         EditableEdge e = new EditableEdge(this);
@@ -79,21 +86,21 @@ public class OuterInterfacePair implements Owner {
     }
 
     /**
-     * Adds a new inner name to the current interface pair.
+     * Adds a new descendant name to the current interface pair.
      *
-     * @param handle the outer name or the edge linking the new inner name.
-     * @return the new inner name
+     * @param handle the outer name or the edge linking the new descendant name.
+     * @return the new descendant name
      */
     public InnerName addDescendant(Handle handle) {
         return addDescendant(new EditableInnerName(), (EditableHandle) handle);
     }
 
     /**
-     * Adds an inner name to the current interface pair. The name will be the only
+     * Adds a descendant name to the current interface pair. The name will be the only
      * point of a fresh edge.
      *
-     * @param name name of the new inner name.
-     * @return the new inner name.
+     * @param name name of the new descendant name.
+     * @return the new descendant name.
      */
     public InnerName addDescendant(String name) {
         if (name == null || name.length() == 0)
@@ -103,11 +110,11 @@ public class OuterInterfacePair implements Owner {
     }
 
     /**
-     * Adds an inner name to the current interface pair.
+     * Adds a descendant name to the current interface pair.
      *
-     * @param name   name of the new inner name.
-     * @param handle the outer name or the edge linking the new inner name.
-     * @return the new inner name.
+     * @param name   name of the new descendant name.
+     * @param handle the outer name or the edge linking the new descendant name.
+     * @return the new descendant name.
      */
     public InnerName addDescendant(String name, Handle handle) {
         if (name == null)
@@ -116,12 +123,12 @@ public class OuterInterfacePair implements Owner {
     }
 
     /**
-     * Add an innername to the current interface pair.
+     * Add a descendant to the current interface pair.
      *
-     * @param n innername that will be added.
-     * @param h outername or edge that will be linked with the innername in
+     * @param n descendant name that will be added.
+     * @param h outer name or edge that will be linked with the descendant name in
      *          input.
-     * @return the inner name
+     * @return the descendant name
      */
     private InnerName addDescendant(EditableInnerName n, EditableHandle h) {
         if (descendants.containsKey(n.getName())) {

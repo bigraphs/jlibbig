@@ -8,21 +8,21 @@ public class OuterInterface {
     private final List<OuterInterfacePair> pairs = new ArrayList<>();
 
     public OuterInterface() {
-        pairs.add(new OuterInterfacePair());
+        pairs.add(0, new OuterInterfacePair());
     }
 
     public static OuterInterface join(OuterInterface x, OuterInterface y) {
-        List<OuterInterfacePair> xn = x.pairs;
-        List<OuterInterfacePair> yn = y.pairs;
-        List<OuterInterfacePair> zn = new ArrayList<>();
+        List<OuterInterfacePair> xPairs = x.pairs;
+        List<OuterInterfacePair> yPairs = y.pairs;
+        List<OuterInterfacePair> zPairs = new ArrayList<>();
 
         OuterInterface z = new OuterInterface();
-        z.pairs.set(0, OuterInterfacePair.merge(xn.get(0), yn.get(0)));
-        xn.remove(0);
-        yn.remove(0);
-        zn.addAll(xn);
-        zn.addAll(yn);
-        z.pairs.addAll(zn);
+        z.pairs.set(0, OuterInterfacePair.merge(xPairs.get(0), yPairs.get(0)));
+        xPairs.remove(0);
+        yPairs.remove(0);
+        zPairs.addAll(xPairs);
+        zPairs.addAll(yPairs);
+        z.pairs.addAll(zPairs);
 
         return z;
     }
@@ -32,11 +32,11 @@ public class OuterInterface {
     }
 
     public Collection<? extends OuterName> getAsc() {
-        List<OuterName> os = new ArrayList<>();
+        List<OuterName> asc = new ArrayList<>();
         for (OuterInterfacePair ip : pairs) {
-            os.addAll(ip.getAscendants());
+            asc.addAll(ip.getAscendants());
         }
-        return os;
+        return asc;
     }
 
     public Collection<? extends OuterName> getAsc(int index) {
@@ -44,11 +44,11 @@ public class OuterInterface {
     }
 
     public Collection<? extends InnerName> getDesc() {
-        List<InnerName> is = new ArrayList<>();
+        List<InnerName> desc = new ArrayList<>();
         for (OuterInterfacePair ip : pairs) {
-            is.addAll(ip.getDescendants());
+            desc.addAll(ip.getDescendants());
         }
-        return is;
+        return desc;
     }
 
     public Collection<? extends InnerName> getDesc(int index) {
