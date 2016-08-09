@@ -9,14 +9,29 @@ import it.uniud.mads.jlibbig.core.util.Provider;
 
 import java.util.*;
 
-final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph<DirectedControl>, Cloneable {
+/**
+ * Objects created from this class are bigraphs with abstract internal names
+ * (i.e. {@link Node} equality is reference based) whereas link interfaces still
+ * use concrete names. Instances of this class are immutable and can be created
+ * by means of the factory methods provided by this class like e.g.
+ * {@link #makeEmpty}, {@link #makeId}, {@link #compose}, and {@link #juxtapose}
+ * ; or from instances of {@link BigraphBuilder}.
+ */
+/*
+ * For efficiency reasons immutability can be relaxed by the user (cf. {@link
+ * #compose(Bigraph, Bigraph, boolean)}) allowing the reuse of (all or parts) of
+ * these objects.
+ */
+
+final public class DirectedBigraph implements
+        it.uniud.mads.jlibbig.core.Bigraph<DirectedControl>, Cloneable {
 
     static final Collection<Parent> EMPTY_ANCS_LST = Collections.unmodifiableList(Collections.emptyList());
     private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean.getBoolean("it.uniud.mads.jlibbig.consistency")
             || Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
-    private static final Comparator<DirectedControl> controlComparator = new Comparator<DirectedControl>() {
+    private static final Comparator<Control> controlComparator = new Comparator<Control>() {
         @Override
-        public int compare(DirectedControl o1, DirectedControl o2) {
+        public int compare(Control o1, Control o2) {
             return o1.getName().compareTo(o2.getName());
         }
     };
@@ -25,26 +40,15 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
         public int compare(Node o1, Node o2) {
             int c = controlComparator.compare(o1.getControl(), o2.getControl());
             if (c == 0)
-                return o1.getEditable().getName().compareTo(o2.getEditable().getName());
+                return o1.getEditable().getName()
+                        .compareTo(o2.getEditable().getName());
             else
                 return c;
         }
     };
-    private static final Comparator<InPort> inPortComparator = new Comparator<InPort>() {
+    private static final Comparator<Port> portComparator = new Comparator<Port>() {
         @Override
-        public int compare(InPort i1, InPort i2) {
-            if (i1 == i2)
-                return 0;
-            int c = nodeComparator.compare(i1.getNode(), i2.getNode());
-            if (c == 0)
-                return (i1.getNumber() < i2.getNumber()) ? -1 : 1;
-            else
-                return c;
-        }
-    };
-    private static final Comparator<OutPort> outPortComparator = new Comparator<OutPort>() {
-        @Override
-        public int compare(OutPort o1, OutPort o2) {
+        public int compare(Port o1, Port o2) {
             if (o1 == o2)
                 return 0;
             int c = nodeComparator.compare(o1.getNode(), o2.getNode());
@@ -65,7 +69,7 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
         public int compare(Point o1, Point o2) {
             if (o1.isPort()) {
                 if (o2.isPort()) {
-                    return outPortComparator.compare((OutPort) o1, (OutPort) o2);
+                    return portComparator.compare((Port) o1, (Port) o2);
                 } else {
                     return -1;
                 }
@@ -88,14 +92,15 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
     private static final Comparator<Edge> edgeComparator = new Comparator<Edge>() {
         @Override
         public int compare(Edge o1, Edge o2) {
-            return o1.getEditable().getName().compareTo(o2.getEditable().getName());
+            return o1.getEditable().getName()
+                    .compareTo(o2.getEditable().getName());
         }
     };
     final DirectedSignature signature;
     final List<EditableRoot> roots = new ArrayList<>();
     final List<EditableSite> sites = new ArrayList<>();
-    final OuterInterface outers = new OuterInterface();
-    final InnerInterface inners = new InnerInterface();
+    final Interface<EditableOuterName, EditableInnerName> outers = new Interface<>();
+    final Interface<EditableInnerName, EditableOuterName> inners = new Interface<>();
     private final List<? extends Root> ro_roots = Collections.unmodifiableList(roots);
     private final List<? extends Site> ro_sites = Collections.unmodifiableList(sites);
     private final Comparator<Child> childComparator = new Comparator<Child>() {
@@ -316,7 +321,7 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
      * @param signature the signature of the bigraph.
      * @return the empty bigraph.
      */
-    public static DirectedBigraph makeEmpty(DirectedSignature signature) {
+    public static DirectedBigraph makeEmpty(Signature signature) {
         return new DirectedBigraph(signature);
     }
 
@@ -330,7 +335,8 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
      * @param names     the names of its link faces.
      * @return the resulting identity bigraph.
      */
-    public static DirectedBigraph makeId(DirectedSignature signature, int width, String... names) {
+    public static DirectedBigraph makeId(Signature signature, int width,
+                                         String... names) {
         BigraphBuilder bb = new BigraphBuilder(signature);
         for (int i = 0; i < width; i++) {
             bb.addSite(bb.addRoot());
@@ -351,7 +357,8 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
      *                  faces.
      * @return an identity bigraph.
      */
-    public static DirectedBigraph makeId(DirectedSignature signature, int width, Iterable<? extends LinkFacet> names) {
+    public static DirectedBigraph makeId(Signature signature, int width,
+                                         Iterable<? extends LinkFacet> names) {
         BigraphBuilder bb = new BigraphBuilder(signature);
         for (int i = 0; i < width; i++) {
             bb.addSite(bb.addRoot());
@@ -448,34 +455,28 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
                     return false;
                 } else if (c.isNode()) {
                     EditableNode n = (EditableNode) c;
-                    if (n.getControl().getArity() != n.getPorts().size() || !signature.contains(n.getControl())) {
+                    if (n.getControl().getArity() != n.getPorts().size()
+                            || !signature.contains(n.getControl())) {
                         System.err.println("INCOSISTENCY: control/arity");
                         return false;
                     }
                     q.add(n);
-                    for (Point t : n.getOutPorts()) {
+                    for (Point t : n.getPorts()) {
                         EditableHandle h = ((EditablePoint) t).getHandle();
                         if (h == null || h.getOwner() != owner) {
                             // foreign or broken handle
                             System.out.println(this);
-                            System.err.println("INCOSISTENCY: broken or foreign handle");
+                            System.err
+                                    .println("INCOSISTENCY: broken or foreign handle");
                             return false;
                         }
                         if (!h.getPoints().contains(t)) {
                             // broken link chain
-                            System.err.println("INCOSISTENCY: handle/point mismatch");
+                            System.err
+                                    .println("INCOSISTENCY: handle/point mismatch");
                             return false;
                         }
                         seen_points.add(t);
-                        seen_handles.add(h);
-                    }
-                    for (Handle h : n.getInPorts()) {
-                        if (h == null || h.getOwner() != owner) {
-                            // foreign or broken handle
-                            System.out.println(this);
-                            System.err.println("INCOSISTENCY: broken or foreign handle");
-                            return false;
-                        }
                         seen_handles.add(h);
                     }
                 } else if (c.isSite()) {
@@ -487,41 +488,28 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
                         return false;
                     }
                 } else {
-                    System.err.println("INCOSISTENCY: neither a node nor a site");
+                    System.err
+                            .println("INCOSISTENCY: neither a node nor a site");
                     // c is neither a site nor a node
                     return false;
                 }
             }
         }
-        for (OuterName o : this.outers.getAsc()) {
-            if (o.getOwner() != owner) {
+        for (EditableOuterName h : this.outers.values()) {
+            if (h.getOwner() != owner) {
                 System.err.println("INCOSISTENCY: foreign outer name");
                 return false;
             }
-            seen_handles.add(o);
+            seen_handles.add(h);
         }
-        for (InnerName i : this.inners.getAsc()) {
-            if (i.getOwner() != owner) {
-                System.err.println("INCOSISTENCY: foreign outer name");
+        // System.out.println(seen_points);
+        for (EditableInnerName n : this.inners.values()) {
+            if (n.getOwner() != owner) {
+                System.err.println("INCOSISTENCY: foreign inner name");
                 return false;
             }
-            seen_handles.add(i.getHandle());
-            seen_points.add(i);
-        }
-        for (InnerName i : this.outers.getDesc()) {
-            if (i.getOwner() != owner) {
-                System.err.println("INCOSISTENCY: foreign outer name");
-                return false;
-            }
-            seen_handles.add(i.getHandle());
-            seen_points.add(i);
-        }
-        for (OuterName o : this.inners.getDesc()) {
-            if (o.getOwner() != owner) {
-                System.err.println("INCOSISTENCY: foreign outer name");
-                return false;
-            }
-            seen_handles.add(o);
+            seen_handles.add(n.getHandle());
+            seen_points.add(n);
         }
         // System.out.println(this);
         // System.out.println(seen_points);
@@ -566,10 +554,7 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
         for (EditableOwned o : this.roots) {
             o.setOwner(owner);
         }
-        for (EditableOwned o : this.outers.getAsc()) {
-            o.setOwner(owner);
-        }
-        for (EditableOwned o : this.inners.getDesc()) {
+        for (EditableOwned o : this.outers.values()) {
             o.setOwner(owner);
         }
         for (Edge e : this.getEdges()) {
@@ -699,19 +684,13 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
 
     @Override
     public boolean isEmpty() {
-        return this.outers.getAsc().isEmpty()
-                && this.outers.getDesc().isEmpty()
-                && this.inners.getAsc().isEmpty()
-                && this.inners.getDesc().isEmpty()
-                && this.roots.isEmpty()
-                && this.sites.isEmpty();
+        return this.outers.isEmpty() && this.inners.isEmpty()
+                && this.roots.isEmpty() && this.sites.isEmpty();
     }
 
     @Override
     public boolean isGround() {
-        return this.inners.getAsc().isEmpty()
-                && this.inners.getDesc().isEmpty()
-                && this.sites.isEmpty();
+        return this.inners.isEmpty() && this.sites.isEmpty();
     }
 
     /*
@@ -739,7 +718,7 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
     /*
      * (non-Javadoc)
      *
-     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getAscendants()
+     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getOuterNames()
      */
     @Override
     public Collection<? extends OuterName> getOuterNames() {
@@ -749,7 +728,7 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
     /*
      * (non-Javadoc)
      *
-     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getDescendants()
+     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getInnerNames()
      */
     @Override
     public Collection<? extends InnerName> getInnerNames() {
@@ -804,7 +783,7 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
      * No coherence controls are enforced and the update is not
      * propagated to the edge collection.
      *
-     * @param nodes
+     * @param node
      */
     void onNodeRemoved(Collection<EditableNode> nodes) {
         ancestors.clear(); // very conservative, could be improved
@@ -911,20 +890,14 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
         Iterable<? extends Node> nodes = getNodes();
         Set<EditableEdge> s = new HashSet<>();
         for (Node n : nodes) {
-            for (OutPort p : n.getOutPorts()) {
+            for (Port p : n.getPorts()) {
                 Handle h = p.getHandle();
                 if (h.isEdge()) {
                     s.add((EditableEdge) h);
                 }
             }
         }
-        for (InnerName n : this.inners.getAsc()) {
-            Handle h = n.getHandle();
-            if (h.isEdge()) {
-                s.add((EditableEdge) h);
-            }
-        }
-        for (InnerName n : this.outers.getDesc()) {
+        for (InnerName n : this.inners.values()) {
             Handle h = n.getHandle();
             if (h.isEdge()) {
                 s.add((EditableEdge) h);
@@ -949,6 +922,9 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
         if (child == null) {
             throw new IllegalArgumentException("The argument can not be null.");
         }
+//		if(child.getOwner() != this){
+//			throw new ForeignArgumentException("The argument does not belong to this bigraph.");
+//		}
         Collection<Parent> s = ancestors.get(child);
         if (s == null) {
             Parent parent = child.getParent();
@@ -965,11 +941,12 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
 
     @Override
     public String toString() {
+
         String nl = System.getProperty("line.separator");
         StringBuilder b = new StringBuilder();
         b.append(signature.getUSID());
         b.append(" {");
-        Iterator<DirectedControl> is = this.signature.iterator();
+        Iterator<Control> is = this.signature.iterator();
         while (is.hasNext()) {
             b.append(is.next().toString());
             if (is.hasNext())
@@ -977,16 +954,7 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
         }
         b.append("} :: <").append(this.sites.size()).append(",{");
 
-        List<EditableInnerName> ins = new ArrayList<>(this.inners.getAsc());
-        Collections.sort(ins, innerComparator);
-        Iterator<EditableInnerName> ii = ins.iterator();
-        while (ii.hasNext()) {
-            b.append(ii.next().toString());
-            if (ii.hasNext())
-                b.append(", ");
-        }
-        b.append("");
-        List<EditableInnerName> ins = new ArrayList<>(this.inners.getAsc());
+        List<EditableInnerName> ins = new ArrayList<>(this.inners.values());
         Collections.sort(ins, innerComparator);
         Iterator<EditableInnerName> ii = ins.iterator();
         while (ii.hasNext()) {
@@ -1070,24 +1038,115 @@ final public class DirectedBigraph implements it.uniud.mads.jlibbig.core.Bigraph
         return b.toString();
     }
 
-	/*
+    /*
      * //ATTACHED PROPERTIES
-	 * 
-	 * private final PropertyContainer props = new PropertyContainer();
-	 * 
-	 * @Override public Property<?> attachProperty(Property<?> prop) { return
-	 * props.attachProperty(prop); }
-	 * 
-	 * @Override public Property<?> detachProperty(Property<?> prop) { return
-	 * this.detachProperty(prop.getName()); }
-	 * 
-	 * @Override public Property<?> detachProperty(String name) { return
-	 * props.detachProperty(name); }
-	 * 
-	 * @Override public Property<?> getProperty(String name) { return
-	 * props.getProperty(name); }
-	 * 
-	 * @Override public Set<String> getPropertyNames() { return
-	 * props.getPropertyNames(); }
-	 */
+     * 
+     * private final PropertyContainer props = new PropertyContainer();
+     * 
+     * @Override public Property<?> attachProperty(Property<?> prop) { return
+     * props.attachProperty(prop); }
+     * 
+     * @Override public Property<?> detachProperty(Property<?> prop) { return
+     * this.detachProperty(prop.getName()); }
+     * 
+     * @Override public Property<?> detachProperty(String name) { return
+     * props.detachProperty(name); }
+     * 
+     * @Override public Property<?> getProperty(String name) { return
+     * props.getProperty(name); }
+     * 
+     * @Override public Set<String> getPropertyNames() { return
+     * props.getPropertyNames(); }
+     */
+
+    private class Interface<Asc extends LinkFacet, Desc extends LinkFacet> extends AbstractInterface {
+        List<Pair<Set<Asc>, Set<Desc>>> names = new ArrayList<>();
+
+        Interface(Pair<Set<Asc>, Set<Desc>> pair0) {
+            names.add(0, pair0);
+        }
+
+        public int getWidth() {
+            return names.size() - 1;
+        }
+
+        boolean isEmpty() {
+            return this.names.isEmpty();
+        }
+
+        public void addPair(Pair<Set<Asc>, Set<Desc>> pair) {
+            this.names.add(pair);
+        }
+
+        public void addAsc(int index, Asc a) {
+            this.names.get(index).left.add(a);
+        }
+
+        public Set<Asc> getAsc() {
+            Set<Asc> asc = new HashSet<Asc>();
+            for (Pair<Set<Asc>, Set<Desc>> ip : names) {
+                asc.addAll(ip.left);
+            }
+            return asc;
+        }
+
+        public Set<Asc> getAsc(int index) {
+            if (index < 0 || index >= names.size()) {
+                throw new IndexOutOfBoundsException("index '" + index + "' not in list");
+            }
+            return names.get(index).left;
+        }
+
+        public void addDesc(int index, Desc d) {
+            this.names.get(index).right.add(d);
+        }
+
+        public Set<Desc> getDesc() {
+            Set<Desc> desc = new HashSet<Desc>();
+            for (Pair<Set<Asc>, Set<Desc>> ip : names) {
+                desc.addAll(ip.right);
+            }
+            return desc;
+        }
+
+        public Set<Desc> getDesc(int index) {
+            if (index < 0 || index >= names.size()) {
+                throw new IndexOutOfBoundsException("index '" + index + "' not in list");
+            }
+            return names.get(index).right;
+        }
+
+        class Pair<L, R> {
+
+            private final L left;
+            private final R right;
+
+            public Pair(L left, R right) {
+                this.left = left;
+                this.right = right;
+            }
+
+            L getLeft() {
+                return left;
+            }
+
+            R getRight() {
+                return right;
+            }
+
+            @Override
+            public int hashCode() {
+                return left.hashCode() ^ right.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (!(o instanceof Pair)) return false;
+                Pair pairo = (Pair) o;
+                return this.left.equals(pairo.getLeft()) &&
+                        this.right.equals(pairo.getRight());
+            }
+
+        }
+    }
 }
