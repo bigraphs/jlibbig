@@ -29,9 +29,9 @@ final public class DirectedBigraph implements
     static final Collection<Parent> EMPTY_ANCS_LST = Collections.unmodifiableList(Collections.emptyList());
     private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean.getBoolean("it.uniud.mads.jlibbig.consistency")
             || Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
-    private static final Comparator<Control> controlComparator = new Comparator<Control>() {
+    private static final Comparator<DirectedControl> controlComparator = new Comparator<DirectedControl>() {
         @Override
-        public int compare(Control o1, Control o2) {
+        public int compare(DirectedControl o1, DirectedControl o2) {
             return o1.getName().compareTo(o2.getName());
         }
     };
@@ -46,9 +46,21 @@ final public class DirectedBigraph implements
                 return c;
         }
     };
-    private static final Comparator<Port> portComparator = new Comparator<Port>() {
+    private static final Comparator<InPort> inPortComparator = new Comparator<InPort>() {
         @Override
-        public int compare(Port o1, Port o2) {
+        public int compare(InPort i1, InPort i2) {
+            if (i1 == i2)
+                return 0;
+            int c = nodeComparator.compare(i1.getNode(), i2.getNode());
+            if (c == 0)
+                return (i1.getNumber() < i2.getNumber()) ? -1 : 1;
+            else
+                return c;
+        }
+    };
+    private static final Comparator<OutPort> outPortComparator = new Comparator<OutPort>() {
+        @Override
+        public int compare(OutPort o1, OutPort o2) {
             if (o1 == o2)
                 return 0;
             int c = nodeComparator.compare(o1.getNode(), o2.getNode());
@@ -69,7 +81,7 @@ final public class DirectedBigraph implements
         public int compare(Point o1, Point o2) {
             if (o1.isPort()) {
                 if (o2.isPort()) {
-                    return portComparator.compare((Port) o1, (Port) o2);
+                    return outPortComparator.compare((OutPort) o1, (OutPort) o2);
                 } else {
                     return -1;
                 }
@@ -101,8 +113,6 @@ final public class DirectedBigraph implements
     final List<EditableSite> sites = new ArrayList<>();
     final Interface<EditableOuterName, EditableInnerName> outers = new Interface<>();
     final Interface<EditableInnerName, EditableOuterName> inners = new Interface<>();
-    private final List<? extends Root> ro_roots = Collections.unmodifiableList(roots);
-    private final List<? extends Site> ro_sites = Collections.unmodifiableList(sites);
     private final Comparator<Child> childComparator = new Comparator<Child>() {
         @Override
         public int compare(Child o1, Child o2) {
@@ -121,6 +131,8 @@ final public class DirectedBigraph implements
             }
         }
     };
+    private final List<? extends Root> ro_roots = Collections.unmodifiableList(roots);
+    private final List<? extends Site> ro_sites = Collections.unmodifiableList(sites);
     /* The set of nodes composing a bigraph is derived by visiting its place graph.
      * On one hand storing this information in some collection introduces
      * redundancies on the other end retrieving it every time it is needed may result
@@ -321,7 +333,7 @@ final public class DirectedBigraph implements
      * @param signature the signature of the bigraph.
      * @return the empty bigraph.
      */
-    public static DirectedBigraph makeEmpty(Signature signature) {
+    public static DirectedBigraph makeEmpty(DirectedSignature signature) {
         return new DirectedBigraph(signature);
     }
 
@@ -554,7 +566,10 @@ final public class DirectedBigraph implements
         for (EditableOwned o : this.roots) {
             o.setOwner(owner);
         }
-        for (EditableOwned o : this.outers.values()) {
+        for (EditableOwned o : this.inners.getDesc()) {
+            o.setOwner(owner);
+        }
+        for (EditableOwned o : this.outers.getAsc()) {
             o.setOwner(owner);
         }
         for (Edge e : this.getEdges()) {
@@ -574,7 +589,7 @@ final public class DirectedBigraph implements
      * <code>someBigraph.clone().setOwner(someOwner)</code>. If the argument is
      * null, the owner is set to the cloned bigraph.
      *
-     * @param owner
+     * @param owner the owner of the new bigraph
      * @return a copy of this bigraph.
      */
     DirectedBigraph clone(Owner owner) {
@@ -715,24 +730,26 @@ final public class DirectedBigraph implements
 
 	/* comparators used by toString */
 
-    /*
-     * (non-Javadoc)
+    /**
      *
-     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getOuterNames()
+     * @return the set of the outer names of the bigraph
      */
     @Override
     public Collection<? extends OuterName> getOuterNames() {
-        return this.outers.values();
+        Set<EditableOuterName> ou = this.outers.getAsc();
+        ou.addAll(this.inners.getDesc());
+        return ou;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      *
-     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getInnerNames()
+     * @return the set of the inner names of the bigraph
      */
     @Override
     public Collection<? extends InnerName> getInnerNames() {
-        return this.inners.values();
+        Set<EditableInnerName> in = this.inners.getAsc();
+        in.addAll(this.outers.getDesc());
+        return in;
     }
 
     /**
@@ -783,7 +800,7 @@ final public class DirectedBigraph implements
      * No coherence controls are enforced and the update is not
      * propagated to the edge collection.
      *
-     * @param node
+     * @param nodes
      */
     void onNodeRemoved(Collection<EditableNode> nodes) {
         ancestors.clear(); // very conservative, could be improved
@@ -844,11 +861,7 @@ final public class DirectedBigraph implements
     // }
     // };
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getNodes()
-     */
+
     @Override
     public Collection<? extends Node> getNodes() {
         return nodesProxy.get();
@@ -890,14 +903,20 @@ final public class DirectedBigraph implements
         Iterable<? extends Node> nodes = getNodes();
         Set<EditableEdge> s = new HashSet<>();
         for (Node n : nodes) {
-            for (Port p : n.getPorts()) {
+            for (OutPort p : n.getOutPorts()) {
                 Handle h = p.getHandle();
                 if (h.isEdge()) {
                     s.add((EditableEdge) h);
                 }
             }
         }
-        for (InnerName n : this.inners.values()) {
+        for (InnerName n : this.inners.getAsc()) {
+            Handle h = n.getHandle();
+            if (h.isEdge()) {
+                s.add((EditableEdge) h);
+            }
+        }
+        for (InnerName n : this.outers.getDesc()) {
             Handle h = n.getHandle();
             if (h.isEdge()) {
                 s.add((EditableEdge) h);
@@ -906,17 +925,10 @@ final public class DirectedBigraph implements
         return s;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see it.uniud.mads.jlibbig.core.AbstBigraph#getEdges()
-     */
     @Override
     public Collection<? extends Edge> getEdges() {
         return this.edgesProxy.get();
     }
-
-    // TODO more factory methods
 
     Collection<Parent> getAncestors(Child child) {
         if (child == null) {
@@ -946,7 +958,7 @@ final public class DirectedBigraph implements
         StringBuilder b = new StringBuilder();
         b.append(signature.getUSID());
         b.append(" {");
-        Iterator<Control> is = this.signature.iterator();
+        Iterator<DirectedControl> is = this.signature.iterator();
         while (is.hasNext()) {
             b.append(is.next().toString());
             if (is.hasNext())
@@ -1061,6 +1073,10 @@ final public class DirectedBigraph implements
 
     private class Interface<Asc extends LinkFacet, Desc extends LinkFacet> extends AbstractInterface {
         List<Pair<Set<Asc>, Set<Desc>>> names = new ArrayList<>();
+
+        public Interface() {
+            names.add(0, new Pair<>(new HashSet<Asc>(), new HashSet<Desc>()));
+        }
 
         Interface(Pair<Set<Asc>, Set<Desc>> pair0) {
             names.add(0, pair0);
