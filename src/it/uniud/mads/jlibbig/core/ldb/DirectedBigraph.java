@@ -731,7 +731,6 @@ final public class DirectedBigraph implements
 	/* comparators used by toString */
 
     /**
-     *
      * @return the set of the outer names of the bigraph
      */
     @Override
@@ -742,7 +741,6 @@ final public class DirectedBigraph implements
     }
 
     /**
-     *
      * @return the set of the inner names of the bigraph
      */
     @Override
@@ -964,27 +962,31 @@ final public class DirectedBigraph implements
             if (is.hasNext())
                 b.append(", ");
         }
-        b.append("} :: <").append(this.sites.size()).append(",{");
+        b.append("} :: ");
 
-        List<EditableInnerName> ins = new ArrayList<>(this.inners.values());
-        Collections.sort(ins, innerComparator);
-        Iterator<EditableInnerName> ii = ins.iterator();
-        while (ii.hasNext()) {
-            b.append(ii.next().toString());
-            if (ii.hasNext())
-                b.append(", ");
-        }
-        b.append("}> -> <").append(this.roots.size()).append(",{");
-        List<EditableOuterName> ons = new ArrayList<>(this.outers.values());
-        Collections.sort(ons, outerComparator);
-        Iterator<EditableOuterName> io = ons.iterator();
-        while (io.hasNext()) {
-            b.append(io.next().toString());
-            if (io.hasNext())
-                b.append(", ");
-        }
+        b.append(inners.toString());
+        b.append(" -> ");
+        b.append(outers.toString());
+
         b.append("}>");
-        for (Handle h : this.outers.values()) {
+        for (Handle h : this.inners.getDesc()) {
+            b.append(nl).append(h);
+            b.append(":o <- {");
+            List<? extends Point> ps = new ArrayList<>(h.getPoints());
+            Collections.sort(ps, pointComparator);
+            Iterator<? extends Point> ip = ps.iterator();
+            while (ip.hasNext()) {
+                Point p = ip.next();
+                b.append(p);
+                if (p.isInnerName()) {
+                    b.append(":i");
+                }
+                if (ip.hasNext())
+                    b.append(", ");
+            }
+            b.append('}');
+        }
+        for (Handle h : this.outers.getAsc()) {
             b.append(nl).append(h);
             b.append(":o <- {");
             List<? extends Point> ps = new ArrayList<>(h.getPoints());
@@ -1132,8 +1134,21 @@ final public class DirectedBigraph implements
             return names.get(index).right;
         }
 
-        class Pair<L, R> {
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<");
+            Iterator<Pair<Set<Asc>, Set<Desc>>> ii = names.iterator();
+            while (ii.hasNext()) {
+                sb.append(ii.next().toString());
+                if (ii.hasNext())
+                    sb.append(", ");
+            }
+            sb.append(">");
+            return sb.toString();
+        }
 
+        class Pair<L, R> {
             private final L left;
             private final R right;
 
@@ -1163,6 +1178,10 @@ final public class DirectedBigraph implements
                         this.right.equals(pairo.getRight());
             }
 
+            @Override
+            public String toString() {
+                return "({" + left.toString() + "}+, {" + right.toString() + "}-)";
+            }
         }
     }
 }
