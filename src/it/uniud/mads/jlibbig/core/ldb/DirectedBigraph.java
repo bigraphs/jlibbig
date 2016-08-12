@@ -1127,11 +1127,24 @@ final public class DirectedBigraph implements
         return p;
     }
 
+    /**
+     * join two interfaces
+     *
+     * @param i1 the first interface
+     * @param i2 the second interface
+     * @return the resulting interface
+     */
     public Interface<EditableLinkFacet, EditableLinkFacet> joinInterfaces(
             Interface<EditableLinkFacet, EditableLinkFacet> i1,
             Interface<EditableLinkFacet, EditableLinkFacet> i2) {
-        Interface<EditableLinkFacet, EditableLinkFacet> i = new Interface<>(merge(i1.names.get(0), i2.names.get(0));
+        Interface<EditableLinkFacet, EditableLinkFacet> i = new Interface<>(merge(i1.names.get(0), i2.names.get(0)));
 
+        for (int j = 1; j < i1.names.size(); j++) {
+            i.names.add(i1.names.get(j));
+        }
+        for (int j = 1; j < i2.names.size(); j++) {
+            i.names.add(i2.names.get(j));
+        }
 
         return i;
     }
