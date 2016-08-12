@@ -1103,9 +1103,17 @@ final public class DirectedBigraph implements
      * props.getPropertyNames(); }
      */
 
-    public InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> merge(
+    /**
+     * mergePairs two pairs (of sets of names)
+     *
+     * @param p1 the first pair
+     * @param p2 the second pair
+     * @return the merged pair
+     */
+    public InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> mergePairs(
             InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> p1,
             InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> p2) {
+
         InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> p;
 
         Set<EditableLinkFacet> left = new HashSet<>();
@@ -1132,19 +1140,17 @@ final public class DirectedBigraph implements
      *
      * @param i1 the first interface
      * @param i2 the second interface
-     * @return the resulting interface
+     * @return the joined interface
      */
     public Interface<EditableLinkFacet, EditableLinkFacet> joinInterfaces(
             Interface<EditableLinkFacet, EditableLinkFacet> i1,
             Interface<EditableLinkFacet, EditableLinkFacet> i2) {
-        Interface<EditableLinkFacet, EditableLinkFacet> i = new Interface<>(merge(i1.names.get(0), i2.names.get(0)));
 
-        for (int j = 1; j < i1.names.size(); j++) {
-            i.names.add(i1.names.get(j));
-        }
-        for (int j = 1; j < i2.names.size(); j++) {
-            i.names.add(i2.names.get(j));
-        }
+        Interface<EditableLinkFacet, EditableLinkFacet> i = new Interface<>(mergePairs(i1.names.get(0), i2.names.get(0)));
+
+        // skip first element because added before
+        i.names.addAll(i1.names.subList(1, i1.names.size()));
+        i.names.addAll(i2.names.subList(1, i2.names.size()));
 
         return i;
     }
@@ -1225,7 +1231,7 @@ final public class DirectedBigraph implements
         }
     }
 
-    class InterfacePair<L, R> {
+    private class InterfacePair<L, R> {
         private final L left;
         private final R right;
 
