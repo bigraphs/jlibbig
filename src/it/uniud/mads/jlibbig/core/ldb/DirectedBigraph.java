@@ -235,8 +235,9 @@ final public class DirectedBigraph implements
         l.roots.addAll(r.roots);
         l.sites.addAll(r.sites);
 
-        l.outers.putAll(r.outers);
-        l.inners.putAll(r.inners);
+        l.joinInterfaces(l.outers, r.outers);
+        r.joinInterfaces(l.inners, r.inners);
+
         if (DEBUG_CONSISTENCY_CHECK && !l.isConsistent()) {
             throw new RuntimeException("Inconsistent bigraph");
         }
@@ -586,7 +587,7 @@ final public class DirectedBigraph implements
      * to avoid leaking references to their internal working bigraph. If the
      * argument is null, the owner is set to this bigraph.
      *
-     * @param owner
+     * @param owner the owner to set
      * @return this bigraph
      */
     DirectedBigraph setOwner(Owner owner) {
@@ -646,7 +647,7 @@ final public class DirectedBigraph implements
             o2.setOwner(owner);
             hnd_dic.put(o1, o2);
         }
-        // replicate inner names
+        // replicate inner interface
         for (EditableInnerName i1 : this.inners.values()) {
             EditableInnerName i2 = i1.replicate();
             EditableHandle h1 = i1.getHandle();
@@ -1111,8 +1112,8 @@ final public class DirectedBigraph implements
      * @return the merged pair
      */
     public InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> mergePairs(
-            InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> p1,
-            InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> p2) {
+            InterfacePair<? extends Set<? extends EditableLinkFacet>, ? extends Set<? extends EditableLinkFacet>> p1,
+            InterfacePair<? extends Set<? extends EditableLinkFacet>, ? extends Set<? extends EditableLinkFacet>> p2) {
 
         InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> p;
 
@@ -1143,20 +1144,20 @@ final public class DirectedBigraph implements
      * @return the joined interface
      */
     public Interface<EditableLinkFacet, EditableLinkFacet> joinInterfaces(
-            Interface<EditableLinkFacet, EditableLinkFacet> i1,
-            Interface<EditableLinkFacet, EditableLinkFacet> i2) {
+            Interface<? extends EditableLinkFacet, ? extends EditableLinkFacet> i1,
+            Interface<? extends EditableLinkFacet, ? extends EditableLinkFacet> i2) {
 
         Interface<EditableLinkFacet, EditableLinkFacet> i = new Interface<>(mergePairs(i1.names.get(0), i2.names.get(0)));
 
         // skip first element because added before
-        i.names.addAll(i1.names.subList(1, i1.names.size()));
-        i.names.addAll(i2.names.subList(1, i2.names.size()));
+        i.names.addAll((Collection<? extends InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>>>) i1.names.subList(1, i1.names.size()));
+        i.names.addAll((Collection<? extends InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>>>) i2.names.subList(1, i2.names.size()));
 
         return i;
     }
 
-    private class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> extends AbstractInterface {
-        List<InterfacePair<Set<Asc>, Set<Desc>>> names = new ArrayList<>();
+    private class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> {
+        final List<InterfacePair<Set<Asc>, Set<Desc>>> names = new ArrayList<>();
 
         public Interface() {
             names.add(0, new InterfacePair<>(new HashSet<>(), new HashSet<>()));
@@ -1182,7 +1183,7 @@ final public class DirectedBigraph implements
             this.names.get(index).left.add(a);
         }
 
-        public Set<Asc> getAsc() {
+        Set<Asc> getAsc() {
             Set<Asc> asc = new HashSet<>();
             for (InterfacePair<Set<Asc>, Set<Desc>> ip : names) {
                 asc.addAll(ip.left);
@@ -1192,7 +1193,7 @@ final public class DirectedBigraph implements
 
         public Set<Asc> getAsc(int index) {
             if (index < 0 || index >= names.size()) {
-                throw new IndexOutOfBoundsException("index '" + index + "' not in list");
+                throw new IndexOutOfBoundsException("Index '" + index + "' not in list");
             }
             return names.get(index).left;
         }
@@ -1201,7 +1202,7 @@ final public class DirectedBigraph implements
             this.names.get(index).right.add(d);
         }
 
-        public Set<Desc> getDesc() {
+        Set<Desc> getDesc() {
             Set<Desc> desc = new HashSet<>();
             for (InterfacePair<Set<Asc>, Set<Desc>> ip : names) {
                 desc.addAll(ip.right);
@@ -1211,7 +1212,7 @@ final public class DirectedBigraph implements
 
         public Set<Desc> getDesc(int index) {
             if (index < 0 || index >= names.size()) {
-                throw new IndexOutOfBoundsException("index '" + index + "' not in list");
+                throw new IndexOutOfBoundsException("Index '" + index + "' not in list");
             }
             return names.get(index).right;
         }
@@ -1231,11 +1232,11 @@ final public class DirectedBigraph implements
         }
     }
 
-    private class InterfacePair<L, R> {
+    private class InterfacePair<L extends Collection<? extends EditableLinkFacet>, R extends Collection<? extends EditableLinkFacet>> {
         private final L left;
         private final R right;
 
-        public InterfacePair(L left, R right) {
+        InterfacePair(L left, R right) {
             this.left = left;
             this.right = right;
         }
@@ -1264,6 +1265,11 @@ final public class DirectedBigraph implements
         @Override
         public String toString() {
             return "({" + left.toString() + "}+, {" + right.toString() + "}-)";
+        }
+
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            return super.clone();
         }
     }
 }
