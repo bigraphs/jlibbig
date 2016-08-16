@@ -6,38 +6,27 @@ import it.uniud.mads.jlibbig.core.exceptions.IncompatibleInterfaceException;
 import it.uniud.mads.jlibbig.core.exceptions.IncompatibleSignatureException;
 import it.uniud.mads.jlibbig.core.exceptions.NameClashException;
 import it.uniud.mads.jlibbig.core.exceptions.UnexpectedOwnerException;
-import it.uniud.mads.jlibbig.core.std.*;
-import it.uniud.mads.jlibbig.core.std.Edge;
-import it.uniud.mads.jlibbig.core.std.Handle;
-import it.uniud.mads.jlibbig.core.std.InnerName;
-import it.uniud.mads.jlibbig.core.std.LinkFacet;
-import it.uniud.mads.jlibbig.core.std.Node;
-import it.uniud.mads.jlibbig.core.std.OuterName;
-import it.uniud.mads.jlibbig.core.std.Parent;
-import it.uniud.mads.jlibbig.core.std.Point;
-import it.uniud.mads.jlibbig.core.std.Root;
-import it.uniud.mads.jlibbig.core.std.Site;
 
 import java.util.*;
 
 /**
  * This class provides services for the creation and manipulation of bigraphs
- * since instances of {@link Bigraph} are immutable.
+ * since instances of {@link DirectedBigraph} are immutable.
  * <p>
  * For efficiency reasons immutability can be relaxed by the user (cf.
- * {@link #outerCompose(Bigraph, boolean)}) by allowing the reuse of (parts) of
+ * {@link #outerCompose(DirectedBigraph, boolean)}) by allowing the reuse of (parts) of
  * the arguments. Notice that, if not handled properly, the reuse of bigraphs
  * can cause inconsistencies e.g. as a consequence of the reuse of a bigraphs
  * held by a rewriting rule as its redex or reactum.
  */
 final public class DirectedBigraphBuilder implements
-        it.uniud.mads.jlibbig.core.BigraphBuilder<Control>, Cloneable {
+        it.uniud.mads.jlibbig.core.BigraphBuilder<DirectedControl>, Cloneable {
 
     private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
             .getBoolean("it.uniud.mads.jlibbig.consistency")
             || Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
 
-    private Bigraph big;
+    private DirectedBigraph big;
     private boolean closed = false;
 
     /**
@@ -45,8 +34,8 @@ final public class DirectedBigraphBuilder implements
      *
      * @param sig the signature to be used.
      */
-    public DirectedBigraphBuilder(Signature sig) {
-        this.big = Bigraph.makeEmpty(sig);
+    public DirectedBigraphBuilder(DirectedSignature sig) {
+        this.big = DirectedBigraph.makeEmpty(sig);
     }
 
     /**
@@ -54,16 +43,16 @@ final public class DirectedBigraphBuilder implements
      *
      * @param big the bigraph describing the starting state.
      */
-    public DirectedBigraphBuilder(Bigraph big) {
+    public DirectedBigraphBuilder(DirectedBigraph big) {
         this(big, false);
     }
 
     /**
-     * @param big   the bigraph describing the starting state.
+     * @param big   the directed bigraph describing the starting state.
      * @param reuse whether the argument can be reused as it is or should be
      *              cloned.
      */
-    DirectedBigraphBuilder(Bigraph big, boolean reuse) {
+    DirectedBigraphBuilder(DirectedBigraph big, boolean reuse) {
         if (big == null)
             throw new IllegalArgumentException("Argument can not be null.");
         if (!big.isConsistent())
@@ -95,31 +84,31 @@ final public class DirectedBigraphBuilder implements
     }
 
     private static void clearOwnedCollection(
-            Collection<? extends it.uniud.mads.jlibbig.core.std.EditableOwned> col) {
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned i : col) {
+            Collection<? extends EditableOwned> col) {
+        for (EditableOwned i : col) {
             i.setOwner(null);
         }
         col.clear();
     }
 
     private static void clearChildCollection(
-            Collection<? extends it.uniud.mads.jlibbig.core.std.EditableChild> col) {
-        for (it.uniud.mads.jlibbig.core.std.EditableChild i : col) {
+            Collection<? extends EditableChild> col) {
+        for (EditableChild i : col) {
             i.setParent(null);
         }
         col.clear();
     }
 
-    private static void clearOuterMap(Map<String, it.uniud.mads.jlibbig.core.std.EditableOuterName> map) {
-        Iterator<it.uniud.mads.jlibbig.core.std.EditableOuterName> ir = map.values().iterator();
+    private static void clearOuterMap(Map<String, EditableOuterName> map) {
+        Iterator<EditableOuterName> ir = map.values().iterator();
         while (ir.hasNext()) {
             ir.next().setOwner(null);
         }
         map.clear();
     }
 
-    private static void clearInnerMap(Map<String, it.uniud.mads.jlibbig.core.std.EditableInnerName> map) {
-        Iterator<it.uniud.mads.jlibbig.core.std.EditableInnerName> ir = map.values().iterator();
+    private static void clearInnerMap(Map<String, EditableInnerName> map) {
+        Iterator<EditableInnerName> ir = map.values().iterator();
         while (ir.hasNext()) {
             ir.next().setHandle(null);
         }
@@ -138,7 +127,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @return a bigraph.
      */
-    public Bigraph makeBigraph() {
+    public DirectedBigraph makeBigraph() {
         return makeBigraph(false);
     }
 
@@ -150,10 +139,10 @@ final public class DirectedBigraphBuilder implements
      * @param close disables the builder to perform any other operation.
      * @return a bigraph.
      */
-    public Bigraph makeBigraph(boolean close) {
+    public DirectedBigraph makeBigraph(boolean close) {
         assertOpen();
         assertConsistency();
-        Bigraph b;
+        DirectedBigraph b;
         if (close) {
             b = big.setOwner(big);
             closed = true;
@@ -194,7 +183,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     @Override
-    public Signature getSignature() {
+    public DirectedSignature getSignature() {
         assertOpen();
         return this.big.getSignature();
     }
@@ -246,7 +235,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     @Override
-    public Collection<? extends it.uniud.mads.jlibbig.core.std.Node> getNodes() {
+    public Collection<? extends Node> getNodes() {
         assertOpen();
         return this.big.getNodes();
     }
@@ -264,7 +253,7 @@ final public class DirectedBigraphBuilder implements
      */
     public Root addRoot() {
         assertOpen();
-        it.uniud.mads.jlibbig.core.std.EditableRoot r = new it.uniud.mads.jlibbig.core.std.EditableRoot();
+        EditableRoot r = new EditableRoot();
         r.setOwner(this);
         this.big.roots.add(r);
         assertConsistency();
@@ -279,7 +268,7 @@ final public class DirectedBigraphBuilder implements
      */
     public Root addRoot(int index) {
         assertOpen();
-        it.uniud.mads.jlibbig.core.std.EditableRoot r = new it.uniud.mads.jlibbig.core.std.EditableRoot();
+        EditableRoot r = new EditableRoot();
         r.setOwner(this);
         this.big.roots.add(index, r);
         assertConsistency();
@@ -297,7 +286,7 @@ final public class DirectedBigraphBuilder implements
             throw new IllegalArgumentException("Argument can not be null.");
         assertOpen();
         assertOwner(parent, "Parent");
-        it.uniud.mads.jlibbig.core.std.EditableSite s = new it.uniud.mads.jlibbig.core.std.EditableSite((it.uniud.mads.jlibbig.core.std.EditableParent) parent);
+        EditableSite s = new EditableSite((EditableParent) parent);
         this.big.sites.add(s);
         assertConsistency();
         return s;
@@ -310,7 +299,7 @@ final public class DirectedBigraphBuilder implements
      * @param parent      the father of the new node, in the place graph.
      * @return the new node.
      */
-    public it.uniud.mads.jlibbig.core.std.Node addNode(String controlName, Parent parent) {
+    public Node addNode(String controlName, Parent parent) {
         return addNode(controlName, parent, new LinkedList<Handle>());
     }
 
@@ -323,33 +312,32 @@ final public class DirectedBigraphBuilder implements
      *                    node's ports.
      * @return the new node.
      */
-    public it.uniud.mads.jlibbig.core.std.Node addNode(String controlName, Parent parent, Handle... handles) {
+    public Node addNode(String controlName, Parent parent, Handle... handles) {
         if (controlName == null)
             throw new IllegalArgumentException("Control name can not be null.");
         if (parent == null)
             throw new IllegalArgumentException("Parent can not be null.");
         assertOpen();
-        Control c = this.big.getSignature().getByName(controlName);
+        DirectedControl c = this.big.getSignature().getByName(controlName);
         if (c == null)
-            throw new IllegalArgumentException(
-                    "Control should be in the signature.");
+            throw new IllegalArgumentException("Control should be in the signature.");
         assertOwner(parent, "Parent");
-        it.uniud.mads.jlibbig.core.std.EditableHandle[] hs = new it.uniud.mads.jlibbig.core.std.EditableHandle[c.getArity()];
+        EditableHandle[] hs = new EditableHandle[c.getArityIn()];
         for (int i = 0; i < hs.length; i++) {
-            it.uniud.mads.jlibbig.core.std.EditableHandle h = null;
+            EditableHandle h = null;
             if (i < handles.length) {
-                h = (it.uniud.mads.jlibbig.core.std.EditableHandle) handles[i];
+                h = (EditableHandle) handles[i];
             }
             if (h != null) {
                 assertOwner(h, "Handle");
             } else {
-                it.uniud.mads.jlibbig.core.std.EditableEdge e = new it.uniud.mads.jlibbig.core.std.EditableEdge(this);
+                EditableEdge e = new EditableEdge(this);
                 big.onEdgeAdded(e);
                 h = e;
             }
             hs[i] = h;
         }
-        it.uniud.mads.jlibbig.core.std.EditableNode n = new it.uniud.mads.jlibbig.core.std.EditableNode(c, (it.uniud.mads.jlibbig.core.std.EditableParent) parent, hs);
+        EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
         this.big.onNodeAdded(n);
         assertConsistency();
         return n;
@@ -370,29 +358,29 @@ final public class DirectedBigraphBuilder implements
         if (parent == null)
             throw new IllegalArgumentException("Parent can not be null.");
         assertOpen();
-        Control c = this.big.getSignature().getByName(controlName);
+        DirectedControl c = this.big.getSignature().getByName(controlName);
         if (c == null)
             throw new IllegalArgumentException(
                     "Control should be in the signature.");
         assertOwner(parent, "Parent");
-        int ar = c.getArity();
-        List<it.uniud.mads.jlibbig.core.std.EditableHandle> hs = new ArrayList<>(ar);
+        int ar = c.getArityIn();
+        List<EditableHandle> hs = new ArrayList<>(ar);
         Iterator<Handle> hi = (handles == null) ? null : handles.iterator();
         for (int i = 0; i < ar; i++) {
-            it.uniud.mads.jlibbig.core.std.EditableHandle h = null;
+            EditableHandle h = null;
             if (hi != null && hi.hasNext()) {
-                h = (it.uniud.mads.jlibbig.core.std.EditableHandle) hi.next();
+                h = (EditableHandle) hi.next();
             }
             if (h != null) {
                 assertOwner(h, "Handle");
             } else {
-                it.uniud.mads.jlibbig.core.std.EditableEdge e = new it.uniud.mads.jlibbig.core.std.EditableEdge(this);
+                EditableEdge e = new EditableEdge(this);
                 big.onEdgeAdded(e);
                 h = e;
             }
             hs.add(h);
         }
-        it.uniud.mads.jlibbig.core.std.EditableNode n = new it.uniud.mads.jlibbig.core.std.EditableNode(c, (it.uniud.mads.jlibbig.core.std.EditableParent) parent, hs);
+        EditableNode n = new EditableNode(c, (EditableParent) parent, hs);
         this.big.onNodeAdded(n);
         assertConsistency();
         return n;
@@ -404,7 +392,7 @@ final public class DirectedBigraphBuilder implements
      * @return the new outer name.
      */
     public OuterName addOuterName() {
-        return addOuterName(new it.uniud.mads.jlibbig.core.std.EditableOuterName());
+        return addOuterName(new EditableOuterName());
     }
 
     /**
@@ -416,7 +404,7 @@ final public class DirectedBigraphBuilder implements
     public OuterName addOuterName(String name) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Argument can not be null.");
-        return addOuterName(new it.uniud.mads.jlibbig.core.std.EditableOuterName(name));
+        return addOuterName(new EditableOuterName(name));
     }
 
     /**
@@ -425,7 +413,7 @@ final public class DirectedBigraphBuilder implements
      * @param name the outer name that will be added.
      * @return new outer name.
      */
-    private OuterName addOuterName(it.uniud.mads.jlibbig.core.std.EditableOuterName name) {
+    private OuterName addOuterName(EditableOuterName name) {
         assertOpen();
         if (big.outers.containsKey(name.getName())) {
             throw new IllegalArgumentException("Name '" + name.getName()
@@ -444,9 +432,9 @@ final public class DirectedBigraphBuilder implements
      * @return the new inner name.
      */
     public InnerName addInnerName() {
-        it.uniud.mads.jlibbig.core.std.EditableEdge e = new it.uniud.mads.jlibbig.core.std.EditableEdge(this);
+        EditableEdge e = new EditableEdge(this);
         big.onEdgeAdded(e);
-        return addInnerName(new it.uniud.mads.jlibbig.core.std.EditableInnerName(), e);
+        return addInnerName(new EditableInnerName(), e);
     }
 
     /**
@@ -459,9 +447,9 @@ final public class DirectedBigraphBuilder implements
         Owner o = handle.getOwner();
         assertOrSetOwner(handle, "Handle");
         if (handle.isEdge() && o != null) {
-            this.big.onEdgeAdded((it.uniud.mads.jlibbig.core.std.EditableEdge) handle);
+            this.big.onEdgeAdded((EditableEdge) handle);
         }
-        return addInnerName(new it.uniud.mads.jlibbig.core.std.EditableInnerName(), (it.uniud.mads.jlibbig.core.std.EditableHandle) handle);
+        return addInnerName(new EditableInnerName(), (EditableHandle) handle);
     }
 
     /**
@@ -474,7 +462,7 @@ final public class DirectedBigraphBuilder implements
     public InnerName addInnerName(String name) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Name can not be null.");
-        it.uniud.mads.jlibbig.core.std.EditableEdge e = new it.uniud.mads.jlibbig.core.std.EditableEdge(this);
+        EditableEdge e = new EditableEdge(this);
         big.onEdgeAdded(e);
         return addInnerName(name, e);
     }
@@ -492,10 +480,10 @@ final public class DirectedBigraphBuilder implements
         Owner o = handle.getOwner();
         assertOrSetOwner(handle, "Handle");
         if (handle.isEdge() && o != null) {
-            this.big.onEdgeAdded((it.uniud.mads.jlibbig.core.std.EditableEdge) handle);
+            this.big.onEdgeAdded((EditableEdge) handle);
         }
-        return addInnerName(new it.uniud.mads.jlibbig.core.std.EditableInnerName(name),
-                (it.uniud.mads.jlibbig.core.std.EditableHandle) handle);
+        return addInnerName(new EditableInnerName(name),
+                (EditableHandle) handle);
     }
 
     /**
@@ -506,7 +494,7 @@ final public class DirectedBigraphBuilder implements
      *          input.
      * @return the inner name
      */
-    private InnerName addInnerName(it.uniud.mads.jlibbig.core.std.EditableInnerName n, it.uniud.mads.jlibbig.core.std.EditableHandle h) {
+    private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
         assertOpen();
         if (big.inners.containsKey(n.getName())) {
             throw new IllegalArgumentException("Name already present.");
@@ -524,13 +512,13 @@ final public class DirectedBigraphBuilder implements
      * @return the new edge connecting the points in input.
      */
     public Edge relink(Point... points) {
-        return (Edge) relink(new it.uniud.mads.jlibbig.core.std.EditableEdge(), points);
+        return (Edge) relink(new EditableEdge(), points);
     }
 
     public Edge relink(Collection<? extends Point> points) {
         if (points == null)
             throw new IllegalArgumentException("Argument can not be null.");
-        return relink(points.toArray(new it.uniud.mads.jlibbig.core.std.EditablePoint[points.size()]));
+        return relink(points.toArray(new EditablePoint[points.size()]));
     }
 
     /**
@@ -543,21 +531,21 @@ final public class DirectedBigraphBuilder implements
     public Handle relink(Handle handle, Point... points) {
         assertOpen();
         assertOrSetOwner(handle, "Handle");
-        it.uniud.mads.jlibbig.core.std.EditablePoint[] ps = new it.uniud.mads.jlibbig.core.std.EditablePoint[points.length];
-        it.uniud.mads.jlibbig.core.std.EditableHandle h = (it.uniud.mads.jlibbig.core.std.EditableHandle) handle;
+        EditablePoint[] ps = new EditablePoint[points.length];
+        EditableHandle h = (EditableHandle) handle;
         for (int i = 0; i < points.length; i++) {
-            ps[i] = (it.uniud.mads.jlibbig.core.std.EditablePoint) points[i];
+            ps[i] = (EditablePoint) points[i];
             assertOwner(ps[i], "Point");
         }
         for (int i = 0; i < points.length; i++) {
             Handle old = ps[i].getHandle();
             ps[i].setHandle(h);
             if (old.isEdge() && old.getPoints().isEmpty()) {
-                big.onEdgeRemoved((it.uniud.mads.jlibbig.core.std.EditableEdge) old);
+                big.onEdgeRemoved((EditableEdge) old);
             }
         }
         if (handle.isEdge()) { // checking owner to be null is not enough to find new edges
-            big.onEdgeAdded((it.uniud.mads.jlibbig.core.std.EditableEdge) handle);
+            big.onEdgeAdded((EditableEdge) handle);
         }
         assertConsistency();
         return h;
@@ -566,7 +554,7 @@ final public class DirectedBigraphBuilder implements
     public Handle relink(Handle handle, Collection<? extends Point> points) {
         if (points == null)
             throw new IllegalArgumentException("Argument can not be null.");
-        return relink(handle, points.toArray(new it.uniud.mads.jlibbig.core.std.EditablePoint[points.size()]));
+        return relink(handle, points.toArray(new EditablePoint[points.size()]));
     }
 
     /**
@@ -602,7 +590,7 @@ final public class DirectedBigraphBuilder implements
             throw new IllegalArgumentException("Name '" + name.getName()
                     + "' not present.");
         }
-        it.uniud.mads.jlibbig.core.std.EditableOuterName n1 = (it.uniud.mads.jlibbig.core.std.EditableOuterName) name;
+        EditableOuterName n1 = (EditableOuterName) name;
         Edge e = relink(n1.getEditablePoints());
         big.outers.remove(n1.getName());
         n1.setOwner(null);
@@ -629,12 +617,12 @@ final public class DirectedBigraphBuilder implements
             throw new IllegalArgumentException("Name '" + name.getName()
                     + "' not present.");
         }
-        it.uniud.mads.jlibbig.core.std.EditableInnerName n1 = (it.uniud.mads.jlibbig.core.std.EditableInnerName) name;
+        EditableInnerName n1 = (EditableInnerName) name;
         Handle h = n1.getHandle();
         n1.setHandle(null);
         big.inners.remove(n1.getName());
         if (h.isEdge() && h.getPoints().isEmpty()) {
-            big.onEdgeRemoved((it.uniud.mads.jlibbig.core.std.EditableEdge) h);
+            big.onEdgeRemoved((EditableEdge) h);
         }
     }
 
@@ -647,7 +635,7 @@ final public class DirectedBigraphBuilder implements
     public void renameOuterName(String oldName, String newName) {
         if (newName == null || oldName == null)
             throw new IllegalArgumentException("Arguments can not be null");
-        it.uniud.mads.jlibbig.core.std.EditableOuterName n1 = big.outers.get(oldName);
+        EditableOuterName n1 = big.outers.get(oldName);
         if (n1 == null) {
             throw new IllegalArgumentException("Name '" + oldName
                     + "' is not present.");
@@ -668,9 +656,9 @@ final public class DirectedBigraphBuilder implements
         assertOwner(oldName, "OuterName ");
         if (newName.equals(oldName.getName()))
             return;
-        it.uniud.mads.jlibbig.core.std.EditableOuterName n2 = big.outers.get(newName);
+        EditableOuterName n2 = big.outers.get(newName);
         if (n2 == null) {
-            ((it.uniud.mads.jlibbig.core.std.EditableOuterName) oldName).setName(newName);
+            ((EditableOuterName) oldName).setName(newName);
         } else {
             throw new IllegalArgumentException("Name '" + newName
                     + "' already in use");
@@ -686,7 +674,7 @@ final public class DirectedBigraphBuilder implements
     public void renameInnerName(String oldName, String newName) {
         if (newName == null || oldName == null)
             throw new IllegalArgumentException("Arguments can not be null");
-        it.uniud.mads.jlibbig.core.std.EditableInnerName n1 = big.inners.get(oldName);
+        EditableInnerName n1 = big.inners.get(oldName);
         if (n1 == null) {
             throw new IllegalArgumentException("Name '" + oldName
                     + "' is not present.");
@@ -707,9 +695,9 @@ final public class DirectedBigraphBuilder implements
         assertOwner(oldName, "InnerName ");
         if (newName.equals(oldName.getName()))
             return;
-        it.uniud.mads.jlibbig.core.std.EditableInnerName n2 = big.inners.get(newName);
+        EditableInnerName n2 = big.inners.get(newName);
         if (n2 == null) {
-            ((it.uniud.mads.jlibbig.core.std.EditableInnerName) oldName).setName(newName);
+            ((EditableInnerName) oldName).setName(newName);
         } else {
             throw new IllegalArgumentException("Name '" + newName
                     + "' is present already.");
@@ -723,10 +711,10 @@ final public class DirectedBigraphBuilder implements
      */
     public Root merge() {
         assertOpen();
-        it.uniud.mads.jlibbig.core.std.EditableRoot r = new it.uniud.mads.jlibbig.core.std.EditableRoot();
+        EditableRoot r = new EditableRoot();
         r.setOwner(this);
-        for (it.uniud.mads.jlibbig.core.std.EditableParent p : big.roots) {
-            for (it.uniud.mads.jlibbig.core.std.EditableChild c : new HashSet<>(p.getEditableChildren())) {
+        for (EditableParent p : big.roots) {
+            for (EditableChild c : new HashSet<>(p.getEditableChildren())) {
                 c.setParent(r);
             }
         }
@@ -745,17 +733,17 @@ final public class DirectedBigraphBuilder implements
      */
     public Root merge(int index, int... roots) {
         assertOpen();
-        it.uniud.mads.jlibbig.core.std.EditableRoot r = new it.uniud.mads.jlibbig.core.std.EditableRoot();
+        EditableRoot r = new EditableRoot();
         r.setOwner(this);
-        it.uniud.mads.jlibbig.core.std.EditableRoot[] rs = new it.uniud.mads.jlibbig.core.std.EditableRoot[roots.length];
+        EditableRoot[] rs = new EditableRoot[roots.length];
         for (int i = 0; i < roots.length; i++) {
             rs[i] = big.roots.get(roots[i]);
-            Iterator<it.uniud.mads.jlibbig.core.std.EditableChild> ir = rs[i].getEditableChildren().iterator();
+            Iterator<EditableChild> ir = rs[i].getEditableChildren().iterator();
             while (ir.hasNext()) {
                 ir.next().setParent(r);
             }
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableRoot r1 : rs) {
+        for (EditableRoot r1 : rs) {
             big.roots.remove(r1);
             r1.setOwner(null);
         }
@@ -768,7 +756,7 @@ final public class DirectedBigraphBuilder implements
         assertOwner(root, "Root ");
         if (!root.getChildren().isEmpty())
             throw new IllegalArgumentException("Unempty region.");
-        it.uniud.mads.jlibbig.core.std.EditableRoot editableRoot = (it.uniud.mads.jlibbig.core.std.EditableRoot) root;
+        EditableRoot editableRoot = (EditableRoot) root;
         editableRoot.setOwner(null);
         big.roots.remove(editableRoot);
         if (!root.getChildren().isEmpty()) {
@@ -791,7 +779,7 @@ final public class DirectedBigraphBuilder implements
      */
     public void closeSite(Site site) {
         assertOwner(site, "Site ");
-        it.uniud.mads.jlibbig.core.std.EditableSite editableSite = (it.uniud.mads.jlibbig.core.std.EditableSite) site;
+        EditableSite editableSite = (EditableSite) site;
         editableSite.setParent(null);
         big.sites.remove(editableSite);
         assertConsistency();
@@ -864,14 +852,14 @@ final public class DirectedBigraphBuilder implements
         }
         Bigraph l = (reuse) ? left : left.clone();
         Bigraph r = right;
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : l.roots) {
+        for (EditableOwned o : l.roots) {
             o.setOwner(this);
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : l.outers.values()) {
+        for (EditableOwned o : l.outers.values()) {
             o.setOwner(this);
         }
-        Collection<it.uniud.mads.jlibbig.core.std.EditableEdge> es = l.edgesProxy.get();
-        for (it.uniud.mads.jlibbig.core.std.EditableEdge e : es) {
+        Collection<EditableEdge> es = l.edgesProxy.get();
+        for (EditableEdge e : es) {
             e.setOwner(this);
         }
         r.onEdgeAdded(es);
@@ -929,14 +917,14 @@ final public class DirectedBigraphBuilder implements
         }
         Bigraph l = left;
         Bigraph r = (reuse) ? right : right.clone();
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : r.roots) {
+        for (EditableOwned o : r.roots) {
             o.setOwner(this);
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : r.outers.values()) {
+        for (EditableOwned o : r.outers.values()) {
             o.setOwner(this);
         }
-        Collection<it.uniud.mads.jlibbig.core.std.EditableEdge> es = r.edgesProxy.get();
-        for (it.uniud.mads.jlibbig.core.std.EditableEdge e : es) {
+        Collection<EditableEdge> es = r.edgesProxy.get();
+        for (EditableEdge e : es) {
             e.setOwner(this);
         }
         l.onEdgeAdded(es);
@@ -991,30 +979,30 @@ final public class DirectedBigraphBuilder implements
         }
         Bigraph a = out;
         Bigraph b = (reuse) ? in : in.clone();
-        Collection<it.uniud.mads.jlibbig.core.std.EditableEdge> es = b.edgesProxy.get();
-        Collection<it.uniud.mads.jlibbig.core.std.EditableNode> ns = b.nodesProxy.get();
+        Collection<EditableEdge> es = b.edgesProxy.get();
+        Collection<EditableNode> ns = b.nodesProxy.get();
         // iterate over sites and roots of a and b respectively and glue them
-        Iterator<it.uniud.mads.jlibbig.core.std.EditableRoot> ir = b.roots.iterator();
-        Iterator<it.uniud.mads.jlibbig.core.std.EditableSite> is = a.sites.iterator();
+        Iterator<EditableRoot> ir = b.roots.iterator();
+        Iterator<EditableSite> is = a.sites.iterator();
         while (ir.hasNext()) { // |ir| == |is|
-            it.uniud.mads.jlibbig.core.std.EditableSite s = is.next();
-            it.uniud.mads.jlibbig.core.std.EditableParent p = s.getParent();
+            EditableSite s = is.next();
+            EditableParent p = s.getParent();
             p.removeChild(s);
-            for (it.uniud.mads.jlibbig.core.std.EditableChild c : new HashSet<>(ir.next()
+            for (EditableChild c : new HashSet<>(ir.next()
                     .getEditableChildren())) {
                 c.setParent(p);
             }
         }
         // iterate over inner and outer names of a and b respectively and glue
         // them
-        Map<String, it.uniud.mads.jlibbig.core.std.EditableHandle> a_inners = new HashMap<>();
-        for (it.uniud.mads.jlibbig.core.std.EditableInnerName i : a.inners.values()) {
+        Map<String, EditableHandle> a_inners = new HashMap<>();
+        for (EditableInnerName i : a.inners.values()) {
             a_inners.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : b.outers.values()) {
-            it.uniud.mads.jlibbig.core.std.EditableHandle h = a_inners.get(o.getName());
-            for (it.uniud.mads.jlibbig.core.std.EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+        for (EditableOuterName o : b.outers.values()) {
+            EditableHandle h = a_inners.get(o.getName());
+            for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
             }
         }
@@ -1025,7 +1013,7 @@ final public class DirectedBigraphBuilder implements
         a.sites.addAll(b.sites);
         a.onNodeAdded(ns);
         b.onNodeSetChanged();
-        for (it.uniud.mads.jlibbig.core.std.EditableEdge e : es) {
+        for (EditableEdge e : es) {
             e.setOwner(this);
         }
         a.onEdgeAdded(es);
@@ -1076,31 +1064,31 @@ final public class DirectedBigraphBuilder implements
         }
         Bigraph a = (reuse) ? out : out.clone();
         Bigraph b = in; // this BB
-        Collection<it.uniud.mads.jlibbig.core.std.EditableEdge> es = a.edgesProxy.get();
-        Collection<it.uniud.mads.jlibbig.core.std.EditableNode> ns = a.nodesProxy.get();
+        Collection<EditableEdge> es = a.edgesProxy.get();
+        Collection<EditableNode> ns = a.nodesProxy.get();
         // iterates over sites and roots of a and b respectively and glues them
-        Iterator<it.uniud.mads.jlibbig.core.std.EditableRoot> ir = b.roots.iterator();
-        Iterator<it.uniud.mads.jlibbig.core.std.EditableSite> is = a.sites.iterator();
+        Iterator<EditableRoot> ir = b.roots.iterator();
+        Iterator<EditableSite> is = a.sites.iterator();
         while (ir.hasNext()) { // |ir| == |is|
-            it.uniud.mads.jlibbig.core.std.EditableSite s = is.next();
-            it.uniud.mads.jlibbig.core.std.EditableParent p = s.getParent();
+            EditableSite s = is.next();
+            EditableParent p = s.getParent();
             p.removeChild(s);
-            for (it.uniud.mads.jlibbig.core.std.EditableChild c : new HashSet<>(ir.next()
+            for (EditableChild c : new HashSet<>(ir.next()
                     .getEditableChildren())) {
                 c.setParent(p);
             }
         }
         // iterates over inner and outer names of a and b respectively and glues
         // them
-        Map<String, it.uniud.mads.jlibbig.core.std.EditableHandle> a_inners = new HashMap<>(a.inners.size());
-        for (it.uniud.mads.jlibbig.core.std.EditableInnerName i : a.inners.values()) {
-            it.uniud.mads.jlibbig.core.std.EditableHandle h = i.getHandle();
+        Map<String, EditableHandle> a_inners = new HashMap<>(a.inners.size());
+        for (EditableInnerName i : a.inners.values()) {
+            EditableHandle h = i.getHandle();
             a_inners.put(i.getName(), h);
             i.setHandle(null);
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : b.outers.values()) {
-            it.uniud.mads.jlibbig.core.std.EditableHandle h = a_inners.get(o.getName());
-            for (it.uniud.mads.jlibbig.core.std.EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+        for (EditableOuterName o : b.outers.values()) {
+            EditableHandle h = a_inners.get(o.getName());
+            for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
             }
         }
@@ -1109,15 +1097,15 @@ final public class DirectedBigraphBuilder implements
         clearOwnedCollection(b.roots);// .clear();
         b.outers.putAll(a.outers);
         b.roots.addAll(a.roots);
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : b.roots) {
+        for (EditableOwned o : b.roots) {
             o.setOwner(this);
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : b.outers.values()) {
+        for (EditableOwned o : b.outers.values()) {
             o.setOwner(this);
         }
         b.onNodeAdded(ns);
         a.onNodeSetChanged();
-        for (it.uniud.mads.jlibbig.core.std.EditableEdge e : es) {
+        for (EditableEdge e : es) {
             e.setOwner(this);
         }
         b.onEdgeAdded(es);
@@ -1160,14 +1148,14 @@ final public class DirectedBigraphBuilder implements
         if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
             throw new IncompatibleInterfaceException();
         }
-        Map<String, it.uniud.mads.jlibbig.core.std.EditableOuterName> nmap = new HashMap<>();
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : out.outers.values()) {
+        Map<String, EditableOuterName> nmap = new HashMap<>();
+        for (EditableOuterName o : out.outers.values()) {
             nmap.put(o.getName(), o);
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : in.outers.values()) {
-            it.uniud.mads.jlibbig.core.std.EditableOuterName p = nmap.get(o.getName());
+        for (EditableOuterName o : in.outers.values()) {
+            EditableOuterName p = nmap.get(o.getName());
             if (p == null) {
-                p = (it.uniud.mads.jlibbig.core.std.EditableOuterName) this.addOuterName(o.getName());
+                p = (EditableOuterName) this.addOuterName(o.getName());
             }
             this.addInnerName(o.getName(), p);
         }
@@ -1213,18 +1201,18 @@ final public class DirectedBigraphBuilder implements
         }
         if (reuse)
             out = out.clone();
-        Map<String, it.uniud.mads.jlibbig.core.std.EditableOuterName> nmap = new HashMap<>();
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : out.outers.values()) {
+        Map<String, EditableOuterName> nmap = new HashMap<>();
+        for (EditableOuterName o : out.outers.values()) {
             nmap.put(o.getName(), o);
         }
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : in.outers.values()) {
-            it.uniud.mads.jlibbig.core.std.EditableOuterName p = nmap.get(o.getName());
+        for (EditableOuterName o : in.outers.values()) {
+            EditableOuterName p = nmap.get(o.getName());
             if (p == null) {
-                p = new it.uniud.mads.jlibbig.core.std.EditableOuterName(o.getName());
+                p = new EditableOuterName(o.getName());
                 p.setOwner(out);
                 out.outers.put(p.getName(), p);
             }
-            it.uniud.mads.jlibbig.core.std.EditableInnerName i = new it.uniud.mads.jlibbig.core.std.EditableInnerName(p.getName());
+            EditableInnerName i = new EditableInnerName(p.getName());
             i.setHandle(p);
             out.inners.put(i.getName(), i);
         }
@@ -1275,14 +1263,14 @@ final public class DirectedBigraphBuilder implements
         }
         Bigraph l = (reuse) ? left : left.clone();
         Bigraph r = right;
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : l.roots) {
+        for (EditableOwned o : l.roots) {
             o.setOwner(this);
         }
-        Map<String, it.uniud.mads.jlibbig.core.std.EditableOuterName> os = new HashMap<>();
+        Map<String, EditableOuterName> os = new HashMap<>();
         // merge outers
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : l.outers.values()) {
-            it.uniud.mads.jlibbig.core.std.EditableOuterName q = null;
-            for (it.uniud.mads.jlibbig.core.std.EditableOuterName p : r.outers.values()) {
+        for (EditableOuterName o : l.outers.values()) {
+            EditableOuterName q = null;
+            for (EditableOuterName p : r.outers.values()) {
                 if (p.getName().equals(o.getName())) {
                     q = p;
                     break;
@@ -1294,13 +1282,13 @@ final public class DirectedBigraphBuilder implements
                 o.setOwner(this);
             } else {
                 // this name apperas also in r, merge points
-                for (it.uniud.mads.jlibbig.core.std.EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                     q.linkPoint(p);
                 }
             }
         }
-        Collection<it.uniud.mads.jlibbig.core.std.EditableEdge> es = l.edgesProxy.get();
-        for (it.uniud.mads.jlibbig.core.std.EditableEdge e : es) {
+        Collection<EditableEdge> es = l.edgesProxy.get();
+        for (EditableEdge e : es) {
             e.setOwner(this);
         }
         r.onEdgeAdded(es);
@@ -1361,14 +1349,14 @@ final public class DirectedBigraphBuilder implements
         }
         Bigraph l = left;
         Bigraph r = (reuse) ? right : right.clone();
-        for (it.uniud.mads.jlibbig.core.std.EditableOwned o : r.roots) {
+        for (EditableOwned o : r.roots) {
             o.setOwner(this);
         }
-        Map<String, it.uniud.mads.jlibbig.core.std.EditableOuterName> os = new HashMap<>();
+        Map<String, EditableOuterName> os = new HashMap<>();
         // merge outers
-        for (it.uniud.mads.jlibbig.core.std.EditableOuterName o : r.outers.values()) {
-            it.uniud.mads.jlibbig.core.std.EditableOuterName q = null;
-            for (it.uniud.mads.jlibbig.core.std.EditableOuterName p : l.outers.values()) {
+        for (EditableOuterName o : r.outers.values()) {
+            EditableOuterName q = null;
+            for (EditableOuterName p : l.outers.values()) {
                 if (p.getName().equals(o.getName())) {
                     q = p;
                     break;
@@ -1380,13 +1368,13 @@ final public class DirectedBigraphBuilder implements
                 o.setOwner(this);
             } else {
                 // this name apperas also in r, merge points
-                for (it.uniud.mads.jlibbig.core.std.EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                     q.linkPoint(p);
                 }
             }
         }
-        Collection<it.uniud.mads.jlibbig.core.std.EditableEdge> es = r.edgesProxy.get();
-        for (it.uniud.mads.jlibbig.core.std.EditableEdge e : es) {
+        Collection<EditableEdge> es = r.edgesProxy.get();
+        for (EditableEdge e : es) {
             e.setOwner(this);
         }
         l.onEdgeAdded(es);
@@ -1475,7 +1463,7 @@ final public class DirectedBigraphBuilder implements
             throw new IllegalArgumentException(obj + " can not be null.");
         Owner o = owned.getOwner();
         if (o == null)
-            ((it.uniud.mads.jlibbig.core.std.EditableOwned) owned).setOwner(this);
+            ((EditableOwned) owned).setOwner(this);
         else if (o != this)
             throw new UnexpectedOwnerException(obj
                     + " already owned by an other structure.");
