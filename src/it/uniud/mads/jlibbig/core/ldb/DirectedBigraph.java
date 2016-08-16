@@ -270,11 +270,9 @@ final public class DirectedBigraph implements
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (out == in)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be composed with itself.");
+            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be composed with itself.");
         if (!out.signature.equals(in.signature)) {
-            throw new IncompatibleSignatureException(out.getSignature(),
-                    in.getSignature());
+            throw new IncompatibleSignatureException(out.getSignature(), in.getSignature());
         }
 
         Set<String> xs = new HashSet<>(out.inners.keySet());
@@ -283,11 +281,10 @@ final public class DirectedBigraph implements
         xs.removeAll(ys);
         ys.removeAll(zs);
 
-        if (!xs.isEmpty() || !ys.isEmpty()
-                || out.sites.size() != in.roots.size()) {
-            throw new IncompatibleInterfaceException(
-                    "The outer face of the first graph must be equal to inner face of the second");
+        if (!xs.isEmpty() || !ys.isEmpty() || out.sites.size() != in.roots.size()) {
+            throw new IncompatibleInterfaceException("The outer face of the first graph must be equal to inner face of the second");
         }
+
         DirectedBigraph a = (reuse) ? out : out.clone();
         DirectedBigraph b = (reuse) ? in : in.clone();
         Collection<EditableEdge> es = b.edgesProxy.get();
@@ -299,8 +296,7 @@ final public class DirectedBigraph implements
             EditableSite s = is.next();
             EditableParent p = s.getParent();
             p.removeChild(s);
-            for (EditableChild c : new ArrayList<>(ir.next()
-                    .getEditableChildren())) {
+            for (EditableChild c : new ArrayList<>(ir.next().getEditableChildren())) {
                 c.setParent(p);
             }
         }
@@ -356,7 +352,7 @@ final public class DirectedBigraph implements
      * @return the resulting identity bigraph.
      */
     public static DirectedBigraph makeId(DirectedSignature signature, int width, String... names) {
-        BigraphBuilder bb = new BigraphBuilder(signature);
+        DirectedBigraphBuilder bb = new DirectedBigraphBuilder(signature);
         for (int i = 0; i < width; i++) {
             bb.addSite(bb.addRoot());
         }
@@ -378,7 +374,7 @@ final public class DirectedBigraph implements
      */
     public static DirectedBigraph makeId(DirectedSignature signature, int width,
                                          Iterable<? extends LinkFacet> names) {
-        BigraphBuilder bb = new BigraphBuilder(signature);
+        DirectedBigraphBuilder bb = new DirectedBigraphBuilder(signature);
         for (int i = 0; i < width; i++) {
             bb.addSite(bb.addRoot());
         }
@@ -1217,6 +1213,25 @@ final public class DirectedBigraph implements
             return names.get(index).right;
         }
 
+        Set<String> keySet() {
+            Set<String> ss = new HashSet<>();
+            for (InterfacePair ip : names) {
+                int id = names.indexOf(ip);
+                String s = "";
+
+                for (Asc aLeft : (Iterable<Asc>) ip.left) {
+                    s += id + " l " + aLeft;
+                }
+
+                for (Desc aRight : (Iterable<Desc>) ip.right) {
+                    s += id + " r " + aRight;
+                }
+
+                ss.add(s);
+            }
+            return ss;
+        }
+
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
@@ -1232,7 +1247,7 @@ final public class DirectedBigraph implements
         }
     }
 
-    private class InterfacePair<L extends Collection<? extends EditableLinkFacet>, R extends Collection<? extends EditableLinkFacet>> {
+    private class InterfacePair<L extends Set<? extends EditableLinkFacet>, R extends Set<? extends EditableLinkFacet>> {
         private final L left;
         private final R right;
 
@@ -1265,11 +1280,6 @@ final public class DirectedBigraph implements
         @Override
         public String toString() {
             return "({" + left.toString() + "}+, {" + right.toString() + "}-)";
-        }
-
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
         }
     }
 }

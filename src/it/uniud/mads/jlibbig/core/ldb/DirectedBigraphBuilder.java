@@ -14,7 +14,7 @@ import java.util.*;
  * since instances of {@link DirectedBigraph} are immutable.
  * <p>
  * For efficiency reasons immutability can be relaxed by the user (cf.
- * {@link #outerCompose(DirectedBigraph, boolean)}) by allowing the reuse of (parts) of
+ * {@link #outerCompose(Bigraph, boolean)}) by allowing the reuse of (parts) of
  * the arguments. Notice that, if not handled properly, the reuse of bigraphs
  * can cause inconsistencies e.g. as a consequence of the reuse of a bigraphs
  * held by a rewriting rule as its redex or reactum.
