@@ -235,8 +235,8 @@ final public class DirectedBigraph implements
         l.roots.addAll(r.roots);
         l.sites.addAll(r.sites);
 
-        l.joinInterfaces(l.outers, r.outers);
-        r.joinInterfaces(l.inners, r.inners);
+        Interface.joinInterfaces(l.outers, r.outers);
+        Interface.joinInterfaces(l.inners, r.inners);
 
         if (DEBUG_CONSISTENCY_CHECK && !l.isConsistent()) {
             throw new RuntimeException("Inconsistent bigraph");
@@ -1112,29 +1112,7 @@ final public class DirectedBigraph implements
      * props.getPropertyNames(); }
      */
 
-
-
-    /**
-     * join two interfaces
-     *
-     * @param i1 the first interface
-     * @param i2 the second interface
-     * @return the joined interface
-     */
-    public Interface<EditableLinkFacet, EditableLinkFacet> joinInterfaces(
-            Interface<? extends EditableLinkFacet, ? extends EditableLinkFacet> i1,
-            Interface<? extends EditableLinkFacet, ? extends EditableLinkFacet> i2) {
-
-        Interface<EditableLinkFacet, EditableLinkFacet> i = new Interface<>(mergePairs(i1.names.get(0), i2.names.get(0)));
-
-        // skip first element because added before
-        i.names.addAll((Collection<? extends InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>>>) i1.names.subList(1, i1.names.size()));
-        i.names.addAll((Collection<? extends InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>>>) i2.names.subList(1, i2.names.size()));
-
-        return i;
-    }
-
-    private class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> {
+    private static class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> {
         final List<InterfacePair<Asc, Desc>> names = new ArrayList<>();
 
         public Interface() {
@@ -1224,6 +1202,26 @@ final public class DirectedBigraph implements
             }
             sb.append(">");
             return sb.toString();
+        }
+
+        /**
+         * join two interfaces
+         *
+         * @param i1 the first interface
+         * @param i2 the second interface
+         * @return the joined interface
+         */
+        public static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> Interface<Asc, Desc> joinInterfaces(
+                Interface<Asc, Desc> i1,
+                Interface<Asc, Desc> i2) {
+
+            Interface<Asc, Desc> i = new Interface<>(InterfacePair.mergePairs(i1.names.get(0), i2.names.get(0)));
+
+            // skip first element because added before
+            i.names.addAll(i1.names.subList(1, i1.names.size()));
+            i.names.addAll(i2.names.subList(1, i2.names.size()));
+
+            return i;
         }
     }
 }

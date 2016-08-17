@@ -45,7 +45,7 @@ class InterfacePair<Asc, Desc> {
      * @param p2 the second pair
      * @return the merged pair
      */
-    public static <Asc, Desc> InterfacePair<Asc, Desc> mergePairs(
+    static <Asc, Desc> InterfacePair<Asc, Desc> mergePairs(
             InterfacePair<Asc, Desc> p1, InterfacePair<Asc, Desc> p2) {
 
         InterfacePair<Asc, Desc> p;
