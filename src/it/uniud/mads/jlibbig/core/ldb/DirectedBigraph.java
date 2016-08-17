@@ -685,8 +685,8 @@ final public class DirectedBigraph implements
                 EditableNode n2 = n1.replicate();
                 // set m's parent (which added adds m as its child)
                 n2.setParent(t.p);
-                for (int i = n1.getControl().getArity() - 1; 0 <= i; i--) {
-                    EditablePort p1 = n1.getPort(i);
+                for (int i = n1.getControl().getArityOut() - 1; 0 <= i; i--) {
+                    EditableNode.EditableOutPort p1 = n1.getOutPort(i);
                     EditableHandle h1 = p1.getHandle();
                     // looks for an existing replica
                     EditableHandle h2 = hnd_dic.get(h1);
@@ -696,7 +696,19 @@ final public class DirectedBigraph implements
                         h2.setOwner(owner);
                         hnd_dic.put(h1, h2);
                     }
-                    n2.getPort(i).setHandle(h2);
+                    n2.getOutPort(i).setHandle(h2);
+                }
+                for (int i = n1.getControl().getArityIn() - 1; 0 <= i; i--) {
+                    EditableNode.EditableInPort p1 = n1.getInPort(i);
+                    EditableHandle h1 = p1.getHandle();
+                    // looks for an existing replica
+                    EditableHandle h2 = hnd_dic.get(h1);
+                    if (h2 == null) {
+                        // the bigraph is inconsistent if g is null
+                        h2 = h1.replicate();
+                        h2.setOwner(owner);
+                        hnd_dic.put(h1, h2);
+                    }
                 }
                 // enqueue children for visit
                 for (EditableChild c : n1.getEditableChildren()) {
