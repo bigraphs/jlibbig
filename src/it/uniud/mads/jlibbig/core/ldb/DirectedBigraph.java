@@ -1071,7 +1071,7 @@ final public class DirectedBigraph implements
      * props.getPropertyNames(); }
      */
 
-    private static class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> {
+    static class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> {
         final List<InterfacePair<Asc, Desc>> names = new ArrayList<>();
 
         public Interface() {
@@ -1090,7 +1090,7 @@ final public class DirectedBigraph implements
          * @param arg1 one of the collections to be intersected.
          * @return the intersection.
          */
-        private static Collection<String> intersectNames(
+        public static Collection<String> intersectNames(
                 Collection<? extends LinkFacet> arg0,
                 Collection<? extends LinkFacet> arg1) {
             return intersectNames(arg0, arg1, new HashSet<>());
@@ -1106,7 +1106,7 @@ final public class DirectedBigraph implements
          * @return the given string collection extended with the intersection of the
          * other two.
          */
-        private static Collection<String> intersectNames(
+        public static Collection<String> intersectNames(
                 Collection<? extends LinkFacet> arg0,
                 Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
             Collection<String> ns1 = new HashSet<>();

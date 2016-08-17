@@ -9,6 +9,8 @@ import it.uniud.mads.jlibbig.core.exceptions.UnexpectedOwnerException;
 
 import java.util.*;
 
+import static it.uniud.mads.jlibbig.core.ldb.DirectedBigraph.Interface.intersectNames;
+
 /**
  * This class provides services for the creation and manipulation of bigraphs
  * since instances of {@link DirectedBigraph} are immutable.
@@ -58,29 +60,6 @@ final public class DirectedBigraphBuilder implements
         if (!big.isConsistent())
             throw new IllegalArgumentException("Inconsistent bigraph.");
         this.big = (reuse) ? big.setOwner(this) : big.clone(this);
-    }
-
-    private static Collection<String> intersectNames(
-            Collection<? extends LinkFacet> arg0,
-            Collection<? extends LinkFacet> arg1) {
-        return intersectNames(arg0, arg1, new HashSet<String>());
-    }
-
-    private static Collection<String> intersectNames(
-            Collection<? extends LinkFacet> arg0,
-            Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
-        Collection<String> ns1 = new HashSet<>();
-        for (LinkFacet l : arg0) {
-            ns1.add(l.getName());
-        }
-        for (LinkFacet r : arg1) {
-            String s = r.getName();
-            if (ns1.contains(s)) {
-                ns0.add(s);
-                ns1.remove(s);
-            }
-        }
-        return ns0;
     }
 
     private static void clearOwnedCollection(
