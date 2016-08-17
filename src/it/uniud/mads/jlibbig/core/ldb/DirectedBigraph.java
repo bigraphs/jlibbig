@@ -202,14 +202,14 @@ final public class DirectedBigraph implements
                 || !Collections.disjoint(left.outers.getAsc(), right.outers.getAsc())
                 || !Collections.disjoint(left.outers.getDesc(), right.outers.getDesc())) {
             throw new IncompatibleInterfaceException(new NameClashException(
-                    intersectNames(
+                    Interface.intersectNames(
                             left.inners.getAsc(),
                             right.inners.getAsc(),
-                            intersectNames(left.outers.getAsc(),
+                            Interface.intersectNames(left.outers.getAsc(),
                                     right.outers.getAsc(),
-                                    intersectNames(left.outers.getDesc(),
+                                    Interface.intersectNames(left.outers.getDesc(),
                                             right.outers.getDesc(),
-                                            intersectNames(left.inners.getDesc(),
+                                            Interface.intersectNames(left.inners.getDesc(),
                                                     right.inners.getDesc()))))));
         }
         DirectedBigraph l = (reuse) ? left : left.clone();
@@ -383,47 +383,6 @@ final public class DirectedBigraph implements
             bb.addInnerName(name, bb.addOuterName(name));
         }
         return bb.makeBigraph();
-    }
-
-    /**
-     * Creates the collection containing all the names in the given collections
-     * of link facets (i.e. inner and outer names).
-     *
-     * @param arg0 one of the collections to be intersected.
-     * @param arg1 one of the collections to be intersected.
-     * @return the intersection.
-     */
-    private static Collection<String> intersectNames(
-            Collection<? extends LinkFacet> arg0,
-            Collection<? extends LinkFacet> arg1) {
-        return intersectNames(arg0, arg1, new HashSet<>());
-    }
-
-    /**
-     * Extends the given collection of strings with all the names in the given
-     * collections of link facets (i.e. inner and outer names).
-     *
-     * @param arg0 one of the collections to be intersected.
-     * @param arg1 one of the collections to be intersected.
-     * @param ns0  the collection to be extended.
-     * @return the given string collection extended with the intersection of the
-     * other two.
-     */
-    private static Collection<String> intersectNames(
-            Collection<? extends LinkFacet> arg0,
-            Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
-        Collection<String> ns1 = new HashSet<>();
-        for (LinkFacet l : arg0) {
-            ns1.add(l.getName());
-        }
-        for (LinkFacet r : arg1) {
-            String s = r.getName();
-            if (ns1.contains(s)) {
-                ns0.add(s);
-                ns1.remove(s);
-            }
-        }
-        return ns0;
     }
 
     /**
@@ -1123,6 +1082,67 @@ final public class DirectedBigraph implements
             names.add(0, interfacePair0);
         }
 
+        /**
+         * Creates the collection containing all the names in the given collections
+         * of link facets (i.e. inner and outer names).
+         *
+         * @param arg0 one of the collections to be intersected.
+         * @param arg1 one of the collections to be intersected.
+         * @return the intersection.
+         */
+        private static Collection<String> intersectNames(
+                Collection<? extends LinkFacet> arg0,
+                Collection<? extends LinkFacet> arg1) {
+            return intersectNames(arg0, arg1, new HashSet<>());
+        }
+
+        /**
+         * Extends the given collection of strings with all the names in the given
+         * collections of link facets (i.e. inner and outer names).
+         *
+         * @param arg0 one of the collections to be intersected.
+         * @param arg1 one of the collections to be intersected.
+         * @param ns0  the collection to be extended.
+         * @return the given string collection extended with the intersection of the
+         * other two.
+         */
+        private static Collection<String> intersectNames(
+                Collection<? extends LinkFacet> arg0,
+                Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
+            Collection<String> ns1 = new HashSet<>();
+            for (LinkFacet l : arg0) {
+                ns1.add(l.getName());
+            }
+            for (LinkFacet r : arg1) {
+                String s = r.getName();
+                if (ns1.contains(s)) {
+                    ns0.add(s);
+                    ns1.remove(s);
+                }
+            }
+            return ns0;
+        }
+
+        /**
+         * join two interfaces
+         *
+         * @param i1 the first interface
+         * @param i2 the second interface
+         * @return the joined interface
+         */
+        public static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> Interface<Asc, Desc> joinInterfaces(
+                Interface<Asc, Desc> i1,
+                Interface<Asc, Desc> i2) {
+
+            Interface<Asc, Desc> i = new Interface<>(InterfacePair.mergePairs(i1.names.get(0), i2.names.get(0)));
+
+            // skip first element because added before
+            i.names.addAll(i1.names.subList(1, i1.names.size()));
+            i.names.addAll(i2.names.subList(1, i2.names.size()));
+
+            return i;
+        }
+
         public int getWidth() {
             return names.size() - 1;
         }
@@ -1202,26 +1222,6 @@ final public class DirectedBigraph implements
             }
             sb.append(">");
             return sb.toString();
-        }
-
-        /**
-         * join two interfaces
-         *
-         * @param i1 the first interface
-         * @param i2 the second interface
-         * @return the joined interface
-         */
-        public static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> Interface<Asc, Desc> joinInterfaces(
-                Interface<Asc, Desc> i1,
-                Interface<Asc, Desc> i2) {
-
-            Interface<Asc, Desc> i = new Interface<>(InterfacePair.mergePairs(i1.names.get(0), i2.names.get(0)));
-
-            // skip first element because added before
-            i.names.addAll(i1.names.subList(1, i1.names.size()));
-            i.names.addAll(i2.names.subList(1, i2.names.size()));
-
-            return i;
         }
     }
 }
