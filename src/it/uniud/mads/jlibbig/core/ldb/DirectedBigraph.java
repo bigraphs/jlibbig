@@ -1112,37 +1112,7 @@ final public class DirectedBigraph implements
      * props.getPropertyNames(); }
      */
 
-    /**
-     * mergePairs two pairs (of sets of names)
-     *
-     * @param p1 the first pair
-     * @param p2 the second pair
-     * @return the merged pair
-     */
-    public InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> mergePairs(
-            InterfacePair<? extends Set<? extends EditableLinkFacet>, ? extends Set<? extends EditableLinkFacet>> p1,
-            InterfacePair<? extends Set<? extends EditableLinkFacet>, ? extends Set<? extends EditableLinkFacet>> p2) {
 
-        InterfacePair<Set<EditableLinkFacet>, Set<EditableLinkFacet>> p;
-
-        Set<EditableLinkFacet> left = new HashSet<>();
-        left.addAll(p1.left);
-        for (EditableLinkFacet x : p2.left) {
-            if (!p1.left.contains(x))
-                left.add(x);
-        }
-
-        Set<EditableLinkFacet> right = new HashSet<>();
-        right.addAll(p1.right);
-        for (EditableLinkFacet x : p2.right) {
-            if (!p1.right.contains(x))
-                right.add(x);
-        }
-
-        p = new InterfacePair<>(left, right);
-
-        return p;
-    }
 
     /**
      * join two interfaces
@@ -1165,13 +1135,13 @@ final public class DirectedBigraph implements
     }
 
     private class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> {
-        final List<InterfacePair<Set<Asc>, Set<Desc>>> names = new ArrayList<>();
+        final List<InterfacePair<Asc, Desc>> names = new ArrayList<>();
 
         public Interface() {
             names.add(0, new InterfacePair<>(new HashSet<>(), new HashSet<>()));
         }
 
-        Interface(InterfacePair<Set<Asc>, Set<Desc>> interfacePair0) {
+        Interface(InterfacePair<Asc, Desc> interfacePair0) {
             names.add(0, interfacePair0);
         }
 
@@ -1183,18 +1153,18 @@ final public class DirectedBigraph implements
             return this.names.isEmpty();
         }
 
-        public void addPair(InterfacePair<Set<Asc>, Set<Desc>> interfacePair) {
+        public void addPair(InterfacePair<Asc, Desc> interfacePair) {
             this.names.add(interfacePair);
         }
 
         public void addAsc(int index, Asc a) {
-            this.names.get(index).left.add(a);
+            this.names.get(index).getLeft().add(a);
         }
 
         Set<Asc> getAsc() {
             Set<Asc> asc = new HashSet<>();
-            for (InterfacePair<Set<Asc>, Set<Desc>> ip : names) {
-                asc.addAll(ip.left);
+            for (InterfacePair<Asc, Desc> ip : names) {
+                asc.addAll(ip.getLeft());
             }
             return asc;
         }
@@ -1203,17 +1173,17 @@ final public class DirectedBigraph implements
             if (index < 0 || index >= names.size()) {
                 throw new IndexOutOfBoundsException("Index '" + index + "' not in list");
             }
-            return names.get(index).left;
+            return names.get(index).getLeft();
         }
 
         public void addDesc(int index, Desc d) {
-            this.names.get(index).right.add(d);
+            this.names.get(index).getRight().add(d);
         }
 
         Set<Desc> getDesc() {
             Set<Desc> desc = new HashSet<>();
-            for (InterfacePair<Set<Asc>, Set<Desc>> ip : names) {
-                desc.addAll(ip.right);
+            for (InterfacePair<Asc, Desc> ip : names) {
+                desc.addAll(ip.getRight());
             }
             return desc;
         }
@@ -1222,7 +1192,7 @@ final public class DirectedBigraph implements
             if (index < 0 || index >= names.size()) {
                 throw new IndexOutOfBoundsException("Index '" + index + "' not in list");
             }
-            return names.get(index).right;
+            return names.get(index).getRight();
         }
 
         Set<String> keySet() {
@@ -1231,11 +1201,11 @@ final public class DirectedBigraph implements
             for (InterfacePair ip : names) {
                 int id = names.indexOf(ip);
 
-                for (Asc l : (Set<Asc>) ip.left) {
+                for (Asc l : (Set<Asc>) ip.getLeft()) {
                     ss.add(id + " l " + l);
                 }
 
-                for (Desc r : (Set<Desc>) ip.right) {
+                for (Desc r : (Set<Desc>) ip.getRight()) {
                     ss.add(id + " r " + r);
                 }
             }
@@ -1246,7 +1216,7 @@ final public class DirectedBigraph implements
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("<");
-            Iterator<InterfacePair<Set<Asc>, Set<Desc>>> ii = names.iterator();
+            Iterator<InterfacePair<Asc, Desc>> ii = names.iterator();
             while (ii.hasNext()) {
                 sb.append(ii.next().toString());
                 if (ii.hasNext())
@@ -1254,42 +1224,6 @@ final public class DirectedBigraph implements
             }
             sb.append(">");
             return sb.toString();
-        }
-    }
-
-    private class InterfacePair<L extends Set<? extends EditableLinkFacet>, R extends Set<? extends EditableLinkFacet>> {
-        private final L left;
-        private final R right;
-
-        InterfacePair(L left, R right) {
-            this.left = left;
-            this.right = right;
-        }
-
-        L getLeft() {
-            return left;
-        }
-
-        R getRight() {
-            return right;
-        }
-
-        @Override
-        public int hashCode() {
-            return left.hashCode() ^ right.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof InterfacePair)) return false;
-            InterfacePair interfacePairObj = (InterfacePair) o;
-            return this.left.equals(interfacePairObj.getLeft()) &&
-                    this.right.equals(interfacePairObj.getRight());
-        }
-
-        @Override
-        public String toString() {
-            return "({" + left.toString() + "}+, {" + right.toString() + "}-)";
         }
     }
 }
