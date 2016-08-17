@@ -14,7 +14,7 @@ import java.util.*;
  * since instances of {@link DirectedBigraph} are immutable.
  * <p>
  * For efficiency reasons immutability can be relaxed by the user (cf.
- * {@link #outerCompose(Bigraph, boolean)}) by allowing the reuse of (parts) of
+ * {@link #outerCompose(DirectedBigraph, boolean)}) by allowing the reuse of (parts) of
  * the arguments. Notice that, if not handled properly, the reuse of bigraphs
  * can cause inconsistencies e.g. as a consequence of the reuse of a bigraphs
  * held by a rewriting rule as its redex or reactum.
@@ -815,7 +815,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph bigraph that will be juxtaposed.
      */
-    public void leftJuxtapose(Bigraph graph) {
+    public void leftJuxtapose(DirectedBigraph graph) {
         leftJuxtapose(graph, false);
     }
 
@@ -827,10 +827,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph bigraph that will be juxtaposed.
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void leftJuxtapose(Bigraph graph, boolean reuse) {
+    public void leftJuxtapose(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph left = graph;
-        Bigraph right = this.big;
+        DirectedBigraph left = graph;
+        DirectedBigraph right = this.big;
         if (left == right)
             throw new IllegalArgumentException(
                     "Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
@@ -850,8 +850,8 @@ final public class DirectedBigraphBuilder implements
                             intersectNames(left.outers.values(),
                                     right.outers.values()))));
         }
-        Bigraph l = (reuse) ? left : left.clone();
-        Bigraph r = right;
+        DirectedBigraph l = (reuse) ? left : left.clone();
+        DirectedBigraph r = right;
         for (EditableOwned o : l.roots) {
             o.setOwner(this);
         }
@@ -880,7 +880,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph bigraph that will be juxtaposed.
      */
-    public void rightJuxtapose(Bigraph graph) {
+    public void rightJuxtapose(DirectedBigraph graph) {
         rightJuxtapose(graph, false);
     }
 
@@ -892,10 +892,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph bigraph that will be juxtaposed.
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void rightJuxtapose(Bigraph graph, boolean reuse) {
+    public void rightJuxtapose(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph left = this.big;
-        Bigraph right = graph;
+        DirectedBigraph left = this.big;
+        DirectedBigraph right = graph;
         if (left == right)
             throw new IllegalArgumentException(
                     "Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
@@ -915,8 +915,8 @@ final public class DirectedBigraphBuilder implements
                             intersectNames(left.outers.values(),
                                     right.outers.values()))));
         }
-        Bigraph l = left;
-        Bigraph r = (reuse) ? right : right.clone();
+        DirectedBigraph l = left;
+        DirectedBigraph r = (reuse) ? right : right.clone();
         for (EditableOwned o : r.roots) {
             o.setOwner(this);
         }
@@ -943,7 +943,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph the "inner" bigraph
      */
-    public void innerCompose(Bigraph graph) {
+    public void innerCompose(DirectedBigraph graph) {
         innerCompose(graph, false);
     }
 
@@ -953,10 +953,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph the "inner" bigraph
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void innerCompose(Bigraph graph, boolean reuse) {
+    public void innerCompose(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph in = graph;
-        Bigraph out = this.big;
+        DirectedBigraph in = graph;
+        DirectedBigraph out = this.big;
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (out == in)
@@ -977,8 +977,8 @@ final public class DirectedBigraphBuilder implements
             throw new IncompatibleInterfaceException(
                     "The outer face of the first graph must be equal to inner face of the second");
         }
-        Bigraph a = out;
-        Bigraph b = (reuse) ? in : in.clone();
+        DirectedBigraph a = out;
+        DirectedBigraph b = (reuse) ? in : in.clone();
         Collection<EditableEdge> es = b.edgesProxy.get();
         Collection<EditableNode> ns = b.nodesProxy.get();
         // iterate over sites and roots of a and b respectively and glue them
@@ -1026,7 +1026,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph the "outer" bigraph
      */
-    public void outerCompose(Bigraph graph) {
+    public void outerCompose(DirectedBigraph graph) {
         outerCompose(graph, false);
     }
 
@@ -1036,10 +1036,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph the "outer" bigraph
      * @param reuse flag. If true, the bigraph in input will not be copied.
      */
-    public void outerCompose(Bigraph graph, boolean reuse) {
+    public void outerCompose(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph in = this.big;
-        Bigraph out = graph;
+        DirectedBigraph in = this.big;
+        DirectedBigraph out = graph;
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (out == in)
@@ -1062,8 +1062,8 @@ final public class DirectedBigraphBuilder implements
             throw new IncompatibleInterfaceException(
                     "The outer face of the first graph must be equal to inner face of the second");
         }
-        Bigraph a = (reuse) ? out : out.clone();
-        Bigraph b = in; // this BB
+        DirectedBigraph a = (reuse) ? out : out.clone();
+        DirectedBigraph b = in; // this BB
         Collection<EditableEdge> es = a.edgesProxy.get();
         Collection<EditableNode> ns = a.nodesProxy.get();
         // iterates over sites and roots of a and b respectively and glues them
@@ -1120,7 +1120,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph the "inner" bigraph
      */
-    public void innerNest(Bigraph graph) {
+    public void innerNest(DirectedBigraph graph) {
         innerNest(graph, false);
     }
 
@@ -1132,10 +1132,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph the "inner" bigraph
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void innerNest(Bigraph graph, boolean reuse) {
+    public void innerNest(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph in = graph;
-        Bigraph out = this.big;
+        DirectedBigraph in = graph;
+        DirectedBigraph out = this.big;
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (out == in)
@@ -1170,7 +1170,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph the "inner" bigraph
      */
-    public void outerNest(Bigraph graph) {
+    public void outerNest(DirectedBigraph graph) {
         outerNest(graph, false);
     }
 
@@ -1183,10 +1183,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph the "inner" bigraph
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void outerNest(Bigraph graph, boolean reuse) {
+    public void outerNest(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph in = this.big;
-        Bigraph out = graph;
+        DirectedBigraph in = this.big;
+        DirectedBigraph out = graph;
         if (out == in)
             throw new IllegalArgumentException(
                     "Operand shuld be distinct; a bigraph can not be composed with itself.");
@@ -1231,7 +1231,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph bigraph that will be juxtaposed.
      */
-    public void leftParallelProduct(Bigraph graph) {
+    public void leftParallelProduct(DirectedBigraph graph) {
         leftParallelProduct(graph, false);
     }
 
@@ -1246,10 +1246,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph bigraph that will be juxtaposed.
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void leftParallelProduct(Bigraph graph, boolean reuse) {
+    public void leftParallelProduct(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph left = graph;
-        Bigraph right = this.big;
+        DirectedBigraph left = graph;
+        DirectedBigraph right = this.big;
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (!left.signature.equals(right.signature)) {
@@ -1261,8 +1261,8 @@ final public class DirectedBigraphBuilder implements
                     new NameClashException(intersectNames(left.inners.values(),
                             right.inners.values())));
         }
-        Bigraph l = (reuse) ? left : left.clone();
-        Bigraph r = right;
+        DirectedBigraph l = (reuse) ? left : left.clone();
+        DirectedBigraph r = right;
         for (EditableOwned o : l.roots) {
             o.setOwner(this);
         }
@@ -1314,7 +1314,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph bigraph that will be juxtaposed.
      */
-    public void rightParallelProduct(Bigraph graph) {
+    public void rightParallelProduct(DirectedBigraph graph) {
         rightParallelProduct(graph, false);
     }
 
@@ -1329,10 +1329,10 @@ final public class DirectedBigraphBuilder implements
      * @param graph bigraph that will be juxtaposed.
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void rightParallelProduct(Bigraph graph, boolean reuse) {
+    public void rightParallelProduct(DirectedBigraph graph, boolean reuse) {
         assertOpen();
-        Bigraph left = this.big;
-        Bigraph right = graph;
+        DirectedBigraph left = this.big;
+        DirectedBigraph right = graph;
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (left == right)
@@ -1347,8 +1347,8 @@ final public class DirectedBigraphBuilder implements
                     new NameClashException(intersectNames(left.inners.values(),
                             right.inners.values())));
         }
-        Bigraph l = left;
-        Bigraph r = (reuse) ? right : right.clone();
+        DirectedBigraph l = left;
+        DirectedBigraph r = (reuse) ? right : right.clone();
         for (EditableOwned o : r.roots) {
             o.setOwner(this);
         }
@@ -1397,7 +1397,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph bigraph that will be juxtaposed.
      */
-    public void leftMergeProduct(Bigraph graph) {
+    public void leftMergeProduct(DirectedBigraph graph) {
         leftMergeProduct(graph, false);
     }
 
@@ -1411,7 +1411,7 @@ final public class DirectedBigraphBuilder implements
      * @param graph bigraph that will be juxtaposed.
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void leftMergeProduct(Bigraph graph, boolean reuse) {
+    public void leftMergeProduct(DirectedBigraph graph, boolean reuse) {
         leftJuxtapose(graph, reuse);
         merge();
     }
@@ -1425,7 +1425,7 @@ final public class DirectedBigraphBuilder implements
      *
      * @param graph bigraph that will be juxtaposed.
      */
-    public void rightMergeProduct(Bigraph graph) {
+    public void rightMergeProduct(DirectedBigraph graph) {
         rightMergeProduct(graph, false);
     }
 
@@ -1439,7 +1439,7 @@ final public class DirectedBigraphBuilder implements
      * @param graph bigraph that will be juxtaposed.
      * @param reuse flag. If true, the bigraph in input won't be copied.
      */
-    public void rightMergeProduct(Bigraph graph, boolean reuse) {
+    public void rightMergeProduct(DirectedBigraph graph, boolean reuse) {
         rightJuxtapose(graph, reuse);
         merge();
     }

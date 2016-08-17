@@ -1215,19 +1215,17 @@ final public class DirectedBigraph implements
 
         Set<String> keySet() {
             Set<String> ss = new HashSet<>();
+
             for (InterfacePair ip : names) {
                 int id = names.indexOf(ip);
-                String s = "";
 
-                for (Asc aLeft : (Iterable<Asc>) ip.left) {
-                    s += id + " l " + aLeft;
+                for (Asc l : (Set<Asc>) ip.left) {
+                    ss.add(id + " l " + l);
                 }
 
-                for (Desc aRight : (Iterable<Desc>) ip.right) {
-                    s += id + " r " + aRight;
+                for (Desc r : (Set<Desc>) ip.right) {
+                    ss.add(id + " r " + r);
                 }
-
-                ss.add(s);
             }
             return ss;
         }
