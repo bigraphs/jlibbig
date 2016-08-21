@@ -197,20 +197,20 @@ final public class DirectedBigraph implements
         if (!left.signature.equals(right.signature)) {
             throw new IncompatibleSignatureException(left.getSignature(), right.getSignature());
         }
-        if (!Collections.disjoint(left.inners.getAsc(), right.inners.getAsc())
-                || !Collections.disjoint(left.inners.getDesc(), right.inners.getDesc())
-                || !Collections.disjoint(left.outers.getAsc(), right.outers.getAsc())
-                || !Collections.disjoint(left.outers.getDesc(), right.outers.getDesc())) {
+        if (!Collections.disjoint(left.inners.getAsc().keySet(), right.inners.getAsc().keySet())
+                || !Collections.disjoint(left.inners.getDesc().keySet(), right.inners.getDesc().keySet())
+                || !Collections.disjoint(left.outers.getAsc().keySet(), right.outers.getAsc().keySet())
+                || !Collections.disjoint(left.outers.getDesc().keySet(), right.outers.getDesc().keySet())) {
             throw new IncompatibleInterfaceException(new NameClashException(
                     Interface.intersectNames(
-                            left.inners.getAsc(),
-                            right.inners.getAsc(),
-                            Interface.intersectNames(left.outers.getAsc(),
-                                    right.outers.getAsc(),
-                                    Interface.intersectNames(left.outers.getDesc(),
-                                            right.outers.getDesc(),
-                                            Interface.intersectNames(left.inners.getDesc(),
-                                                    right.inners.getDesc()))))));
+                            left.inners.getAsc().values(),
+                            right.inners.getAsc().values(),
+                            Interface.intersectNames(left.outers.getAsc().values(),
+                                    right.outers.getAsc().values(),
+                                    Interface.intersectNames(left.outers.getDesc().values(),
+                                            right.outers.getDesc().values(),
+                                            Interface.intersectNames(left.inners.getDesc().values(),
+                                                    right.inners.getDesc().values()))))));
         }
         DirectedBigraph l = (reuse) ? left : left.clone();
         DirectedBigraph r = (reuse) ? right : right.clone();
@@ -218,10 +218,10 @@ final public class DirectedBigraph implements
         for (EditableOwned o : r.roots) {
             o.setOwner(l);
         }
-        for (EditableOwned o : r.outers.getAsc()) {
+        for (EditableOwned o : r.outers.getAsc().values()) {
             o.setOwner(l);
         }
-        for (EditableOwned o : r.inners.getDesc()) {
+        for (EditableOwned o : r.inners.getDesc().values()) {
             o.setOwner(l);
         }
         Collection<EditableEdge> es = r.edgesProxy.get();
@@ -267,8 +267,7 @@ final public class DirectedBigraph implements
      * @return the composition of the arguments.
      */
     static DirectedBigraph compose(DirectedBigraph out, DirectedBigraph in, boolean reuse) {
-        // Arguments are assumed to be consistent (e.g. parent and links are
-        // well defined)
+        // Arguments are assumed to be consistent (e.g. parent and links are well defined)
         if (out == in)
             throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be composed with itself.");
         if (!out.signature.equals(in.signature)) {
@@ -300,23 +299,32 @@ final public class DirectedBigraph implements
                 c.setParent(p);
             }
         }
-        // iterate over inner and outer names of a and b respectively and glue
-        // them
-        Map<String, EditableHandle> a_inners = new HashMap<>();
-        for (EditableInnerName i : a.inners.values()) {
-            a_inners.put(i.getName(), i.getHandle());
+        // iterate over inner and outer names of a and b respectively and glue them
+        Map<String, EditableHandle> inners = new HashMap<>();
+        for (EditableInnerName i : a.inners.getAsc().values()) {
+            inners.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (EditableOuterName o : b.outers.values()) {
-            EditableHandle h = a_inners.get(o.getName());
+        for (EditableInnerName i : b.outers.getDesc().values()) {
+            inners.put(i.getName(), i.getHandle());
+            i.setHandle(null);
+        }
+        for (EditableOuterName o : b.outers.getAsc().values()) {
+            EditableHandle h = inners.get(o.getName());
+            for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                p.setHandle(h);
+            }
+        }
+        for (EditableOuterName o : b.inners.getDesc().values()) {
+            EditableHandle h = inners.get(o.getName());
             for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
             }
         }
         // update inner interfaces
-        a.inners.clear();
+        a.inners.names.clear();
         a.sites.clear();
-        a.inners.putAll(b.inners);
+        a.inners.names.addAll(b.inners.names);
         a.sites.addAll(b.sites);
         a.onNodeAdded(ns);
         b.onNodeSetChanged();
@@ -478,14 +486,14 @@ final public class DirectedBigraph implements
                 }
             }
         }
-        for (EditableOuterName outAsc : this.outers.getAsc()) {
+        for (EditableOuterName outAsc : this.outers.getAsc().values()) {
             if (outAsc.getOwner() != owner) {
                 System.err.println("INCOSISTENCY: foreign ascendant name in outer interface");
                 return false;
             }
             seen_handles.add(outAsc);
         }
-        for (EditableOuterName inDesc : this.inners.getDesc()) {
+        for (EditableOuterName inDesc : this.inners.getDesc().values()) {
             if (inDesc.getOwner() != owner) {
                 System.err.println("INCOSISTENCY: foreign descendant name in inner interface");
                 return false;
@@ -493,7 +501,7 @@ final public class DirectedBigraph implements
             seen_handles.add(inDesc);
         }
         // System.out.println(seen_points);
-        for (EditableInnerName inAsc : this.inners.getAsc()) {
+        for (EditableInnerName inAsc : this.inners.getAsc().values()) {
             if (inAsc.getOwner() != owner) {
                 System.err.println("INCOSISTENCY: foreign ascendant name in inner interface");
                 return false;
@@ -501,7 +509,7 @@ final public class DirectedBigraph implements
             seen_handles.add(inAsc.getHandle());
             seen_points.add(inAsc);
         }
-        for (EditableInnerName outDesc : this.outers.getDesc()) {
+        for (EditableInnerName outDesc : this.outers.getDesc().values()) {
             if (outDesc.getOwner() != owner) {
                 System.err.println("INCOSISTENCY: foreign descendant name in outer interface");
                 return false;
@@ -552,10 +560,10 @@ final public class DirectedBigraph implements
         for (EditableOwned o : this.roots) {
             o.setOwner(owner);
         }
-        for (EditableOwned o : this.inners.getDesc()) {
+        for (EditableOwned o : this.inners.getDesc().values()) {
             o.setOwner(owner);
         }
-        for (EditableOwned o : this.outers.getAsc()) {
+        for (EditableOwned o : this.outers.getAsc().values()) {
             o.setOwner(owner);
         }
         for (Edge e : this.getEdges()) {
@@ -769,8 +777,8 @@ final public class DirectedBigraph implements
      */
     @Override
     public Collection<? extends OuterName> getOuterNames() {
-        Set<EditableOuterName> ou = this.outers.getAsc();
-        ou.addAll(this.inners.getDesc());
+        Set<EditableOuterName> ou = new HashSet<>(this.outers.getAsc().values());
+        ou.addAll(this.inners.getDesc().values());
         return ou;
     }
 
@@ -779,8 +787,8 @@ final public class DirectedBigraph implements
      */
     @Override
     public Collection<? extends InnerName> getInnerNames() {
-        Set<EditableInnerName> in = this.inners.getAsc();
-        in.addAll(this.outers.getDesc());
+        Set<EditableInnerName> in = new HashSet<>(this.inners.getAsc().values());
+        in.addAll(this.outers.getDesc().values());
         return in;
     }
 
@@ -942,13 +950,13 @@ final public class DirectedBigraph implements
                 }
             }
         }
-        for (InnerName n : this.inners.getAsc()) {
+        for (InnerName n : this.inners.getAsc().values()) {
             Handle h = n.getHandle();
             if (h.isEdge()) {
                 s.add((EditableEdge) h);
             }
         }
-        for (InnerName n : this.outers.getDesc()) {
+        for (InnerName n : this.outers.getDesc().values()) {
             Handle h = n.getHandle();
             if (h.isEdge()) {
                 s.add((EditableEdge) h);
@@ -1003,7 +1011,7 @@ final public class DirectedBigraph implements
         b.append(outers.toString());
 
         b.append("}>");
-        for (Handle h : this.inners.getDesc()) {
+        for (Handle h : this.inners.getDesc().values()) {
             b.append(nl).append(h);
             b.append(":o <- {");
             List<? extends Point> ps = new ArrayList<>(h.getPoints());
@@ -1020,7 +1028,7 @@ final public class DirectedBigraph implements
             }
             b.append('}');
         }
-        for (Handle h : this.outers.getAsc()) {
+        for (Handle h : this.outers.getAsc().values()) {
             b.append(nl).append(h);
             b.append(":o <- {");
             List<? extends Point> ps = new ArrayList<>(h.getPoints());
@@ -1195,10 +1203,12 @@ final public class DirectedBigraph implements
             this.names.get(index).getLeft().add(a);
         }
 
-        Set<Asc> getAsc() {
-            Set<Asc> asc = new HashSet<>();
+        Map<String, Asc> getAsc() {
+            Map asc = new HashMap();
             for (InterfacePair<Asc, Desc> ip : names) {
-                asc.addAll(ip.getLeft());
+                for (Asc a : ip.getLeft()) {
+                    asc.put(names.indexOf(ip) + "#" + a.getName(), a);
+                }
             }
             return asc;
         }
@@ -1214,10 +1224,12 @@ final public class DirectedBigraph implements
             this.names.get(index).getRight().add(d);
         }
 
-        Set<Desc> getDesc() {
-            Set<Desc> desc = new HashSet<>();
+        Map<String, Desc> getDesc() {
+            Map desc = new HashMap();
             for (InterfacePair<Asc, Desc> ip : names) {
-                desc.addAll(ip.getRight());
+                for (Desc d : ip.getRight()) {
+                    desc.put(names.indexOf(ip) + "#" + d.getName(), d);
+                }
             }
             return desc;
         }
