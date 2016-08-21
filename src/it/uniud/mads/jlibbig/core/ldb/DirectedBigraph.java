@@ -595,31 +595,62 @@ final public class DirectedBigraph implements
         if (owner == null)
             owner = big;
         Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
-        for (InterfacePair ip : this.inners.names) {
-            InterfacePair ip2 = new InterfacePair(ip.getLeft(), ip.getRight());
+        // replicate inner interface
+        for (InterfacePair<EditableInnerName, EditableOuterName> ip : this.inners.names) {
+            // clone left set
+            Set left = new HashSet<EditableInnerName>();
+            for (EditableInnerName i1 : ip.getLeft()) {
+                EditableInnerName i2 = i1.replicate();
+                EditableHandle h1 = i1.getHandle();
+                EditableHandle h2 = hnd_dic.get(h1);
+                if (h2 == null) {
+                    // the bigraph is inconsistent if g is null
+                    h2 = h1.replicate();
+                    h2.setOwner(owner);
+                    hnd_dic.put(h1, h2);
+                }
+                i2.setHandle(h2);
+                left.add(i2);
+            }
+            // clone right set
+            Set right = new HashSet<EditableOuterName>();
+            for (EditableOuterName o1 : ip.getRight()) {
+                EditableOuterName o2 = o1.replicate();
+                right.add(o2);
+                o2.setOwner(owner);
+                hnd_dic.put(o1, o2);
+            }
 
+            InterfacePair ip2 = new InterfacePair(left, right);
             big.inners.names.add(ip2);
         }
-        // replicate outer names
-        for (EditableOuterName o1 : this.outers.values()) {
-            EditableOuterName o2 = o1.replicate();
-            big.outers.put(o2.getName(), o2);
-            o2.setOwner(owner);
-            hnd_dic.put(o1, o2);
-        }
-        // replicate inner interface
-        for (EditableInnerName i1 : this.inners.values()) {
-            EditableInnerName i2 = i1.replicate();
-            EditableHandle h1 = i1.getHandle();
-            EditableHandle h2 = hnd_dic.get(h1);
-            if (h2 == null) {
-                // the bigraph is inconsistent if g is null
-                h2 = h1.replicate();
-                h2.setOwner(owner);
-                hnd_dic.put(h1, h2);
+        // replicate outer interface
+        for (InterfacePair<EditableOuterName, EditableInnerName> ip : this.outers.names) {
+            // clone left set
+            Set left = new HashSet<EditableOuterName>();
+            for (EditableOuterName o1 : ip.getLeft()) {
+                EditableOuterName o2 = o1.replicate();
+                left.add(o2);
+                o2.setOwner(owner);
+                hnd_dic.put(o1, o2);
             }
-            i2.setHandle(h2);
-            big.inners.put(i2.getName(), i2);
+            // clone right set
+            Set right = new HashSet<EditableInnerName>();
+            for (EditableInnerName i1 : ip.getRight()) {
+                EditableInnerName i2 = i1.replicate();
+                EditableHandle h1 = i1.getHandle();
+                EditableHandle h2 = hnd_dic.get(h1);
+                if (h2 == null) {
+                    // the bigraph is inconsistent if g is null
+                    h2 = h1.replicate();
+                    h2.setOwner(owner);
+                    hnd_dic.put(h1, h2);
+                }
+                i2.setHandle(h2);
+                left.add(i2);
+            }
+            InterfacePair ip2 = new InterfacePair(left, right);
+            big.inners.names.add(ip2);
         }
         // replicate place structure
         // the queue is used for a breadth first visit
