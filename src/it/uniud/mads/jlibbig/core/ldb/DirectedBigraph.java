@@ -596,10 +596,10 @@ final public class DirectedBigraph implements
             owner = big;
         Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
         // replicate inner interface
-        for (InterfacePair<EditableInnerName, EditableOuterName> ip : this.inners.names) {
+        for (InterfacePair<EditableInnerName, EditableOuterName> ip1 : this.inners.names) {
             // clone left set
             Set left = new HashSet<EditableInnerName>();
-            for (EditableInnerName i1 : ip.getLeft()) {
+            for (EditableInnerName i1 : ip1.getLeft()) {
                 EditableInnerName i2 = i1.replicate();
                 EditableHandle h1 = i1.getHandle();
                 EditableHandle h2 = hnd_dic.get(h1);
@@ -614,7 +614,7 @@ final public class DirectedBigraph implements
             }
             // clone right set
             Set right = new HashSet<EditableOuterName>();
-            for (EditableOuterName o1 : ip.getRight()) {
+            for (EditableOuterName o1 : ip1.getRight()) {
                 EditableOuterName o2 = o1.replicate();
                 right.add(o2);
                 o2.setOwner(owner);
@@ -625,10 +625,10 @@ final public class DirectedBigraph implements
             big.inners.names.add(ip2);
         }
         // replicate outer interface
-        for (InterfacePair<EditableOuterName, EditableInnerName> ip : this.outers.names) {
+        for (InterfacePair<EditableOuterName, EditableInnerName> ip1 : this.outers.names) {
             // clone left set
             Set left = new HashSet<EditableOuterName>();
-            for (EditableOuterName o1 : ip.getLeft()) {
+            for (EditableOuterName o1 : ip1.getLeft()) {
                 EditableOuterName o2 = o1.replicate();
                 left.add(o2);
                 o2.setOwner(owner);
@@ -636,7 +636,7 @@ final public class DirectedBigraph implements
             }
             // clone right set
             Set right = new HashSet<EditableInnerName>();
-            for (EditableInnerName i1 : ip.getRight()) {
+            for (EditableInnerName i1 : ip1.getRight()) {
                 EditableInnerName i2 = i1.replicate();
                 EditableHandle h1 = i1.getHandle();
                 EditableHandle h2 = hnd_dic.get(h1);
