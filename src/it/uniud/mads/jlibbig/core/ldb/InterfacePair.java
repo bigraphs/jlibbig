@@ -4,12 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 class InterfacePair<Asc, Desc> {
-    private final Set<Asc> left;
-    private final Set<Desc> right;
+    private final Set<Asc> left = new HashSet<Asc>();
+    private final Set<Desc> right = new HashSet<Desc>();
 
     InterfacePair(Set<Asc> left, Set<Desc> right) {
-        this.left = left;
-        this.right = right;
+        this.left.addAll(left);
+        this.right.addAll(right);
     }
 
     Set<Asc> getLeft() {
@@ -39,7 +39,7 @@ class InterfacePair<Asc, Desc> {
     }
 
     /**
-     * mergePairs two pairs (of sets of names)
+     * mergePairs merges two pairs
      *
      * @param p1 the first pair
      * @param p2 the second pair

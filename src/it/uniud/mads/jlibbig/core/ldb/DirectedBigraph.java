@@ -595,6 +595,11 @@ final public class DirectedBigraph implements
         if (owner == null)
             owner = big;
         Map<Handle, EditableHandle> hnd_dic = new HashMap<>();
+        for (InterfacePair ip : this.inners.names) {
+            InterfacePair ip2 = new InterfacePair(ip.getLeft(), ip.getRight());
+
+            big.inners.names.add(ip2);
+        }
         // replicate outer names
         for (EditableOuterName o1 : this.outers.values()) {
             EditableOuterName o2 = o1.replicate();
