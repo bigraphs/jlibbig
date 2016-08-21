@@ -1,5 +1,6 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
+import it.uniud.mads.jlibbig.core.Interface;
 import it.uniud.mads.jlibbig.core.Owned;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.exceptions.IncompatibleInterfaceException;
@@ -22,10 +23,9 @@ import static it.uniud.mads.jlibbig.core.ldb.DirectedBigraph.Interface.intersect
  * held by a rewriting rule as its redex or reactum.
  */
 final public class DirectedBigraphBuilder implements
-        it.uniud.mads.jlibbig.core.BigraphBuilder<DirectedControl>, Cloneable {
+        it.uniud.mads.jlibbig.core.DirectedBigraphBuilder<DirectedControl>, Cloneable {
 
-    private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean
-            .getBoolean("it.uniud.mads.jlibbig.consistency")
+    private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean.getBoolean("it.uniud.mads.jlibbig.consistency")
             || Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
 
     private DirectedBigraph big;
@@ -70,8 +70,7 @@ final public class DirectedBigraphBuilder implements
         col.clear();
     }
 
-    private static void clearChildCollection(
-            Collection<? extends EditableChild> col) {
+    private static void clearChildCollection(Collection<? extends EditableChild> col) {
         for (EditableChild i : col) {
             i.setParent(null);
         }
@@ -149,8 +148,7 @@ final public class DirectedBigraphBuilder implements
      */
     private void assertOpen() throws UnsupportedOperationException {
         if (this.closed)
-            throw new UnsupportedOperationException(
-                    "The operation is not supported by a closed BigraphBuilder");
+            throw new UnsupportedOperationException("The operation is not supported by a closed BigraphBuilder");
     }
 
     @Override
@@ -192,25 +190,23 @@ final public class DirectedBigraphBuilder implements
     }
 
     @Override
-    public Collection<? extends OuterName> getOuterNames() {
-        assertOpen();
-        return this.big.getOuterNames();
+    public Interface getOuterInterface() {
+        return null;
+    }
+
+    @Override
+    public Interface getInnerInterface() {
+        return null;
     }
 
     public boolean containsOuterName(String name) {
         assertOpen();
-        return this.big.outers.containsKey(name);
-    }
-
-    @Override
-    public Collection<? extends InnerName> getInnerNames() {
-        assertOpen();
-        return this.big.getInnerNames();
+        return this.big.outers.getAsc().containsKey(name) || this.big.inners.getDesc().containsKey(name);
     }
 
     public boolean containsInnerName(String name) {
         assertOpen();
-        return this.big.inners.containsKey(name);
+        return this.big.inners.getAsc().containsKey(name) || this.big.outers.getDesc().containsKey(name);
     }
 
     @Override

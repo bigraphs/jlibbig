@@ -1,5 +1,6 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
+import it.uniud.mads.jlibbig.core.Interface;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.exceptions.IncompatibleInterfaceException;
 import it.uniud.mads.jlibbig.core.exceptions.IncompatibleSignatureException;
@@ -24,7 +25,7 @@ import java.util.*;
  */
 
 final public class DirectedBigraph implements
-        it.uniud.mads.jlibbig.core.Bigraph<DirectedControl>, Cloneable {
+        it.uniud.mads.jlibbig.core.DirectedBigraph<DirectedControl>, Cloneable {
 
     static final Collection<Parent> EMPTY_ANCS_LST = Collections.unmodifiableList(Collections.emptyList());
     private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean.getBoolean("it.uniud.mads.jlibbig.consistency")
@@ -770,26 +771,14 @@ final public class DirectedBigraph implements
         return this.ro_sites;
     }
 
-	/* comparators used by toString */
-
-    /**
-     * @return the set of the outer names of the bigraph
-     */
     @Override
-    public Collection<? extends OuterName> getOuterNames() {
-        Set<EditableOuterName> ou = new HashSet<>(this.outers.getAsc().values());
-        ou.addAll(this.inners.getDesc().values());
-        return ou;
+    public Interface getOuterInterface() {
+        return this.outers;
     }
 
-    /**
-     * @return the set of the inner names of the bigraph
-     */
     @Override
-    public Collection<? extends InnerName> getInnerNames() {
-        Set<EditableInnerName> in = new HashSet<>(this.inners.getAsc().values());
-        in.addAll(this.outers.getDesc().values());
-        return in;
+    public Interface getInnerInterface() {
+        return this.inners;
     }
 
     /**
@@ -1115,7 +1104,7 @@ final public class DirectedBigraph implements
      * props.getPropertyNames(); }
      */
 
-    static class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> {
+    static class Interface<Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> implements it.uniud.mads.jlibbig.core.Interface {
         final List<InterfacePair<Asc, Desc>> names = new ArrayList<>();
 
         public Interface() {
