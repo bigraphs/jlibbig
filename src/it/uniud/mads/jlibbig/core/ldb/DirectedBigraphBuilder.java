@@ -78,6 +78,30 @@ final public class DirectedBigraphBuilder implements
         col.clear();
     }
 
+    private static void clearOuterInterface(DirectedBigraph.Interface<EditableOuterName, EditableInnerName> i) {
+        for (InterfacePair<EditableOuterName, EditableInnerName> ip : i.names) {
+            for (EditableOuterName l : ip.getLeft()) {
+                l.setOwner(null);
+            }
+            for (EditableInnerName r : ip.getRight()) {
+                r.setHandle(null);
+            }
+        }
+        i.names.clear();
+    }
+
+    private static void clearInnerInterface(DirectedBigraph.Interface<EditableInnerName, EditableOuterName> i) {
+        for (InterfacePair<EditableInnerName, EditableOuterName> ip : i.names) {
+            for (EditableInnerName l : ip.getLeft()) {
+                l.setHandle(null);
+            }
+            for (EditableOuterName r : ip.getRight()) {
+                r.setOwner(null);
+            }
+        }
+        i.names.clear();
+    }
+
     private static void clearOuterMap(Map<String, EditableOuterName> map) {
         Iterator<EditableOuterName> ir = map.values().iterator();
         while (ir.hasNext()) {
@@ -780,7 +804,7 @@ final public class DirectedBigraphBuilder implements
     public void ground() {
         assertOpen();
         clearChildCollection(big.sites);// .clear();
-        clearInnerMap(big.inners);// .clear();
+        clearInnerInterface(big.inners);// .clear();
         assertConsistency();
     }
 
@@ -943,11 +967,9 @@ final public class DirectedBigraphBuilder implements
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (out == in)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be composed with itself.");
+            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be composed with itself.");
         if (!out.signature.equals(in.signature)) {
-            throw new IncompatibleSignatureException(out.signature,
-                    in.signature);
+            throw new IncompatibleSignatureException(out.signature, in.signature);
         }
         Set<String> xs = new HashSet<>(out.inners.keySet());
         Set<String> ys = new HashSet<>(in.outers.keySet());
@@ -955,10 +977,8 @@ final public class DirectedBigraphBuilder implements
         xs.removeAll(ys);
         ys.removeAll(zs);
 
-        if (!xs.isEmpty() || !ys.isEmpty()
-                || out.sites.size() != in.roots.size()) {
-            throw new IncompatibleInterfaceException(
-                    "The outer face of the first graph must be equal to inner face of the second");
+        if (!xs.isEmpty() || !ys.isEmpty() || out.sites.size() != in.roots.size()) {
+            throw new IncompatibleInterfaceException("The outer face of the first graph must be equal to inner face of the second");
         }
         DirectedBigraph a = out;
         DirectedBigraph b = (reuse) ? in : in.clone();
@@ -971,28 +991,36 @@ final public class DirectedBigraphBuilder implements
             EditableSite s = is.next();
             EditableParent p = s.getParent();
             p.removeChild(s);
-            for (EditableChild c : new HashSet<>(ir.next()
-                    .getEditableChildren())) {
+            for (EditableChild c : new HashSet<>(ir.next().getEditableChildren())) {
                 c.setParent(p);
             }
         }
-        // iterate over inner and outer names of a and b respectively and glue
-        // them
-        Map<String, EditableHandle> a_inners = new HashMap<>();
-        for (EditableInnerName i : a.inners.values()) {
-            a_inners.put(i.getName(), i.getHandle());
+        // iterate over inner and outer names of a and b respectively and glue them
+        Map<String, EditableHandle> inners = new HashMap<>();
+        for (EditableInnerName i : a.inners.getAsc().values()) {
+            inners.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (EditableOuterName o : b.outers.values()) {
-            EditableHandle h = a_inners.get(o.getName());
+        for (EditableInnerName i : b.outers.getDesc().values()) {
+            inners.put(i.getName(), i.getHandle());
+            i.setHandle(null);
+        }
+        for (EditableOuterName o : b.outers.getAsc().values()) {
+            EditableHandle h = inners.get(o.getName());
+            for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                p.setHandle(h);
+            }
+        }
+        for (EditableOuterName o : b.inners.getDesc().values()) {
+            EditableHandle h = inners.get(o.getName());
             for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
             }
         }
         // update inner interfaces
-        clearInnerMap(a.inners);// .clear();
+        clearInnerInterface(a.inners);// .clear();
         clearChildCollection(a.sites);// ;.clear();
-        a.inners.putAll(b.inners);
+        joinInterfaces(a.inners, b.inners);
         a.sites.addAll(b.sites);
         a.onNodeAdded(ns);
         b.onNodeSetChanged();
