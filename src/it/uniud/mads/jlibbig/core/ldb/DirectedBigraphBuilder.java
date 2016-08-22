@@ -1054,11 +1054,9 @@ final public class DirectedBigraphBuilder implements
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (out == in)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be composed with itself.");
+            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be composed with itself.");
         if (!out.signature.equals(in.signature)) {
-            throw new IncompatibleSignatureException(out.signature,
-                    in.signature);
+            throw new IncompatibleSignatureException(out.signature, in.signature);
         }
         Set<String> xs = new HashSet<>(out.inners.keySet());
         Set<String> ys = new HashSet<>(in.outers.keySet());
@@ -1066,12 +1064,8 @@ final public class DirectedBigraphBuilder implements
         xs.removeAll(ys);
         ys.removeAll(zs);
 
-        if (!xs.isEmpty() || !ys.isEmpty()
-                || out.sites.size() != in.roots.size()) {
-            // System.err.println(out.inners.keySet() + " " + in.outers.keySet()
-            // + " " + out.sites.size() + " " + in.roots.size());
-            throw new IncompatibleInterfaceException(
-                    "The outer face of the first graph must be equal to inner face of the second");
+        if (!xs.isEmpty() || !ys.isEmpty() || out.sites.size() != in.roots.size()) {
+            throw new IncompatibleInterfaceException("The outer face of the first graph must be equal to inner face of the second");
         }
         DirectedBigraph a = (reuse) ? out : out.clone();
         DirectedBigraph b = in; // this BB
@@ -1084,34 +1078,45 @@ final public class DirectedBigraphBuilder implements
             EditableSite s = is.next();
             EditableParent p = s.getParent();
             p.removeChild(s);
-            for (EditableChild c : new HashSet<>(ir.next()
-                    .getEditableChildren())) {
+            for (EditableChild c : new HashSet<>(ir.next().getEditableChildren())) {
                 c.setParent(p);
             }
         }
-        // iterates over inner and outer names of a and b respectively and glues
-        // them
-        Map<String, EditableHandle> a_inners = new HashMap<>(a.inners.size());
-        for (EditableInnerName i : a.inners.values()) {
-            EditableHandle h = i.getHandle();
-            a_inners.put(i.getName(), h);
+        // iterate over inner and outer names of a and b respectively and glue them
+        Map<String, EditableHandle> inners = new HashMap<>();
+        for (EditableInnerName i : a.inners.getAsc().values()) {
+            inners.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (EditableOuterName o : b.outers.values()) {
-            EditableHandle h = a_inners.get(o.getName());
+        for (EditableInnerName i : b.outers.getDesc().values()) {
+            inners.put(i.getName(), i.getHandle());
+            i.setHandle(null);
+        }
+        for (EditableOuterName o : b.outers.getAsc().values()) {
+            EditableHandle h = inners.get(o.getName());
+            for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                p.setHandle(h);
+            }
+        }
+        for (EditableOuterName o : b.inners.getDesc().values()) {
+            EditableHandle h = inners.get(o.getName());
             for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
             }
         }
         // updates inner interfaces
-        clearOuterMap(b.outers);// .clear();
+        clearOuterInterface(b.outers);// .clear();
         clearOwnedCollection(b.roots);// .clear();
-        b.outers.putAll(a.outers);
+        joinInterfaces(b.outers, a.outers);
         b.roots.addAll(a.roots);
         for (EditableOwned o : b.roots) {
             o.setOwner(this);
         }
-        for (EditableOwned o : b.outers.values()) {
+        for (EditableOwned o : b.outers.getAsc().values()) {
+            o.setOwner(this);
+        }
+
+        for (EditableOwned o : b.inners.getDesc().values()) {
             o.setOwner(this);
         }
         b.onNodeAdded(ns);
