@@ -1141,7 +1141,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Nest the current bigraphbuilder with the bigraph in input. <br />
+     * Nest the current bigraphbuilder with the bigraph in input. <br/>
      * Nesting, differently from composition, add bigraph's outername to
      * bigraphbuilder if they aren't already present.
      *
@@ -1155,11 +1155,9 @@ final public class DirectedBigraphBuilder implements
         // Arguments are assumed to be consistent (e.g. parent and links are
         // well defined)
         if (out == in)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be composed with itself.");
+            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be composed with itself.");
         if (!out.signature.equals(in.signature)) {
-            throw new IncompatibleSignatureException(out.signature,
-                    in.signature);
+            throw new IncompatibleSignatureException(out.signature, in.signature);
         }
         if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
             throw new IncompatibleInterfaceException();
@@ -1179,7 +1177,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Nest bigraph in input with the current bigraphbuilder. <br />
+     * Nest bigraph in input with the current bigraphbuilder. <br/>
      * Nesting, differently from composition, add bigraph's outername to
      * bigraphbuilder if they aren't already present. It will then perform the
      * standard composition.
@@ -1266,11 +1264,9 @@ final public class DirectedBigraphBuilder implements
         assertOpen();
         DirectedBigraph left = graph;
         DirectedBigraph right = this.big;
-        // Arguments are assumed to be consistent (e.g. parent and links are
-        // well defined)
+        // Arguments are assumed to be consistent (e.g. parent and links are well defined)
         if (!left.signature.equals(right.signature)) {
-            throw new IncompatibleSignatureException(left.signature,
-                    right.signature);
+            throw new IncompatibleSignatureException(left.signature, right.signature);
         }
         if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())) {
             throw new IncompatibleInterfaceException(
@@ -1335,10 +1331,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input. <br/>
      * ParallelProduct, differently from the normal juxtapose, doesn't need
      * disjoint sets of outernames for the two bigraphs. Common outernames will
-     * be merged. <br />
+     * be merged. <br/>
      * Roots and sites of the bigraphbuilder will precede those of the bigraph
      * in the resulting bigraphbuilder.
      *
@@ -1470,8 +1466,7 @@ final public class DirectedBigraphBuilder implements
             throw new IllegalArgumentException(obj + " can not be null.");
         Owner o = owned.getOwner();
         if (o != this)
-            throw new UnexpectedOwnerException(obj
-                    + " should be owned by this structure.");
+            throw new UnexpectedOwnerException(obj + " should be owned by this structure.");
     }
 
     private void assertOrSetOwner(Owned owned, String obj) {
@@ -1481,7 +1476,6 @@ final public class DirectedBigraphBuilder implements
         if (o == null)
             ((EditableOwned) owned).setOwner(this);
         else if (o != this)
-            throw new UnexpectedOwnerException(obj
-                    + " already owned by an other structure.");
+            throw new UnexpectedOwnerException(obj + " already owned by an other structure.");
     }
 }
