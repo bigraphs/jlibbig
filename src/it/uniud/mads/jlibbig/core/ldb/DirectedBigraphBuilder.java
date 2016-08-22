@@ -11,6 +11,7 @@ import it.uniud.mads.jlibbig.core.exceptions.UnexpectedOwnerException;
 import java.util.*;
 
 import static it.uniud.mads.jlibbig.core.ldb.DirectedBigraph.Interface.intersectNames;
+import static it.uniud.mads.jlibbig.core.ldb.DirectedBigraph.Interface.joinInterfaces;
 
 /**
  * This class provides services for the creation and manipulation of bigraphs
@@ -807,30 +808,34 @@ final public class DirectedBigraphBuilder implements
         DirectedBigraph left = graph;
         DirectedBigraph right = this.big;
         if (left == right)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
-        // Arguments are assumed to be consistent (e.g. parent and links are
-        // well defined)
+            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
+        // Arguments are assumed to be consistent (e.g. parent and links are well defined)
         if (!left.signature.equals(right.signature)) {
-            throw new IncompatibleSignatureException(left.getSignature(),
-                    right.getSignature());
+            throw new IncompatibleSignatureException(left.getSignature(), right.getSignature());
         }
         if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
-                || !Collections.disjoint(left.outers.keySet(),
-                right.outers.keySet())) {
+                || !Collections.disjoint(left.outers.keySet(), right.outers.keySet())) {
             throw new IncompatibleInterfaceException(new NameClashException(
                     intersectNames(
-                            left.inners.values(),
-                            right.inners.values(),
-                            intersectNames(left.outers.values(),
-                                    right.outers.values()))));
+                            left.inners.getAsc().values(),
+                            right.inners.getAsc().values(),
+                            intersectNames(left.outers.getAsc().values(),
+                                    right.outers.getAsc().values(),
+                                    intersectNames(left.outers.getDesc().values(),
+                                            right.outers.getDesc().values(),
+                                            intersectNames(left.inners.getDesc().values(),
+                                                    right.inners.getDesc().values()))))));
         }
         DirectedBigraph l = (reuse) ? left : left.clone();
         DirectedBigraph r = right;
         for (EditableOwned o : l.roots) {
             o.setOwner(this);
         }
-        for (EditableOwned o : l.outers.values()) {
+        for (EditableOwned o : l.outers.getAsc().values()) {
+            o.setOwner(this);
+        }
+
+        for (EditableOwned o : l.inners.getDesc().values()) {
             o.setOwner(this);
         }
         Collection<EditableEdge> es = l.edgesProxy.get();
@@ -843,8 +848,8 @@ final public class DirectedBigraphBuilder implements
         l.onNodeSetChanged();
         r.roots.addAll(0, l.roots);
         r.sites.addAll(0, l.sites);
-        r.outers.putAll(l.outers);
-        r.inners.putAll(l.inners);
+        joinInterfaces(r.outers, l.outers);
+        joinInterfaces(r.inners, l.inners);
         assertConsistency();
     }
 
@@ -872,30 +877,33 @@ final public class DirectedBigraphBuilder implements
         DirectedBigraph left = this.big;
         DirectedBigraph right = graph;
         if (left == right)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
-        // Arguments are assumed to be consistent (e.g. parent and links are
-        // well defined)
+            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
+        // Arguments are assumed to be consistent (e.g. parent and links are well defined)
         if (!left.signature.equals(right.signature)) {
-            throw new IncompatibleSignatureException(left.signature,
-                    right.signature);
+            throw new IncompatibleSignatureException(left.signature, right.signature);
         }
         if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())
-                || !Collections.disjoint(left.outers.keySet(),
-                right.outers.keySet())) {
+                || !Collections.disjoint(left.outers.keySet(), right.outers.keySet())) {
             throw new IncompatibleInterfaceException(new NameClashException(
                     intersectNames(
-                            left.inners.values(),
-                            right.inners.values(),
-                            intersectNames(left.outers.values(),
-                                    right.outers.values()))));
+                            left.inners.getAsc().values(),
+                            right.inners.getAsc().values(),
+                            intersectNames(left.outers.getAsc().values(),
+                                    right.outers.getAsc().values(),
+                                    intersectNames(left.outers.getDesc().values(),
+                                            right.outers.getDesc().values(),
+                                            intersectNames(left.inners.getDesc().values(),
+                                                    right.inners.getDesc().values()))))));
         }
         DirectedBigraph l = left;
         DirectedBigraph r = (reuse) ? right : right.clone();
         for (EditableOwned o : r.roots) {
             o.setOwner(this);
         }
-        for (EditableOwned o : r.outers.values()) {
+        for (EditableOwned o : r.outers.getAsc().values()) {
+            o.setOwner(this);
+        }
+        for (EditableOwned o : r.inners.getDesc().values()) {
             o.setOwner(this);
         }
         Collection<EditableEdge> es = r.edgesProxy.get();
@@ -908,8 +916,8 @@ final public class DirectedBigraphBuilder implements
         r.onNodeSetChanged();
         l.roots.addAll(r.roots);
         l.sites.addAll(r.sites);
-        l.outers.putAll(r.outers);
-        l.inners.putAll(r.inners);
+        joinInterfaces(l.outers, r.outers);
+        joinInterfaces(l.inners, r.inners);
         assertConsistency();
     }
 
