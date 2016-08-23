@@ -1,6 +1,5 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import it.uniud.mads.jlibbig.core.Interface;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.exceptions.IncompatibleInterfaceException;
 import it.uniud.mads.jlibbig.core.exceptions.IncompatibleSignatureException;
@@ -1123,7 +1122,7 @@ final public class DirectedBigraph implements
          * @param arg1 one of the collections to be intersected.
          * @return the intersection.
          */
-        public static Collection<String> intersectNames(
+        static Collection<String> intersectNames(
                 Collection<? extends LinkFacet> arg0,
                 Collection<? extends LinkFacet> arg1) {
             return intersectNames(arg0, arg1, new HashSet<>());
@@ -1139,7 +1138,7 @@ final public class DirectedBigraph implements
          * @return the given string collection extended with the intersection of the
          * other two.
          */
-        public static Collection<String> intersectNames(
+        static Collection<String> intersectNames(
                 Collection<? extends LinkFacet> arg0,
                 Collection<? extends LinkFacet> arg1, Collection<String> ns0) {
             Collection<String> ns1 = new HashSet<>();
@@ -1163,7 +1162,7 @@ final public class DirectedBigraph implements
          * @param i2 the second interface
          * @return the joined interface
          */
-        public static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> Interface<Asc, Desc> joinInterfaces(
+        static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> Interface<Asc, Desc> joinInterfaces(
                 Interface<Asc, Desc> i1,
                 Interface<Asc, Desc> i2) {
 
@@ -1193,7 +1192,7 @@ final public class DirectedBigraph implements
         }
 
         Map<String, Asc> getAsc() {
-            Map asc = new HashMap();
+            Map<String, Asc> asc = new HashMap<>();
             for (InterfacePair<Asc, Desc> ip : names) {
                 for (Asc a : ip.getLeft()) {
                     asc.put(names.indexOf(ip) + "#" + a.getName(), a);
@@ -1214,7 +1213,7 @@ final public class DirectedBigraph implements
         }
 
         Map<String, Desc> getDesc() {
-            Map desc = new HashMap();
+            Map<String, Desc> desc = new HashMap<>();
             for (InterfacePair<Asc, Desc> ip : names) {
                 for (Desc d : ip.getRight()) {
                     desc.put(names.indexOf(ip) + "#" + d.getName(), d);
@@ -1233,14 +1232,14 @@ final public class DirectedBigraph implements
         Set<String> keySet() {
             Set<String> ss = new HashSet<>();
 
-            for (InterfacePair ip : names) {
+            for (InterfacePair<Asc, Desc> ip : names) {
                 int id = names.indexOf(ip);
 
-                for (Asc l : (Set<Asc>) ip.getLeft()) {
+                for (Asc l : ip.getLeft()) {
                     ss.add(id + " l " + l);
                 }
 
-                for (Desc r : (Set<Desc>) ip.getRight()) {
+                for (Desc r : ip.getRight()) {
                     ss.add(id + " r " + r);
                 }
             }
