@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 class InterfacePair<Asc, Desc> {
-    private final Set<Asc> left = new HashSet<Asc>();
-    private final Set<Desc> right = new HashSet<Desc>();
+    private final Set<Asc> left = new HashSet<>();
+    private final Set<Desc> right = new HashSet<>();
 
     InterfacePair(Set<Asc> left, Set<Desc> right) {
         this.left.addAll(left);
@@ -49,9 +49,7 @@ class InterfacePair<Asc, Desc> {
      */
     static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> InterfacePair<Asc, Desc> mergePairs(
             InterfacePair<Asc, Desc> p1, InterfacePair<Asc, Desc> p2) {
-
-        InterfacePair<Asc, Desc> p;
-
+        // merge left
         Map<String, Asc> left = new HashMap<>();
         for (Asc a : p1.left) {
             left.put(a.getName(), a);
@@ -61,7 +59,7 @@ class InterfacePair<Asc, Desc> {
                 left.put(a.getName(), a);
             }
         }
-
+        // merge right
         Map<String, Desc> right = new HashMap<>();
         for (Desc d : p1.right) {
             right.put(d.getName(), d);
@@ -72,8 +70,6 @@ class InterfacePair<Asc, Desc> {
             }
         }
 
-        p = new InterfacePair<>(new HashSet<>(left.values()), new HashSet<>(right.values()));
-
-        return p;
+        return new InterfacePair<>(new HashSet<>(left.values()), new HashSet<>(right.values()));
     }
 }
