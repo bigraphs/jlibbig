@@ -1,6 +1,10 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
+import sun.security.krb5.internal.crypto.Des;
+
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 class InterfacePair<Asc, Desc> {
@@ -45,26 +49,32 @@ class InterfacePair<Asc, Desc> {
      * @param p2 the second pair
      * @return the merged pair
      */
-    static <Asc, Desc> InterfacePair<Asc, Desc> mergePairs(
+    static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> InterfacePair<Asc, Desc> mergePairs(
             InterfacePair<Asc, Desc> p1, InterfacePair<Asc, Desc> p2) {
 
         InterfacePair<Asc, Desc> p;
 
-        Set<Asc> left = new HashSet<>();
-        left.addAll(p1.left);
-        for (Asc x : p2.left) {
-            if (!p1.left.contains(x))
-                left.add(x);
+        Map<String, Asc> left = new HashMap<>();
+        for (Asc a : p1.left) {
+            left.put(a.getName(), (Asc) a.replicate());
+        }
+        for (Asc a : p2.left) {
+            if(!left.containsKey(a.getName())){
+                left.put(a.getName(), (Asc) a.replicate());
+            }
         }
 
-        Set<Desc> right = new HashSet<>();
-        right.addAll(p1.right);
-        for (Desc x : p2.right) {
-            if (!p1.right.contains(x))
-                right.add(x);
+        Map<String, Desc> right = new HashMap<>();
+        for (Desc d : p1.right) {
+            right.put(d.getName(), (Desc) d.replicate());
+        }
+        for (Desc d : p2.right) {
+            if(!left.containsKey(d.getName())){
+                right.put(d.getName(), (Desc) d.replicate());
+            }
         }
 
-        p = new InterfacePair<>(left, right);
+        p = new InterfacePair<>(new HashSet<>(left.values()), new HashSet<>(right.values()));
 
         return p;
     }

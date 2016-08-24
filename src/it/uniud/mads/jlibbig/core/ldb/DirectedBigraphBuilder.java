@@ -102,22 +102,6 @@ final public class DirectedBigraphBuilder implements
         i.names.clear();
     }
 
-    private static void clearOuterMap(Map<String, EditableOuterName> map) {
-        Iterator<EditableOuterName> ir = map.values().iterator();
-        while (ir.hasNext()) {
-            ir.next().setOwner(null);
-        }
-        map.clear();
-    }
-
-    private static void clearInnerMap(Map<String, EditableInnerName> map) {
-        Iterator<EditableInnerName> ir = map.values().iterator();
-        while (ir.hasNext()) {
-            ir.next().setHandle(null);
-        }
-        map.clear();
-    }
-
     @Override
     public String toString() {
         assertOpen();
@@ -1127,112 +1111,6 @@ final public class DirectedBigraphBuilder implements
         b.onEdgeAdded(es);
         a.onEdgeSetChanged();
         assertConsistency();
-    }
-
-    /**
-     * Nest the current bigraphbuilder with the bigraph in input. <br />
-     * Nesting, differently from composition, add bigraph's outernames to
-     * bigraphbuilder if they aren't already present.
-     *
-     * @param graph the "inner" bigraph
-     */
-    public void innerNest(DirectedBigraph graph) {
-        innerNest(graph, false);
-    }
-
-    /**
-     * Nest the current bigraphbuilder with the bigraph in input. <br/>
-     * Nesting, differently from composition, add bigraph's outername to
-     * bigraphbuilder if they aren't already present.
-     *
-     * @param graph the "inner" bigraph
-     * @param reuse flag. If true, the bigraph in input won't be copied.
-     */
-    public void innerNest(DirectedBigraph graph, boolean reuse) {
-        assertOpen();
-        DirectedBigraph in = graph;
-        DirectedBigraph out = this.big;
-        // Arguments are assumed to be consistent (e.g. parent and links are
-        // well defined)
-        if (out == in)
-            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be composed with itself.");
-        if (!out.signature.equals(in.signature)) {
-            throw new IncompatibleSignatureException(out.signature, in.signature);
-        }
-        if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
-            throw new IncompatibleInterfaceException();
-        }
-        Map<String, EditableOuterName> nmap = new HashMap<>();
-        for (EditableOuterName o : out.outers.values()) {
-            nmap.put(o.getName(), o);
-        }
-        for (EditableOuterName o : in.outers.values()) {
-            EditableOuterName p = nmap.get(o.getName());
-            if (p == null) {
-                p = (EditableOuterName) this.addOuterName(o.getName());
-            }
-            this.addInnerName(o.getName(), p);
-        }
-        this.innerCompose(in, reuse);
-    }
-
-    /**
-     * Nest bigraph in input with the current bigraphbuilder. <br/>
-     * Nesting, differently from composition, add bigraph's outername to
-     * bigraphbuilder if they aren't already present. It will then perform the
-     * standard composition.
-     *
-     * @param graph the "inner" bigraph
-     */
-    public void outerNest(DirectedBigraph graph) {
-        outerNest(graph, false);
-    }
-
-    /**
-     * Nest bigraph in input with the current bigraphbuilder. <br />
-     * Nesting, differently from composition, add bigraph's outername to
-     * bigraphbuilder if they aren't already present. It will then perform the
-     * standard composition.
-     *
-     * @param graph the "inner" bigraph
-     * @param reuse flag. If true, the bigraph in input won't be copied.
-     */
-    public void outerNest(DirectedBigraph graph, boolean reuse) {
-        assertOpen();
-        DirectedBigraph in = this.big;
-        DirectedBigraph out = graph;
-        if (out == in)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be composed with itself.");
-        // Arguments are assumed to be consistent (e.g. parent and links are
-        // well defined)
-        if (!out.signature.equals(in.signature)) {
-            throw new IncompatibleSignatureException(out.signature,
-                    in.signature);
-        }
-        if (!out.inners.isEmpty() || out.sites.size() != in.roots.size()) {
-            throw new IncompatibleInterfaceException();
-        }
-        if (reuse)
-            out = out.clone();
-        Map<String, EditableOuterName> nmap = new HashMap<>();
-        for (EditableOuterName o : out.outers.values()) {
-            nmap.put(o.getName(), o);
-        }
-        for (EditableOuterName o : in.outers.values()) {
-            EditableOuterName p = nmap.get(o.getName());
-            if (p == null) {
-                p = new EditableOuterName(o.getName());
-                p.setOwner(out);
-                out.outers.put(p.getName(), p);
-            }
-            EditableInnerName i = new EditableInnerName(p.getName());
-            i.setHandle(p);
-            out.inners.put(i.getName(), i);
-        }
-        // System.out.println(in.toString() + in.isConsistent(this));
-        // System.out.println(out.toString() + out.isConsistent());
-        this.outerCompose(out, false);
     }
 
     /**
