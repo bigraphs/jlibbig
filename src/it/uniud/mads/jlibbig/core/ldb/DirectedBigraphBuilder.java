@@ -842,7 +842,6 @@ final public class DirectedBigraphBuilder implements
         for (EditableOwned o : l.outers.getAsc().values()) {
             o.setOwner(this);
         }
-
         for (EditableOwned o : l.inners.getDesc().values()) {
             o.setOwner(this);
         }
@@ -980,25 +979,51 @@ final public class DirectedBigraphBuilder implements
             }
         }
         // iterate over inner and outer names of a and b respectively and glue them
-        Map<String, EditableHandle> inners = new HashMap<>();
-        for (EditableInnerName i : a.inners.getAsc().values()) {
-            inners.put(i.getName(), i.getHandle());
+        // locality 0 sees all localities
+        Map<String, EditableHandle> innerNames0 = new HashMap<>();
+        for (EditableInnerName i : a.inners.getAsc(0)) {
+            innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (EditableInnerName i : b.outers.getDesc().values()) {
-            inners.put(i.getName(), i.getHandle());
+        for (EditableInnerName i : b.outers.getDesc(0)) {
+            innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
         for (EditableOuterName o : b.outers.getAsc().values()) {
-            EditableHandle h = inners.get(o.getName());
+            EditableHandle h = innerNames0.get(o.getName());
             for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
             }
         }
         for (EditableOuterName o : b.inners.getDesc().values()) {
-            EditableHandle h = inners.get(o.getName());
+            EditableHandle h = innerNames0.get(o.getName());
             for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
+            }
+        }
+        // other localities
+        for (int l = 1; l <= a.inners.getWidth(); l++) { // respect locality
+            Map<String, EditableHandle> innerNames = new HashMap<>();
+            for (EditableInnerName i : a.inners.getAsc(l)) {
+                innerNames.put(i.getName(), i.getHandle());
+                i.setHandle(null);
+            }
+            for (EditableInnerName i : b.outers.getDesc(l)) {
+                innerNames.put(i.getName(), i.getHandle());
+                i.setHandle(null);
+            }
+            // link names
+            for (EditableOuterName o : b.outers.getAsc(l)) {
+                EditableHandle h = innerNames.get(o.getName());
+                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                    p.setHandle(h);
+                }
+            }
+            for (EditableOuterName o : b.inners.getDesc(l)) {
+                EditableHandle h = innerNames.get(o.getName());
+                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                    p.setHandle(h);
+                }
             }
         }
         // update inner interfaces
@@ -1067,25 +1092,51 @@ final public class DirectedBigraphBuilder implements
             }
         }
         // iterate over inner and outer names of a and b respectively and glue them
-        Map<String, EditableHandle> inners = new HashMap<>();
-        for (EditableInnerName i : a.inners.getAsc().values()) {
-            inners.put(i.getName(), i.getHandle());
+        // locality 0 sees all localities
+        Map<String, EditableHandle> innerNames0 = new HashMap<>();
+        for (EditableInnerName i : a.inners.getAsc(0)) {
+            innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (EditableInnerName i : b.outers.getDesc().values()) {
-            inners.put(i.getName(), i.getHandle());
+        for (EditableInnerName i : b.outers.getDesc(0)) {
+            innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
         for (EditableOuterName o : b.outers.getAsc().values()) {
-            EditableHandle h = inners.get(o.getName());
+            EditableHandle h = innerNames0.get(o.getName());
             for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
             }
         }
         for (EditableOuterName o : b.inners.getDesc().values()) {
-            EditableHandle h = inners.get(o.getName());
+            EditableHandle h = innerNames0.get(o.getName());
             for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                 p.setHandle(h);
+            }
+        }
+        // other localities
+        for (int l = 1; l <= a.inners.getWidth(); l++) { // respect locality
+            Map<String, EditableHandle> innerNames = new HashMap<>();
+            for (EditableInnerName i : a.inners.getAsc(l)) {
+                innerNames.put(i.getName(), i.getHandle());
+                i.setHandle(null);
+            }
+            for (EditableInnerName i : b.outers.getDesc(l)) {
+                innerNames.put(i.getName(), i.getHandle());
+                i.setHandle(null);
+            }
+            // link names
+            for (EditableOuterName o : b.outers.getAsc(l)) {
+                EditableHandle h = innerNames.get(o.getName());
+                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                    p.setHandle(h);
+                }
+            }
+            for (EditableOuterName o : b.inners.getDesc(l)) {
+                EditableHandle h = innerNames.get(o.getName());
+                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                    p.setHandle(h);
+                }
             }
         }
         // updates inner interfaces

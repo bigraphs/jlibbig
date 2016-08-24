@@ -1176,7 +1176,7 @@ final public class DirectedBigraph implements
         }
 
         public int getWidth() {
-            return names.size() - 1;
+            return names.size() - 2; // don't consider locality 0
         }
 
         boolean isEmpty() {
