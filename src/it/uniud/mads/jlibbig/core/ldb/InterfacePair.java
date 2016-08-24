@@ -1,7 +1,5 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import sun.security.krb5.internal.crypto.Des;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -56,21 +54,21 @@ class InterfacePair<Asc, Desc> {
 
         Map<String, Asc> left = new HashMap<>();
         for (Asc a : p1.left) {
-            left.put(a.getName(), (Asc) a.replicate());
+            left.put(a.getName(), a);
         }
         for (Asc a : p2.left) {
-            if(!left.containsKey(a.getName())){
-                left.put(a.getName(), (Asc) a.replicate());
+            if (!left.containsKey(a.getName())) {
+                left.put(a.getName(), a);
             }
         }
 
         Map<String, Desc> right = new HashMap<>();
         for (Desc d : p1.right) {
-            right.put(d.getName(), (Desc) d.replicate());
+            right.put(d.getName(), d);
         }
         for (Desc d : p2.right) {
-            if(!left.containsKey(d.getName())){
-                right.put(d.getName(), (Desc) d.replicate());
+            if (!left.containsKey(d.getName())) {
+                right.put(d.getName(), d);
             }
         }
 
