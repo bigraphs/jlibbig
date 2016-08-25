@@ -365,7 +365,7 @@ final public class DirectedBigraph implements
             bb.addSite(bb.addRoot());
         }
         for (String name : names)
-            bb.addInnerName(name, bb.addOuterNameOuterInterface(name));
+            bb.addInnerNameOuterInterface(, name, bb.addOuterNameOuterInterface(name));
         return bb.makeBigraph();
     }
 
@@ -380,15 +380,14 @@ final public class DirectedBigraph implements
      *                  faces.
      * @return an identity bigraph.
      */
-    public static DirectedBigraph makeId(DirectedSignature signature, int width,
-                                         Iterable<? extends LinkFacet> names) {
+    public static DirectedBigraph makeId(DirectedSignature signature, int width, Iterable<? extends LinkFacet> names) {
         DirectedBigraphBuilder bb = new DirectedBigraphBuilder(signature);
         for (int i = 0; i < width; i++) {
             bb.addSite(bb.addRoot());
         }
         for (LinkFacet f : names) {
             String name = f.getName();
-            bb.addInnerName(name, bb.addOuterNameOuterInterface(name));
+            bb.addInnerNameOuterInterface(, name, bb.addOuterNameOuterInterface(name));
         }
         return bb.makeBigraph();
     }
@@ -1250,6 +1249,10 @@ final public class DirectedBigraph implements
 
         void removeAsc(int locality, String name) {
             this.names.get(locality).getLeft().remove(this.getAsc(locality).get(name));
+        }
+
+        void removeDesc(int locality, String name) {
+            this.names.get(locality).getRight().remove(this.getDesc(locality).get(name));
         }
 
         Set<String> keySet() {

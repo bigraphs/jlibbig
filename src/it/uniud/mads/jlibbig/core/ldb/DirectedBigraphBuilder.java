@@ -370,8 +370,9 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Adds a fresh outer name to the current bigraph.
+     * Adds a fresh outer name to the current bigraph's outer interface at the specified locality.
      *
+     * @param locality the locality where to look.
      * @return the new outer name.
      */
     public OuterName addOuterNameOuterInterface(int locality) {
@@ -379,9 +380,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Add an outer name to the current bigraph.
+     * Add an outer name to the current bigraph's outer interface at the specified locality.
      *
-     * @param name the name of the new outer name.
+     * @param locality the locality where to look.
+     * @param name     the name of the new outer name.
      * @return the new outer name.
      */
     public OuterName addOuterNameOuterInterface(int locality, String name) {
@@ -394,9 +396,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Adds an outer name to the current bigraph.
+     * Adds an outer name to the current bigraph's outer interface at the specified locality.
      *
-     * @param name the outer name that will be added.
+     * @param locality the locality where to look.
+     * @param name     the outer name that will be added.
      * @return new outer name.
      */
     private OuterName addOuterNameOuterInterface(int locality, EditableOuterName name) {
@@ -414,52 +417,57 @@ final public class DirectedBigraphBuilder implements
      * Adds a fresh inner name to the current bigraph. The name will be the only
      * point of a fresh edge.
      *
+     * @param locality the locality where to look.
      * @return the new inner name.
      */
-    public InnerName addInnerName() {
+    public InnerName addInnerNameOuterInterface(int locality) {
         EditableEdge e = new EditableEdge(this);
         big.onEdgeAdded(e);
-        return addInnerName(new EditableInnerName(), e);
+        return addInnerNameOuterInterface(locality, new EditableInnerName(), e);
     }
 
     /**
      * Adds a new inner name to the current bigraph.
      *
-     * @param handle the outer name or the edge linking the new inner name.
+     * @param locality the locality where to look.
+     * @param handle   the outer name or the edge linking the new inner name.
      * @return the new inner name
      */
-    public InnerName addInnerName(Handle handle) {
+    public InnerName addInnerNameOuterInterface(int locality, Handle handle) {
         Owner o = handle.getOwner();
         assertOrSetOwner(handle, "Handle");
         if (handle.isEdge() && o != null) {
             this.big.onEdgeAdded((EditableEdge) handle);
         }
-        return addInnerName(new EditableInnerName(), (EditableHandle) handle);
+        return addInnerNameOuterInterface(locality, new EditableInnerName(), (EditableHandle) handle);
     }
 
     /**
      * Adds an inner name to the current bigraph. The name will be the only
      * point of a fresh edge.
      *
-     * @param name name of the new inner name.
+     * @param locality the locality where to look.
+     * @param name     name of the new inner name.
      * @return the new inner name.
      */
-    public InnerName addInnerName(String name) {
+    public InnerName addInnerNameOuterInterface(int locality, String name) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Name can not be null.");
         EditableEdge e = new EditableEdge(this);
         big.onEdgeAdded(e);
-        return addInnerName(name, e);
+        return addInnerNameOuterInterface(locality, name, e);
     }
 
     /**
      * Adds an inner name to the current bigraph.
      *
+     *
+     * @param locality the locality where to look.
      * @param name   name of the new inner name.
      * @param handle the outer name or the edge linking the new inner name.
      * @return the new inner name.
      */
-    public InnerName addInnerName(String name, Handle handle) {
+    public InnerName addInnerNameOuterInterface(int locality, String name, Handle handle) {
         if (name == null)
             throw new IllegalArgumentException("Name can not be null.");
         Owner o = handle.getOwner();
@@ -467,25 +475,25 @@ final public class DirectedBigraphBuilder implements
         if (handle.isEdge() && o != null) {
             this.big.onEdgeAdded((EditableEdge) handle);
         }
-        return addInnerName(new EditableInnerName(name),
-                (EditableHandle) handle);
+        return addInnerNameOuterInterface(locality, new EditableInnerName(name), (EditableHandle) handle);
     }
 
     /**
      * Add an innername to the current bigraph.
      *
+     *
+     * @param locality the locality where to look.
      * @param n innername that will be added.
-     * @param h outername or edge that will be linked with the innername in
-     *          input.
+     * @param h outername or edge that will be linked with the innername in input.
      * @return the inner name
      */
-    private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
+    private InnerName addInnerNameOuterInterface(int locality, EditableInnerName n, EditableHandle h) {
         assertOpen();
-        if (big.inners.containsKey(n.getName())) {
+        if (big.inners.getDesc(locality).containsKey(n.getName())) {
             throw new IllegalArgumentException("Name already present.");
         }
         n.setHandle(h);
-        this.big.inners.put(n.getName(), n);
+        this.big.inners.addAsc(locality, n);
         assertConsistency();
         return n;
     }
@@ -554,11 +562,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Closes an outer name turning it into an edge.
+     * Closes an outer name of the outer interface, at the specified locality, turning it into an edge.
      *
-     *
-     * @param locality the locality where to look
-     * @param name the outer name as string.
+     * @param locality the locality where to look.
+     * @param name     the outer name as string.
      * @return the new edge.
      */
     public Edge closeOuterNameOuterInterface(int locality, String name) {
@@ -566,11 +573,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Closes an outer name turning it into an edge.
+     * Closes an outer name of the outer interface, at the specified locality, turning it into an edge.
      *
-     *
-     * @param locality the locality where to look
-     * @param name the outer name to close.
+     * @param locality the locality where to look.
+     * @param name     the outer name to close.
      * @return the new edge.
      */
     public Edge closeOuterNameOuterInterface(int locality, OuterName name) {
@@ -588,38 +594,39 @@ final public class DirectedBigraphBuilder implements
     /**
      * Closes an inner name.
      *
-     * @param name the inner name as string.
+     * @param locality the locality where to look.
+     * @param name     the inner name as string.
      */
-    public void closeInnerName(String name) {
-        closeInnerName(big.inners.get(name));
+    public void closeInnerNameOuterInterface(int locality, String name) {
+        closeInnerNameOuterInterface(locality, big.outers.getDesc(locality).get(name));
     }
 
     /**
      * Closes an inner name.
      *
-     * @param name the inner name to close.
+     * @param locality the locality where to look.
+     * @param name     the inner name to close.
      */
-    public void closeInnerName(InnerName name) {
+    public void closeInnerNameOuterInterface(int locality, InnerName name) {
         assertOwner(name, "InnerName ");
-        if (!big.inners.containsKey(name.getName())) {
-            throw new IllegalArgumentException("Name '" + name.getName()
-                    + "' not present.");
+        if (!big.outers.getDesc(locality).containsKey(name.getName())) {
+            throw new IllegalArgumentException("Name '" + name.getName() + "' not present.");
         }
         EditableInnerName n1 = (EditableInnerName) name;
         Handle h = n1.getHandle();
         n1.setHandle(null);
-        big.inners.remove(n1.getName());
+        big.outers.removeDesc(locality, n1.getName());
         if (h.isEdge() && h.getPoints().isEmpty()) {
             big.onEdgeRemoved((EditableEdge) h);
         }
     }
 
     /**
-     * Renames an outer name.
+     * Renames an outer name of the inner interface in the specified locality.
      *
-     * @param locality the locality where to look
-     * @param oldName the outer name to be renamed.
-     * @param newName the new name.
+     * @param locality the locality where to look.
+     * @param oldName  the outer name to be renamed.
+     * @param newName  the new name.
      */
     public void renameOuterNameOuterInterface(int locality, String oldName, String newName) {
         if (newName == null || oldName == null)
@@ -633,11 +640,11 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Renames an outer name.
+     * Renames an outer name of the inner interface in the specified locality.
      *
-     * @param locality the locality where to look
-     * @param oldName the outer name to be renamed.
-     * @param newName the new name.
+     * @param locality the locality where to look.
+     * @param oldName  the outer name to be renamed.
+     * @param newName  the new name.
      */
     public void renameOuterNameOuterInterface(int locality, OuterName oldName, String newName) {
         if (newName == null || oldName == null)
@@ -656,39 +663,39 @@ final public class DirectedBigraphBuilder implements
     /**
      * Renames an inner name.
      *
-     * @param oldName the inner name to be renamed.
-     * @param newName the new name.
+     * @param locality the locality where to look.
+     * @param oldName  the inner name to be renamed.
+     * @param newName  the new name.
      */
-    public void renameInnerName(String oldName, String newName) {
+    public void renameInnerNameOuterInterface(int locality, String oldName, String newName) {
         if (newName == null || oldName == null)
             throw new IllegalArgumentException("Arguments can not be null");
-        EditableInnerName n1 = big.inners.get(oldName);
+        EditableInnerName n1 = big.outers.getDesc(locality).get(oldName);
         if (n1 == null) {
-            throw new IllegalArgumentException("Name '" + oldName
-                    + "' is not present.");
+            throw new IllegalArgumentException("Name '" + oldName + "' is not present.");
         } else {
-            renameInnerName(n1, newName);
+            renameInnerNameOuterInterface(locality, n1, newName);
         }
     }
 
     /**
      * Renames an inner name.
      *
-     * @param oldName the inner name to be renamed.
-     * @param newName the new name.
+     * @param locality the locality where to look.
+     * @param oldName  the inner name to be renamed.
+     * @param newName  the new name.
      */
-    public void renameInnerName(InnerName oldName, String newName) {
+    public void renameInnerNameOuterInterface(int locality, InnerName oldName, String newName) {
         if (newName == null || oldName == null)
             throw new IllegalArgumentException("Arguments can not be null");
         assertOwner(oldName, "InnerName ");
         if (newName.equals(oldName.getName()))
             return;
-        EditableInnerName n2 = big.inners.get(newName);
+        EditableInnerName n2 = big.outers.getDesc(locality).get(newName);
         if (n2 == null) {
             ((EditableInnerName) oldName).setName(newName);
         } else {
-            throw new IllegalArgumentException("Name '" + newName
-                    + "' is present already.");
+            throw new IllegalArgumentException("Name '" + newName + "' is present already.");
         }
     }
 
