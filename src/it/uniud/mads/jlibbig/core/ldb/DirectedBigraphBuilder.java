@@ -414,8 +414,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Adds a fresh inner name to the current bigraph. The name will be the only
-     * point of a fresh edge.
+     * Adds a fresh inner name to the current bigraph's outer interface at the specified locality. The name will be the only point of a fresh edge.
      *
      * @param locality the locality where to look.
      * @return the new inner name.
@@ -427,7 +426,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Adds a new inner name to the current bigraph.
+     * Adds a new inner name to the current bigraph's outer interface at the specified locality.
      *
      * @param locality the locality where to look.
      * @param handle   the outer name or the edge linking the new inner name.
@@ -443,8 +442,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Adds an inner name to the current bigraph. The name will be the only
-     * point of a fresh edge.
+     * Adds an inner name to the current bigraph's outer interface at the specified locality. The name will be the only point of a fresh edge.
      *
      * @param locality the locality where to look.
      * @param name     name of the new inner name.
@@ -459,7 +457,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Adds an inner name to the current bigraph.
+     * Adds an inner name to the current bigraph's outer interface at the specified locality.
      *
      *
      * @param locality the locality where to look.
@@ -479,7 +477,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Add an innername to the current bigraph.
+     * Add an innername to the current bigraph's outer interface at the specified locality.
      *
      *
      * @param locality the locality where to look.
@@ -551,8 +549,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Disconnects a point from its current handle and connect it with a fresh
-     * edge.
+     * Disconnects a point from its current handle and connect it with a fresh edge.
      *
      * @param point the point that will be unlinked
      * @return the new edge
@@ -573,7 +570,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Closes an outer name of the outer interface, at the specified locality, turning it into an edge.
+     * Closes an outer name of the outer interface at the specified locality, turning it into an edge.
      *
      * @param locality the locality where to look.
      * @param name     the outer name to close.
@@ -592,7 +589,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Closes an inner name.
+     * Closes an inner name at the specified locality.
      *
      * @param locality the locality where to look.
      * @param name     the inner name as string.
@@ -602,7 +599,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Closes an inner name.
+     * Closes an inner name at the specified locality.
      *
      * @param locality the locality where to look.
      * @param name     the inner name to close.
