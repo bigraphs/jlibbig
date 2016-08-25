@@ -374,8 +374,8 @@ final public class DirectedBigraphBuilder implements
      *
      * @return the new outer name.
      */
-    public OuterName addOuterName() {
-        return addOuterName(new EditableOuterName());
+    public OuterName addOuterNameOuterInterface(int locality) {
+        return addOuterNameOuterInterface(locality, new EditableOuterName());
     }
 
     /**
@@ -384,10 +384,13 @@ final public class DirectedBigraphBuilder implements
      * @param name the name of the new outer name.
      * @return the new outer name.
      */
-    public OuterName addOuterName(String name) {
+    public OuterName addOuterNameOuterInterface(int locality, String name) {
+        if (locality < 0 || locality >= this.big.outers.getWidth()) {
+            throw new IndexOutOfBoundsException("Locality '" + locality + "' is not valid.");
+        }
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Argument can not be null.");
-        return addOuterName(new EditableOuterName(name));
+        return addOuterNameOuterInterface(locality, new EditableOuterName(name));
     }
 
     /**
@@ -396,14 +399,13 @@ final public class DirectedBigraphBuilder implements
      * @param name the outer name that will be added.
      * @return new outer name.
      */
-    private OuterName addOuterName(EditableOuterName name) {
+    private OuterName addOuterNameOuterInterface(int locality, EditableOuterName name) {
         assertOpen();
-        if (big.outers.containsKey(name.getName())) {
-            throw new IllegalArgumentException("Name '" + name.getName()
-                    + "' already present.");
+        if (big.outers.getAsc().containsKey(locality + "#" + name.getName())) {
+            throw new IllegalArgumentException("Name '" + name.getName() + "' already present.");
         }
         name.setOwner(this);
-        this.big.outers.put(name.getName(), name);
+        this.big.outers.addAsc(locality, name);
         assertConsistency();
         return name;
     }
@@ -554,28 +556,31 @@ final public class DirectedBigraphBuilder implements
     /**
      * Closes an outer name turning it into an edge.
      *
+     *
+     * @param locality the locality where to look
      * @param name the outer name as string.
      * @return the new edge.
      */
-    public Edge closeOuterName(String name) {
-        return closeOuterName(big.outers.get(name));
+    public Edge closeOuterNameOuterInterface(int locality, String name) {
+        return closeOuterNameOuterInterface(locality, big.outers.getAsc(locality).get(name));
     }
 
     /**
      * Closes an outer name turning it into an edge.
      *
+     *
+     * @param locality the locality where to look
      * @param name the outer name to close.
      * @return the new edge.
      */
-    public Edge closeOuterName(OuterName name) {
+    public Edge closeOuterNameOuterInterface(int locality, OuterName name) {
         assertOwner(name, "OuterName ");
-        if (!big.outers.containsKey(name.getName())) {
-            throw new IllegalArgumentException("Name '" + name.getName()
-                    + "' not present.");
+        if (!big.outers.getAsc(locality).containsKey(name.getName())) {
+            throw new IllegalArgumentException("Name '" + name.getName() + "' not present.");
         }
         EditableOuterName n1 = (EditableOuterName) name;
         Edge e = relink(n1.getEditablePoints());
-        big.outers.remove(n1.getName());
+        big.outers.removeAsc(locality, name.getName());
         n1.setOwner(null);
         return e;
     }
@@ -612,39 +617,39 @@ final public class DirectedBigraphBuilder implements
     /**
      * Renames an outer name.
      *
+     * @param locality the locality where to look
      * @param oldName the outer name to be renamed.
      * @param newName the new name.
      */
-    public void renameOuterName(String oldName, String newName) {
+    public void renameOuterNameOuterInterface(int locality, String oldName, String newName) {
         if (newName == null || oldName == null)
             throw new IllegalArgumentException("Arguments can not be null");
-        EditableOuterName n1 = big.outers.get(oldName);
+        EditableOuterName n1 = big.outers.getAsc(locality).get(oldName);
         if (n1 == null) {
-            throw new IllegalArgumentException("Name '" + oldName
-                    + "' is not present.");
+            throw new IllegalArgumentException("Name '" + oldName + "' is not present.");
         } else {
-            renameOuterName(n1, newName);
+            renameOuterNameOuterInterface(locality, n1, newName);
         }
     }
 
     /**
      * Renames an outer name.
      *
+     * @param locality the locality where to look
      * @param oldName the outer name to be renamed.
      * @param newName the new name.
      */
-    public void renameOuterName(OuterName oldName, String newName) {
+    public void renameOuterNameOuterInterface(int locality, OuterName oldName, String newName) {
         if (newName == null || oldName == null)
             throw new IllegalArgumentException("Arguments can not be null");
         assertOwner(oldName, "OuterName ");
         if (newName.equals(oldName.getName()))
             return;
-        EditableOuterName n2 = big.outers.get(newName);
+        EditableOuterName n2 = big.outers.getAsc(locality).get(newName);
         if (n2 == null) {
             ((EditableOuterName) oldName).setName(newName);
         } else {
-            throw new IllegalArgumentException("Name '" + newName
-                    + "' already in use");
+            throw new IllegalArgumentException("Name '" + newName + "' already in use");
         }
     }
 
@@ -980,11 +985,11 @@ final public class DirectedBigraphBuilder implements
         // iterate over inner and outer names of a and b respectively and glue them
         // locality 0 sees all localities
         Map<String, EditableHandle> innerNames0 = new HashMap<>();
-        for (EditableInnerName i : a.inners.getAsc(0)) {
+        for (EditableInnerName i : a.inners.getAsc(0).values()) {
             innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (EditableInnerName i : b.outers.getDesc(0)) {
+        for (EditableInnerName i : b.outers.getDesc(0).values()) {
             innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
@@ -1003,22 +1008,22 @@ final public class DirectedBigraphBuilder implements
         // other localities
         for (int l = 1; l <= a.inners.getWidth(); l++) { // respect locality
             Map<String, EditableHandle> innerNames = new HashMap<>();
-            for (EditableInnerName i : a.inners.getAsc(l)) {
+            for (EditableInnerName i : a.inners.getAsc(l).values()) {
                 innerNames.put(i.getName(), i.getHandle());
                 i.setHandle(null);
             }
-            for (EditableInnerName i : b.outers.getDesc(l)) {
+            for (EditableInnerName i : b.outers.getDesc(l).values()) {
                 innerNames.put(i.getName(), i.getHandle());
                 i.setHandle(null);
             }
             // link names
-            for (EditableOuterName o : b.outers.getAsc(l)) {
+            for (EditableOuterName o : b.outers.getAsc(l).values()) {
                 EditableHandle h = innerNames.get(o.getName());
                 for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                     p.setHandle(h);
                 }
             }
-            for (EditableOuterName o : b.inners.getDesc(l)) {
+            for (EditableOuterName o : b.inners.getDesc(l).values()) {
                 EditableHandle h = innerNames.get(o.getName());
                 for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                     p.setHandle(h);
@@ -1093,11 +1098,11 @@ final public class DirectedBigraphBuilder implements
         // iterate over inner and outer names of a and b respectively and glue them
         // locality 0 sees all localities
         Map<String, EditableHandle> innerNames0 = new HashMap<>();
-        for (EditableInnerName i : a.inners.getAsc(0)) {
+        for (EditableInnerName i : a.inners.getAsc(0).values()) {
             innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
-        for (EditableInnerName i : b.outers.getDesc(0)) {
+        for (EditableInnerName i : b.outers.getDesc(0).values()) {
             innerNames0.put(i.getName(), i.getHandle());
             i.setHandle(null);
         }
@@ -1116,22 +1121,22 @@ final public class DirectedBigraphBuilder implements
         // other localities
         for (int l = 1; l <= a.inners.getWidth(); l++) { // respect locality
             Map<String, EditableHandle> innerNames = new HashMap<>();
-            for (EditableInnerName i : a.inners.getAsc(l)) {
+            for (EditableInnerName i : a.inners.getAsc(l).values()) {
                 innerNames.put(i.getName(), i.getHandle());
                 i.setHandle(null);
             }
-            for (EditableInnerName i : b.outers.getDesc(l)) {
+            for (EditableInnerName i : b.outers.getDesc(l).values()) {
                 innerNames.put(i.getName(), i.getHandle());
                 i.setHandle(null);
             }
             // link names
-            for (EditableOuterName o : b.outers.getAsc(l)) {
+            for (EditableOuterName o : b.outers.getAsc(l).values()) {
                 EditableHandle h = innerNames.get(o.getName());
                 for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                     p.setHandle(h);
                 }
             }
-            for (EditableOuterName o : b.inners.getDesc(l)) {
+            for (EditableOuterName o : b.inners.getDesc(l).values()) {
                 EditableHandle h = innerNames.get(o.getName());
                 for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
                     p.setHandle(h);
@@ -1215,9 +1220,9 @@ final public class DirectedBigraphBuilder implements
         }
         // merge outer interface
         for (int loc = 0; loc < l.outers.getWidth(); loc++) {
-            for (EditableOuterName o : l.outers.getAsc(loc)) {
+            for (EditableOuterName o : l.outers.getAsc(loc).values()) {
                 EditableOuterName q = null;
-                for (EditableOuterName p : r.outers.getAsc(loc)) {
+                for (EditableOuterName p : r.outers.getAsc(loc).values()) {
                     if (p.getName().equals(o.getName())) {
                         q = p;
                         break;
@@ -1234,9 +1239,9 @@ final public class DirectedBigraphBuilder implements
                     }
                 }
             }
-            for (EditableInnerName i : l.outers.getDesc(loc)) {
+            for (EditableInnerName i : l.outers.getDesc(loc).values()) {
                 EditableInnerName j = null;
-                for (EditableInnerName k : r.outers.getDesc(loc)) {
+                for (EditableInnerName k : r.outers.getDesc(loc).values()) {
                     if (k.getName().equals(i.getName())) {
                         j = k;
                         break;
@@ -1319,9 +1324,9 @@ final public class DirectedBigraphBuilder implements
         Map<String, EditableOuterName> os = new HashMap<>();
         // merge outer interface
         for (int loc = 0; loc < r.outers.getWidth(); loc++) {
-            for (EditableOuterName o : r.outers.getAsc(loc)) {
+            for (EditableOuterName o : r.outers.getAsc(loc).values()) {
                 EditableOuterName q = null;
-                for (EditableOuterName p : l.outers.getAsc(loc)) {
+                for (EditableOuterName p : l.outers.getAsc(loc).values()) {
                     if (p.getName().equals(o.getName())) {
                         q = p;
                         break;
@@ -1338,9 +1343,9 @@ final public class DirectedBigraphBuilder implements
                     }
                 }
             }
-            for (EditableInnerName i : r.outers.getDesc(loc)) {
+            for (EditableInnerName i : r.outers.getDesc(loc).values()) {
                 EditableInnerName j = null;
-                for (EditableInnerName k : l.outers.getDesc(loc)) {
+                for (EditableInnerName k : l.outers.getDesc(loc).values()) {
                     if (k.getName().equals(i.getName())) {
                         j = k;
                         break;
