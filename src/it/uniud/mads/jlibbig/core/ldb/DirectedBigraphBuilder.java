@@ -11,7 +11,6 @@ import it.uniud.mads.jlibbig.core.exceptions.UnexpectedOwnerException;
 import java.util.*;
 
 import static it.uniud.mads.jlibbig.core.ldb.DirectedBigraph.Interface.intersectNames;
-import static it.uniud.mads.jlibbig.core.ldb.DirectedBigraph.Interface.joinInterfaces;
 
 /**
  * This class provides services for the creation and manipulation of bigraphs
@@ -855,8 +854,8 @@ final public class DirectedBigraphBuilder implements
         l.onNodeSetChanged();
         r.roots.addAll(0, l.roots);
         r.sites.addAll(0, l.sites);
-        joinInterfaces(r.outers, l.outers);
-        joinInterfaces(r.inners, l.inners);
+        r.outers.join(l.outers);
+        r.inners.join(l.inners);
         assertConsistency();
     }
 
@@ -923,8 +922,8 @@ final public class DirectedBigraphBuilder implements
         r.onNodeSetChanged();
         l.roots.addAll(r.roots);
         l.sites.addAll(r.sites);
-        joinInterfaces(l.outers, r.outers);
-        joinInterfaces(l.inners, r.inners);
+        l.outers.join(r.outers);
+        l.inners.join(r.inners);
         assertConsistency();
     }
 
@@ -1029,7 +1028,7 @@ final public class DirectedBigraphBuilder implements
         // update inner interfaces
         clearInnerInterface(a.inners);// .clear();
         clearChildCollection(a.sites);// ;.clear();
-        joinInterfaces(a.inners, b.inners);
+        a.inners.join(b.inners);
         a.sites.addAll(b.sites);
         a.onNodeAdded(ns);
         b.onNodeSetChanged();
@@ -1142,7 +1141,7 @@ final public class DirectedBigraphBuilder implements
         // updates inner interfaces
         clearOuterInterface(b.outers);// .clear();
         clearOwnedCollection(b.roots);// .clear();
-        joinInterfaces(b.outers, a.outers);
+        b.outers.join(a.outers);
         b.roots.addAll(a.roots);
         for (EditableOwned o : b.roots) {
             o.setOwner(this);
@@ -1198,33 +1197,54 @@ final public class DirectedBigraphBuilder implements
             throw new IncompatibleSignatureException(left.signature, right.signature);
         }
         if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())) {
-            throw new IncompatibleInterfaceException(
-                    new NameClashException(intersectNames(left.inners.values(),
-                            right.inners.values())));
+            throw new IncompatibleInterfaceException(new NameClashException(
+                    intersectNames(
+                            left.inners.getAsc().values(),
+                            right.inners.getAsc().values(),
+                            intersectNames(left.outers.getAsc().values(),
+                                    right.outers.getAsc().values(),
+                                    intersectNames(left.outers.getDesc().values(),
+                                            right.outers.getDesc().values(),
+                                            intersectNames(left.inners.getDesc().values(),
+                                                    right.inners.getDesc().values()))))));
         }
         DirectedBigraph l = (reuse) ? left : left.clone();
         DirectedBigraph r = right;
         for (EditableOwned o : l.roots) {
             o.setOwner(this);
         }
-        Map<String, EditableOuterName> os = new HashMap<>();
-        // merge outers
-        for (EditableOuterName o : l.outers.values()) {
-            EditableOuterName q = null;
-            for (EditableOuterName p : r.outers.values()) {
-                if (p.getName().equals(o.getName())) {
-                    q = p;
-                    break;
+        // merge outer interface
+        for (int loc = 0; loc < l.outers.getWidth(); loc++) {
+            for (EditableOuterName o : l.outers.getAsc(loc)) {
+                EditableOuterName q = null;
+                for (EditableOuterName p : r.outers.getAsc(loc)) {
+                    if (p.getName().equals(o.getName())) {
+                        q = p;
+                        break;
+                    }
+                }
+                if (q == null) {
+                    // o is not part of r.outerface
+                    r.outers.addAsc(loc, o);
+                    o.setOwner(this);
+                } else {
+                    // this name apperas also in r, merge points
+                    for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                        q.linkPoint(p);
+                    }
                 }
             }
-            if (q == null) {
-                // o is not part of r.outerface
-                os.put(o.getName(), o);
-                o.setOwner(this);
-            } else {
-                // this name apperas also in r, merge points
-                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
-                    q.linkPoint(p);
+            for (EditableInnerName i : l.outers.getDesc(loc)) {
+                EditableInnerName j = null;
+                for (EditableInnerName k : r.outers.getDesc(loc)) {
+                    if (k.getName().equals(i.getName())) {
+                        j = k;
+                        break;
+                    }
+                }
+                if (j == null) {
+                    // i is not part of r.outerface
+                    r.outers.addDesc(loc, i);
                 }
             }
         }
@@ -1238,8 +1258,7 @@ final public class DirectedBigraphBuilder implements
         l.onNodeSetChanged();
         r.roots.addAll(l.roots);
         r.sites.addAll(l.sites);
-        r.outers.putAll(os);
-        r.inners.putAll(l.inners);
+        r.inners.join(l.inners);
         assertConsistency();
     }
 
@@ -1274,19 +1293,23 @@ final public class DirectedBigraphBuilder implements
         assertOpen();
         DirectedBigraph left = this.big;
         DirectedBigraph right = graph;
-        // Arguments are assumed to be consistent (e.g. parent and links are
-        // well defined)
+        // Arguments are assumed to be consistent (e.g. parent and links are well defined)
         if (left == right)
-            throw new IllegalArgumentException(
-                    "Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
+            throw new IllegalArgumentException("Operand shuld be distinct; a bigraph can not be juxtaposed with itself.");
         if (!left.signature.equals(right.signature)) {
-            throw new IncompatibleSignatureException(left.signature,
-                    right.signature);
+            throw new IncompatibleSignatureException(left.signature, right.signature);
         }
         if (!Collections.disjoint(left.inners.keySet(), right.inners.keySet())) {
             throw new IncompatibleInterfaceException(
-                    new NameClashException(intersectNames(left.inners.values(),
-                            right.inners.values())));
+                    new NameClashException(intersectNames(
+                            left.inners.getAsc().values(),
+                            right.inners.getAsc().values(),
+                            intersectNames(left.outers.getAsc().values(),
+                                    right.outers.getAsc().values(),
+                                    intersectNames(left.outers.getDesc().values(),
+                                            right.outers.getDesc().values(),
+                                            intersectNames(left.inners.getDesc().values(),
+                                                    right.inners.getDesc().values()))))));
         }
         DirectedBigraph l = left;
         DirectedBigraph r = (reuse) ? right : right.clone();
@@ -1294,23 +1317,38 @@ final public class DirectedBigraphBuilder implements
             o.setOwner(this);
         }
         Map<String, EditableOuterName> os = new HashMap<>();
-        // merge outers
-        for (EditableOuterName o : r.outers.values()) {
-            EditableOuterName q = null;
-            for (EditableOuterName p : l.outers.values()) {
-                if (p.getName().equals(o.getName())) {
-                    q = p;
-                    break;
+        // merge outer interface
+        for (int loc = 0; loc < r.outers.getWidth(); loc++) {
+            for (EditableOuterName o : r.outers.getAsc(loc)) {
+                EditableOuterName q = null;
+                for (EditableOuterName p : l.outers.getAsc(loc)) {
+                    if (p.getName().equals(o.getName())) {
+                        q = p;
+                        break;
+                    }
+                }
+                if (q == null) {
+                    // o is not part of l.outerface
+                    l.outers.addAsc(loc, o);
+                    o.setOwner(this);
+                } else {
+                    // this name apperas also in l, merge points
+                    for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
+                        q.linkPoint(p);
+                    }
                 }
             }
-            if (q == null) {
-                // o is not part of r.outerface
-                os.put(o.getName(), o);
-                o.setOwner(this);
-            } else {
-                // this name apperas also in r, merge points
-                for (EditablePoint p : new HashSet<>(o.getEditablePoints())) {
-                    q.linkPoint(p);
+            for (EditableInnerName i : r.outers.getDesc(loc)) {
+                EditableInnerName j = null;
+                for (EditableInnerName k : l.outers.getDesc(loc)) {
+                    if (k.getName().equals(i.getName())) {
+                        j = k;
+                        break;
+                    }
+                }
+                if (j == null) {
+                    // i is not part of r.outerface
+                    r.outers.addDesc(loc, i);
                 }
             }
         }
@@ -1324,8 +1362,7 @@ final public class DirectedBigraphBuilder implements
         r.onNodeSetChanged();
         l.roots.addAll(r.roots);
         l.sites.addAll(r.sites);
-        l.outers.putAll(os);
-        l.inners.putAll(r.inners);
+        l.inners.join(r.inners);
         assertConsistency();
     }
 

@@ -1175,8 +1175,19 @@ final public class DirectedBigraph implements
             return i;
         }
 
+        /**
+         * join with another interface
+         *
+         * @param i the interface to join
+         * @return the joined interface
+         */
+        void join(Interface<Asc, Desc> i) {
+            this.names.set(0, InterfacePair.mergePairs(this.names.get(0), i.names.get(0)));
+            this.names.addAll(i.names.subList(1, i.names.size()));
+        }
+
         public int getWidth() {
-            return names.size() - 2; // don't consider locality 0
+            return names.size() - 1; // don't consider locality 0
         }
 
         boolean isEmpty() {
