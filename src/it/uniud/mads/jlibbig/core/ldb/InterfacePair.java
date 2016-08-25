@@ -1,150 +1,75 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import it.uniud.mads.jlibbig.core.Owner;
-
-import java.util.Collection;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public class InterfacePair implements Owner {
-    private final Map<String, EditableOuterName> outers = new IdentityHashMap<>();
-    private final Map<String, EditableInnerName> inners = new IdentityHashMap<>();
+class InterfacePair<Asc, Desc> {
+    private final Set<Asc> left = new HashSet<>();
+    private final Set<Desc> right = new HashSet<>();
 
-    public InterfacePair() {
-
+    InterfacePair(Set<Asc> left, Set<Desc> right) {
+        this.left.addAll(left);
+        this.right.addAll(right);
     }
 
-    private InterfacePair(Map<String, EditableOuterName> outers, Map<String, EditableInnerName> inners) {
-        this.outers.putAll(outers);
-        this.inners.putAll(inners);
+    Set<Asc> getLeft() {
+        return this.left;
     }
 
-    static InterfacePair merge(InterfacePair a, InterfacePair b) {
-        Map<String, EditableOuterName> os = new IdentityHashMap<>();
-        Map<String, EditableInnerName> is = new IdentityHashMap<>();
-
-        os.putAll(a.outers);
-        os.putAll(b.outers);
-        is.putAll(a.inners);
-        is.putAll(b.inners);
-
-        return new InterfacePair(os, is);
+    Set<Desc> getRight() {
+        return this.right;
     }
 
-    /**
-     * Adds a fresh outer name to the current interface pair.
-     *
-     * @return the new outer name.
-     */
-    public OuterName addOuterName() {
-        return addOuterName(new EditableOuterName());
+    @Override
+    public int hashCode() {
+        return left.hashCode() ^ right.hashCode();
     }
 
-    /**
-     * Add an outer name to the current interface pair.
-     *
-     * @param name the name of the new outer name.
-     * @return the new outer name.
-     */
-    public OuterName addOuterName(String name) {
-        if (name == null || name.length() == 0)
-            throw new IllegalArgumentException("Argument can not be null.");
-        return addOuterName(new EditableOuterName(name));
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof InterfacePair)) return false;
+        InterfacePair interfacePairObj = (InterfacePair) o;
+        return this.left.equals(interfacePairObj.getLeft()) &&
+                this.right.equals(interfacePairObj.getRight());
+    }
+
+    @Override
+    public String toString() {
+        return "({" + left.toString() + "}+, {" + right.toString() + "}-)";
     }
 
     /**
-     * Adds an outer name to the current interface pair.
+     * mergePairs merges two pairs
      *
-     * @param name the outer name that will be added.
-     * @return new outer name.
+     * @param p1 the first pair
+     * @param p2 the second pair
+     * @return the merged pair
      */
-    private OuterName addOuterName(EditableOuterName name) {
-        if (outers.containsKey(name.getName())) {
-            throw new IllegalArgumentException("Name '" + name.getName() + "' already present.");
+    static <Asc extends EditableLinkFacet, Desc extends EditableLinkFacet> InterfacePair<Asc, Desc> mergePairs(
+            InterfacePair<Asc, Desc> p1, InterfacePair<Asc, Desc> p2) {
+        // merge left
+        Map<String, Asc> left = new HashMap<>();
+        for (Asc a : p1.left) {
+            left.put(a.getName(), a);
         }
-        name.setOwner(this);
-        outers.put(name.getName(), name);
-        return name;
-    }
-
-    /**
-     * Adds a fresh inner name to the current interface pair. The name will be the only
-     * point of a fresh edge.
-     *
-     * @return the new inner name.
-     */
-    public InnerName addInnerName() {
-        EditableEdge e = new EditableEdge(this);
-        return addInnerName(new EditableInnerName(), e);
-    }
-
-    /**
-     * Adds a new inner name to the current interface pair.
-     *
-     * @param handle the outer name or the edge linking the new inner name.
-     * @return the new inner name
-     */
-    public InnerName addInnerName(Handle handle) {
-        return addInnerName(new EditableInnerName(), (EditableHandle) handle);
-    }
-
-    /**
-     * Adds an inner name to the current interface pair. The name will be the only
-     * point of a fresh edge.
-     *
-     * @param name name of the new inner name.
-     * @return the new inner name.
-     */
-    public InnerName addInnerName(String name) {
-        if (name == null || name.length() == 0)
-            throw new IllegalArgumentException("Name can not be null.");
-        EditableEdge e = new EditableEdge(this);
-        return addInnerName(name, e);
-    }
-
-    /**
-     * Adds an inner name to the current interface pair.
-     *
-     * @param name   name of the new inner name.
-     * @param handle the outer name or the edge linking the new inner name.
-     * @return the new inner name.
-     */
-    public InnerName addInnerName(String name, Handle handle) {
-        if (name == null)
-            throw new IllegalArgumentException("Name can not be null.");
-        return addInnerName(new EditableInnerName(name), (EditableHandle) handle);
-    }
-
-    /**
-     * Add an innername to the current interface pair.
-     *
-     * @param n innername that will be added.
-     * @param h outername or edge that will be linked with the innername in
-     *          input.
-     * @return the inner name
-     */
-    private InnerName addInnerName(EditableInnerName n, EditableHandle h) {
-        if (inners.containsKey(n.getName())) {
-            throw new IllegalArgumentException("Name already present.");
+        for (Asc a : p2.left) {
+            if (!left.containsKey(a.getName())) {
+                left.put(a.getName(), a);
+            }
         }
-        n.setHandle(h);
-        inners.put(n.getName(), n);
-        return n;
-    }
+        // merge right
+        Map<String, Desc> right = new HashMap<>();
+        for (Desc d : p1.right) {
+            right.put(d.getName(), d);
+        }
+        for (Desc d : p2.right) {
+            if (!left.containsKey(d.getName())) {
+                right.put(d.getName(), d);
+            }
+        }
 
-    public Collection<? extends OuterName> getOuterNames() {
-        return this.outers.values();
-    }
-
-    public Collection<? extends InnerName> getInnerNames() {
-        return this.inners.values();
-    }
-
-    public boolean containsOuterName(String name) {
-        return this.outers.containsKey(name);
-    }
-
-    public boolean containsInnerName(String name) {
-        return this.inners.containsKey(name);
+        return new InterfacePair<>(new HashSet<>(left.values()), new HashSet<>(right.values()));
     }
 }
