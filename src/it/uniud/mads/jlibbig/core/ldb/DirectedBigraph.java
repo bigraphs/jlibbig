@@ -365,7 +365,7 @@ final public class DirectedBigraph implements
             bb.addSite(bb.addRoot());
         }
         for (String name : names)
-            bb.addInnerName(name, bb.addOuterName(name));
+            bb.addInnerNameOuterInterface(, name, bb.addOuterNameOuterInterface(name));
         return bb.makeBigraph();
     }
 
@@ -380,15 +380,14 @@ final public class DirectedBigraph implements
      *                  faces.
      * @return an identity bigraph.
      */
-    public static DirectedBigraph makeId(DirectedSignature signature, int width,
-                                         Iterable<? extends LinkFacet> names) {
+    public static DirectedBigraph makeId(DirectedSignature signature, int width, Iterable<? extends LinkFacet> names) {
         DirectedBigraphBuilder bb = new DirectedBigraphBuilder(signature);
         for (int i = 0; i < width; i++) {
             bb.addSite(bb.addRoot());
         }
         for (LinkFacet f : names) {
             String name = f.getName();
-            bb.addInnerName(name, bb.addOuterName(name));
+            bb.addInnerNameOuterInterface(, name, bb.addOuterNameOuterInterface(name));
         }
         return bb.makeBigraph();
     }
@@ -1212,11 +1211,15 @@ final public class DirectedBigraph implements
             return asc;
         }
 
-        public Set<Asc> getAsc(int index) {
+        public Map<String, Asc> getAsc(int index) {
             if (index < 0 || index >= names.size()) {
                 throw new IndexOutOfBoundsException("Index '" + index + "' not in list");
             }
-            return names.get(index).getLeft();
+            Map<String, Asc> ascInd = new HashMap<>();
+            for (Asc a : names.get(index).getLeft()) {
+                ascInd.put(a.getName(), a);
+            }
+            return ascInd;
         }
 
         public void addDesc(int index, Desc d) {
@@ -1233,11 +1236,23 @@ final public class DirectedBigraph implements
             return desc;
         }
 
-        public Set<Desc> getDesc(int index) {
+        public Map<String, Desc>  getDesc(int index) {
             if (index < 0 || index >= names.size()) {
                 throw new IndexOutOfBoundsException("Index '" + index + "' not in list");
             }
-            return names.get(index).getRight();
+            Map<String, Desc> descInd = new HashMap<>();
+            for (Desc d : names.get(index).getRight()) {
+                descInd.put(d.getName(), d);
+            }
+            return descInd;
+        }
+
+        void removeAsc(int locality, String name) {
+            this.names.get(locality).getLeft().remove(this.getAsc(locality).get(name));
+        }
+
+        void removeDesc(int locality, String name) {
+            this.names.get(locality).getRight().remove(this.getDesc(locality).get(name));
         }
 
         Set<String> keySet() {
