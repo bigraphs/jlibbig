@@ -30,4 +30,6 @@ public interface Node extends PropertyTarget, Parent, Child,
      */
     @Override
     public abstract EditableNode getEditable();
+
+    public abstract String getName();
 }

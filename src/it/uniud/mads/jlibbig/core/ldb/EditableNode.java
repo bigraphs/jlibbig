@@ -42,8 +42,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
         this.ro_chd = Collections.unmodifiableCollection(this.children);
 
         this.ownerSetter = new DelegatedProperty.PropertySetter<>();
-        this.ownerProp = new DelegatedProperty<Owner>(PROPERTY_OWNER, true,
-                ownerSetter);
+        this.ownerProp = new DelegatedProperty<Owner>(PROPERTY_OWNER, true, ownerSetter);
 
         props.attachProperty(this.ownerProp);
     }
@@ -69,7 +68,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
         }
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
@@ -88,9 +87,8 @@ class EditableNode implements Node, EditableParent, EditableChild {
         return this.ro_chd;
     }
 
-    @Override
-    public List<? extends Port> getPorts() {
-        List<Port> ports = new ArrayList<>();
+    public List<? extends Port<DirectedControl>> getPorts() {
+        List<Port<DirectedControl>> ports = new ArrayList<>();
         ports.addAll(this.ro_outPorts);
         ports.addAll(this.ro_inPorts);
         return ports;
@@ -297,7 +295,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
         @Override
         public String toString() {
-            return number + '+' + "@" + EditableNode.this;
+            return number + "+@" + EditableNode.this;
         }
 
         @Override
@@ -367,6 +365,9 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
     public class EditableInPort implements InPort, EditableHandle {
         private final int number;
+        private Owner owner;
+        private Collection<EditablePoint> points = Collections.newSetFromMap(new IdentityHashMap<EditablePoint, Boolean>());
+        private final Collection<? extends Point> ro_points = Collections.unmodifiableCollection(this.points);
 
         private EditableInPort(int number) {
             this.number = number;
@@ -379,7 +380,7 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
         @Override
         public String toString() {
-            return number + '+' + "@" + EditableNode.this;
+            return number + "-@" + EditableNode.this;
         }
 
         @Override
@@ -390,11 +391,6 @@ class EditableNode implements Node, EditableParent, EditableChild {
         @Override
         public EditableHandle getHandle() {
             return this;
-        }
-
-        @Override
-        public Collection<? extends Point> getPoints() {
-            return null;
         }
 
         @Override
@@ -434,47 +430,63 @@ class EditableNode implements Node, EditableParent, EditableChild {
 
         @Override
         public Owner getOwner() {
-            return null;
+            return this.owner;
         }
 
         @Override
         public void setOwner(Owner value) {
+            this.owner = value;
+        }
 
+        @Override
+        public Collection<? extends Point> getPoints() {
+            return this.ro_points;
         }
 
         @Override
         public Collection<EditablePoint> getEditablePoints() {
-            return null;
+            return this.points;
         }
 
         @Override
         public void linkPoint(EditablePoint point) {
-
+            if (point == null)
+                return;
+            this.points.add(point);
+            if (this != point.getHandle()) {
+                point.setHandle(this);
+            }
         }
 
         @Override
         public void unlinkPoint(EditablePoint point) {
-
+            if (point == null)
+                return;
+            if (this.points.remove(point) && this == point.getHandle())
+                point.setHandle(null);
         }
 
         @Override
         public EditableHandle replicate() {
-            return null;
-        }
-
-        @Override
-        public void registerListener(ReplicationListener listener) {
-
-        }
-
-        @Override
-        public boolean unregisterListener(ReplicationListener listener) {
-            return false;
+            EditableInPort copy = new EditableInPort(this.getNumber());
+            rep.tellReplicated(this, copy);
+            return copy;
         }
 
         @Override
         public boolean isListenerRegistered(ReplicationListener listener) {
-            return false;
+            return rep.isListenerRegistered(listener);
         }
+
+        @Override
+        public void registerListener(ReplicationListener listener) {
+            rep.registerListener(listener);
+        }
+
+        @Override
+        public boolean unregisterListener(ReplicationListener listener) {
+            return rep.unregisterListener(listener);
+        }
+
     }
 }

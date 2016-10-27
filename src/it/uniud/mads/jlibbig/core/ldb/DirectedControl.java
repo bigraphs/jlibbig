@@ -3,7 +3,6 @@ package it.uniud.mads.jlibbig.core.ldb;
 import it.uniud.mads.jlibbig.core.attachedProperties.Property;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyContainer;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyTarget;
-import it.uniud.mads.jlibbig.core.std.Bigraph;
 import it.uniud.mads.jlibbig.core.util.NameGenerator;
 
 import java.util.Collection;
@@ -12,7 +11,7 @@ import java.util.Iterator;
 /**
  * Objects created from this class are bigraphical controls describing the
  * modality (i.e. active or passive) and the arity (i.e. the number of ports) of
- * nodes decorated with it. Every {@link Bigraph} has a {@link DirectedSignature}
+ * nodes decorated with it. Every {@link DirectedBigraph} has a {@link DirectedSignature}
  * describing the controls that can be assigned to its nodes; every {@link Node}
  * should be assigned exactly one control.
  */
@@ -20,8 +19,8 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
 
     private final boolean active;
     private final PropertyContainer props;
-    protected int arityOut;
-    protected int arityIn;
+    private int arityOut;
+    private int arityIn;
     String _tostring;
 
     /**
@@ -114,7 +113,7 @@ public final class DirectedControl extends it.uniud.mads.jlibbig.core.Control im
         StringBuilder builder = null;
         if (_tostring == null) {
             builder = new StringBuilder();
-            builder.append(getName()).append(":(").append(getArityOut()).append(",").append(getArityIn()).append((active) ? ",a)" : ",p)");
+            builder.append(getName()).append(":(").append(getArityOut()).append("+,").append(getArityIn()).append("-").append((active) ? ",a)" : ",p)");
             _tostring = builder.toString();
         }
         if (includeProperties) {

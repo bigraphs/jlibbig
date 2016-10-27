@@ -7,7 +7,7 @@ package it.uniud.mads.jlibbig.core.ldb;
  */
 public interface Point extends LinkEntity, it.uniud.mads.jlibbig.core.Point {
     @Override
-    EditableHandle getHandle();
+    Handle getHandle();
 
     EditablePoint getEditable();
 }

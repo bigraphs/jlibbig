@@ -1,6 +1,6 @@
 package it.uniud.mads.jlibbig.core.ldb;
 
-import it.uniud.mads.jlibbig.core.BigraphHandler;
+import it.uniud.mads.jlibbig.core.DirectedBigraphHandler;
 import it.uniud.mads.jlibbig.core.Owner;
 import it.uniud.mads.jlibbig.core.attachedProperties.DelegatedProperty;
 import it.uniud.mads.jlibbig.core.attachedProperties.PropertyContainer;
@@ -35,7 +35,7 @@ class EditableSite implements EditableChild, Site {
     public String toString() {
         Owner o = this.getOwner();
         if (o != null) {
-            BigraphHandler<?> h = (BigraphHandler<?>) o;
+            DirectedBigraphHandler<?> h = (DirectedBigraphHandler<?>) o;
             int i = h.getRoots().indexOf(this);
             if (i >= 0)
                 return i + ":s";
