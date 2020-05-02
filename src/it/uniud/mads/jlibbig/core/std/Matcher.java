@@ -5,12 +5,12 @@ import java.util.*;
 import it.uniud.mads.jlibbig.core.std.EditableNode.EditablePort;
 import it.uniud.mads.jlibbig.core.util.BidMap;
 
-import choco.Choco;
-import choco.cp.model.CPModel;
-import choco.cp.solver.CPSolver;
-import choco.kernel.model.constraints.Constraint;
-import choco.kernel.model.variables.integer.IntegerExpressionVariable;
-import choco.kernel.model.variables.integer.IntegerVariable;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.Variable;
 
 /**
  * Provides services for computing matches of bigraphs with abstract
@@ -174,30 +174,30 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 
 			private Match nextMatch = null;
 
-			final private CPModel model;
-			final private CPSolver solver;
+			final private Model model;
+			final private Solver solver;
 			/*
 			 * variables for the place embedding problem the following variables
 			 * are indexed over pairs where the first entity is from the agent
 			 * and the second from the redex
 			 */
-			final Map<PlaceEntity, Map<PlaceEntity, IntegerVariable>> p_vars = new IdentityHashMap<>(
+			final Map<PlaceEntity, Map<PlaceEntity, IntVar>> p_vars = new IdentityHashMap<>(
 					ars + ans + ass);
 			/*
 			 * variables for the multiflux problem desrcibing the link embedding
 			 * these are indexed by redex handles and then by agent handles
 			 */
-			final Map<LinkEntity, Map<LinkEntity, IntegerVariable>> e_vars = new IdentityHashMap<>(
+			final Map<LinkEntity, Map<LinkEntity, IntVar>> e_vars = new IdentityHashMap<>(
 					ahs * rhs + aps * (1 + rps));
 			/*
 			 * variables for flux separation implicitly describing the handles
 			 * embedding these are indexed from the source to target of the flux
 			 */
-			final Map<Handle, Map<Handle, IntegerVariable>> f_vars = new IdentityHashMap<>(
+			final Map<Handle, Map<Handle, IntVar>> f_vars = new IdentityHashMap<>(
 					rhs);
 
 			MatchIterator() {
-				this.model = new CPModel();
+				this.model = new Model();
 
 				solver = instantiateModel();
 
@@ -211,7 +211,17 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				}
 			}
 
-			private CPSolver instantiateModel() {
+			private Variable findVariable(String name, Variable[] vars) {
+				for (Variable v : vars) {
+					if (name.equals(v.getName())) {
+						return v;
+					}
+				}
+				// We should't encounter this case.
+				return null;
+			}
+
+			private Solver instantiateModel() {
 				// MODEL
 				// ///////////////////////////////////////////////////////////
 
@@ -222,27 +232,21 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					int ki = 0;
 					for (Root i : agent_roots) {
 						int kj = 0;
-						Map<PlaceEntity, IntegerVariable> row = new HashMap<>(
+						Map<PlaceEntity, IntVar> row = new HashMap<>(
 								rrs + rns + rss);
 						for (Root j : redex_roots) {
-							IntegerVariable var = Choco.makeBooleanVar(ki + "_"
-									+ kj++);
-							model.addVariable(var);
+							IntVar var = model.boolVar(ki + "_" + kj++);
 							row.put(j, var);
 						}
 						// 1 // these will always be zero
 						for (Node j : redex_nodes) {
-							IntegerVariable var = Choco.makeBooleanVar(ki + "_"
-									+ kj++);
-							model.addVariable(var);
-							model.addConstraint(Choco.eq(0, var));
+							IntVar var = model.boolVar(ki + "_" + kj++);
+							model.arithm(var, "=", 0).post();
 							row.put(j, var);
 						}
 						for (Site j : redex_sites) {
-							IntegerVariable var = Choco.makeBooleanVar(ki + "_"
-									+ kj++);
-							model.addVariable(var);
-							model.addConstraint(Choco.eq(0, var));
+							IntVar var = model.boolVar(ki + "_" + kj++);
+							model.arithm(var, "=", 0).post();
 							row.put(j, var);
 						}
 						p_vars.put(i, row);
@@ -250,24 +254,18 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					}
 					for (Node i : agent_nodes) {
 						int kj = 0;
-						Map<PlaceEntity, IntegerVariable> row = new HashMap<>(
+						Map<PlaceEntity, IntVar> row = new HashMap<>(
 								rrs + rns + rss);
 						for (Root j : redex_roots) {
-							IntegerVariable var = Choco.makeBooleanVar(ki + "_"
-									+ kj++);
-							model.addVariable(var);
+							IntVar var = model.boolVar(ki + "_" + kj++);
 							row.put(j, var);
 						}
 						for (Node j : redex_nodes) {
-							IntegerVariable var = Choco.makeBooleanVar(ki + "_"
-									+ kj++);
-							model.addVariable(var);
+							IntVar var = model.boolVar(ki + "_" + kj++);
 							row.put(j, var);
 						}
 						for (Site j : redex_sites) {
-							IntegerVariable var = Choco.makeBooleanVar(ki + "_"
-									+ kj++);
-							model.addVariable(var);
+							IntVar var = model.boolVar(ki + "_" + kj++);
 							row.put(j, var);
 						}
 						p_vars.put(i, row);
@@ -276,20 +274,18 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 
 					for (Site i : agent_sites) {
 						int kj = 0;
-						Map<PlaceEntity, IntegerVariable> row = new HashMap<>(
+						Map<PlaceEntity, IntVar> row = new HashMap<>(
 								rss); // rrs + rns + rss);
 						/*
-						 * for (Root j : redex_roots) { IntegerVariable var =
+						 * for (Root j : redex_roots) { IntVar var =
 						 * Choco.makeBooleanVar(ki + "_" + kj++);
 						 * model.addVariable(var); row.put(j, var); } /*for
-						 * (Node j : redex_nodes) { IntegerVariable var =
+						 * (Node j : redex_nodes) { IntVar var =
 						 * Choco.makeBooleanVar(ki + "_" + kj++);
 						 * model.addVariable(var); row.put(j, var); }
 						 */
 						for (Site j : redex_sites) {
-							IntegerVariable var = Choco.makeBooleanVar(ki + "_"
-									+ kj++);
-							model.addVariable(var);
+							IntVar var = model.boolVar(ki + "_" + kj++);
 							row.put(j, var);
 						}
 						p_vars.put(i, row);
@@ -301,12 +297,10 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					int ki = 0;
 					for (Handle hr : redex_handles) {
 						int kj = 0;
-						Map<Handle, IntegerVariable> row = new IdentityHashMap<>(
+						Map<Handle, IntVar> row = new IdentityHashMap<>(
 								ahs);
 						for (Handle ha : agent_handles) {
-							IntegerVariable var = Choco.makeBooleanVar("F_"
-									+ ki + "_" + kj++);
-							model.addVariable(var);
+							IntVar var = model.boolVar("F_" + ki + "_" + kj++);
 							row.put(ha, var);
 						}
 						f_vars.put(hr, row);
@@ -317,15 +311,13 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					ki = 0;
 					for (Point pi : agent_points) {
 						int kj = 0;
-						Map<LinkEntity, IntegerVariable> row = new IdentityHashMap<>(
+						Map<LinkEntity, IntVar> row = new IdentityHashMap<>(
 								rps + 1);
 						Handle hi = pi.getHandle();
-						IntegerVariable var = Choco.makeBooleanVar("PH_" + ki);
+						IntVar var = model.boolVar("PH_" + ki);
 						row.put(hi, var);
-						model.addVariable(var);
 						for (Point pj : redex_points) {
-							var = Choco.makeBooleanVar("PP_" + ki + "_" + kj++);
-							model.addVariable(var);
+							var = model.boolVar("PP_" + ki + "_" + kj++);
 							row.put(pj, var);
 						}
 						e_vars.put(pi, row);
@@ -336,12 +328,11 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					ki = 0;
 					for (Handle hj : redex_handles) {
 						int kj = 0;
-						Map<LinkEntity, IntegerVariable> row = new IdentityHashMap<>(
+						Map<LinkEntity, IntVar> row = new IdentityHashMap<>(
 								ahs);
 						for (Handle hi : agent_handles) {
-							IntegerVariable var = new IntegerVariable("HH_"
+							IntVar var = model.intVar("HH_"
 									+ ki + "_" + kj++, 0, hi.getPoints().size());
-							model.addVariable(var);
 							row.put(hi, var);
 						}
 						e_vars.put(hj, row);
@@ -355,8 +346,8 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				// merged with interplay constraints
 				/*
 				 * { for (Node i : agent_nodes) { Map<PlaceEntity,
-				 * IntegerVariable> row = p_vars.get(i); for (Node j :
-				 * redex_nodes) { IntegerVariable var = row.get(j); if
+				 * IntVar> row = p_vars.get(i); for (Node j :
+				 * redex_nodes) { IntVar var = row.get(j); if
 				 * (!areMatchable(agent, i, redex, j)) {
 				 * model.addConstraint(Choco.eq(0, var)); } } }}
 				 */
@@ -366,27 +357,27 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				{
 					for (Node i : agent_nodes) {
 						Parent f = i.getParent();
-						Map<PlaceEntity, IntegerVariable> i_row = p_vars.get(i);
-						Map<PlaceEntity, IntegerVariable> f_row = p_vars.get(f);
+						Map<PlaceEntity, IntVar> i_row = p_vars.get(i);
+						Map<PlaceEntity, IntVar> f_row = p_vars.get(f);
 						for (Child j : redex_nodes) {
 							Parent g = j.getParent();
-							model.addConstraint(Choco.leq(i_row.get(j),
-									f_row.get(g)));
+							model.arithm(i_row.get(j), "<=", f_row.get(g))
+								.post();
 						}
 						for (Child j : redex_sites) {
 							Parent g = j.getParent();
-							model.addConstraint(Choco.leq(i_row.get(j),
-									f_row.get(g)));
+							model.arithm(i_row.get(j), "<=", f_row.get(g))
+								.post();
 						}
 					}
 					for (Site i : agent_sites) {
 						Parent f = i.getParent();
-						Map<PlaceEntity, IntegerVariable> i_row = p_vars.get(i);
-						Map<PlaceEntity, IntegerVariable> f_row = p_vars.get(f);
+						Map<PlaceEntity, IntVar> i_row = p_vars.get(i);
+						Map<PlaceEntity, IntVar> f_row = p_vars.get(f);
 						for (Child j : redex_sites) {
 							Parent g = j.getParent();
-							model.addConstraint(Choco.leq(i_row.get(j),
-									f_row.get(g)));
+							model.arithm(i_row.get(j), "<=", f_row.get(g))
+								.post();
 						}
 					}
 				}
@@ -424,15 +415,12 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						}
 					}
 					qa.clear();
-					Constraint[] cs = new Constraint[rrs];
 					while (!qp.isEmpty()) {
 						Child i = qp.poll();
-						Map<PlaceEntity, IntegerVariable> row = p_vars.get(i);
-						int k = 0;
+						Map<PlaceEntity, IntVar> row = p_vars.get(i);
 						for (Root j : redex_roots) {
-							cs[k++] = Choco.eq(0, row.get(j));
+							model.arithm(row.get(j), "=", 0).post();
 						}
-						model.addConstraints(cs);
 						if (i.isNode()) {
 							for (Child c : ((Node) i).getChildren()) {
 								if (c.isNode()) {
@@ -447,7 +435,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 
 				// 5 // sum M_ij = 1 if j not in sites
 				{
-					IntegerVariable[] vars = new IntegerVariable[ars + ans];
+					IntVar[] vars = new IntVar[ars + ans];
 					for (Root j : redex_roots) {
 						int k = 0;
 						for (PlaceEntity i : p_vars.keySet()) {
@@ -455,9 +443,9 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								continue;
 							vars[k++] = p_vars.get(i).get(j);
 						}
-						model.addConstraint(Choco.eq(1, Choco.sum(vars)));
+						model.sum(vars, "=", 1).post();
 					}
-					vars = new IntegerVariable[ans + ass];
+					vars = new IntVar[ans + ass];
 					for (Node j : redex_nodes) {
 						int k = 0;
 						for (PlaceEntity i : p_vars.keySet()) {
@@ -465,7 +453,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								continue;
 							vars[k++] = p_vars.get(i).get(j);
 						}
-						model.addConstraint(Choco.eq(1, Choco.sum(vars)));
+						model.sum(vars, "=", 1).post();
 					}
 				}
 				// //////////////////////////////////////////////////////////////////
@@ -474,8 +462,8 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				// nodes
 				{
 					for (Node i : agent_nodes) {
-						Map<PlaceEntity, IntegerVariable> row = p_vars.get(i);
-						IntegerVariable[] vars = new IntegerVariable[rns + rss];
+						Map<PlaceEntity, IntVar> row = p_vars.get(i);
+						IntVar[] vars = new IntVar[rns + rss];
 						int k = 0;
 						for (PlaceEntity j : redex_nodes) {
 							vars[k++] = row.get(j);
@@ -483,26 +471,35 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						for (PlaceEntity j : redex_sites) {
 							vars[k++] = row.get(j);
 						}
-						IntegerExpressionVariable c = Choco.mult(rrs,
-								Choco.sum(vars));
+						IntVar t1 = model.intVar(rrs);
+						IntVar c = model.intVar(0);
+						for (IntVar v : vars) {
+							c = c.add(v).intVar();
+						}
+						c = c.mul(t1).intVar();
 
-						vars = new IntegerVariable[rrs];
+						vars = new IntVar[rrs];
 						k = 0;
 						for (Root j : redex_roots) {
 							vars[k++] = row.get(j);
 						}
-						model.addConstraint(Choco.geq(rrs,
-								Choco.sum(c, Choco.sum(vars))));
+
+						t1 = model.intVar(0);
+						for (IntVar v : vars) {
+							t1 = t1.add(v).intVar();
+						}
+						t1 = t1.add(c).intVar();
+						model.arithm(t1, "<=", rrs).post();
 					}
 					/*
 					 * for (Site i : agent_sites) { Map<PlaceEntity,
-					 * IntegerVariable> row = p_vars.get(i); IntegerVariable[]
-					 * vars = new IntegerVariable[rss]; int k = 0; for
+					 * IntVar> row = p_vars.get(i); IntVar[]
+					 * vars = new IntVar[rss]; int k = 0; for
 					 * (PlaceEntity j : redex_sites) { vars[k++] = row.get(j); }
 					 * IntegerExpressionVariable c = Choco.mult(rrs,
 					 * Choco.sum(vars));
 					 * 
-					 * vars = new IntegerVariable[rrs]; k = 0; for (Root j :
+					 * vars = new IntVar[rrs]; k = 0; for (Root j :
 					 * redex_roots) { vars[k++] = row.get(j); }
 					 * model.addConstraint(Choco.geq(rrs, Choco.sum(c,
 					 * Choco.sum(vars)))); }
@@ -517,7 +514,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						Collection<? extends Child> cf = f.getChildren();
 						for (Parent g : redex_nodes) {
 							Collection<? extends Child> cg = g.getChildren();
-							IntegerVariable[] vars = new IntegerVariable[cf
+							IntVar[] vars = new IntVar[cf
 									.size() * cg.size()];
 							int k = 0;
 							for (PlaceEntity i : cf) {
@@ -525,9 +522,8 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 									vars[k++] = p_vars.get(i).get(j);
 								}
 							}
-							model.addConstraint(Choco.leq(
-									Choco.mult(cf.size(), p_vars.get(f).get(g)),
-									Choco.sum(vars)));
+							IntVar chld = p_vars.get(f).get(g);
+							model.sum(vars, ">=", chld.mul(cf.size()).intVar()).post();
 						}
 					}
 				}
@@ -551,7 +547,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								.getChildren();
 						for (Root g : redex_roots) {
 							Collection<? extends Child> cg = cgs.get(g);
-							IntegerVariable[] vars = new IntegerVariable[cf
+							IntVar[] vars = new IntVar[cf
 									.size() * cg.size()];
 							int k = 0;
 							for (Child i : cf) {
@@ -559,9 +555,8 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 									vars[k++] = p_vars.get(i).get(j);
 								}
 							}
-							model.addConstraint(Choco.leq(
-									Choco.mult(cg.size(), p_vars.get(f).get(g)),
-									Choco.sum(vars)));
+							IntVar chld = p_vars.get(f).get(g);
+							model.sum(vars, ">=", chld.mul(cg.size()).intVar()).post();
 						}
 					}
 				}
@@ -610,12 +605,11 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				{
 					for (Node i : agent_nodes) {
 						Collection<Parent> ancs = agent.getAncestors(i);
-						IntegerExpressionVariable[] vars = new IntegerExpressionVariable[(ancs
-								.size()) * rss];
+						IntVar[] vars = new IntVar[(ancs.size()) * rss];
 						int k = 0;
 						for (Parent f : ancs) {
 							if (f.isNode()) {
-								Map<PlaceEntity, IntegerVariable> f_row = p_vars
+								Map<PlaceEntity, IntVar> f_row = p_vars
 										.get(f);
 								for (Site g : redex_sites) {
 									vars[k++] = f_row.get(g);
@@ -623,39 +617,41 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 							}
 						}
 						
-						IntegerExpressionVariable sum = Choco.sum(vars);
-						Map<PlaceEntity, IntegerVariable> i_row = p_vars.get(i);
+						IntVar sum = model.intVar(0);
+						for (IntVar v : vars) {
+							sum = sum.add(v).intVar();
+						}
+						Map<PlaceEntity, IntVar> i_row = p_vars.get(i);
 						for (Root j : redex_roots) {
-							model.addConstraint(Choco.geq(1,
-									Choco.sum(i_row.get(j), sum)));
+							model.arithm(sum.add(i_row.get(j)).intVar(), 
+									"<=", 1).post();
 						}
 					}
 				}
 
 				// 10 //
 				{
-					IntegerVariable[] vars = new IntegerVariable[rrs + rns
-							+ rss];
+					IntVar[] vars = new IntVar[rrs + rns + rss];
 					for (Site i : agent_sites) {
-						model.addConstraint(Choco.geq(1,
-								Choco.sum(p_vars.get(i).values().toArray(vars))));
+						vars = p_vars.get(i).values().toArray(vars);
+						model.sum(vars, "<=", 1).post();
 					}
 				}
 				// LINK CONSTRAINTS ///////////////////////////////////////////
 
 				// 1 // source constraints
 				{
-					IntegerVariable[] vars = new IntegerVariable[rps + 1];
+					IntVar[] vars = new IntVar[rps + 1];
 					for (Point p : agent_points) {
 						vars = e_vars.get(p).values().toArray(vars);
-						model.addConstraint(Choco.eq(1, Choco.sum(vars)));
+						model.sum(vars, "=", 1).post();
 					}
 				}
 				// 2 // sink constraints
 				{
 					for (Handle ha : agent_handles) {
 						Collection<? extends Point> ps = ha.getPoints();
-						IntegerVariable[] vars1 = new IntegerVariable[rhs
+						IntVar[] vars1 = new IntVar[rhs
 								+ ps.size()];
 						int k = 0;
 						for (Point p : ps) {
@@ -664,55 +660,55 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						for (Handle hr : redex_handles) {
 							vars1[k++] = e_vars.get(hr).get(ha);
 						}
-						model.addConstraint(Choco.eq(ps.size(),
-								Choco.sum(vars1)));
+						model.sum(vars1, "=", ps.size()).post();
 					}
 				}
 
 				// 3 // flux preservation
 				{
-					IntegerVariable[] vars1 = new IntegerVariable[ahs];
+					IntVar[] vars1 = new IntVar[ahs];
 					for (Handle hr : redex_handles) {
 						Collection<? extends Point> ps = hr.getPoints();
 						int k = 0;
-						IntegerVariable[] vars2 = new IntegerVariable[aps
-								* ps.size()];
+						IntVar[] vars2 = new IntVar[aps * ps.size()];
 						for (Point pa : agent_points) {
-							Map<LinkEntity, IntegerVariable> row = e_vars
+							Map<LinkEntity, IntVar> row = e_vars
 									.get(pa);
 							for (Point pr : ps) {
 								vars2[k++] = row.get(pr);
 							}
 						}
-						model.addConstraint(Choco.eq(
-								Choco.sum(vars2),
-								Choco.sum(e_vars.get(hr).values()
-										.toArray(vars1))));
+						vars1 = e_vars.get(hr).values().toArray(vars1);
+						IntVar sum1 = model.intVar(0);
+						for (IntVar v : vars1) {
+							sum1 = sum1.add(v).intVar();
+						}
+						model.sum(vars2, "=", sum1).post();
 					}
 				}
 
 				// 4 // redex ports as "sources"
 				{
-					IntegerVariable[] vars = new IntegerVariable[aps];
+					IntVar[] vars = new IntVar[aps];
 					for (Point pr : redex_points) {
 						if (pr.isPort()) {
 							int k = 0;
 							for (Point pa : agent_points) {
 								vars[k++] = e_vars.get(pa).get(pr);
 							}
-							model.addConstraint(Choco.eq(1, Choco.sum(vars)));
+							model.sum(vars, "=", 1).post();
 						}
 					}
 				}
 				{
-					IntegerVariable[] vars = new IntegerVariable[aprs];
+					IntVar[] vars = new IntVar[aprs];
 					for (Point pr : redex_points) {
 						if (pr.isInnerName()) {
 							int k = 0;
 							for (Point pa : agent_ports) {
 								vars[k++] = e_vars.get(pa).get(pr);
 							}
-							model.addConstraint(Choco.eq(1, Choco.sum(vars)));
+							model.sum(vars, "=", 1).post();
 						}
 					}
 				}
@@ -720,16 +716,17 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				// 5 // relation between f_vars and e_vars for handles
 				{
 					for (Handle hr : redex_handles) {
-						Map<Handle, IntegerVariable> f_row = f_vars.get(hr);
-						Map<LinkEntity, IntegerVariable> e_row = e_vars.get(hr);
+						Map<Handle, IntVar> f_row = f_vars.get(hr);
+						Map<LinkEntity, IntVar> e_row = e_vars.get(hr);
 						if (!hr.getPoints().isEmpty()) {
 							for (Handle ha : agent_handles) {
 								if (!ha.getPoints().isEmpty()) {
-									IntegerVariable vf = f_row.get(ha);
-									IntegerVariable ve = e_row.get(ha);
-									model.addConstraint(Choco.leq(ve, Choco
-											.mult(vf, ha.getPoints().size())));
-									model.addConstraint(Choco.leq(vf, ve));
+									IntVar vf = f_row.get(ha);
+									IntVar ve = e_row.get(ha);
+									model.arithm(ve, "<=", 
+											vf.mul(ha.getPoints().size())
+											.intVar()).post();
+									model.arithm(vf, "<=", ve).post();
 								}
 							}
 						}
@@ -738,30 +735,30 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				// 6 // relation between f_vars and e_vars for points
 				{
 					for (Handle hr : redex_handles) {
-						Map<Handle, IntegerVariable> f_row = f_vars.get(hr);
+						Map<Handle, IntVar> f_row = f_vars.get(hr);
 						Collection<? extends Point> ps = hr.getPoints();
 						for (Handle ha : agent_handles) {
-							IntegerVariable vf = f_row.get(ha);
+							IntVar vf = f_row.get(ha);
 							int k = 0;
-							IntegerVariable[] vars = new IntegerVariable[ps
+							IntVar[] vars = new IntVar[ps
 									.size() * ha.getPoints().size()];
 							for (Point pa : ha.getPoints()) {
-								Map<LinkEntity, IntegerVariable> e_row = e_vars
+								Map<LinkEntity, IntVar> e_row = e_vars
 										.get(pa);
 								for (Point pr : ps) {
-									IntegerVariable ve = e_row.get(pr);
+									IntVar ve = e_row.get(pr);
 									vars[k++] = ve;
-									model.addConstraint(Choco.leq(ve, vf));
+									model.arithm(ve, "<=", vf).post();
 								}
 								// // constraint 10
 								if (hr.isEdge()) {
-									model.addConstraint(Choco.geq(1, Choco.sum(
-											e_vars.get(pa).get(ha), vf)));
+									model.arithm(
+											vf.add(e_vars.get(pa).get(ha)).intVar(), 
+											"<=", 1).post();
 								}
 							}
 							if (!ps.isEmpty() || !ha.getPoints().isEmpty())
-								model.addConstraint(Choco.leq(vf,
-										Choco.sum(vars)));
+								model.sum(vars, ">=", vf).post();
 						}
 					}
 				}
@@ -771,11 +768,11 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					 * Redex handles can be matched to at most one handle of the
 					 * redex
 					 */
-					IntegerVariable[] vars = new IntegerVariable[ahs];
+					IntVar[] vars = new IntVar[ahs];
 					for (Handle hr : redex_handles) {
-						Map<Handle, IntegerVariable> f_row = f_vars.get(hr);
-						model.addConstraint(Choco.geq(1,
-								Choco.sum(f_row.values().toArray(vars))));
+						Map<Handle, IntVar> f_row = f_vars.get(hr);
+						model.sum(f_row.values().toArray(vars), "<=", 1)
+							.post();
 					}
 				}
 
@@ -787,27 +784,26 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					ListIterator<Handle> ir1 = redex_handles.listIterator(0);
 					while (ir1.hasNext()) {
 						Handle hr1 = ir1.next();
-						Map<Handle, IntegerVariable> f_row1 = f_vars.get(hr1);
+						Map<Handle, IntVar> f_row1 = f_vars.get(hr1);
 						if (hr1.isEdge()) {
 							for (Handle ha : agent_handles) {
 								// edges belongs to edges
 								if (ha.isOuterName())
-									model.addConstraint(Choco.eq(0,
-											f_row1.get(ha)));
+									model.arithm(f_row1.get(ha), "=", 0)
+										.post();
 							}
 						}
 						ListIterator<Handle> ir2 = redex_handles
 								.listIterator(ir1.nextIndex());
 						while (ir2.hasNext()) {
 							Handle hr2 = ir2.next();
-							Map<Handle, IntegerVariable> f_row2 = f_vars
+							Map<Handle, IntVar> f_row2 = f_vars
 									.get(hr2);
 							if (hr1.isEdge() != hr2.isEdge()) {
 								for (Handle ha : agent_handles) {
-									model.addConstraint(Choco.geq(
-											1,
-											Choco.sum(f_row1.get(ha),
-													f_row2.get(ha))));
+									model.arithm(f_row1.get(ha)
+											.add(f_row2.get(ha)).intVar(), 
+											"<=", 1).post();
 								}
 							}
 						}
@@ -815,14 +811,13 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				}
 				// 9 // embeddings are injective w.r.t edges
 				{
-					IntegerVariable[] vars = new IntegerVariable[redex_edges
-							.size()];
+					IntVar[] vars = new IntVar[redex_edges.size()];
 					for (Handle ha : agent_handles) {
 						int k = 0;
 						for (Handle hr : redex_edges) {
 							vars[k++] = f_vars.get(hr).get(ha);
 						}
-						model.addConstraint(Choco.geq(1, Choco.sum(vars)));
+						model.sum(vars, "<=", 1).post();
 					}
 				}
 				// 10 // points of handles mapped to redex edges can not bypass
@@ -830,8 +825,8 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				// ! merged with constraint 6 //
 				/*
 				 * { for (Handle hr : redex_edges) { Map<Handle,
-				 * IntegerVariable> f_row = f_vars.get(hr); for (Handle ha :
-				 * agent_handles) { IntegerVariable vf = f_row.get(ha); for
+				 * IntVar> f_row = f_vars.get(hr); for (Handle ha :
+				 * agent_handles) { IntVar vf = f_row.get(ha); for
 				 * (Point p : ha.getPoints()) { model.addConstraint(Choco.geq(1,
 				 * Choco.sum(e_vars.get(p).get(ha), vf))); } } } }
 				 */
@@ -840,27 +835,27 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				{
 					// bound nodes and their ports
 					for (Node ni : agent_nodes) {
-						Map<PlaceEntity, IntegerVariable> p_row = p_vars
+						Map<PlaceEntity, IntVar> p_row = p_vars
 								.get(ni);
 						for (Node nj : redex_nodes) {
-							IntegerVariable m = p_row.get(nj);
+							IntVar m = p_row.get(nj);
 							boolean comp = areMatchable(agent, ni, redex, nj);
 							// ! Place constraint 2 //
 							if (!comp) {
-								model.addConstraint(Choco.eq(0, m));
+								model.arithm(m, "=", 0).post();
 							}
 							for (int i = ni.getControl().getArity() - 1; 0 <= i; i--) {
-								Map<LinkEntity, IntegerVariable> e_row = e_vars
+								Map<LinkEntity, IntVar> e_row = e_vars
 										.get(ni.getPort(i));
 								for (int j = nj.getControl().getArity() - 1; 0 <= j; j--) {
 									if (comp && i == j) {
 										/* ni <-> nj iff ni[k] <-> nj[k] */
-										model.addConstraint(Choco.eq(m,
-												e_row.get(nj.getPort(j))));
+										model.arithm(e_row.get(nj.getPort(j)),
+												"=", m).post();
 									} else {
 										/* ni[f] <!> nj[g] if ni<!>nj || f != g */
-										model.addConstraint(Choco.eq(0,
-												e_row.get(nj.getPort(j))));
+										model.arithm(e_row.get(nj.getPort(j)),
+												"=", 0).post();
 									}
 								}
 							}
@@ -871,55 +866,52 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					for (Node ni : agent_nodes) {
 						// sum over ni anchestors and redex roots
 						Collection<Parent> ancs = agent.getAncestors(ni);
-						IntegerVariable[] vars2 = new IntegerVariable[(1 + ancs
+						IntVar[] vars2 = new IntVar[(1 + ancs
 								.size()) * rss];
 						int k2 = 0;
 						for (Parent f : ancs) {
-							Map<PlaceEntity, IntegerVariable> row = p_vars
+							Map<PlaceEntity, IntVar> row = p_vars
 									.get(f);
 							for (Site g : redex_sites) {
 								vars2[k2++] = row.get(g);
 							}
 						}
 						{// ancs does not include ni
-							Map<PlaceEntity, IntegerVariable> row = p_vars
+							Map<PlaceEntity, IntVar> row = p_vars
 									.get(ni);
 							for (Site g : redex_sites) {
 								vars2[k2++] = row.get(g);
 							}
 						}
-						IntegerExpressionVariable sum2 = Choco.sum(vars2);
+						IntVar sum2 = model.intVar(0);
+						for (IntVar v : vars2) {
+							sum2 = sum2.add(v).intVar();
+						}
 
 						for (Port pi : ni.getPorts()) {
-							Map<LinkEntity, IntegerVariable> row = e_vars
+							Map<LinkEntity, IntVar> row = e_vars
 									.get(pi);
 							// all the redex points
-							// IntegerVariable[] vars3 = new
-							// IntegerVariable[rprs];
-							IntegerVariable[] vars4 = new IntegerVariable[rins];
+							// IntVar[] vars3 = new
+							// IntVar[rprs];
+							IntVar[] vars4 = new IntVar[rins];
 							// int k3 = 0;
 							int k4 = 0;
 							for (Point in : redex.getInnerNames()) {
-								IntegerVariable var = row.get(in);
+								IntVar var = row.get(in);
 								vars4[k4++] = var;
 							}
 							/*
 							 * a port can match an inner name in the redex if
 							 * its node is in the params.
 							 */
-							model.addConstraint(Choco.leq(Choco.sum(vars4),
-									sum2));
-
+							model.sum(vars4, "<=", sum2).post();
 						}
 					}
 				}
 				// END OF CONSTRAINTS /////////////////////////////////////////
 				
-				CPSolver solver = new CPSolver();
-				solver.read(model);
-				solver.generateSearchStrategy();
-
-				return solver;
+				return model.getSolver();
 			}
 
 			@Override
@@ -947,7 +939,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 
 			private void noMoreSolutions() {
 				this.mayHaveNext = false;
-				this.solver.clear();
+				this.solver.hardReset();
 			}
 
 			private void fetchSolution() {
@@ -957,7 +949,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					System.out.println("fetch solution has been invoked...");
 				// look for a solution for the CSP
 				if ((first && !solver.solve())
-						|| (!first && !solver.nextSolution())) {
+						|| (!first && !solver.solve())) {
 					if (DEBUG_PRINT_SOLUTION_FETCH)
 						System.out
 								.println("...but no more solutions where found.");
@@ -996,39 +988,51 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								+ "d|", i);
 						c = 1;
 						Root ri = agent_roots.get(i);
-						Map<PlaceEntity, IntegerVariable> row = p_vars.get(ri);
+						Map<PlaceEntity, IntVar> row = p_vars.get(ri);
 						for (int j = 0; j < rrs; j++) {
 							Root rj = redex_roots.get(j);
+							IntVar v = findVariable(row.get(rj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + p_cell_width[c++] + "d|",
-									solver.getVar(row.get(rj)).getVal());
+									v.getValue());
 						}
 						for (Node nj : redex_nodes) {
+							IntVar v = findVariable(row.get(nj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + p_cell_width[c++] + "d|",
-									solver.getVar(row.get(nj)).getVal());
+									v.getValue());
 						}
 						for (int j = 0; j < rss; j++) {
 							Site sj = redex_sites.get(j);
+							IntVar v = findVariable(row.get(sj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + p_cell_width[c++] + "d|",
-									solver.getVar(row.get(sj)).getVal());
+									v.getValue());
 						}
 					}
 					for (Node ni : agent_nodes) {
 						System.out.printf("\n%-" + p_cell_width[0] + "s|", ni);
 						c = 1;
-						Map<PlaceEntity, IntegerVariable> row = p_vars.get(ni);
+						Map<PlaceEntity, IntVar> row = p_vars.get(ni);
 						for (int j = 0; j < rrs; j++) {
 							Root rj = redex_roots.get(j);
+							IntVar v = findVariable(row.get(rj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + p_cell_width[c++] + "d|",
-									solver.getVar(row.get(rj)).getVal());
+									v.getValue());
 						}
 						for (Node nj : redex_nodes) {
+							IntVar v = findVariable(row.get(nj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + p_cell_width[c++] + "d|",
-									solver.getVar(row.get(nj)).getVal());
+									v.getValue());
 						}
 						for (int j = 0; j < rss; j++) {
 							Site sj = redex_sites.get(j);
+							IntVar v = findVariable(row.get(sj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + p_cell_width[c++] + "d|",
-									solver.getVar(row.get(sj)).getVal());
+									v.getValue());
 						}
 					}
 					for (int i = 0; i < ass; i++) {
@@ -1036,7 +1040,7 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								+ "d|", i);
 						c = 1;
 						Root ri = agent_roots.get(i);
-						Map<PlaceEntity, IntegerVariable> row = p_vars.get(ri);
+						Map<PlaceEntity, IntVar> row = p_vars.get(ri);
 						for (int j = 0; j < rrs; j++) {
 							System.out.printf("%" + p_cell_width[c++] + "d|",
 									' ');
@@ -1047,8 +1051,10 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						}
 						for (int j = 0; j < rss; j++) {
 							Site sj = redex_sites.get(j);
+							IntVar v = findVariable(row.get(sj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + p_cell_width[c++] + "d|",
-									solver.getVar(row.get(sj)).getVal());
+									v.getValue());
 						}
 					}
 					System.out.println('\n');
@@ -1080,32 +1086,38 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					for (Point pi : agent_points) {
 						System.out.printf("\n%-" + e_cell_width[0] + "s|", pi);
 						c = 1;
-						Map<LinkEntity, IntegerVariable> row = e_vars.get(pi);
+						Map<LinkEntity, IntVar> row = e_vars.get(pi);
 						for (Point pj : redex_points) {
+							IntVar v = findVariable(row.get(pj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + e_cell_width[c++] + "d|",
-									solver.getVar(row.get(pj)).getVal());
+									v.getValue());
 						}
 						for (Handle hj : agent_handles) {
-							if (row.containsKey(hj))
+							if (row.containsKey(hj)) {
+								IntVar v = findVariable(row.get(hj).getName(), 
+										model.getVars()).asIntVar();
 								System.out.printf("%" + e_cell_width[c++]
-										+ "d|", solver.getVar(row.get(hj))
-										.getVal());
-							else
+										+ "d|", v.getValue());
+							} else {
 								System.out.printf("%" + e_cell_width[c++]
 										+ "c|", ' ');
+							}
 						}
 					}
 					for (Handle hi : redex_handles) {
 						System.out.printf("\n%-" + e_cell_width[0] + "s|", hi);
 						c = 1;
-						Map<LinkEntity, IntegerVariable> row = e_vars.get(hi);
+						Map<LinkEntity, IntVar> row = e_vars.get(hi);
 						for (int j = rps; 0 < j; j--) {
 							System.out.printf("%" + e_cell_width[c++] + "c|",
 									' ');
 						}
 						for (Handle hj : agent_handles) {
+							IntVar v = findVariable(row.get(hj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + e_cell_width[c++] + "d|",
-									solver.getVar(row.get(hj)).getVal());
+									v.getValue());
 						}
 					}
 
@@ -1121,10 +1133,12 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					for (Handle hi : redex_handles) {
 						System.out.printf("\n%-" + f_cell_width[0] + "s|", hi);
 						c = 1;
-						Map<Handle, IntegerVariable> row = f_vars.get(hi);
+						Map<Handle, IntVar> row = f_vars.get(hi);
 						for (Handle hj : agent_handles) {
+							IntVar v = findVariable(row.get(hj).getName(), 
+									model.getVars()).asIntVar();
 							System.out.printf("%" + f_cell_width[c++] + "d|",
-									solver.getVar(row.get(hj)).getVal());
+									v.getValue());
 						}
 					}
 					System.out.println('\n');
@@ -1208,9 +1222,11 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					EditableHandle h1 = handle_img.get(o0);
 					if (h1 == null) {
 						// cache miss
-						Map<Handle, IntegerVariable> f_row = f_vars.get(o0);
+						Map<Handle, IntVar> f_row = f_vars.get(o0);
 						for (Handle h : agent_handles) {
-							if (solver.getVar(f_row.get(h)).getVal() == 1) {
+							IntVar var = findVariable(f_row.get(h).getName(),
+									model.getVars()).asIntVar();
+							if (var.getValue() == 1) {
 								h1 = h.getEditable();
 								break;
 							}
@@ -1239,9 +1255,11 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						EditableHandle h1 = handle_img.get(h0);
 						if (h1 == null) {
 							// cache miss
-							Map<Handle, IntegerVariable> f_row = f_vars.get(h0);
+							Map<Handle, IntVar> f_row = f_vars.get(h0);
 							for (Handle h : agent_handles) {
-								if (solver.getVar(f_row.get(h)).getVal() == 1) {
+								IntVar var = findVariable(f_row.get(h).getName(),
+										model.getVars()).asIntVar();
+								if (var.getValue() == 1) {
 									h1 = h.getEditable();
 									break;
 								}
@@ -1266,10 +1284,12 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 					String name1 = i1.getName();
 					EditableInnerName i2 = new EditableInnerName(name1);
 					EditableHandle h2 = null;
-					Map<LinkEntity, IntegerVariable> row = e_vars.get(i1);
+					Map<LinkEntity, IntVar> row = e_vars.get(i1);
 					EditableHandle h1 = i1.getHandle();
 
-					if (solver.getVar(row.get(h1)).getVal() == 1) {
+					IntVar var = findVariable(row.get(h1).getName(),
+							model.getVars()).asIntVar();
+					if (var.getValue() == 1) {
 						/*
 						 * this inner name bypasses the redex. Checks if the
 						 * handle already has an image in this parameter
@@ -1316,7 +1336,9 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						}
 					} else {
 						for (InnerName i0 : redex.inners.values()) {
-							if (solver.getVar(row.get(i0)).getVal() == 1) {
+							IntVar v = findVariable(row.get(i0).getName(),
+									model.getVars()).asIntVar();
+							if (v.getValue() == 1) {
 								/*
 								 * this port is attached to the redex inner i0.
 								 * Add it as an outer of prm, if it is not
@@ -1375,13 +1397,15 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 						}
 						// enqueue children, if necessary
 						Collection<Child> rcs = new HashSet<>(p1.getChildren());
-						Map<PlaceEntity, IntegerVariable> p_row = p_vars
+						Map<PlaceEntity, IntVar> p_row = p_vars
 								.get(p1);
 						Iterator<Root> ir = unseen_rdx_roots.iterator();
 						while (ir.hasNext()) {
 							Root r0 = ir.next();
 							// make a site for each root whose image is p1
-							if (solver.getVar(p_row.get(r0)).getVal() == 1) {
+							IntVar var_tmp = findVariable(p_row.get(r0).getName(),
+									model.getVars()).asIntVar();
+							if (var_tmp.getValue() == 1) {
 								// root_img.put(r0, p1);
 								ir.remove();
 								int k = redex_roots.indexOf(r0);
@@ -1396,9 +1420,10 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 									boolean notMatched = true;
 									while (ic.hasNext()) {
 										Child c1 = ic.next();
-										if (solver.getVar(
-												p_vars.get(c1).get(c0))
-												.getVal() == 1) {
+										IntVar var = findVariable(p_vars.get(c1)
+												.get(c0).getName(),
+												model.getVars()).asIntVar();
+										if (var.getValue() == 1) {
 											notMatched = false;
 											q.add(new VState(rdx, r2, c1, c0));
 											ic.remove();
@@ -1443,8 +1468,10 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								boolean notMatched = true;
 								while (ic.hasNext()) {
 									Child c1 = ic.next();
-									if (solver.getVar(p_vars.get(c1).get(c0))
-											.getVal() == 1) {
+									IntVar var = findVariable(p_vars.get(c1)
+											.get(c0).getName(),
+											model.getVars()).asIntVar();
+									if (var.getValue() == 1) {
 										notMatched = false;
 										q.add(new VState(rdx, n2, c1, c0));
 										ic.remove();
@@ -1483,11 +1510,13 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 								EditablePort p2 = n2.getPort(i);
 
 								EditableHandle h2 = null;
-								Map<LinkEntity, IntegerVariable> row = e_vars
+								Map<LinkEntity, IntVar> row = e_vars
 										.get(p1);
 								EditableHandle h1 = p1.getHandle();
 
-								if (solver.getVar(row.get(h1)).getVal() == 1) {
+								IntVar var = findVariable(row.get(h1).
+										getName(), model.getVars()).asIntVar();
+								if (var.getValue() == 1) {
 									/*
 									 * this port bypasses the redex. Checks if
 									 * the handle already has an image in this
@@ -1537,7 +1566,9 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 									}
 								} else {
 									for (InnerName i0 : redex.inners.values()) {
-										if (solver.getVar(row.get(i0)).getVal() == 1) {
+										IntVar var_tmp = findVariable(row.get(i0).
+												getName(), model.getVars()).asIntVar();
+										if (var_tmp.getValue() == 1) {
 											/*
 											 * this port is attached to the
 											 * redex inner i0. Add it as an

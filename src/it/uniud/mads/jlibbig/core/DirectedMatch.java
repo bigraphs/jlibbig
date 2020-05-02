@@ -1,0 +1,33 @@
+package it.uniud.mads.jlibbig.core;
+
+/**
+ * This interface describe the basic match of a local directed bigraph in 
+ * another one. In particular, a match of a bigraph R in G is a triple <C,R,P>
+ * yielding G when composed. The bigraphs C, R, and P are called Context, Redex
+ * and Prameter of the match respectively.
+ * 
+ * @param <A>
+ *            the kind of bigraph the match belongs.
+ */
+public interface DirectedMatch<A extends DirectedBigraph<?>> {
+	/**
+	 * The match context.
+	 * 
+	 * @return a bigraph representing the context of this match.
+	 */
+	A getContext();
+
+	/**
+	 * The match redex.
+	 * 
+	 * @return a bigraph representing the redex of this match.
+	 */
+	A getRedex();
+
+	/**
+	 * The parameter of the match.
+	 * 
+	 * @return a bigraph representing the parameter of this match.
+	 */
+	A getParam();
+}
