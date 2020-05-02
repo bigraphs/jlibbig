@@ -53,7 +53,7 @@ We adopt a three stages numbering a.b.c where c is reserved for hot-fixes and sh
 Checklist:
 1. branch from develop;
 2. must merge back into both master and develop;
-3. follow namining conventions;
+3. follow naming conventions;
 4. commit to master must be tagged with the version.
 
 ### Feature branches
@@ -66,7 +66,7 @@ Checklist:
 Checklist:
 1. branch from master;
 2. must merge back into both master and develop;
-3. follow namining conventions;
+3. follow naming conventions;
 4. commit to master must be tagged with the version.
 
 ## External dependencies
