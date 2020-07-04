@@ -14,7 +14,7 @@ import it.uniud.mads.jlibbig.core.attachedProperties.*;
  * is applied) of the rule's redex with the rule's reactum. Redex and reactum of
  * a rewriting rule are described by means of two bigraphs ({@link #getRedex()}
  * and {@link #getReactum()}). Occurrences are described by matches (cf.
- * {@link DirectedMatch}) i.e. triples like <C,F,P> where F is the juxtaposition
+ * {@link DirectedMatch}) i.e. triples like &lt;C,F,P&gt; where F is the juxtaposition
  * of is the redex occurrence R and some suitable identity. Then R is replaced
  * by the reactum R' and the parameter P is instantiated to P' in order to match
  * R' inner interface. Parameter instantiation is handled by instantiation rule
@@ -32,7 +32,7 @@ import it.uniud.mads.jlibbig.core.attachedProperties.*;
  * inheriting the method
  * {@link #instantiateReactumNode}.
  * 
- * @see AgentRewritingRule
+ * //@see AgentRewritingRule
  */
 public class DirectedRewritingRule implements 
 		it.uniud.mads.jlibbig.core.DirectedRewritingRule<DirectedBigraph, DirectedBigraph> {

@@ -6,7 +6,7 @@ package it.uniud.mads.jlibbig.core;
  * is applied) of the rule's redex with the rule's reactum. Redex and reactum of
  * a rewriting rule are described by means of two bigraphs ({@link #getRedex()}
  * and {@link #getReactum()} ). Occurrences are described by matches (cf.
- * {@link Match}) i.e. triples like <C,R,P> where R is the redex occurrence and
+ * {@link Match}) i.e. triples like &lt;C,R,P&gt; where R is the redex occurrence and
  * the bigraph P is the parameter. Then R is replaced by the reactum R' and P is
  * instantiated to P' in order to match R' inner interface. Parameter
  * instantiation is handled by instantiation rule returned by
