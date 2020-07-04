@@ -14,7 +14,7 @@ public abstract class AbstractNamed implements Named {
 	/**
 	 * Use an automatically generated name.
 	 * 
-	 * @see #generateName()
+	 * //@see #generateName()
 	 */
 	protected AbstractNamed() {
 		this(NameGenerator.DEFAULT.generate());

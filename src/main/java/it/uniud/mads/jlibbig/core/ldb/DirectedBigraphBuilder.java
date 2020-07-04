@@ -1072,7 +1072,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * Roots and sites of the bigraph will precede those of the bigraphbuilder
      * in the resulting bigraphbuilder.
      *
@@ -1083,7 +1083,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * Roots and sites of the bigraph will precede those of the bigraphbuilder
      * in the resulting bigraphbuilder.
      *
@@ -1142,7 +1142,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * Roots and sites of the bigraphbuilder will precede those of the bigraph
      * in the resulting bigraphbuilder.
      *
@@ -1153,7 +1153,7 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * Roots and sites of the bigraphbuilder will precede those of the bigraph
      * in the resulting bigraphbuilder.
      *
@@ -1400,10 +1400,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose bigraph in input with the current bigraphbuilder. <br />
+     * Juxtapose bigraph in input with the current bigraphbuilder.
      * ParallelProduct, differently from the normal juxtapose, doesn't need
      * disjoint sets of outernames for the two bigraphs. Common outernames will
-     * be merged. <br />
+     * be merged.
      * Roots and sites of the bigraph will precede those of the bigraphbuilder
      * in the resulting bigraphbuilder.
      *
@@ -1414,10 +1414,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose bigraph in input with the current bigraphbuilder. <br />
+     * Juxtapose bigraph in input with the current bigraphbuilder.
      * ParallelProduct, differently from the normal juxtapose, doesn't need
      * disjoint sets of outernames for the two bigraphs. Common outernames will
-     * be merged. <br />
+     * be merged.
      * Roots and sites of the bigraph will precede those of the bigraphbuilder
      * in the resulting bigraphbuilder.
      *
@@ -1501,11 +1501,11 @@ final public class DirectedBigraphBuilder implements
     // /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * ParallelProduct, differently from the normal juxtapose, doesn't need
      * disjoint sets of outernames for the two bigraphs. Common outernames will
-     * be merged. <br />
-     * Roots and sites of the bigraphbuilder will precede those of the bigraph
+     * be merged.
+     *  Roots and sites of the bigraphbuilder will precede those of the bigraph
      * in the resulting bigraphbuilder.
      *
      * @param graph bigraph that will be juxtaposed.
@@ -1515,10 +1515,10 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br/>
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * ParallelProduct, differently from the normal juxtapose, doesn't need
      * disjoint sets of outernames for the two bigraphs. Common outernames will
-     * be merged. <br/>
+     * be merged.
      * Roots and sites of the bigraphbuilder will precede those of the bigraph
      * in the resulting bigraphbuilder.
      *
@@ -1603,9 +1603,9 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose bigraph in input with the current bigraphbuilder. <br />
+     * Juxtapose bigraph in input with the current bigraphbuilder.
      * Perform then {@link DirectedBigraphBuilder#merge()} on the resulting
-     * bigraphbuilder. <br />
+     * bigraphbuilder.
      * Sites of the bigraph will precede those of the bigraphbuilder in the
      * resulting bigraphbuilder.
      *
@@ -1616,9 +1616,9 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose bigraph in input with the current bigraphbuilder. <br />
+     * Juxtapose bigraph in input with the current bigraphbuilder.
      * Perform then {@link DirectedBigraphBuilder#merge()} on the resulting
-     * bigraphbuilder. <br />
+     * bigraphbuilder.
      * Sites of the bigraph will precede those of the bigraphbuilder in the
      * resulting bigraphbuilder.
      *
@@ -1631,9 +1631,9 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * Perform then {@link DirectedBigraphBuilder#merge()} on the resulting
-     * bigraphbuilder. <br />
+     * bigraphbuilder.
      * Sites of the bigraphbuilder will precede those of the bigraph in the
      * resulting bigraphbuilder.
      *
@@ -1644,9 +1644,9 @@ final public class DirectedBigraphBuilder implements
     }
 
     /**
-     * Juxtapose the current bigraphbuilder with the bigraph in input. <br />
+     * Juxtapose the current bigraphbuilder with the bigraph in input.
      * Perform then {@link DirectedBigraphBuilder#merge()} on the resulting
-     * bigraphbuilder. <br />
+     * bigraphbuilder.
      * Sites of the bigraphbuilder will precede those of the bigraph in the
      * resulting bigraphbuilder.
      *
