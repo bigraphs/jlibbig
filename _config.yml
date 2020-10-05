@@ -1,0 +1,26 @@
+plugins:
+  - "jekyll-commonmark"
+  - "jekyll-scholar"
+exclude:
+  - .jekyll-cache
+markdown: CommonMark
+incremental: false
+use-assets-cdn: true
+sass:
+  sass_dir: _sass
+  style: compressed
+  sourcemap: never
+
+url: "https://bigraphs.github.io"
+baseurl: "/jlibbig"
+title: "jLibBig"
+timezone: Europe/Rome
+encoding: utf-8
+lang: en
+google_analytics: "G-8KP513LJEV"
+keywords: 
+  - bigraphs
+  - "bigraphical reactive systems"
+  - BRS
+  - "graph rewriting"
+  - "graph transformation"
