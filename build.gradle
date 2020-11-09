@@ -14,6 +14,8 @@ repositories {
 dependencies {
     implementation 'org.choco-solver:choco-solver:4.10.2'
     testImplementation 'junit:junit:4.12'
+
+    compile group: 'org.json', name: 'json', version: '20190722'
 }
 
 def jarOutputFolder = "dist"
