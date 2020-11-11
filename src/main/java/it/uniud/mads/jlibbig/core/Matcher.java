@@ -2,7 +2,7 @@ package it.uniud.mads.jlibbig.core;
 
 /**
  * Provides services for computing the matches of a bigraph (sometimes called redex) 
- * into an other. In particular, a match of a bigraph R in G is a triple <C,R,P> 
+ * into an other. In particular, a match of a bigraph R in G is a triple &lt;C,R,P&gt;
  * yielding G when composed. The bigraphs C, R, and P are called Context, Redex and Prameter of
  * the match respectively. Matches are described by implementations of {@link Match}.
  * 

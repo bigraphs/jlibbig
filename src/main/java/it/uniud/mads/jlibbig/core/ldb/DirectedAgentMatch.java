@@ -9,13 +9,13 @@ import java.util.*;
  * abstract internal names where the bigraph where the redex has to be matched is ground
  * (its inner interface is empty, hence it is an agent) whereas
  * the redex can be any bigraph over the same signature. Matches are triples
- * <C,R,P> of bigraphs over the same signature such that they can be composed in
+ * &lt;C,R,P&gt; of bigraphs over the same signature such that they can be composed in
  * the ground bigraph C;R;P. The three components are called Context, Redex and
  * Parameter respectively.
  * 
  * Given two bigraphs F and G (over the same signature), a match of F in G is a
- * triple <C,R,P> such that their composition C;R;P yields G as for
- * {@link it.uniud.mads.jlibbig.core.Match}. Like {@link Match} the redex
+ * triple &lt;C,R,P&gt; such that their composition C;R;P yields G as for
+ * {@link it.uniud.mads.jlibbig.core.Match}. Like {@link it.uniud.mads.jlibbig.core.Match} the redex
  * R is the juxtaposition of F and a suitable identity; these are called the
  * redex image and the redex id respectively. Moreover, the parameter P is given
  * in discrete normal form as the composition of a wiring described

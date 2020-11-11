@@ -2,7 +2,7 @@ package it.uniud.mads.jlibbig.core;
 
 /**
  * This interface describe the basic match of a local directed bigraph in 
- * another one. In particular, a match of a bigraph R in G is a triple <C,R,P>
+ * another one. In particular, a match of a bigraph R in G is a triple &lt; C,R,P &gt;
  * yielding G when composed. The bigraphs C, R, and P are called Context, Redex
  * and Prameter of the match respectively.
  * 
