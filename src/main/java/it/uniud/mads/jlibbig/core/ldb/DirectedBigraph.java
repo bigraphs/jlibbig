@@ -28,7 +28,7 @@ final public class DirectedBigraph implements
 
     static final Collection<Parent> EMPTY_ANCS_LST = Collections.unmodifiableList(Collections.emptyList());
     private final static boolean DEBUG_CONSISTENCY_CHECK = Boolean.getBoolean("it.uniud.mads.jlibbig.consistency")
-            || Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphops");
+            || Boolean.getBoolean("it.uniud.mads.jlibbig.consistency.bigraphps");
     private static final Comparator<DirectedControl> controlComparator = new Comparator<DirectedControl>() {
         @Override
         public int compare(DirectedControl o1, DirectedControl o2) {
