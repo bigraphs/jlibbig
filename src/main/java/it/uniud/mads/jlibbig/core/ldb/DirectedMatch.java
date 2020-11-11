@@ -4,12 +4,12 @@ import it.uniud.mads.jlibbig.core.util.BidMap;
 
 /**
  * Objects created from this class are matches for directed local bigraphs with
- * abstract internal names. Such matches are triples <C,R,P> of bigraphs over 
+ * abstract internal names. Such matches are triples &lt;C,R,P&gt; of bigraphs over
  * the same signature such that they can be composed in the bigraph C;R;P. The 
  * three components are called Context, Redex and Parameter respectively.
  * 
  * Given two local directed bigraphs F and G (over the same signature), a match
- * of F in G is a triple <C,R,P> such that their composition C;R;P yields G as 
+ * of F in G is a triple &lt;C,R,P&gt; such that their composition C;R;P yields G as
  * for {@link it.uniud.mads.jlibbig.core.Match}. Furthermore, the redex R is the
  * juxtaposition of F and a suitable identity; these are called the redex image
  * and the redex id respectively.
