@@ -1,5 +1,42 @@
 @import "bootstrap/bootstrap";
 
+pre.wrap {
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+ol.bibliography {
+  list-style-type: none;
+  padding-left: 0; 
+}
+
+ol.bibliography > li {
+    position: relative; 
+}
+
+.link-nodec {
+  & {
+    font-style: inherit;
+    color: inherit;
+    background-color: transparent;
+    font-size: inherit;
+    text-decoration: none;
+    font-variant: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    font-family: inherit;
+    border-radius: inherit;
+    border: inherit;
+    outline: inherit;
+    box-shadow: inherit;
+    padding: inherit;
+    vertical-align: inherit;
+  }
+}
+
 :root {
   --jumbotron-padding-y: 1rem;
 }

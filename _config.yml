@@ -1,16 +1,26 @@
-plugins:
-  - "jekyll-commonmark"
-  - "jekyll-scholar"
 exclude:
   - .jekyll-cache
-markdown: CommonMark
 incremental: false
 use-assets-cdn: true
 sass:
   sass_dir: _sass
   style: compressed
   sourcemap: never
-
+scholar:
+  style: /_bibliography/acm-short.csl
+  locale: en
+  sort_by: year,authors,title
+  order: descending
+  bibtex_filters: 
+    - latex
+    - smallcaps
+    - superscript
+  bibtex_skip_fields: 
+    - abstract
+    - groups
+    - report
+    - type
+  bibliography_template: bib_reference
 url: "https://bigraphs.github.io"
 baseurl: "/jlibbig"
 title: "jLibBig"

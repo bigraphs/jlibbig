@@ -1,0 +1,8 @@
+- name: "University of Udine"
+  lead: "Department of Mathematics, Computer Science, and Physics"
+  logo: "uniud-logo.png"
+  link: "https://www.dmif.uniud.it/"
+- name: "University of Southern Denmark"
+  lead: "Department of Mathematics and Computer Science"
+  logo: "sdu-logo.png"
+  link: "https://www.sdu.dk/en/om_sdu/institutter_centre/imada_matematik_og_datalogi"

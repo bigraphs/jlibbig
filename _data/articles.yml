@@ -1,0 +1,107 @@
+# - key:
+#   reference: |
+#   bibtex: |
+#   abstract: |
+#   url: 
+#   doi: 
+#   report: 
+
+- key: CMP20
+  reference: |
+    Chiapperini, A., Miculan, M. and Peressotti, M. 2020. Computing Embeddings of Directed Bigraphs. Graph Transformation - 13th International Conference, ICGT 2020, Held as Part of STAF 2020, Bergen, Norway, June 25-26, 2020, Proceedings (2020), 38–56.
+  bibtex: | 
+    @inproceedings{CMP20,
+      author    = {Alessio Chiapperini and Marino Miculan and Marco Peressotti},
+      editor    = {Fabio Gadducci and Timo Kehrer},
+      title     = {Computing Embeddings of Directed Bigraphs},
+      booktitle = {Graph Transformation - 13th International Conference, {ICGT} 2020, Held as Part of {STAF} 2020, Bergen, Norway, June 25-26, 2020, Proceedings},
+      series    = {Lecture Notes in Computer Science},
+      volume    = {12150},
+      pages     = {38--56},
+      publisher = {Springer},
+      year      = {2020},
+      url       = {https://doi.org/10.1007/978-3-030-51372-6\_3},
+      doi       = {10.1007/978-3-030-51372-6\_3}
+    }
+  abstract: |
+    Directed bigraphs are a meta-model which generalises Milner's bigraphs by taking into account the request flow between controls and names. A key problem about these bigraphs is that of bigraph embedding, i.e., finding the embeddings of a bigraph inside a larger one.  We present an algorithm for computing embeddings of directed bigraphs, via a reduction to a constraint satisfaction problem.  We prove soundness and completeness of this algorithm, and provide an implementation in jLibBig, a general Java library for manipulating bigraphical reactive systems, together with some experimental results.
+  url: https://doi.org/10.1007/978-3-030-51372-6_3
+  doi: 10.1007/978-3-030-51372-6_3
+  report: http://arxiv.org/abs/2003.10209
+
+- key: BMP20
+  reference: |
+    Burco, F., Miculan, M. and Peressotti, M. 2020. Towards a Formal Model for Composable Container Systems. Proceedings of the 35rd Annual ACM Symposium on Applied Computing, SAC 2020, Brno, Czech Republic, March 29-April 03, 2020 (2020), 173–175.
+  bibtex: |
+    @inproceedings{BMP20,
+      author    = {Fabio Burco and Marino Miculan and Marco Peressotti},
+      title     = {Towards a Formal Model for Composable Container Systems},
+      booktitle = {Proceedings of the 35rd Annual {ACM} Symposium on Applied Computing, {SAC} 2020, Brno, Czech Republic, March 29-April 03, 2020},
+      pages     = {173--175},
+      publisher = {{ACM}},
+      year      = {2020},
+      url       = {https://doi.org/10.1145/3341105.3374121},
+      doi       = {10.1145/3341105.3374121}
+    }
+  abstract: |
+    In modern cloud-based architectures, containers play a central role: they provide powerful isolation mechanisms such that developers can focus on the logic and dependencies of applications while system administrators can focus on deployment and management issue.  In this work, we propose a formal model for container-based systems, using the framework of Bigraphical Reactive Systems (BRSs).  We first introduce <i>local directed bigraphs</i>, a graph-based formalism which allows us to deal with localized resources.  Then, we define a signature for modelling containers and provide some examples of bigraphs modelling containers.  These graphs can be analysed and manipulated using techniques from graph theory: properties about containers can be formalized as properties of the corresponding bigraphic representations.  Moreover, it turns out that the composition of containers as performed by e.g. docker-compose, corresponds precisely to the composition of the corresponding bigraphs inside an ``environment bigraph'' which in turn is obtained directly from the YAML file used to define the composition of containers.
+  url: https://doi.org/10.1145/3341105.3374121
+  doi: 10.1145/3341105.3374121
+  report: https://arxiv.org/abs/1912.01107
+
+- key: MMP14b
+  reference: |
+    Mansutti, A., Miculan, M. and Peressotti, M. 2014. Distributed execution of bigraphical reactive systems. Electronic Communications of the EASST. 71, (2014).
+  bibtex: |
+    @article{MMP14b,
+      author    = {Alessio Mansutti and Marino Miculan and Marco Peressotti},
+      title     = {Distributed execution of bigraphical reactive systems},
+      journal   = {{Electronic Communications of the EASST}},
+      volume    = {71},
+      year      = {2014},
+      url       = {https://doi.org/10.14279/tuj.eceasst.71.994},
+      doi       = {10.14279/tuj.eceasst.71.994}
+    }
+  abstract: |
+    The bigraph embedding problem is crucial for many results and tools about bigraphs and bigraphical reactive systems (BRS). Current algorithms for computing bigraphical embeddings are centralized, i.e. designed to run locally with a complete view of the guest and host bigraphs. In order to deal with large bigraphs, and to parallelize reactions, we present a decentralized algorithm, which distributes both state and computation over several concurrent processes. This allows for distributed, parallel simulations where non-interfering reactions can be carried out concurrently; nevertheless, even in the worst case the complexity of this distributed algorithm is no worse than that of a centralized algorithm.
+  url: https://doi.org/10.14279/tuj.eceasst.71.994
+  doi: 10.14279/tuj.eceasst.71.994
+  report: https://arxiv.org/abs/1503.02434
+
+- key: MMP14a
+  reference: |
+    Mansutti, A., Miculan, M. and Peressotti, M. 2014. Towards distributed bigraphical reactive systems. Proc. GCM (2014), 45.
+  bibtex: |
+    @inproceedings{MMP14a,
+      author    = {Alessio Mansutti and Marino Miculan and Marco Peressotti},
+      editor    = {Kostas Magoutis and Peter R. Pietzuch},
+      title     = {Multi-agent Systems Design and Prototyping with Bigraphical Reactive Systems},
+      booktitle = {Distributed Applications and Interoperable Systems - 14th {IFIP} {WG} 6.1 International Conference, {DAIS} 2014, Held as Part of the 9th International Federated Conference on Distributed Computing Techniques, DisCoTec 2014, Berlin, Germany, June 3-5, 2014, Proceedings},
+      series    = {Lecture Notes in Computer Science},
+      volume    = {8460},
+      pages     = {201--208},
+      publisher = {Springer},
+      year      = {2014},
+      url       = {http://dx.doi.org/10.1007/978-3-662-43352-2_16}
+    }
+  abstract: |
+    Several frameworks and methodologies have been proposed to ease the design of Multi Agent Systems (MAS), but the vast majority of them is tightly tied to specific implementation platforms. In this paper, we outline a methodology for MAS design and prototyping in the more abstract framework of Bigraphical Reactive Systems (BRS). In our approach, components and elements of the application domain are modelled as bigraphs, and their dynamics as graph rewriting rules. Desiderata can be encoded by means of type systems or logical formulae. Then, the BDI agents (i.e., their beliefs, desires and intentions) are identified and extracted from the BRS. This yield a prototype which can be run as distributed bigraphical system, evolving by means of distributed transactional rewritings triggered by cooperating agents depending on their internal intentions and beliefs. <br/> This methodology allows the designer to benefit from the results and tools from the theory of BRS, especially in the requirement analysis and validation phases. Among other results, we mention behavioural equivalences, temporal/spatial logics, visual tools for editing, for simulation and for model checking, etc. Moreover, bigraphs can be naturally composed, thus allowing for modular design of MAS.
+  doi: 10.1007/978-3-662-43352-2_16
+
+- key: MP14
+  reference: |
+    Miculan, M. and Peressotti, M. 2014. A CSP implementation of the bigraph embedding problem. CoRR. abs/1412.1042, (2014).
+  bibtex: |
+    @article{MP14,
+      author    = {Marino Miculan and Marco Peressotti},
+      title     = {A {CSP} implementation of the bigraph embedding problem},
+      journal   = {CoRR},
+      volume    = {abs/1412.1042},
+      year      = {2014},
+      url       = {http://arxiv.org/abs/1412.1042},
+      archivePrefix = {arXiv},
+      eprint    = {1412.1042}
+    }
+  abstract: |
+    A crucial problem for many results and tools about bigraphs and bigraphical reactive systems is bigraph embedding. An embedding is more informative than a bigraph matching, since it keeps track of the correspondence between the various components of the redex (guest) within the agent (host). In this paper, we present an algorithm for computing embeddings based on a reduction to a constraint satisfaction problem. This algorithm, that we prove to be sound and complete, has been successfully implemented in LibBig, a library for manipulating bigraphical reactive systems. This library can be used for implementing a wide range of tools, and it can be adapted to various extensions of bigraphs. 
+  url: http://arxiv.org/abs/1412.1042

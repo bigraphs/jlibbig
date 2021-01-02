@@ -1,0 +1,34 @@
+- name: "Andrea Altarui"
+  organisation:
+    name: "University of Udine"
+    link: "https://dimf.uniud.it"
+  github: "DarkHelmet28"
+- name: "Fabio Bruco"
+  organisation:
+    name: "University of Udine"
+    link: "https://dimf.uniud.it"
+  github: "fabioburco"
+- name: "Alessio Chiapperini"
+  organisation:
+    name: "University of Udine"
+    link: "https://dimf.uniud.it"
+  github: "spodernet"
+- name: "Alessio Mansutti"
+  organisation:
+    name: "University of Udine"
+    link: "https://dimf.uniud.it"
+  github: "AlessioMansutti"
+- name: "Marino Miculan"
+  organisation:
+    name: "University of Udine"
+    link: "https://dmif.uniud.it"
+  homepage: "http://marino.miculan.org/"
+  github: "miculan"
+  twitter: "oniramix"
+- name: "Marco Peressotti"
+  avatar: "https://avatars3.githubusercontent.com/u/28252016?s=460&u=360f69449bc3380962302d9de8959a382db24bb6&v=4"
+  organisation:
+    name: "University of Southern Denmark"
+    link: "https://sdu.dk"
+  github: "mperessotti"
+  homepage: "https://marcoperessotti.com/"
