@@ -943,13 +943,12 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 			}
 
 			private void fetchSolution() {
-				boolean first = firstRun;
 				firstRun = false;
 				if (DEBUG_PRINT_SOLUTION_FETCH)
 					System.out.println("fetch solution has been invoked...");
 				// look for a solution for the CSP
-				if ((first && !solver.solve())
-						|| (!first && !solver.solve())) {
+				boolean hasSolution = solver.solve();
+				if (!hasSolution) {
 					if (DEBUG_PRINT_SOLUTION_FETCH)
 						System.out
 								.println("...but no more solutions where found.");
