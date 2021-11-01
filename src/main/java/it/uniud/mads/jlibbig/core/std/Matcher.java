@@ -811,13 +811,15 @@ public class Matcher implements it.uniud.mads.jlibbig.core.Matcher<Bigraph, Bigr
 				}
 				// 9 // embeddings are injective w.r.t edges
 				{
-					IntVar[] vars = new IntVar[redex_edges.size()];
-					for (Handle ha : agent_handles) {
-						int k = 0;
-						for (Handle hr : redex_edges) {
-							vars[k++] = f_vars.get(hr).get(ha);
+					if(redex_edges.size() > 0) {
+						IntVar[] vars = new IntVar[redex_edges.size()];
+						for (Handle ha : agent_handles) {
+							int k = 0;
+							for (Handle hr : redex_edges) {
+								vars[k++] = f_vars.get(hr).get(ha);
+							}
+							model.sum(vars, "<=", 1).post();
 						}
-						model.sum(vars, "<=", 1).post();
 					}
 				}
 				// 10 // points of handles mapped to redex edges can not bypass
