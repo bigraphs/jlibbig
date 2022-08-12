@@ -6,6 +6,26 @@
 #   doi: 
 #   report: 
 
+- key: CMP22
+  reference: |
+    Chiapperini, A., Miculan, M. and Peressotti, M. 2020. Computing (Optimal) Embeddings of Directed Bigraphs. Science of Computer Programming. 221, (2022), 102842.
+  bibtex: | 
+    @article{CMP22,
+      title = {Computing (Optimal) Embeddings of Directed Bigraphs},
+      author = {Chiapperini, Alessio and Miculan, Marino and Peressotti, Marco},
+      journal = {Science of Computer Programming},
+      volume = {221},
+      pages = {102842},
+      year = {2022},
+      issn = {0167-6423},
+      doi = {10.1016/j.scico.2022.102842},
+      url = {https://www.sciencedirect.com/science/article/pii/S0167642322000752}
+    }
+  abstract: |
+    Bigraphs and bigraphical reactive systems are a well-known meta-model successfully used for formalizing a wide range of models and situations, such as process calculi, service oriented architectures, multi-agent systems, biological systems, etc.. A key problem in both the theory and the implementations of bigraphs is how to compute embeddings, i.e., structure-preserving mappings of a given bigraph (the pattern or guest) inside another (the target or host). In this paper, we present an algorithm for computing embeddings for directed bigraphs, an extension of Milner’s bigraphs which take into account the request directions between controls and names. This algorithm solves the embedding problem by means of a reduction to a constraint satisfaction problem. We first prove soundness and completeness of this algorithm; then we present an implementation in jLibBig, a general Java library for manipulating bigraphical reactive systems. The effectiveness of this implementation is shown by several experimental results. Finally, we show that this algorithm can be readily adapted to find the optimal embeddings in a weighted variant of the embedding problem.
+  url: https://www.sciencedirect.com/science/article/pii/S0167642322000752
+  doi: 10.1016/j.scico.2022.102842
+
 - key: CMP20
   reference: |
     Chiapperini, A., Miculan, M. and Peressotti, M. 2020. Computing Embeddings of Directed Bigraphs. Graph Transformation - 13th International Conference, ICGT 2020, Held as Part of STAF 2020, Bergen, Norway, June 25-26, 2020, Proceedings (2020), 38–56.
