@@ -8,7 +8,7 @@
 
 - key: CMP22
   reference: |
-    Chiapperini, A., Miculan, M. and Peressotti, M. 2020. Computing (Optimal) Embeddings of Directed Bigraphs. Science of Computer Programming. 221, (2022), 102842.
+    Chiapperini, A., Miculan, M. and Peressotti, M. 2022. Computing (Optimal) Embeddings of Directed Bigraphs. Science of Computer Programming. 221, (2022), 102842.
   bibtex: | 
     @article{CMP22,
       title = {Computing (Optimal) Embeddings of Directed Bigraphs},
